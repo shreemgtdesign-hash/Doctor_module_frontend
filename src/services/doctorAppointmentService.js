@@ -1,0 +1,276 @@
+import {
+  getMonthlySummary,
+  getScheduleOverview,
+  getTodaySchedule,
+  getAppointments,
+  getPatientProfile,
+  getPatientWellness,
+  getChiefComplaints,
+  updateChiefComplaints,
+  getDiagnosis,
+  updateDiagnosis,
+  getAssociateDoctors,
+  addAssociateDoctor,
+  searchPrescriptionProducts,
+  getPrescription,
+  createPrescription,
+  updatePrescriptionNotes,
+  updatePatientAllergies,
+  addTherapy,
+  getTherapies,
+  searchTherapies,
+  updateTherapy,
+
+} from "../api/doctorAppointmentApi";
+
+export const fetchDashboard = async (doctorId, period) => {
+  const [summary, overview, schedule] = await Promise.all([
+    getMonthlySummary(doctorId),
+    getScheduleOverview(doctorId, period),
+    getTodaySchedule(doctorId),
+  ]);
+
+  return {
+    summary: summary.data.data,
+    overview: overview.data.data,
+    schedule: schedule.data.data,
+  };
+};
+
+export const fetchAppointments = async (
+  doctorId,
+  date,
+  status = ""
+) => {
+  const response = await getAppointments(
+    doctorId,
+    date,
+    status
+  );
+
+  return response.data.data;
+};
+
+export const fetchPatientProfile = async (
+  patientId
+) => {
+  const response = await getPatientProfile(patientId);
+
+  return response.data.data;
+};
+
+export const fetchPatientWellness = async (
+  patientId
+) => {
+  const response = await getPatientWellness(patientId);
+
+  return response.data.data;
+};
+
+export const fetchPatientDetails = async (
+  patientId
+) => {
+  const [profile, wellness] = await Promise.all([
+    getPatientProfile(patientId),
+    getPatientWellness(patientId),
+  ]);
+
+  return {
+    profile: profile.data.data,
+    wellness: wellness.data.data,
+  };
+};
+
+
+export const fetchChiefComplaints = async (
+  appointmentId
+) => {
+  const response =
+    await getChiefComplaints(appointmentId);
+
+  return response.data.data;
+};
+
+export const saveChiefComplaints = async (
+  appointmentId,
+  payload
+) => {
+  const response =
+    await updateChiefComplaints(
+      appointmentId,
+      payload
+    );
+
+  return response.data;
+};
+
+export const fetchDiagnosis = async (appointmentId) => {
+  const response = await getDiagnosis(appointmentId);
+  return response.data.data;
+};
+
+export const saveDiagnosis = async (
+  appointmentId,
+  payload
+) => {
+  const response = await updateDiagnosis(
+    appointmentId,
+    payload
+  );
+
+  return response.data;
+};
+
+export const fetchAssociateDoctors = async (
+  appointmentId
+) => {
+  const response = await getAssociateDoctors(
+    appointmentId
+  );
+
+  return response.data.data;
+};
+
+export const createAssociateDoctor = async (
+  appointmentId,
+  payload
+) => {
+  const response = await addAssociateDoctor(
+    appointmentId,
+    payload
+  );
+
+  return response.data;
+};
+
+// ============================
+// Search Medicines
+// ============================
+
+export const fetchPrescriptionProducts = async (
+  search
+) => {
+  const response =
+    await searchPrescriptionProducts(search);
+
+  return response.data.data;
+};
+
+// ============================
+// Get Prescription
+// ============================
+
+export const fetchPrescription = async (consultationId) => {
+  try {
+    const response = await getPrescription(consultationId);
+
+    console.log("✅ Prescription:", consultationId, response.data);
+
+    return response.data.data;
+  } catch (error) {
+    console.log("❌ Prescription Error:", consultationId, error.response);
+
+    throw error;
+  }
+};
+
+// ============================
+// Save Prescription
+// ============================
+
+export const savePrescription =
+  async (payload) => {
+    const response =
+      await createPrescription(
+        payload
+      );
+
+    return response.data;
+  };
+
+// ============================
+// Save Notes
+// ============================
+
+export const savePrescriptionNotes =
+  async (
+    consultationId,
+    payload
+  ) => {
+    const response =
+      await updatePrescriptionNotes(
+        consultationId,
+        payload
+      );
+
+    return response.data;
+  };
+
+// ============================
+// Save Allergies
+// ============================
+
+export const savePatientAllergies =
+  async (
+    patient_d,
+    payload
+  ) => {
+    const response =
+      await updatePatientAllergies(
+        patient_d,
+        payload
+      );
+
+    return response.data;
+  };
+
+
+  // ============================
+// Search Therapies
+// ============================
+
+export const fetchTherapiesSearch = async (search) => {
+  const response = await searchTherapies(search);
+  return response.data.data;
+};
+
+// ============================
+// Load Therapies
+// ============================
+
+export const fetchTherapies = async (appointmentId) => {
+  const response = await getTherapies(appointmentId);
+  return response.data.data;
+};
+
+// ============================
+// Add Therapy
+// ============================
+
+export const saveTherapy = async (
+  appointmentId,
+  payload
+) => {
+  const response = await addTherapy(
+    appointmentId,
+    payload
+  );
+
+  return response.data;
+};
+
+// ============================
+// Update Therapy
+// ============================
+
+export const editTherapy = async (
+  therapyId,
+  payload
+) => {
+  const response = await updateTherapy(
+    therapyId,
+    payload
+  );
+
+  return response.data;
+};
