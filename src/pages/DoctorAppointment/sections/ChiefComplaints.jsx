@@ -7,6 +7,7 @@ import {
     HiOutlinePencilSquare,
     HiOutlineArchiveBox,
     HiOutlineArrowRightOnRectangle,
+    HiOutlineArrowLeft,
 } from "react-icons/hi2";
 import {
     loadChiefComplaints,
@@ -28,7 +29,7 @@ const symptoms = [
     "Weakness",
 ];
 
-const ChiefComplaints = ({ appointmentId }) => {
+const ChiefComplaints = ({ appointmentId, setActiveSection }) => {
     const dispatch = useDispatch();
 
     const { chiefComplaints, loading } = useSelector(
@@ -39,6 +40,11 @@ const ChiefComplaints = ({ appointmentId }) => {
     const [selectedSymptoms, setSelectedSymptoms] = useState([]);
     const [notes, setNotes] = useState("");
 
+    const filteredSymptoms = symptoms.filter(
+  (item) =>
+    item.toLowerCase().includes(search.toLowerCase()) &&
+    !selectedSymptoms.includes(item)
+);
     useEffect(() => {
         if (appointmentId) {
             dispatch(loadChiefComplaints(appointmentId));
@@ -89,52 +95,43 @@ const ChiefComplaints = ({ appointmentId }) => {
 
   {/* Search */}
 
-  <div className="relative mt-8">
-    <HiOutlineMagnifyingGlass
-      className="absolute left-5 top-1/2 -translate-y-1/2 text-[#5B3428]"
-      size={22}
-    />
+<div className="relative mt-8">
+  <HiOutlineMagnifyingGlass
+    className="absolute left-5 top-1/2 -translate-y-1/2 text-[#5B3428]"
+    size={22}
+  />
 
-    <input
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-      placeholder="Search by complaints"
-      className="h-16 w-full rounded-[22px] border border-[#D9C8BE] bg-white pl-14 pr-14 text-lg text-[#4D2E23] outline-none placeholder:text-[#8F8F8F]"
-    />
+  <input
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    placeholder="Search by complaints"
+    className="h-16 w-full rounded-[22px] border border-[#D9C8BE] bg-white pl-14 pr-14 text-lg text-[#4D2E23] outline-none placeholder:text-[#8F8F8F]"
+  />
 
-    <HiOutlineMicrophone
-      className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5B3428]"
-      size={22}
-    />
-  </div>
+  <HiOutlineMicrophone
+    className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5B3428]"
+    size={22}
+  />
 
   {/* Search Suggestions */}
-
-  {search && (
-    <div className="mt-3 flex flex-wrap gap-2">
-      {symptoms
-        .filter(
-          (item) =>
-            item
-              .toLowerCase()
-              .includes(search.toLowerCase()) &&
-            !selectedSymptoms.includes(item)
-        )
-        .map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => {
-              toggleSymptom(item);
-              setSearch("");
-            }}
-            className="rounded-full border border-[#D9C8BE] bg-white px-4 py-2 text-sm font-medium text-[#4D2E23] transition hover:bg-[#FFF3EC]"
-          >
-            {item}
-          </button>
-        ))}
+  {search.trim() && filteredSymptoms.length > 0 && (
+    <div className="absolute left-0 right-0 top-[72px] z-50 max-h-72 overflow-y-auto rounded-[22px] border border-[#E7DBD3] bg-white shadow-2xl">
+      {filteredSymptoms.map((item) => (
+        <button
+          key={item}
+          type="button"
+          onClick={() => {
+            toggleSymptom(item);
+            setSearch("");
+          }}
+          className="flex w-full items-center border-b border-[#F3E8E1] px-5 py-4 text-left text-[17px] font-medium text-[#4D2E23] transition hover:bg-[#FFF3EC] last:border-b-0"
+        >
+          {item}
+        </button>
+      ))}
     </div>
   )}
+</div>
 
   {/* Selected Complaints */}
 
@@ -164,7 +161,7 @@ const ChiefComplaints = ({ appointmentId }) => {
       Complaints Notes
     </label>
 
-    <textarea
+    <textarea 
       rows={5}
       value={notes}
       onChange={(e) => setNotes(e.target.value)}
@@ -200,13 +197,17 @@ const ChiefComplaints = ({ appointmentId }) => {
 
 
 
-  <button
-    type="button"
-    className="mt-10 flex h-16 w-full items-center justify-center gap-3 rounded-[22px] bg-[#8B573D] text-xl font-semibold text-white transition hover:bg-[#764733]"
-  >
-    <HiOutlineArrowRightOnRectangle size={22} />
-    Save and Continue
-  </button>
+ <button
+  type="button"
+  onClick={async () => {
+    await handleSave();
+    setActiveSection("overview");
+  }}
+  className="mt-10 flex h-16 w-full items-center justify-center gap-3 rounded-[22px] bg-[#8B573D] text-xl font-semibold text-white transition hover:bg-[#764733]"
+>
+  <HiOutlineArrowLeft size={22} />
+  Save & Go Back
+</button>
 </div>
     );
 };

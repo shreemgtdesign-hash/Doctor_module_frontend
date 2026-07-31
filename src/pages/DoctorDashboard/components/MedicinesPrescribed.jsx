@@ -4,9 +4,10 @@ import DashboardCard from "../../../components/Dashboard/DashboardCard";
 import DashboardDropdown from "../../../components/Dashboard/DashboardDropdown";
 import StatsCard from "../../../components/Dashboard/StatsCard";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const MedicinesPrescribed = ({period, setPeriod}) => {
- 
+ const navigate = useNavigate();
 
  const medicines = useSelector(
   (state) => state.dashboard.medicines
@@ -15,6 +16,10 @@ const MedicinesPrescribed = ({period, setPeriod}) => {
 console.log("Medicines:", medicines);
 
   return (
+     <div
+      onClick={() => navigate("/doctor/medicines-prescribed")}
+      className="cursor-pointer"
+    >
     <DashboardCard className="px-5 pt-5 pb-3">
       {/* Header */}
 
@@ -92,6 +97,7 @@ console.log("Medicines:", medicines);
 </div>
 
     </DashboardCard>
+    </div>
   );
 };
 

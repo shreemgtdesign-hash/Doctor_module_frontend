@@ -4,15 +4,18 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import DoctorAppointment from "./pages/DoctorAppointment";
 import Login from "./pages/Login";
+import ConsultationHistoryTable from "./pages/DoctorDashboard/components/ConsultationHistorytable";
+import MedicinePrescribedTable from "./pages/DoctorDashboard/components/MedicinePrescribedTable";
+import AilmentsAddressedTable from "./pages/DoctorDashboard/components/AilmentsAddressedTable";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<DoctorDashboard />} />
       <Route
-              path="/login"
-                  element={<Login />}
-       />
+        path="/login"
+        element={<Login />}
+      />
       <Route
         path="/doctor/appointments"
         element={<DoctorAppointment />}
@@ -22,9 +25,25 @@ function App() {
       <Route path="*" element={<Navigate to="/" replace />} />
 
       <Route
-    path="/doctordashboard"
-    element={<DoctorDashboard />}
-/>
+        path="/doctordashboard"
+        element={<DoctorDashboard />}
+      />
+
+      <Route
+        path="/doctor/consultation-history"
+        element={<ConsultationHistoryTable />}
+      />
+
+      <Route
+        path="/doctor/medicines-prescribed"
+        element={<MedicinePrescribedTable />}
+      />
+
+      <Route
+        path="/doctor/ailments-addressed"
+        element={<AilmentsAddressedTable />}
+      />
+
     </Routes>
   );
 }

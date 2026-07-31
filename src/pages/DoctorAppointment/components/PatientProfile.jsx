@@ -58,6 +58,8 @@ const PatientProfile = ({
       {activeSection === "complaints" && (
         <ChiefComplaints
           appointmentId={selectedPatient?.id}
+          setActiveSection={setActiveSection}
+          
         />
       )}
 

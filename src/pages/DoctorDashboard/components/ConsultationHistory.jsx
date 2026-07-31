@@ -4,16 +4,22 @@ import DashboardCard from "../../../components/Dashboard/DashboardCard";
 import DashboardDropdown from "../../../components/Dashboard/DashboardDropdown";
 import StatsCard from "../../../components/Dashboard/StatsCard";
 import { useSelector } from "react-redux";
-
+import { useNavigate } from "react-router-dom";
 const ConsultationHistory = ({period, setPeriod}) => {
-  
+  const navigate = useNavigate();
 
   const consultation = useSelector(
     (state) => state.dashboard.consultation
   );
 
   return (
-    <DashboardCard className="px-5 pt-5 pb-3">
+    <div
+  onClick={() => navigate("/doctor/consultation-history")}
+  className="cursor-pointer"
+>
+    <DashboardCard 
+    
+    className="px-5 pt-5 pb-3">
       {/* Header */}
 
       <div className="flex items-center justify-between">
@@ -93,6 +99,7 @@ const ConsultationHistory = ({period, setPeriod}) => {
       </div>
 
     </DashboardCard>
+    </div>
   );
 };
 
