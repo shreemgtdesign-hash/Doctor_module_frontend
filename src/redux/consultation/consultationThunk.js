@@ -258,12 +258,12 @@ export const addAssociateDoctorThunk =
 
 export const loadTherapies = createAsyncThunk(
   "consultation/loadTherapies",
-  async (appointmentId, thunkAPI) => {
-    try {
-      return await fetchTherapies(appointmentId);
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data);
-    }
+  async (appointmentId) => {
+    const data = await fetchTherapies(appointmentId);
+
+    console.log("Thunk received:", data);
+
+    return data;
   }
 );
 

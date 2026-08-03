@@ -66,18 +66,21 @@ const ChiefComplaints = ({ appointmentId, setActiveSection }) => {
         }
     };
 
-    const handleSave = () => {
-        dispatch(
-            saveChiefComplaintsThunk({
-                appointmentId,
-                payload: {
-                    tags: selectedSymptoms,
-                    notes,
-                },
-            })
-        );
-    };
+  const handleSave = async () => {
+  const payload = {
+    tags: selectedSymptoms,
+    notes,
+  };
 
+  console.log("Saving payload:", payload);
+
+  await dispatch(
+    saveChiefComplaintsThunk({
+      appointmentId,
+      payload,
+    })
+  ).unwrap();
+};
 
     return (
         <div className="mt-6">

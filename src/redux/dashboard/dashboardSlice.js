@@ -1,17 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getDashboard } from "./dashboardThunk";
+import { getDashboard, loadConsultationHistoryList, loadMedicinesPrescribedList } from "./dashboardThunk";
 
 const initialState = {
-  loading: false,
+    loading: false,
 
-  overview: {},
-  schedule: {},
-  consultation: {},
-  ailments: [],
-  therapies: {},
-  medicines: {},
+    overview: {},
+    schedule: {},
+    consultation: {},
+    ailments: [],
+    therapies: {},
+    medicines: {},
+    consultationHistoryList: [],
 
-  error: null,
+    medicinesPrescribedList: [],
+
+    error: null,
 };
 
 const dashboardSlice = createSlice({
@@ -31,26 +34,41 @@ const dashboardSlice = createSlice({
                 state.loading = true;
 
             })
+            .addCase(
+                loadConsultationHistoryList.fulfilled,
+                (state, action) => {
+                    state.consultationHistoryList =
+                        action.payload.history || [];
+                }
+            )
+
+            .addCase(
+                loadMedicinesPrescribedList.fulfilled,
+                (state, action) => {
+                    state.medicinesPrescribedList =
+                        action.payload.prescribed_medicines || [];
+                }
+            )
 
             .addCase(getDashboard.fulfilled, (state, action) => {
-  console.log(action.payload);
+                console.log(action.payload);
 
-  state.loading = false;
+                state.loading = false;
 
-  state.overview = action.payload.overview;
-  state.schedule = action.payload.schedule;
-  state.consultation = action.payload.consultation;
-  state.ailments = action.payload.ailments;
-  state.therapies = action.payload.therapies;
-  state.medicines = action.payload.medicines;
-})
+                state.overview = action.payload.overview;
+                state.schedule = action.payload.schedule;
+                state.consultation = action.payload.consultation;
+                state.ailments = action.payload.ailments;
+                state.therapies = action.payload.therapies;
+                state.medicines = action.payload.medicines;
+            })
 
             .addCase(getDashboard.rejected, (state) => {
 
                 state.loading = false;
 
             });
-            
+
 
 
 

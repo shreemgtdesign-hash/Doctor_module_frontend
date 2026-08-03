@@ -20,6 +20,8 @@ import {
   getTherapies,
   searchTherapies,
   updateTherapy,
+  getConsultationHistoryList,
+  getMedicinesPrescribedList,
 
 } from "../api/doctorAppointmentApi";
 
@@ -161,17 +163,22 @@ export const fetchPrescriptionProducts = async (
 // ============================
 
 export const fetchPrescription = async (consultationId) => {
-  try {
-    const response = await getPrescription(consultationId);
+  const response = await getPrescription(consultationId);
 
-    console.log("✅ Prescription:", consultationId, response.data);
+  const medicines = response.data.data || [];
 
-    return response.data.data;
-  } catch (error) {
-    console.log("❌ Prescription Error:", consultationId, error.response);
-
-    throw error;
-  }
+  return {
+    items: medicines,
+    total: medicines.reduce(
+      (sum, item) =>
+        sum + Number(item.price || 0) * Number(item.quantity || 1),
+      0
+    ),
+    special_instructions:
+      medicines[0]?.special_instructions || "",
+    review_date:
+      medicines[0]?.review_date || "",
+  };
 };
 
 // ============================
@@ -240,6 +247,7 @@ export const fetchTherapiesSearch = async (search) => {
 
 export const fetchTherapies = async (appointmentId) => {
   const response = await getTherapies(appointmentId);
+  console.log("Therapies GET:", response.data);
   return response.data.data;
 };
 
@@ -274,3 +282,35 @@ export const editTherapy = async (
 
   return response.data;
 };
+
+
+// ============================
+// Consultation History List
+// ============================
+
+export const fetchConsultationHistoryList =
+  async (doctorId, period) => {
+    const response =
+      await getConsultationHistoryList(
+        doctorId,
+        period
+      );
+
+    return response.data;
+  };
+
+
+// ============================
+// Medicines Prescribed List
+// ============================
+
+export const fetchMedicinesPrescribedList =
+  async (doctorId, period) => {
+    const response =
+      await getMedicinesPrescribedList(
+        doctorId,
+        period
+      );
+
+    return response.data;
+  };

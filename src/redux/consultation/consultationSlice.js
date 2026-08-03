@@ -187,18 +187,16 @@ const consultationSlice = createSlice({
 })
 
 .addCase(loadPrescription.fulfilled, (state, action) => {
-    state.loading = false;
+  console.log("Prescription payload:", action.payload);
 
-    const data = action.payload || {};
+  const data = action.payload;
 
-    state.prescription = {
-        items: data.items || [],
-        total: data.total || 0,
-        specialInstructions:
-            data.special_instructions || "",
-        reviewDate:
-            data.review_date || "",
-    };
+  state.prescription = {
+    items: data.items || [],
+    total: data.total || 0,
+    specialInstructions: data.special_instructions || "",
+    reviewDate: data.review_date || "",
+  };
 })
 
 .addCase(loadPrescription.rejected, (state) => {
@@ -255,15 +253,15 @@ const consultationSlice = createSlice({
   }
 )
 
-.addCase(
-  loadTherapies.fulfilled,
-  (state, action) => {
-    state.therapy = {
-      items: action.payload.items || [],
-      total: action.payload.total || 0,
-    };
-  }
-)
+.addCase(loadTherapies.fulfilled, (state, action) => {
+  const items = action.payload;
+
+  state.therapy.items = items;
+  state.therapy.total = items.reduce(
+    (sum, item) => sum + Number(item.amount || 0),
+    0
+  );
+})
 
 .addCase(
   saveTherapyThunk.fulfilled,

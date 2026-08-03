@@ -33,10 +33,12 @@ const total = therapy.total;
 const [editing, setEditing] = useState(false);
 const [editableTherapies, setEditableTherapies] = useState([]);
 
-
+console.log(editableTherapies, "editableTherapies");
   
   useEffect(() => {
-  setEditableTherapies(therapy.items || []);
+  console.log("therapy.items changed", therapy.items);
+
+  setEditableTherapies(therapy.items);
 }, [therapy.items]);
 useEffect(() => {
   if (!search.trim()) {
@@ -68,7 +70,14 @@ useEffect(() => {
     amount: Number(therapy.daycare_price),
     notes: "",
   };
+const result = await dispatch(
+  saveTherapyThunk({
+    appointmentId,
+    payload,
+  })
+).unwrap();
 
+console.log("Save Therapy Response:", result);
   await dispatch(
     saveTherapyThunk({
       appointmentId,
@@ -76,8 +85,9 @@ useEffect(() => {
     })
   ).unwrap();
 
+  setTimeout(() => {
   dispatch(loadTherapies(appointmentId));
-
+}, 500);
   setSearch("");
   setShowDropdown(false);
 };
@@ -262,7 +272,7 @@ return (
               <div>
 
                 <h3 className="text-[20px] font-bold text-[#4D2E23]">
-                  {therapy.therapy_name}
+                  {therapy.treatment_name}
                 </h3>
 
                 <p className="mt-2 max-w-xl text-[15px] leading-7 text-[#808080]">

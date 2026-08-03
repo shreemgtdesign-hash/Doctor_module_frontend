@@ -22,6 +22,7 @@ const DoctorAppointment = () => {
 
 
 
+
     useLayoutEffect(() => {
         if (!profileRef.current) return;
 
@@ -67,7 +68,13 @@ const DoctorAppointment = () => {
         }
     }, [dispatch, doctor, period]);
 
-
+    useLayoutEffect(() => {
+        requestAnimationFrame(() => {
+            if (profileRef.current) {
+                setProfileHeight(profileRef.current.offsetHeight);
+            }
+        });
+    }, [activeSection]);
     return (
         <DashboardLayout>
             <div className="min-h-screen bg-[#F7F7F7] p-8">
@@ -84,14 +91,13 @@ const DoctorAppointment = () => {
                         activeSection={activeSection}
                         setActiveSection={setActiveSection}
                     />
-
-                    <div ref={profileRef}>
+                    <div ref={profileRef} className="h-full">
                         <PatientProfile
+
                             activeSection={activeSection}
                             setActiveSection={setActiveSection}
                         />
                     </div>
-
                 </div>
             </div>
         </DashboardLayout>

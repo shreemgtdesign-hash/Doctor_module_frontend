@@ -6,10 +6,12 @@ import {
     HiOutlineMicrophone,
     HiOutlineTrash,
     HiOutlinePencilSquare,
-    HiOutlineCheckCircle,
+
     HiChevronDown,
-    HiOutlineCalendarDays,
+
     HiOutlinePlus,
+    HiOutlineArrowRightOnRectangle,
+    HiOutlineArrowLeft,
 } from "react-icons/hi2";
 
 import {
@@ -46,6 +48,7 @@ const Prescription = ({
     consultationId,
     patientId,
     onContinue,
+    onBack,
 }) => {
 
     const dispatch = useDispatch();
@@ -270,7 +273,7 @@ const Prescription = ({
                 consultation_id: consultationId,
                 items: editableMedicines,
             });
-            
+
             // Save Medicines
             await dispatch(
                 savePrescriptionThunk({
@@ -281,14 +284,14 @@ const Prescription = ({
 
             // Save Notes
             await dispatch(
-  savePrescriptionNotesThunk({
-    consultationId,
-    payload: {
-      special_instructions: specialInstructions,
-      review_date: reviewDate,
-    },
-  })
-).unwrap();
+                savePrescriptionNotesThunk({
+                    consultationId,
+                    payload: {
+                        special_instructions: specialInstructions,
+                        review_date: reviewDate,
+                    },
+                })
+            ).unwrap();
 
             // Save Allergies
             await dispatch(
@@ -1022,9 +1025,9 @@ ${medicine.duration === item
 
                     {patientAllergies.map((item, index) => (
 
-                        <div 
-                        key={`${item.id}`}
-                        className="flex items-center gap-3 rounded-full border border-[#E7DBD3] bg-[#FFF8F4] px-5 py-3">
+                        <div
+                            key={`${item.id}`}
+                            className="flex items-center gap-3 rounded-full border border-[#E7DBD3] bg-[#FFF8F4] px-5 py-3">
 
                             <span className="font-medium">
 
@@ -1057,18 +1060,35 @@ ${medicine.duration === item
 
 
 
-            <button
-                onClick={savePrescription}
-                className="mt-6 flex h-16 w-full items-center justify-center rounded-[22px] bg-[#8A563B] text-[18px] font-semibold text-white transition hover:bg-[#74452E]"
-            >
-                <HiOutlineCheckCircle
-                    className="mr-3"
-                    size={24}
-                />
+            <div className="mt-8 grid grid-cols-2 gap-5">
 
-                {loading ? "Saving..." : "Save Prescription"}
+                {/* Back Button */}
 
-            </button>
+                <button
+                    type="button"
+                    onClick={() => onBack?.()}
+                    className="flex h-16 items-center justify-center gap-3 rounded-[22px] border border-[#DCC8BA] bg-[#FFF9F5] text-[20px] font-semibold text-[#4D2E23] transition hover:bg-[#F9F0EA]"
+                >
+                    <HiOutlineArrowLeft size={22} />
+                    Back
+                </button>
+
+                {/* Save & Continue */}
+
+                <button
+                    type="button"
+                    onClick={savePrescription}
+                    disabled={loading}
+                    className="flex h-16 items-center justify-center gap-3 rounded-[22px] bg-[#8A563B] text-[20px] font-semibold text-white transition hover:bg-[#74452E] disabled:opacity-70"
+                >
+                    <HiOutlineArrowRightOnRectangle size={22} />
+
+                    {loading
+                        ? "Saving..."
+                        : "Save & Continue"}
+                </button>
+
+            </div>
 
         </div>
 

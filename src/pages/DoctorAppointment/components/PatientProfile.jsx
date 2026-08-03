@@ -9,11 +9,15 @@ import Prescription from "../sections/Prescription";
 import Therapy from "../sections/Therapy";
 import Reports from "../sections/Reports";
 import PatientHistory from "../sections/PatientHistory";
-
-const PatientProfile = ({
+import { forwardRef } from "react";
+const PatientProfile = forwardRef(
+(
+{
   activeSection,
   setActiveSection,
-}) => {
+},
+ref
+) => {
   const {
     selectedPatient,
     patientProfile,
@@ -41,7 +45,7 @@ const PatientProfile = ({
   }
 
   return (
-   <div className="min-h-[720px] rounded-[30px] border border-[#E7DBD3] bg-white p-8">
+   <div  ref={ref} className="min-h-[720px] rounded-[30px] border border-[#E7DBD3] bg-white p-8">
       <PatientHeader
         patient={patientProfile}
         wellness={patientWellness}
@@ -67,6 +71,7 @@ const PatientProfile = ({
         <Diagnosis
           patient={patientProfile}
            appointmentId={selectedPatient?.id}
+           onBack={() => setActiveSection("overview")}
         />
       )}
 
@@ -75,7 +80,9 @@ const PatientProfile = ({
           patient={patientProfile}
           appointment={selectedPatient?.id}
           consultationId={selectedPatient?.consultation_id}
-    patientId={selectedPatient?.patient_id}
+          patientId={selectedPatient?.patient_id}
+          onBack={() => setActiveSection("overview")}
+          onContinue={() => setActiveSection("therapy")}
     
         />
       )}
@@ -85,6 +92,7 @@ const PatientProfile = ({
           patient={patientProfile}
           appointmentId={selectedPatient?.id}
            consultationId={selectedPatient?.consultation_id}
+           onBack={() => setActiveSection("overview")}
         />
       )}
 
@@ -103,6 +111,7 @@ const PatientProfile = ({
       )}
     </div>
   );
-};
+}
+);
 
 export default PatientProfile;

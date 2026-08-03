@@ -5,6 +5,7 @@ import {
   HiOutlinePencilSquare,
   HiOutlineArchiveBox,
   HiOutlineArrowRightOnRectangle,
+  HiOutlineArrowLeft,
 } from "react-icons/hi2";
 
 import {
@@ -13,9 +14,24 @@ import {
   loadAssociateDoctors,
 } from "../../../redux/consultation/consultationThunk";
 
-const Diagnosis = ({ appointmentId, onContinue }) => {
+const Diagnosis = ({ appointmentId, onContinue,onBack, }) => {
   const dispatch = useDispatch();
+  const handleSaveAndGoBack = async () => {
+  try {
+    await dispatch(
+      saveDiagnosisThunk({
+        appointmentId,
+        payload: {
+          diagnosis: notes,
+        },
+      })
+    ).unwrap();
 
+    onBack?.();
+  } catch (error) {
+    console.error(error);
+  }
+};
   const {
     diagnosis,
     associateDoctors = [],
@@ -138,13 +154,12 @@ const Diagnosis = ({ appointmentId, onContinue }) => {
 
       {/* Save & Continue */}
       <button
-        onClick={handleSaveAndContinue}
-
-        className="mt-10 flex h-16 w-full items-center justify-center gap-3 rounded-[22px] bg-[#8B573D] text-lg font-semibold text-white hover:bg-[#74442F]"
-      >
-        <HiOutlineArrowRightOnRectangle size={22} />
-        Save and Continue
-      </button>
+  onClick={handleSaveAndGoBack}
+  className="mt-10 flex h-16 w-full items-center justify-center gap-3 rounded-[22px] bg-[#8B573D] text-lg font-semibold text-white hover:bg-[#74442F]"
+>
+  <HiOutlineArrowLeft size={22} />
+  Save & Go Back
+</button>
     </div>
   );
 };

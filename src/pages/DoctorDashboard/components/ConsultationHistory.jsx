@@ -31,7 +31,7 @@ const ConsultationHistory = ({period, setPeriod}) => {
         <DashboardDropdown
           value={period}
           options={[
-            { label: "Till Date", value: "all" },
+            { label: "Today", value: "today" },
             { label: "This Month", value: "month" },
             { label: "This Week", value: "week" },
           ]}
@@ -47,7 +47,7 @@ const ConsultationHistory = ({period, setPeriod}) => {
         <div>
 
           <h1 className="text-[28px] font-bold leading-none text-[#4B2E2A]">
-            {(consultation?.total ?? 0).toLocaleString()}
+            {(consultation?.total_consultations ?? 0).toLocaleString()}
           </h1>
 
           <p className="mt-1 text-[12px] text-[#7D726B]">
@@ -76,25 +76,25 @@ const ConsultationHistory = ({period, setPeriod}) => {
       <div className="grid grid-cols-4">
 
         <StatsCard
-          title="In-Person"
-          value={consultation?.newPatients ?? 0}
-        />
+  title="In-Person"
+  value={consultation?.in_person ?? 0}
+/>
 
-        <StatsCard
-          title="Video Appts."
-          value={consultation?.revisit ?? 0}
-        />
+<StatsCard
+  title="Video Appts."
+  value={consultation?.video_appts ?? 0}
+/>
 
-        <StatsCard
-          title="Home Visits"
-          value={consultation?.referred ?? 0}
-        />
+<StatsCard
+  title="Home Visits"
+  value={consultation?.home_visits ?? 0}
+/>
 
-        <StatsCard
-          title="Follow-Ups"
-          value={consultation?.emergency ?? 0}
-          border={false}
-        />
+<StatsCard
+  title="Follow-Ups"
+  value={consultation?.follow_ups ?? 0}
+  border={false}
+/>
 
       </div>
 

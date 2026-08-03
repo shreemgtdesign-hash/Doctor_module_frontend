@@ -4,17 +4,44 @@ import {
   HiChevronDown,
 } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loadConsultationHistoryList } from "../../../redux/dashboard/dashboardThunk";
 const ConsultationHistoryTable = () => {
-  const navigate=useNavigate()
+  const navigate = useNavigate()
+  const dispatch = useDispatch();
+
+  const doctor = useSelector((state) => state.auth.user);
+
+  const history = useSelector(
+    (state) => state.dashboard.consultationHistoryList
+  );
+
+  const [period, setPeriod] = useState("today");
+  const periodLabel = {
+  today: "Today",
+  week: "This Week",
+  month: "This Month",
+  all: "Till Date",
+}[period] || "Today";
+  useEffect(() => {
+    if (doctor?.id) {
+      dispatch(
+        loadConsultationHistoryList({
+          doctorId: doctor.id,
+          period,
+        })
+      );
+    }
+  }, [dispatch, doctor, period]);
   return (
     <div className="min-h-screen bg-[#F8F6F3] px-8 py-6">
 
       {/* Back Button */}
 
-      <button 
-      onClick={() => navigate("/")}
-      className="flex items-center gap-2 text-[16px] font-semibold text-[#4D2E23] hover:text-[#7A4A35]">
+      <button
+        onClick={() => navigate("/")}
+        className="flex items-center gap-2 text-[16px] font-semibold text-[#4D2E23] hover:text-[#7A4A35]">
         <HiOutlineArrowLeft size={22} />
         Back to Dashboard
       </button>
@@ -29,15 +56,20 @@ const ConsultationHistoryTable = () => {
           </h1>
 
           <p className="mt-3 text-[18px] text-[#777777]">
-            204 Total Consultations
+            {history.length} Total Consultations
           </p>
         </div>
 
-        <button className="flex h-11 items-center gap-2 rounded-xl border border-[#E7DBD3] bg-white px-5 text-[16px] font-medium text-[#4D2E23]">
-          <HiOutlineCalendar size={18} />
-          This Week
-          <HiChevronDown size={18} />
-        </button>
+        <select
+  value={period}
+  onChange={(e) => setPeriod(e.target.value)}
+  className="h-11 rounded-xl border border-[#E7DBD3] bg-white px-4 text-[16px] font-medium text-[#4D2E23] outline-none"
+>
+  <option value="today">Today</option>
+  <option value="week">This Week</option>
+  <option value="month">This Month</option>
+  <option value="all">Till Date</option>
+</select>
 
       </div>
 
@@ -81,10 +113,10 @@ const ConsultationHistoryTable = () => {
 
         {/* Table Body */}
 
-        {Array.from({ length: 8 }).map((_, index) => (
+        {history.map((item) => (
 
           <div
-            key={index}
+            key={item.id}
             className="grid grid-cols-[280px_170px_150px_140px_180px_120px_160px] border-b border-[#EFE2D7] last:border-b-0"
           >
 
@@ -93,11 +125,11 @@ const ConsultationHistoryTable = () => {
             <div className="border-r border-[#EFE2D7] px-6 py-5">
 
               <h3 className="text-[18px] font-semibold text-[#4D2E23]">
-                Meera Iyer
+                {item.patient_name}
               </h3>
 
               <p className="mt-1 text-[14px] text-[#8A8A8A]">
-                Patient ID: 1234567
+                Patient ID: {item.patient_id}
               </p>
 
             </div>
@@ -107,7 +139,7 @@ const ConsultationHistoryTable = () => {
             <div className="flex items-center justify-center border-r border-[#EFE2D7] px-6 py-5">
 
               <p className="text-[16px] font-medium text-[#4D2E23] text-center">
-                21st June, 2026
+                {item.date}
               </p>
 
             </div>
@@ -117,7 +149,7 @@ const ConsultationHistoryTable = () => {
             <div className="flex items-center justify-center border-r border-[#EFE2D7] px-6 py-5">
 
               <p className="text-[16px] font-medium text-[#4D2E23]">
-                In Person
+                {item.type}
               </p>
 
             </div>
@@ -127,7 +159,7 @@ const ConsultationHistoryTable = () => {
             <div className="flex items-center justify-center border-r border-[#EFE2D7] px-6 py-5">
 
               <p className="text-[16px] font-medium text-[#4D2E23]">
-                10:00 AM
+                {item.time}
               </p>
 
             </div>
@@ -137,7 +169,7 @@ const ConsultationHistoryTable = () => {
             <div className="flex items-center justify-center border-r border-[#EFE2D7] px-6 py-5">
 
               <p className="text-[16px] font-medium text-[#4D2E23]">
-                Consultation
+                {item.purpose}
               </p>
 
             </div>
@@ -147,7 +179,7 @@ const ConsultationHistoryTable = () => {
             <div className="flex items-center justify-center border-r border-[#EFE2D7] px-6 py-5">
 
               <p className="text-[17px] font-semibold text-[#4D2E23]">
-                ₹1200
+                ₹{item.price}
               </p>
 
             </div>
@@ -156,8 +188,15 @@ const ConsultationHistoryTable = () => {
 
             <div className="flex items-center justify-center px-6 py-5">
 
-              <span className="rounded-full bg-[#EAF8EC] px-5 py-2 text-[14px] font-medium text-[#2E6B41]">
-                Completed
+              <span
+                className={`rounded-full px-5 py-2 text-[14px] font-medium ${item.status === "Completed"
+                    ? "bg-[#EAF8EC] text-[#2E6B41]"
+                    : item.status === "Cancelled"
+                      ? "bg-[#FDECEC] text-[#B42318]"
+                      : "bg-[#FFF3E5] text-[#A15C00]"
+                  }`}
+              >
+                {item.status}
               </span>
 
             </div>

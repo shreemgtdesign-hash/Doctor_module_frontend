@@ -48,8 +48,9 @@ export const updatePatientAllergies = (
 
 // Today's appointments
 export const getAppointments = (doctorId, date, status = "") => {
-  let url = `/appointments?doctor_id=${doctorId}&date=${date}`;
-
+  console.log("doctorId", doctorId);
+  let url = `/appointments?id=${doctorId}&date=${date}`;
+   
   if (status) {
     url += `&status=${status}`;
   }
@@ -146,4 +147,28 @@ export const updateTherapy = (therapyId, payload) =>
   api.put(
     `/visits/therapies/${therapyId}`,
     payload
+  );
+
+  // ============================
+// Consultation History List
+// ============================
+
+export const getConsultationHistoryList = (
+  doctorId,
+  period = "today"
+) =>
+  api.get(
+    `/doctor-dashboard/consultations-history/list?period=${period}&id=${doctorId}`
+  );
+
+// ============================
+// Medicines Prescribed List
+// ============================
+
+export const getMedicinesPrescribedList = (
+  doctorId,
+  period = "today"
+) =>
+  api.get(
+    `/doctor-dashboard/medicines-prescribed/list?period=${period}&id=${doctorId}`
   );
