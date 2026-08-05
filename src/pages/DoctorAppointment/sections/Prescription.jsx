@@ -124,16 +124,13 @@ const Prescription = ({
         setReviewDate(
             prescription.reviewDate || ""
         );
+        setPatientAllergies(
+        items[0]?.patient_allergies || []
+    );
 
     }, [prescription]);
 
-    useEffect(() => {
-
-        setPatientAllergies(
-            allergies || []
-        );
-
-    }, [allergies]);
+   
 
     useEffect(() => {
 
@@ -558,7 +555,7 @@ const Prescription = ({
                                                 className="mt-2 flex items-center gap-2 rounded-xl border border-[#E7DBD3] bg-[#FFF8F4] px-4 py-3 font-medium text-[#4D2E23]"
                                             >
 
-                                                {medicine.tabletCount} Tablet •{" "}
+                                                {medicine.dosage} •{" "}
                                                 {(medicine.timeOfDay || []).join(", ")} •{" "}
                                                 {medicine.food}
 
@@ -570,7 +567,7 @@ const Prescription = ({
 
                                             <p className="mt-2 text-[16px] font-medium text-[#4D2E23]">
 
-                                                {medicine.tabletCount} Tablet •{" "}
+                                                {medicine.dosage} •{" "}
                                                 {(medicine.timeOfDay || []).join(", ")} •{" "}
                                                 {medicine.food}
 
@@ -727,7 +724,7 @@ const Prescription = ({
                                                         }
                                                         className={`h-12 w-12 rounded-xl border transition
 
-${medicine.tabletCount === item
+                                                            ${medicine.tabletCount === item
                                                                 ?
                                                                 "bg-[#8A563B] border-[#8A563B] text-white"
                                                                 :
@@ -765,7 +762,7 @@ ${medicine.tabletCount === item
                                                         }
                                                         className={`rounded-full px-5 py-2 border transition
 
-${medicine.timeOfDay?.includes(item)
+                                                  ${medicine.timeOfDay?.includes(item)
                                                                 ?
                                                                 "bg-[#8A563B] border-[#8A563B] text-white"
                                                                 :
@@ -871,7 +868,7 @@ ${medicine.food === item
                                                     }
                                                     className={`rounded-xl border p-4 font-medium transition
 
-${medicine.duration === item
+                                         ${medicine.duration === item
                                                             ?
                                                             "bg-[#8A563B] border-[#8A563B] text-white"
                                                             :
@@ -958,17 +955,14 @@ ${medicine.duration === item
                 </label>
 
                 <input
-
                     type="date"
-
-                    value={reviewDate}
-
-                    onChange={(e) =>
-                        setReviewDate(e.target.value)
+                    value={
+                        reviewDate
+                            ? reviewDate.split("T")[0]
+                            : ""
                     }
-
+                    onChange={(e) => setReviewDate(e.target.value)}
                     className="h-14 w-full rounded-2xl border border-[#E7DBD3] px-5 outline-none focus:border-[#8A563B]"
-
                 />
 
             </div>

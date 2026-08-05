@@ -1,97 +1,125 @@
+import { useEffect, useState } from "react";
 import { FaRegCalendarAlt } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import DashboardCard from "../../../components/Dashboard/DashboardCard";
 import DashboardDropdown from "../../../components/Dashboard/DashboardDropdown";
 import StatsCard from "../../../components/Dashboard/StatsCard";
-import { useSelector } from "react-redux";
-const ScheduleOverview = ({period, setPeriod}) => {
-   
+import {loadConsultation, loadOverview } from "../../../redux/dashboard/dashboardThunk";
 
-    const overview = useSelector(
-        state => state.dashboard.overview
+const ScheduleOverview = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const doctor = useSelector((state) => state.auth.user);
+
+  const overview = useSelector(
+    (state) => state.dashboard.overview
+  );
+
+  const [period, setPeriod] = useState("today");
+
+  useEffect(() => {
+    if (!doctor?.id) return;
+
+    dispatch(
+      loadOverview({
+        doctorId: doctor.id,
+        period,
+      })
     );
+  }, [dispatch, doctor?.id, period]);
 
-    
+  return (
+    <DashboardCard className="px-5 pt-5 pb-3">
 
-    return (
-        <DashboardCard className="px-5 pt-5 pb-3">
+      <div
+        onClick={() => navigate("/doctor/appointments")}
+        className="cursor-pointer"
+      >
+        {/* Header */}
 
-            {/* Header */}
+        <div className="flex items-center justify-between">
 
-            <div className="flex items-center justify-between">
+          <h2 className="text-[18px] font-semibold text-[#4B2E2A]">
+            Schedule Overview
+          </h2>
 
-                <h2 className="text-[18px] font-semibold text-[#4B2E2A]">
-                    Schedule Overview
-                </h2>
+          <DashboardDropdown
+            value={period}
+            options={[
+              { label: "Today", value: "today" },
+              { label: "This Week", value: "week" },
+              { label: "This Month", value: "month" },
+            ]}
+            onChange={setPeriod}
+          />
 
-                <DashboardDropdown
-                    value={period}
-                    options={[
-            { label: "This Week", value: "week" },
-            { label: "This Month", value: "month" },
-            { label: "Today", value: "today" },
-          ]}
-                    onChange={setPeriod}
-                />
+        </div>
 
-            </div>
+        {/* Main */}
 
-            {/* Content */}
+        <div className="mt-3 flex items-center justify-between">
 
-            <div className="mt-3 flex items-center justify-between">
+          <div>
 
-                <div>
+            <h1 className="text-[28px] font-bold leading-none text-[#4B2E2A]">
+              {overview?.total_appointments ?? 0}
+            </h1>
 
-                    <h1 className="text-[28px] font-bold leading-none text-[#4B2E2A]">
-                        {overview?.total_appointments ?? 0}
-                    </h1>
+            <p className="mt-1 text-[12px] text-[#7D726B]">
+              Total Appointments
+            </p>
 
-                    <p className="mt-0.5 text-[12px] text-[#7D726B]">
-                        Total Appointments
-                    </p>
+          </div>
 
-                </div>
+          <div className="flex h-10 w-10 items-center justify-center">
 
-                <div className="flex h-10 w-10 items-center justify-center">
+            <FaRegCalendarAlt
+              size={26}
+              className="text-[#E4C08D]"
+            />
 
-                    <FaRegCalendarAlt
-                        size={26}
-                        className="text-[#E4C08D]"
-                    />
+          </div>
 
-                </div>
+        </div>
 
-            </div>
+        {/* Divider */}
 
-            <div className="my-2 border-t border-[#EFE4DC]" />
+        <div className="my-2 border-t border-[#EFE4DC]" />
 
-            <div className="grid grid-cols-4">
+        {/* Stats */}
 
-                <StatsCard
-                    title="In-Person"
-                    value={overview?.in_person ?? 0}
-                />
+        <div className="grid grid-cols-4">
 
-                <StatsCard
-                    title="Video Appts."
-                    value={overview?.video_appts ?? 0}
-                />
+          <StatsCard
+            title="In-Person"
+            value={overview?.in_person ?? 0}
+          />
 
-                <StatsCard
-                    title="Home Visits"
-                    value={overview?.home_visits ?? 0}
-                />
+          <StatsCard
+            title="Video Appts."
+            value={overview?.video_appts ?? 0}
+          />
 
-                <StatsCard
-                    title="Follow-Ups"
-                    value={overview?.follow_ups ?? 0}
-                    border={false}
-                />
+          <StatsCard
+            title="Home Visits"
+            value={overview?.home_visits ?? 0}
+          />
 
-            </div>
+          <StatsCard
+            title="Follow-Ups"
+            value={overview?.follow_ups ?? 0}
+            border={false}
+          />
 
-        </DashboardCard>
-    );
+        </div>
+
+      </div>
+
+    </DashboardCard>
+  );
 };
 
 export default ScheduleOverview;

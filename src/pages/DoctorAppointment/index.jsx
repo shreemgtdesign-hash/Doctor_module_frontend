@@ -9,19 +9,12 @@ import PatientProfile from "./components/PatientProfile";
 
 import { getDashboard } from "../../redux/dashboard/dashboardThunk";
 import { loadAppointments } from "../../redux/consultation/consultationThunk";
-import {
+import {useLayoutEffect,useRef,} from "react";
 
-    useLayoutEffect,
-    useRef,
-
-} from "react";
 const DoctorAppointment = () => {
     const dispatch = useDispatch();
     const profileRef = useRef(null);
     const [profileHeight, setProfileHeight] = useState(0);
-
-
-
 
     useLayoutEffect(() => {
         if (!profileRef.current) return;
@@ -34,8 +27,7 @@ const DoctorAppointment = () => {
 
         return () => observer.disconnect();
     }, []);
-    const [activeSection, setActiveSection] =
-        useState("overview");
+    const [activeSection, setActiveSection] = useState("overview");
     const doctor = useSelector((state) => state.auth.user);
 
     const { overview } = useSelector(
@@ -43,12 +35,14 @@ const DoctorAppointment = () => {
     );
 
     const [period, setPeriod] = useState("today");
+
     const handlePeriodChange = (newPeriod) => {
         setPeriod(newPeriod);
 
         // Reset status filter to "All"
         dispatch(setActiveFilter(""));
     };
+
     useEffect(() => {
         if (doctor?.id) {
             dispatch(
@@ -91,7 +85,7 @@ const DoctorAppointment = () => {
                         activeSection={activeSection}
                         setActiveSection={setActiveSection}
                     />
-                    <div ref={profileRef} className="h-full">
+                    <div ref={profileRef}>
                         <PatientProfile
 
                             activeSection={activeSection}

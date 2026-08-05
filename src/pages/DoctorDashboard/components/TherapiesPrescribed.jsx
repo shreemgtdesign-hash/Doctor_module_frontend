@@ -1,16 +1,35 @@
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { FaLeaf } from "react-icons/fa";
 
 import DashboardCard from "../../../components/Dashboard/DashboardCard";
 import DashboardDropdown from "../../../components/Dashboard/DashboardDropdown";
 import StatsCard from "../../../components/Dashboard/StatsCard";
+import {loadTherapiesDashboard } from "../../../redux/dashboard/dashboardThunk";
 
-const TherapiesPrescribed = ({period, setPeriod}) => {
-    const therapies = useSelector(
+const TherapiesPrescribed = () => {
+  const dispatch = useDispatch();
+
+  const doctor = useSelector((state) => state.auth.user);
+
+  const therapies = useSelector(
     (state) => state.dashboard.therapies
   );
+
   const breakdown = therapies?.breakdown ?? [];
 
+  const [period, setPeriod] = useState("today");
+
+  useEffect(() => {
+    if (!doctor?.id) return;
+
+    dispatch(
+      loadTherapiesDashboard({
+        doctorId: doctor.id,
+        period,
+      })
+    );
+  }, [dispatch, doctor?.id, period]);
 
   return (
     <DashboardCard className="px-5 pt-5 pb-3">
@@ -24,15 +43,15 @@ const TherapiesPrescribed = ({period, setPeriod}) => {
         <DashboardDropdown
           value={period}
           options={[
-            { label: "This Month", value: "this_month" },
-            { label: "This Week", value: "week" },
             { label: "Today", value: "today" },
+            { label: "This Week", value: "week" },
+            { label: "This Month", value: "month" },
           ]}
           onChange={setPeriod}
         />
       </div>
 
-      
+      {/* Main */}
 
       <div className="mt-3 flex items-start justify-between">
         <div>
@@ -53,24 +72,28 @@ const TherapiesPrescribed = ({period, setPeriod}) => {
         </div>
       </div>
 
+      {/* Divider */}
+
       <div className="mt-3 mb-2 border-t border-[#EFE4DC]" />
 
-      
+      {/* Stats */}
 
       <div
-  className={`grid gap-2 ${
-    breakdown.length <= 4 ? "grid-cols-4" : "grid-cols-2"
-  }`}
->
-  {breakdown.map((item, index) => (
-    <StatsCard
-      key={`${item.therapy_name}-${index}`}
-      title={item.therapy_name}
-      value={item.count}
-      border={index !== breakdown.length - 1}
-    />
-  ))}
-</div>
+        className={`grid gap-2 ${
+          breakdown.length <= 4
+            ? "grid-cols-4"
+            : "grid-cols-2"
+        }`}
+      >
+        {breakdown.map((item, index) => (
+          <StatsCard
+            key={`${item.therapy_name}-${index}`}
+            title={item.therapy_name}
+            value={item.count}
+            border={index !== breakdown.length - 1}
+          />
+        ))}
+      </div>
     </DashboardCard>
   );
 };

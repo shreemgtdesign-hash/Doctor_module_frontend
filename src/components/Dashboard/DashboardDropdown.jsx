@@ -1,16 +1,25 @@
 import { HiOutlineCalendar } from "react-icons/hi";
 import { HiChevronDown } from "react-icons/hi2";
 
+
 const DashboardDropdown = ({
   value,
   options = [],
   onChange,
 }) => {
+  
   return (
-    <div className="relative">
+    <div
+      className="relative"
+      onClick={(e) => e.stopPropagation()} // <-- Prevent parent click
+    >
       <select
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onClick={(e) => e.stopPropagation()} // <-- Prevent click bubbling
+        onChange={(e) => {
+          e.stopPropagation();
+          onChange(e.target.value);
+        }}
         className="
           appearance-none
           rounded-full
@@ -38,6 +47,7 @@ const DashboardDropdown = ({
 
       <HiOutlineCalendar
         className="
+          pointer-events-none
           absolute
           left-4
           top-1/2
@@ -48,6 +58,7 @@ const DashboardDropdown = ({
 
       <HiChevronDown
         className="
+          pointer-events-none
           absolute
           right-4
           top-1/2

@@ -4,7 +4,7 @@ import StatsCard from "./StatsCard";
 
 const ScheduleOverview = ({ overview, period, setPeriod, }) => {
     const periods = ["today", "week", "month"];
-
+    
     const handlePeriodChange = () => {
         const currentIndex = periods.indexOf(period);
         const nextIndex = (currentIndex + 1) % periods.length;
@@ -13,7 +13,7 @@ const ScheduleOverview = ({ overview, period, setPeriod, }) => {
     return (
         <div>
 
-            <div className="flex items-center justify-between">
+            <div  className=" flex items-center justify-between">
 
                 <h2 className="text-[24px] font-bold text-[#4D2E23]">
                     Schedule Overview

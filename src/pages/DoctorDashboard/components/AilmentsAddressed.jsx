@@ -1,18 +1,40 @@
+import { useEffect, useState } from "react";
 import {
   FaHeartbeat,
   FaLungs,
   FaBrain,
   FaBone,
 } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import DashboardCard from "../../../components/Dashboard/DashboardCard";
 import DashboardDropdown from "../../../components/Dashboard/DashboardDropdown";
 import AilmentCard from "../../../components/Dashboard/AilmentCard";
+import {loadAilments } from "../../../redux/dashboard/dashboardThunk";
 
-const AilmentsAddressed = ({ period, setPeriod }) => {
+const AilmentsAddressed = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const doctor = useSelector((state) => state.auth.user);
+
+  const ailments = useSelector(
+    (state) => state.dashboard.ailments
+  );
+
+  const [period, setPeriod] = useState("today");
+
+  useEffect(() => {
+    if (!doctor?.id) return;
+
+    dispatch(
+      loadAilments({
+        doctorId: doctor.id,
+        period,
+      })
+    );
+  }, [dispatch, doctor?.id, period]);
 
   const iconMap = {
     Orthopedics: (
@@ -44,10 +66,6 @@ const AilmentsAddressed = ({ period, setPeriod }) => {
     ),
   };
 
-  const ailments = useSelector(
-    (state) => state.dashboard.ailments
-  );
-
   return (
     <div
       onClick={() =>
@@ -56,7 +74,11 @@ const AilmentsAddressed = ({ period, setPeriod }) => {
       className="cursor-pointer"
     >
       <DashboardCard className="px-5 pt-4 pb-3">
+
+        {/* Header */}
+
         <div className="flex items-center justify-between">
+
           <h2 className="text-[18px] font-semibold text-[#4B2E2A]">
             Ailments Addressed
           </h2>
@@ -64,15 +86,19 @@ const AilmentsAddressed = ({ period, setPeriod }) => {
           <DashboardDropdown
             value={period}
             options={[
+              { label: "Today", value: "today" },
               { label: "This Week", value: "week" },
               { label: "This Month", value: "month" },
-              { label: "Today", value: "today" },
             ]}
             onChange={setPeriod}
           />
+
         </div>
 
+        {/* Cards */}
+
         <div className="mt-4 grid grid-cols-3 gap-3">
+
           {ailments?.data?.map((item) => (
             <AilmentCard
               key={item.category}
@@ -85,7 +111,9 @@ const AilmentsAddressed = ({ period, setPeriod }) => {
               }
             />
           ))}
+
         </div>
+
       </DashboardCard>
     </div>
   );

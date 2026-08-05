@@ -10,6 +10,8 @@ import BillingDetails from "./components/BillingDetails";
 
 import { getDashboard } from "../../redux/dashboard/dashboardThunk";
 import TherapiesPrescribed from "./components/therapiesPrescribed";
+import Beauty from "./components/Beauty";
+import Wellness from "./components/Wellness";
 
 const DoctorDashboard = () => {
     const dispatch = useDispatch();
@@ -18,7 +20,7 @@ const DoctorDashboard = () => {
         (state) => state.auth.user
     );
 
-    
+
     const [period, setPeriod] = useState("today");
 
     useEffect(() => {
@@ -31,32 +33,39 @@ const DoctorDashboard = () => {
             })
         );
     }, [dispatch, doctor?.id, period]);
-   
+
 
     return (
         <DashboardLayout>
             <div className="space-y-6">
                 <div className="m-5 grid grid-cols-2 gap-5">
                     <ScheduleOverview
-                        period={period}
-                        setPeriod={setPeriod} />
+                         />
 
                     <ConsultationHistory
-                        period={period}
-                        setPeriod={setPeriod} />
+                        
+                    />
+
+                    <Wellness
+                       
+                    />
+
+                    <Beauty
+                       
+                    />
 
                     <AilmentsAddressed
-                        period={period}
-                        setPeriod={setPeriod} />
+                        
+                    />
 
                     <div className="space-y-4">
                         <TherapiesPrescribed
-                            period={period}
-                            setPeriod={setPeriod} />
+                            
+                        />
 
                         <MedicinesPrescribed
-                            period={period}
-                            setPeriod={setPeriod} />
+                           
+                        />
                     </div>
                 </div>
 

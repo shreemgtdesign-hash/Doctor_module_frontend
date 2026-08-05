@@ -68,3 +68,28 @@ export const fetchDashboard = async (
     };
 
 };
+
+export const fetchOverview = async (doctorId, period) => {
+  const response = await getScheduleOverview(doctorId, period);
+  return response.data.data;
+};
+
+export const fetchConsultation = async (doctorId, period) => {
+  const response = await getConsultationHistory(doctorId, period);
+  return response.data.data;
+};
+
+export const fetchAilments = async (doctorId, period) => {
+  const response = await getAilments(doctorId, period);
+  return response.data.data;
+};
+
+export const fetchTherapiesDashboard = async (doctorId, period) => {
+  const response = await getTherapies(doctorId, period);
+  return response.data.data;
+};
+
+export const fetchMedicines = async (doctorId, period) => {
+  const response = await getMedicines(doctorId, period);
+  return response.data.data;
+};

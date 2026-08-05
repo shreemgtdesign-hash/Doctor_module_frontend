@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getDashboard, loadConsultationHistoryList, loadMedicinesPrescribedList } from "./dashboardThunk";
+import { getDashboard, loadAilments, loadConsultation, loadConsultationHistoryList, loadMedicines, loadMedicinesPrescribedList, loadOverview, loadTherapiesDashboard } from "./dashboardThunk";
+
 
 const initialState = {
     loading: false,
@@ -63,6 +64,33 @@ const dashboardSlice = createSlice({
                 state.medicines = action.payload.medicines;
             })
 
+            .addCase(loadOverview.fulfilled, (state, action) => {
+                state.overview = action.payload;
+            })
+
+            .addCase(loadConsultation.fulfilled, (state, action) => {
+                state.consultation = action.payload;
+            })
+
+            .addCase(loadMedicines.fulfilled, (state, action) => {
+                state.medicines = action.payload;
+            })
+
+            .addCase(loadTherapiesDashboard.fulfilled, (state, action) => {
+                state.therapies = action.payload;
+            })
+
+            .addCase(loadAilments.fulfilled, (state, action) => {
+                state.ailments = action.payload;
+            })
+
+            // .addCase(loadWellness.fulfilled, (state, action) => {
+            //     state.wellness = action.payload;
+            // })
+
+            // .addCase(loadBeauty.fulfilled, (state, action) => {
+            //     state.beauty = action.payload;
+            // })
             .addCase(getDashboard.rejected, (state) => {
 
                 state.loading = false;
