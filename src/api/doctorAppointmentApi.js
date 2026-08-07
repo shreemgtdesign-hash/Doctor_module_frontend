@@ -126,15 +126,7 @@ export const getAssociateDoctors = (
   );
 };
 
-export const addAssociateDoctor = (
-  appointmentId,
-  data
-) => {
-  return api.post(
-    `/visits/${appointmentId}/associate-doctors`,
-    data
-  );
-};
+
 
 // ============================
 // Prescription
@@ -195,3 +187,24 @@ export const getDiagnosisCategories = () =>
   api.get("/visits/diagnosis-categories");
 
 
+// Get all doctors (for popup)
+export const getDoctorsList = () =>
+  api.get("/doctors"); // replace with your backend endpoint
+
+// Add Associate Doctor
+export const addAssociateDoctor = (
+  appointmentId,
+  payload
+) =>
+  api.post(
+    `/visits/${appointmentId}/associate-doctors`,
+    payload
+  );
+
+// Delete Associate Doctor
+export const deleteAssociateDoctor = (
+  associateDoctorId
+) =>
+  api.delete(
+    `/visits/associate-doctors/${associateDoctorId}`
+  );

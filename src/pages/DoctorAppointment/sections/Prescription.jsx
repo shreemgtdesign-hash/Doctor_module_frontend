@@ -19,7 +19,7 @@ import {
     searchPrescriptionProductsThunk,
     savePrescriptionThunk,
     updatePrescriptionThunk,
-   
+
 } from "../../../redux/consultation/consultationThunk";
 
 const tabletOptions = [1, 2, 3, 4, 5];
@@ -56,7 +56,7 @@ const Prescription = ({
     const {
         prescription,
         prescriptionSearch,
-        
+
         loading,
     } = useSelector(
         (state) => state.consultation
@@ -171,7 +171,7 @@ const Prescription = ({
 
     }, [search]);
 
-    
+
     const addMedicine = (medicine) => {
 
         const exists =
@@ -500,7 +500,7 @@ const Prescription = ({
                 </h2>
 
                 <button
-                    
+
                     onClick={() => {
                         if (!editing) {
                             setBackupMedicines(

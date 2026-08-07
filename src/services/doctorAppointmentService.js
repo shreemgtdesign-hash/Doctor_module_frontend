@@ -10,7 +10,6 @@ import {
   getDiagnosis,
   updateDiagnosis,
   getAssociateDoctors,
-  addAssociateDoctor,
   searchPrescriptionProducts,
   getPrescription,
   createPrescription,
@@ -25,6 +24,9 @@ import {
   getConsultationHistoryList,
   getMedicinesPrescribedList,
   getDiagnosisCategories,
+  getDoctorsList,
+  addAssociateDoctor,
+  deleteAssociateDoctor,
   
   
 
@@ -140,17 +142,7 @@ export const fetchAssociateDoctors = async (
   return response.data.data;
 };
 
-export const createAssociateDoctor = async (
-  appointmentId,
-  payload
-) => {
-  const response = await addAssociateDoctor(
-    appointmentId,
-    payload
-  );
 
-  return response.data;
-};
 
 // ============================
 // Search Medicines
@@ -356,4 +348,46 @@ export const editPrescriptionItem = async (
 
     return response.data;
 
+};
+
+// =========================
+// Load Doctors
+// =========================
+
+export const fetchDoctorsList = async () => {
+    const response = await getDoctorsList();
+
+    return response.data.data;
+};
+
+// =========================
+// Add Associate Doctor
+// =========================
+
+export const createAssociateDoctor = async (
+    appointmentId,
+    payload
+) => {
+
+    const response = await addAssociateDoctor(
+        appointmentId,
+        payload
+    );
+
+    return response.data;
+};
+
+// =========================
+// Delete Associate Doctor
+// =========================
+
+export const removeAssociateDoctor = async (
+    associateDoctorId
+) => {
+
+    const response = await deleteAssociateDoctor(
+        associateDoctorId
+    );
+
+    return response.data;
 };

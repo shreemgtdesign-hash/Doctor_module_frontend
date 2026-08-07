@@ -19,6 +19,8 @@ import {
     updateTherapyThunk,
     updatePrescriptionThunk,
     updatePrescriptionItemThunk,
+    loadDoctorsList,
+    deleteAssociateDoctorThunk,
 } from "./consultationThunk";
 import { searchDiagnosisCategoriesThunk } from "../appointment/appointmentThunk";
 
@@ -33,7 +35,6 @@ const initialState = {
         diagnosis: "",
         category: "",
     },
-    associateDoctors: [],
     appointments: [],
 
     selectedPatient: null,
@@ -63,6 +64,10 @@ const initialState = {
         total: 0,
     },
     diagnosisCategories: [],
+
+    associateDoctors: [],
+
+    doctorsList: [],
 };
 
 const consultationSlice = createSlice({
@@ -176,9 +181,7 @@ const consultationSlice = createSlice({
                 state.associateDoctors = action.payload || [];
             })
 
-            .addCase(addAssociateDoctorThunk.fulfilled, (state, action) => {
-                state.associateDoctors = action.payload || [];
-            })
+            
             .addCase(
                 searchPrescriptionProductsThunk.fulfilled,
                 (state, action) => {
@@ -265,7 +268,7 @@ const consultationSlice = createSlice({
                 state.loading = false;
             })
 
-               .addCase(updatePrescriptionItemThunk.pending, (state) => {
+            .addCase(updatePrescriptionItemThunk.pending, (state) => {
                 state.loading = true;
             })
 
@@ -306,6 +309,36 @@ const consultationSlice = createSlice({
                     state.diagnosisCategories = action.payload || [];
                 }
             )
+
+            .addCase(
+                loadDoctorsList.fulfilled,
+                (state, action) => {
+
+                    state.doctorsList =
+                        action.payload || [];
+
+                }
+            )
+            .addCase(addAssociateDoctorThunk.fulfilled, (state, action) => {
+                state.loading = false;
+
+                if (action.payload?.data) {
+                    state.associateDoctors.push(action.payload.data);
+                }
+            })
+
+            .addCase(deleteAssociateDoctorThunk.fulfilled, (state, action) => {
+                state.loading = false;
+
+                const associateDoctorId = action.meta.arg;
+
+                state.associateDoctors =
+                    state.associateDoctors.filter(
+                        (doctor) => doctor.id !== associateDoctorId
+                    );
+            })
+
+
 
             .addCase(
                 saveTherapyThunk.fulfilled,
