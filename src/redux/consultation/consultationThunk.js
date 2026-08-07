@@ -6,7 +6,9 @@ import {
 } from "../../api/doctorAppointmentApi";
 import { fetchChiefComplaints, saveChiefComplaints,fetchDiagnosis,saveDiagnosis,fetchAssociateDoctors,createAssociateDoctor,fetchPrescriptionProducts,
   fetchPrescription,savePrescription,savePrescriptionNotes,savePatientAllergies,fetchTherapiesSearch,fetchTherapies,
-  saveTherapy,editTherapy, } from "../../services/doctorAppointmentService";
+  saveTherapy,editTherapy,
+  fetchDiagnosisCategories,editPrescription, 
+  editPrescriptionItem} from "../../services/doctorAppointmentService";
 
 export const loadAppointments = createAsyncThunk(
   "consultation/loadAppointments",
@@ -287,4 +289,73 @@ export const updateTherapyThunk = createAsyncThunk(
       return thunkAPI.rejectWithValue(err.response?.data);
     }
   }
+);
+
+export const searchDiagnosisCategoriesThunk = createAsyncThunk(
+  "consultation/searchDiagnosisCategories",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await fetchDiagnosisCategories();
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || error.message
+      );
+    }
+  }
+);
+
+export const updatePrescriptionThunk =
+createAsyncThunk(
+    "consultation/updatePrescription",
+
+    async (
+        { consultationId, payload },
+        { rejectWithValue }
+    ) => {
+
+        try {
+
+            return await editPrescription(
+                consultationId,
+                payload
+            );
+
+        } catch (error) {
+
+            return rejectWithValue(
+                error.response?.data ||
+                error.message
+            );
+
+        }
+
+    }
+);
+
+export const updatePrescriptionItemThunk =
+createAsyncThunk(
+    "consultation/updatePrescriptionItem",
+
+    async (
+        { itemId, payload },
+        { rejectWithValue }
+    ) => {
+
+        try {
+
+            return await editPrescriptionItem(
+                itemId,
+                payload
+            );
+
+        } catch (error) {
+
+            return rejectWithValue(
+                error.response?.data ||
+                error.message
+            );
+
+        }
+
+    }
 );

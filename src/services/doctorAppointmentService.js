@@ -16,14 +16,20 @@ import {
   createPrescription,
   updatePrescriptionNotes,
   updatePatientAllergies,
+  updatePrescriptionItem,
+  updatePrescription,
   addTherapy,
   getTherapies,
   searchTherapies,
   updateTherapy,
   getConsultationHistoryList,
   getMedicinesPrescribedList,
+  getDiagnosisCategories,
+  
+  
 
 } from "../api/doctorAppointmentApi";
+
 
 export const fetchDashboard = async (doctorId, period) => {
   const [summary, overview, schedule] = await Promise.all([
@@ -89,7 +95,8 @@ export const fetchChiefComplaints = async (
 ) => {
   const response =
     await getChiefComplaints(appointmentId);
-
+  
+  console.log("GET Chief Complaints:", response.data);
   return response.data.data;
 };
 
@@ -314,3 +321,39 @@ export const fetchMedicinesPrescribedList =
 
     return response.data;
   };
+
+  export const fetchDiagnosisCategories = async () => {
+  const response = await getDiagnosisCategories();
+  return response.data.data;
+};
+
+
+export const editPrescription = async (
+    consultationId,
+    payload
+) => {
+
+    const response =
+        await updatePrescription(
+            consultationId,
+            payload
+        );
+
+    return response.data;
+
+};
+
+export const editPrescriptionItem = async (
+    itemId,
+    payload
+) => {
+
+    const response =
+        await updatePrescriptionItem(
+            itemId,
+            payload
+        );
+
+    return response.data;
+
+};

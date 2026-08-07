@@ -4,8 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import DashboardCard from "../../../components/Dashboard/DashboardCard";
 import DashboardDropdown from "../../../components/Dashboard/DashboardDropdown";
-import { getDashboard } from "../../../redux/dashboard/dashboardThunk";
-
+import { loadWellness } from "../../../redux/dashboard/dashboardThunk";
 const Wellness = () => {
   const dispatch = useDispatch();
 
@@ -21,7 +20,7 @@ const Wellness = () => {
     if (!doctor?.id) return;
 
     dispatch(
-      getDashboard({
+      loadWellness({
         doctorId: doctor.id,
         period,
       })
@@ -58,13 +57,16 @@ const Wellness = () => {
 
         <div>
 
-          <h1 className="text-[42px] font-bold leading-none text-[#4B2E2A]">
-            {wellness?.total ?? 0}
-          </h1>
+         <h1 className="text-[28px] font-bold leading-none text-[#4B2E2A]">
+  {wellness?.total_consultations ?? 0}
+</h1>
 
-          <p className="mt-2 text-[15px] text-[#7D726B]">
-            Total Wellness Consultations
-          </p>
+<p className="mt-2 text-[12px] text-[#7D726B]">
+  Total Consultations{" "}
+  {wellness?.period
+    ? ` - ${wellness.period}`
+    : ""}
+</p>
 
         </div>
 

@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getTodaySchedule } from "../../api/doctorAppointmentApi";
+import { getTodaySchedule} from "../../api/doctorAppointmentApi";
+import { fetchDiagnosisCategories } from "../../services/doctorAppointmentService";
 
 export const getAppointments = createAsyncThunk(
   "appointment/getAppointments",
@@ -13,6 +14,18 @@ export const getAppointments = createAsyncThunk(
       return rejectWithValue(
         error.response?.data || error.message
       );
+    }
+  }
+);
+
+
+export const searchDiagnosisCategoriesThunk = createAsyncThunk(
+  "consultation/searchDiagnosisCategories",
+  async (_, thunkAPI) => {
+    try {
+      return await fetchDiagnosisCategories();
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data);
     }
   }
 );

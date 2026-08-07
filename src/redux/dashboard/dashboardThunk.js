@@ -1,15 +1,16 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import {
-  fetchDashboard,
-  fetchOverview,
-  fetchConsultation,
-  fetchAilments,
-  fetchTherapiesDashboard,
-  fetchMedicines,
-} from "../../services/doctorDashboardService";import { fetchConsultationHistoryList, fetchMedicinesPrescribedList } from "../../services/doctorAppointmentService";
-import { getAilments, getConsultationHistory, getMedicines, getScheduleOverview } from "../../api/doctorDashboardApi";
-import { getTherapies } from "../../api/doctorAppointmentApi";
+    fetchDashboard,
+    fetchOverview,
+    fetchConsultation,
+    fetchAilments,
+    fetchTherapiesDashboard,
+    fetchMedicines,
+    fetchWellness,
+    fetchBeauty,
+
+} from "../../services/doctorDashboardService"; import { fetchConsultationHistoryList, fetchMedicinesPrescribedList } from "../../services/doctorAppointmentService";
 
 export const getDashboard =
     createAsyncThunk(
@@ -157,3 +158,43 @@ export const loadOverview = createAsyncThunk(
         }
     }
 );
+
+export const loadWellness =
+    createAsyncThunk(
+        "dashboard/loadWellness",
+        async (
+            { doctorId, period },
+            { rejectWithValue }
+        ) => {
+            try {
+                return await fetchWellness(
+                    doctorId,
+                    period
+                );
+            } catch (error) {
+                return rejectWithValue(
+                    error.response?.data || error.message
+                );
+            }
+        }
+    );
+
+export const loadBeauty =
+    createAsyncThunk(
+        "dashboard/loadBeauty",
+        async (
+            { doctorId, period },
+            { rejectWithValue }
+        ) => {
+            try {
+                return await fetchBeauty(
+                    doctorId,
+                    period
+                );
+            } catch (error) {
+                return rejectWithValue(
+                    error.response?.data || error.message
+                );
+            }
+        }
+    );

@@ -35,3 +35,23 @@ export const getMedicines = (doctorId, period) =>
   api.get(
     `/doctor-dashboard/medicines-prescribed?id=${doctorId}&period=${period}`
   );
+
+  export const getWellnessSummary = (
+  doctorId,
+  period
+) =>
+  api.get(
+    `/doctor-dashboard/wellness-summary?id=${doctorId}&period=${period}`
+  );
+
+// ==========================
+// Beauty
+// ==========================
+
+export const getBeautySummary = (
+  doctorId,
+  period
+) =>
+  api.get(
+    `/doctor-dashboard/beauty-summary?id=${doctorId}&period=${period}`
+  );

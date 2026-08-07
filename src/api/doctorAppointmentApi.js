@@ -25,7 +25,24 @@ export const getPrescription = (consultationId) =>
 export const createPrescription = (payload) =>
   api.post(`/prescriptions`, payload);
 
+// Update Full Prescription
+export const updatePrescription = (
+  consultationId,
+  payload
+) =>
+  api.put(
+    `/prescriptions/${consultationId}`,
+    payload
+  );
 
+export const updatePrescriptionItem = (
+  itemId,
+  payload
+) =>
+  api.put(
+    `/prescriptions/item/${itemId}`,
+    payload
+  );
 export const updatePrescriptionNotes = (
   consultationId,
   payload
@@ -172,3 +189,9 @@ export const getMedicinesPrescribedList = (
   api.get(
     `/doctor-dashboard/medicines-prescribed/list?period=${period}&id=${doctorId}`
   );
+
+
+export const getDiagnosisCategories = () =>
+  api.get("/visits/diagnosis-categories");
+
+

@@ -18,8 +18,8 @@ import {
     loadPrescription,
     searchPrescriptionProductsThunk,
     savePrescriptionThunk,
-    savePrescriptionNotesThunk,
-    savePatientAllergiesThunk,
+    updatePrescriptionThunk,
+   
 } from "../../../redux/consultation/consultationThunk";
 
 const tabletOptions = [1, 2, 3, 4, 5];
@@ -56,7 +56,7 @@ const Prescription = ({
     const {
         prescription,
         prescriptionSearch,
-        allergies,
+        
         loading,
     } = useSelector(
         (state) => state.consultation
@@ -74,7 +74,12 @@ const Prescription = ({
         setEditableMedicines] =
         useState([]);
     const [backupMedicines, setBackupMedicines] = useState([]);
+    const [hasExistingPrescription, setHasExistingPrescription] =
+        useState(false);
 
+    // medicines removed during edit
+    const [deletedMedicines, setDeletedMedicines] =
+        useState([]);
     const [specialInstructions,
         setSpecialInstructions] =
         useState("");
@@ -111,10 +116,19 @@ const Prescription = ({
 
         const items = prescription.items || [];
 
-        setEditableMedicines(items);
+        // Deep clone
+        const cloned = JSON.parse(
+            JSON.stringify(items)
+        );
 
-        setBackupMedicines(
-            JSON.parse(JSON.stringify(items))
+        setEditableMedicines(cloned);
+
+        setBackupMedicines(cloned);
+
+        setDeletedMedicines([]);
+
+        setHasExistingPrescription(
+            cloned.length > 0
         );
 
         setSpecialInstructions(
@@ -124,13 +138,14 @@ const Prescription = ({
         setReviewDate(
             prescription.reviewDate || ""
         );
+
         setPatientAllergies(
-        items[0]?.patient_allergies || []
-    );
+            items[0]?.patient_allergies || []
+        );
 
-    }, [prescription]);
+    }, [consultationId]);
 
-   
+
 
     useEffect(() => {
 
@@ -156,6 +171,7 @@ const Prescription = ({
 
     }, [search]);
 
+    
     const addMedicine = (medicine) => {
 
         const exists =
@@ -179,23 +195,21 @@ const Prescription = ({
 
                 image_url: medicine.image_url,
 
-                unit_rate: Number(
-                    medicine.unit_rate
-                ),
-
-                price: Number(
-                    medicine.unit_rate
-                ),
+                price: Number(medicine.unit_rate),
 
                 quantity: 1,
+
+                dosage: "1 tablet",
+
+                frequency: "Once daily",
+
+                duration: "30 Days",
+
+                food: "Before Food",
 
                 tabletCount: 1,
 
                 timeOfDay: ["Morning"],
-
-                food: "Before Food",
-
-                duration: "30 Days",
             },
 
         ]);
@@ -208,7 +222,20 @@ const Prescription = ({
 
     const removeMedicine = (index) => {
 
-        setEditableMedicines((prev) =>
+        const medicine =
+            editableMedicines[index];
+
+        // Track removed medicines that already exist in DB
+        if (medicine.id) {
+
+            setDeletedMedicines(prev => [
+                ...prev,
+                medicine,
+            ]);
+
+        }
+
+        setEditableMedicines(prev =>
             prev.filter((_, i) => i !== index)
         );
 
@@ -264,43 +291,70 @@ const Prescription = ({
 
     };
     console.log("consultationId prop:", consultationId);
-    const savePrescription = async () => {
+    const handleSaveAndContinue = async () => {
+
         try {
-            console.log("Dispatch Payload:", {
+
+            const payload = {
+
                 consultation_id: consultationId,
-                items: editableMedicines,
-            });
 
-            // Save Medicines
-            await dispatch(
-                savePrescriptionThunk({
-                    consultation_id: consultationId,
-                    items: editableMedicines,
-                })
-            ).unwrap();
+                special_instructions: specialInstructions,
 
-            // Save Notes
-            await dispatch(
-                savePrescriptionNotesThunk({
-                    consultationId,
-                    payload: {
-                        special_instructions: specialInstructions,
-                        review_date: reviewDate,
-                    },
-                })
-            ).unwrap();
+                review_date: reviewDate,
 
-            // Save Allergies
-            await dispatch(
-                savePatientAllergiesThunk({
-                    patientId,
-                    payload: {
-                        allergies: patientAllergies,
-                    },
-                })
-            ).unwrap();
+                patient_allergies: patientAllergies,
 
-            // Reload latest prescription
+                items: editableMedicines.map((item) => ({
+
+                    medicine_name: item.medicine_name,
+
+                    category: item.category,
+
+                    quantity: Number(item.quantity),
+
+                    dosage: item.dosage,
+
+                    frequency: item.frequency,
+
+                    duration: item.duration,
+
+                    price: Number(item.price),
+
+
+
+                    time_of_day:
+                        item.timeOfDay ??
+                        item.time_of_day ??
+                        ["Morning"],
+
+                    food: item.food,
+
+                })),
+
+            };
+
+            if (hasExistingPrescription) {
+
+                await dispatch(
+                    updatePrescriptionThunk({
+
+                        // We'll replace this with the actual prescription id
+                        prescriptionId: consultationId,
+
+                        payload,
+
+                    })
+                ).unwrap();
+
+            } else {
+
+                await dispatch(
+                    savePrescriptionThunk(payload)
+                ).unwrap();
+
+            }
+
             dispatch(loadPrescription(consultationId));
 
             setEditing(false);
@@ -308,8 +362,11 @@ const Prescription = ({
             onContinue?.();
 
         } catch (error) {
+
             console.log(error);
+
         }
+
     };
     const total = useMemo(() => {
 
@@ -443,6 +500,7 @@ const Prescription = ({
                 </h2>
 
                 <button
+                    
                     onClick={() => {
                         if (!editing) {
                             setBackupMedicines(
@@ -456,7 +514,10 @@ const Prescription = ({
                             setEditing(false);
                         }
                     }}
-                    className="flex items-center gap-2 text-[15px] font-semibold text-[#4D2E23]"
+                    className={`flex items-center gap-2 text-[15px] font-semibold${hasExistingPrescription
+                        ? "text-[#4D2E23]"
+                        : "text-gray-400 cursor-not-allowed"}
+`}
                 >
                     <HiOutlinePencilSquare size={18} />
                     {editing ? "Cancel" : "Edit"}
@@ -487,7 +548,11 @@ const Prescription = ({
                     (medicine, index) => (
 
                         <div
-                            key={medicine.id}
+                            key={
+                                medicine.id ??
+                                medicine.product_id ??
+                                index
+                            }
                             className="border-b border-[#ECE2DA] p-7 last:border-b-0"
                         >
 
@@ -1020,7 +1085,7 @@ ${medicine.food === item
                     {patientAllergies.map((item, index) => (
 
                         <div
-                            key={`${item.id}`}
+                            key={index}
                             className="flex items-center gap-3 rounded-full border border-[#E7DBD3] bg-[#FFF8F4] px-5 py-3">
 
                             <span className="font-medium">
@@ -1071,7 +1136,7 @@ ${medicine.food === item
 
                 <button
                     type="button"
-                    onClick={savePrescription}
+                    onClick={handleSaveAndContinue}
                     disabled={loading}
                     className="flex h-16 items-center justify-center gap-3 rounded-[22px] bg-[#8A563B] text-[20px] font-semibold text-white transition hover:bg-[#74452E] disabled:opacity-70"
                 >

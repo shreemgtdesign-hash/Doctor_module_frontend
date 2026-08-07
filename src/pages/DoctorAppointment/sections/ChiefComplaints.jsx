@@ -52,8 +52,8 @@ const ChiefComplaints = ({ appointmentId, setActiveSection }) => {
     }, [appointmentId, dispatch]);
 
     useEffect(() => {
-        setSelectedSymptoms(chiefComplaints?.tags || []);
-        setNotes(chiefComplaints?.notes || "");
+        setSelectedSymptoms(chiefComplaints?.complaint_tags || []);
+        setNotes(chiefComplaints?.complaint_notes || "");
     }, [chiefComplaints]);
 
     const toggleSymptom = (symptom) => {
@@ -68,9 +68,9 @@ const ChiefComplaints = ({ appointmentId, setActiveSection }) => {
 
   const handleSave = async () => {
   const payload = {
-    tags: selectedSymptoms,
-    notes,
-  };
+  complaint_tags: selectedSymptoms,
+  complaint_notes: notes,
+};
 
   console.log("Saving payload:", payload);
 

@@ -17,7 +17,10 @@ import {
     loadTherapies,
     saveTherapyThunk,
     updateTherapyThunk,
+    updatePrescriptionThunk,
+    updatePrescriptionItemThunk,
 } from "./consultationThunk";
+import { searchDiagnosisCategoriesThunk } from "../appointment/appointmentThunk";
 
 const initialState = {
     loading: false,
@@ -26,7 +29,10 @@ const initialState = {
         tags: [],
         notes: "",
     },
-    diagnosis: "",
+    diagnosis: {
+        diagnosis: "",
+        category: "",
+    },
     associateDoctors: [],
     appointments: [],
 
@@ -56,6 +62,7 @@ const initialState = {
         items: [],
         total: 0,
     },
+    diagnosisCategories: [],
 };
 
 const consultationSlice = createSlice({
@@ -153,13 +160,17 @@ const consultationSlice = createSlice({
                 state.chiefComplaints = action.meta.arg.payload;
             })
             .addCase(loadDiagnosis.fulfilled, (state, action) => {
-                state.diagnosis =
-                    action.payload?.diagnosis || "";
+                state.diagnosis = {
+                    diagnosis: action.payload?.diagnosis || "",
+                    category: action.payload?.category || "",
+                };
             })
 
             .addCase(saveDiagnosisThunk.fulfilled, (state, action) => {
-                state.diagnosis =
-                    action.meta.arg.payload.diagnosis;
+                state.diagnosis = {
+                    diagnosis: action.meta.arg.payload.diagnosis,
+                    category: action.meta.arg.payload.category,
+                };
             })
             .addCase(loadAssociateDoctors.fulfilled, (state, action) => {
                 state.associateDoctors = action.payload || [];
@@ -242,6 +253,29 @@ const consultationSlice = createSlice({
                 }
             )
 
+            .addCase(updatePrescriptionThunk.pending, (state) => {
+                state.loading = true;
+            })
+
+            .addCase(updatePrescriptionThunk.fulfilled, (state) => {
+                state.loading = false;
+            })
+
+            .addCase(updatePrescriptionThunk.rejected, (state) => {
+                state.loading = false;
+            })
+
+               .addCase(updatePrescriptionItemThunk.pending, (state) => {
+                state.loading = true;
+            })
+
+            .addCase(updatePrescriptionItemThunk.fulfilled, (state) => {
+                state.loading = false;
+            })
+
+            .addCase(updatePrescriptionItemThunk.rejected, (state) => {
+                state.loading = false;
+            })
             .addCase(
                 savePatientAllergiesThunk.fulfilled,
                 (state, action) => {
@@ -265,6 +299,13 @@ const consultationSlice = createSlice({
                     0
                 );
             })
+
+            .addCase(
+                searchDiagnosisCategoriesThunk.fulfilled,
+                (state, action) => {
+                    state.diagnosisCategories = action.payload || [];
+                }
+            )
 
             .addCase(
                 saveTherapyThunk.fulfilled,
