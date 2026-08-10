@@ -77,6 +77,8 @@ ref
 
       {activeSection === "prescription" && (
         <Prescription
+        key={selectedPatient?.consultation_id ||
+        selectedPatient?.id}
           patient={patientProfile}
           appointment={selectedPatient?.id}
           consultationId={selectedPatient?.consultation_id}

@@ -55,41 +55,41 @@ useEffect(() => {
     dispatch(loadTherapies(appointmentId));
   }
 }, [appointmentId, dispatch]);
-  useEffect(() => {
-  if (!search.trim()) return;
 
-  dispatch(searchTherapiesThunk(search));
-  setShowDropdown(true);
-}, [search, dispatch]);
 
   const addTherapy = async (therapy) => {
-  const payload = {
-    treatment_id: therapy.id,
-    booking_date: new Date().toISOString().split("T")[0],
-    slot_time: "15:30:00",
-    amount: Number(therapy.daycare_price),
-    notes: "",
-  };
-const result = await dispatch(
-  saveTherapyThunk({
-    appointmentId,
-    payload,
-  })
-).unwrap();
+  try {
+    const payload = {
+      treatment_id: therapy.id,
+      booking_date: new Date().toISOString().split("T")[0],
+      slot_time: "15:30:00",
+      amount: Number(therapy.daycare_price),
+      notes: "",
+    };
 
-console.log("Save Therapy Response:", result);
-  await dispatch(
-    saveTherapyThunk({
-      appointmentId,
-      payload,
-    })
-  ).unwrap();
+    console.log("Adding therapy:", payload);
 
-  setTimeout(() => {
-  dispatch(loadTherapies(appointmentId));
-}, 500);
-  setSearch("");
-  setShowDropdown(false);
+    // IMPORTANT:
+    // Call POST only ONCE
+    await dispatch(
+      saveTherapyThunk({
+        appointmentId,
+        payload,
+      })
+    ).unwrap();
+
+    // Reload the actual list from backend
+    await dispatch(
+      loadTherapies(appointmentId)
+    ).unwrap();
+
+    // Close search
+    setSearch("");
+    setShowDropdown(false);
+
+  } catch (error) {
+    console.error("Failed to add therapy:", error);
+  }
 };
 
   const updateTherapy = (index, key, value) => {

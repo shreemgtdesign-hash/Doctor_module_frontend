@@ -2,7 +2,7 @@ import { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = ({ children ,pharmacistMenu}) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -11,6 +11,7 @@ const DashboardLayout = ({ children }) => {
       <Sidebar
         isOpen={sidebarOpen}
         setIsOpen={setSidebarOpen}
+        menuItems={pharmacistMenu}
       />
 
       <div

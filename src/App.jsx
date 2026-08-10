@@ -7,44 +7,85 @@ import Login from "./pages/Login";
 import ConsultationHistoryTable from "./pages/DoctorDashboard/components/ConsultationHistorytable";
 import MedicinePrescribedTable from "./pages/DoctorDashboard/components/MedicinePrescribedTable";
 import AilmentsAddressedTable from "./pages/DoctorDashboard/components/AilmentsAddressedTable";
+import PharmacistDashboard from "./pages/Pharmacist/PharmacistDashboard";
+import PharmacistAppointments from "./pages/Pharmacist/PharmacistAppointments";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<DoctorDashboard />} />
-      <Route
+
+    {/* Root */}
+    <Route
+        path="/"
+        element={
+            <Navigate
+                to="/login"
+                replace
+            />
+        }
+    />
+
+
+    {/* Login */}
+    <Route
         path="/login"
         element={<Login />}
-      />
-      <Route
-        path="/doctor/appointments"
-        element={<DoctorAppointment />}
-      />
+    />
 
-      {/* Redirect unknown routes */}
-      <Route path="*" element={<Navigate to="/" replace />} />
 
-      <Route
+    {/* Doctor */}
+    <Route
         path="/doctordashboard"
         element={<DoctorDashboard />}
-      />
+    />
 
-      <Route
+    <Route
+        path="/doctor/appointments"
+        element={<DoctorAppointment />}
+    />
+
+
+    {/* Pharmacist */}
+    <Route
+        path="/pharmacist/dashboard"
+        element={<PharmacistDashboard />}
+    />
+
+    <Route
+        path="/pharmacist/appointments"
+        element={<PharmacistAppointments />}
+    />
+
+
+    {/* Doctor tables */}
+    <Route
         path="/doctor/consultation-history"
         element={<ConsultationHistoryTable />}
-      />
+    />
 
-      <Route
+    <Route
         path="/doctor/medicines-prescribed"
         element={<MedicinePrescribedTable />}
-      />
+    />
 
-      <Route
+    <Route
         path="/doctor/ailments-addressed"
         element={<AilmentsAddressedTable />}
-      />
+    />
 
-    </Routes>
+
+    {/* Unknown route */}
+    <Route
+        path="*"
+        element={
+            <Navigate
+                to="/login"
+                replace
+            />
+        }
+    />
+
+</Routes>
   );
 }
 

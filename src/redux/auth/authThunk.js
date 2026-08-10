@@ -1,22 +1,46 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { doctorLogin } from "../../services/authService";
 
-export const loginDoctor = createAsyncThunk(
-  "auth/loginDoctor",
+import {
+    unifiedLogin,
+} from "../../services/authService";
 
-  async (credentials, { rejectWithValue }) => {
-    try {
-      const response = await doctorLogin(credentials);
 
-      // Save in localStorage for persistence
-      localStorage.setItem("doctor_token", response.token);
-      localStorage.setItem("doctor", JSON.stringify(response.user));
+export const login = createAsyncThunk(
+    "auth/login",
 
-      return response;
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Login failed"
-      );
+    async (credentials, { rejectWithValue }) => {
+
+        try {
+
+            const response =
+                await unifiedLogin(credentials);
+
+            // Save common authentication
+            localStorage.setItem(
+                "token",
+                response.token
+            );
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify(response.user)
+            );
+
+            localStorage.setItem(
+                "role",
+                response.role
+            );
+
+            return response;
+
+        } catch (error) {
+
+            return rejectWithValue(
+                error.response?.data?.message ||
+                "Login failed"
+            );
+
+        }
+
     }
-  }
 );

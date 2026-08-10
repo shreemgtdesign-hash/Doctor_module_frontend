@@ -100,14 +100,38 @@ const Diagnosis = ({ appointmentId, onContinue, onBack, }) => {
     !selectedDiagnosis.includes(item)
   );
 
-  const filteredDoctors =
-    doctorsList.filter((doctor) =>
-      doctor.doctor_name
-        ?.toLowerCase()
-        .includes(
-          doctorSearch.toLowerCase()
-        )
+ const enrichedAssociateDoctors = associateDoctors.map(
+  (associateDoctor) => {
+
+    const doctorDetails = doctorsList.find(
+      (doctor) =>
+        doctor.doctor_id === associateDoctor.doctor_id
     );
+
+    return {
+      ...doctorDetails,
+      ...associateDoctor,
+
+      // Prefer the data saved in associate doctor
+      doctor_name:
+        associateDoctor.doctor_name ||
+        doctorDetails?.doctor_name ||
+        doctorDetails?.name ||
+        "",
+
+      profile_image:
+        associateDoctor.profile_image ||
+        doctorDetails?.profile_image ||
+        "",
+
+      specialization:
+        associateDoctor.specialization ||
+        doctorDetails?.specialization ||
+        "",
+
+    };
+  }
+);
 
   const handleAddDoctor = async () => {
 
@@ -125,6 +149,11 @@ const Diagnosis = ({ appointmentId, onContinue, onBack, }) => {
 
             doctor_id:
               selectedDoctor.doctor_id,
+
+              doctor_name:
+              selectedDoctor.name,
+              profile_image:
+              selectedDoctor.profile_image,
 
             role_label:
               selectedDoctor.specialization,
@@ -310,38 +339,73 @@ const Diagnosis = ({ appointmentId, onContinue, onBack, }) => {
         </div>
 
         <div className="grid grid-cols-3 gap-8">
-          {associateDoctors.length > 0 ? (
-            associateDoctors.map((doctor) => (
-              <div
-                key={doctor.id}
-                className="relative rounded-2xl border border-[#EFE4DC] bg-white p-6 text-center"
-              >
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#F7EEE8] text-2xl font-bold text-[#8B573D]">
-                  {doctor.name?.charAt(0)}
-                </div>
 
-                <h4 className="mt-4 text-lg font-semibold text-[#4D2E23]">
-                  {doctor.name}
-                </h4>
+  {enrichedAssociateDoctors.length > 0 ? (
 
-                <p className="text-sm text-[#8B7A70]">
-                  {doctor.role_label}
-                </p>
+    enrichedAssociateDoctors.map((doctor) => (
 
-                <button
-                  onClick={() => handleDeleteDoctor(doctor.id)}
-                  className="mt-5 rounded-xl bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
-                >
-                  Remove
-                </button>
-              </div>
-            ))
-          ) : (
-            <p className="col-span-3 text-center text-[#8B7A70]">
-              No associate doctors added.
-            </p>
-          )}
-        </div>
+      <div
+        key={doctor.id}
+        className="relative rounded-2xl border border-[#EFE4DC] bg-white p-6 text-center"
+      >
+
+        {/* Profile Image */}
+        <div className="mx-auto h-16 w-16 overflow-hidden rounded-full bg-[#F7EEE8]">
+
+  {doctor.profile_image ? (
+
+    <img
+      src={doctor.profile_image}
+      alt={doctor.doctor_name || "Doctor"}
+      className="h-full w-full object-cover"
+    />
+
+  ) : (
+
+    <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-[#8B573D]">
+      {(doctor.doctor_name || "D").charAt(0)}
+    </div>
+
+  )}
+
+</div>
+
+        {/* Doctor Name */}
+        <h4 className="mt-4 text-lg font-semibold text-[#4D2E23]">
+          {doctor.doctor_name}
+        </h4>
+
+        {/* Role */}
+        <p className="mt-1 text-sm text-[#8B7A70]">
+          {doctor.role_label ||
+            doctor.specialization ||
+            "Associate Doctor"}
+        </p>
+
+        {/* Remove */}
+        <button
+          type="button"
+          onClick={() =>
+            handleDeleteDoctor(doctor.id)
+          }
+          className="mt-5 rounded-xl bg-red-50 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-100"
+        >
+          Remove
+        </button>
+
+      </div>
+
+    ))
+
+  ) : (
+
+    <p className="col-span-3 text-center text-[#8B7A70]">
+      No associate doctors added.
+    </p>
+
+  )}
+
+</div>
       </div>
 
       {/* Save & Continue */}
@@ -353,100 +417,107 @@ const Diagnosis = ({ appointmentId, onContinue, onBack, }) => {
         Save & Go Back
       </button>
 
-     {showDoctorModal && (
-  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      {showDoctorModal && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
 
-    <div className="w-[760px] rounded-[30px] bg-white p-8 shadow-2xl">
+          <div className="w-[760px] rounded-[30px] bg-white p-8 shadow-2xl">
 
-      {/* Header */}
+            {/* Header */}
 
-      <h2 className="text-[28px] font-bold text-[#4D2E23]">
-        Associate Doctors
-      </h2>
+            <h2 className="text-[28px] font-bold text-[#4D2E23]">
+              Associate Doctors
+            </h2>
 
-      <p className="mt-2 text-[#8B7A70]">
-        Select a doctor
-      </p>
+            <p className="mt-2 text-[#8B7A70]">
+              Select a doctor
+            </p>
 
-      {/* Doctors List */}
+            {/* Doctors List */}
 
-      <div className="mt-8 max-h-[420px] overflow-y-auto pr-2">
+            <div className="mt-8 max-h-[420px] overflow-y-auto pr-2">
 
-        <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
 
-          {doctorsList.map((doctor) => (
+                {doctorsList.map((doctor) => (
 
-            <button
-              key={doctor.doctor_id}
-              type="button"
-              onClick={() => setSelectedDoctor(doctor)}
-              className={`rounded-2xl border p-5 text-left transition-all duration-200
+                  <button
+                    key={doctor.doctor_id}
+                    type="button"
+                    onClick={() => setSelectedDoctor(doctor)}
+                    className={`rounded-2xl border p-5 text-left transition-all duration-200
 
-                ${
-                  selectedDoctor?.doctor_id === doctor.doctor_id
-                    ? "border-[#8B573D] bg-[#FFF5EF] shadow-md"
-                    : "border-[#E8DDD5] hover:border-[#8B573D] hover:bg-[#FFF9F5]"
-                }`}
-            >
+                ${selectedDoctor?.doctor_id === doctor.doctor_id
+                        ? "border-[#8B573D] bg-[#FFF5EF] shadow-md"
+                        : "border-[#E8DDD5] hover:border-[#8B573D] hover:bg-[#FFF9F5]"
+                      }`}
+                  >
 
-              <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4">
 
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F8EEE7] text-xl font-bold text-[#8B573D]">
+                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full bg-[#F8EEE7]">
+                        {doctor.profile_image ? (
+                          <img
+                            src={doctor.profile_image}
+                            alt={doctor.name || "Doctor"}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-xl font-bold text-[#8B573D]">
+                            {doctor.name?.charAt(0)}
+                          </div>
+                        )}
+                      </div>
 
-                  {doctor.doctor_name?.charAt(0)}
+                      <div className="min-w-0">
 
-                </div>
+                        <h3 className="truncate text-[17px] font-semibold text-[#4D2E23]">
+                          {doctor.name}
+                        </h3>
 
-                <div className="min-w-0">
+                        <p className="mt-1 text-sm text-[#8B7A70]">
+                          {doctor.specialization}
+                        </p>
 
-                  <h3 className="truncate text-[17px] font-semibold text-[#4D2E23]">
-                    {doctor.doctor_name}
-                  </h3>
+                      </div>
 
-                  <p className="mt-1 text-sm text-[#8B7A70]">
-                    {doctor.specialization}
-                  </p>
+                    </div>
 
-                </div>
+                  </button>
+
+                ))}
 
               </div>
 
-            </button>
+            </div>
 
-          ))}
+            {/* Footer */}
+
+            <div className="mt-8 flex justify-end gap-4 border-t border-[#EFE4DC] pt-6">
+
+              <button
+                onClick={() => {
+                  setShowDoctorModal(false);
+                  setSelectedDoctor(null);
+                }}
+                className="rounded-xl border border-[#DDD] px-7 py-3 font-medium transition hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleAddDoctor}
+                disabled={!selectedDoctor}
+                className="rounded-xl bg-[#8B573D] px-8 py-3 font-medium text-white transition hover:bg-[#74442F] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Add Doctor
+              </button>
+
+            </div>
+
+          </div>
 
         </div>
-
-      </div>
-
-      {/* Footer */}
-
-      <div className="mt-8 flex justify-end gap-4 border-t border-[#EFE4DC] pt-6">
-
-        <button
-          onClick={() => {
-            setShowDoctorModal(false);
-            setSelectedDoctor(null);
-          }}
-          className="rounded-xl border border-[#DDD] px-7 py-3 font-medium transition hover:bg-gray-50"
-        >
-          Cancel
-        </button>
-
-        <button
-          onClick={handleAddDoctor}
-          disabled={!selectedDoctor}
-          className="rounded-xl bg-[#8B573D] px-8 py-3 font-medium text-white transition hover:bg-[#74442F] disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Add Doctor
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-)}
+      )}
     </div>
   );
 };

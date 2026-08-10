@@ -44,7 +44,7 @@ const initialState = {
     patientProfile: null,
     patientLoading: false,
     patientWellness: null,
-
+      prescriptionRequestId: null,
     error: null,
     prescriptionSearch: [],
 
@@ -105,6 +105,8 @@ const consultationSlice = createSlice({
             };
 
             state.allergies = [];
+            state.prescriptionRequestId = null;
+
 
 
         },
@@ -181,7 +183,7 @@ const consultationSlice = createSlice({
                 state.associateDoctors = action.payload || [];
             })
 
-            
+
             .addCase(
                 searchPrescriptionProductsThunk.fulfilled,
                 (state, action) => {
@@ -189,43 +191,96 @@ const consultationSlice = createSlice({
                         action.payload || [];
                 }
             )
-            .addCase(loadPrescription.pending, (state) => {
-                state.loading = true;
+            // ========================================
+// LOAD PRESCRIPTION
+// ========================================
 
-                state.prescription = {
-                    items: [],
-                    total: 0,
-                    specialInstructions: "",
-                    reviewDate: "",
-                };
-            })
+.addCase(loadPrescription.pending, (state, action) => {
 
-            .addCase(loadPrescription.fulfilled, (state, action) => {
-                state.loading = false;
+    state.loading = true;
 
-                const data = action.payload;
+    // Store the request ID of the CURRENT request
+    state.prescriptionRequestId = action.meta.requestId;
 
-                state.prescription = {
-                    items: data.items || [],
-                    total: data.total || 0,
-                    specialInstructions: data.special_instructions || "",
-                    reviewDate: data.review_date || "",
-                };
+    // Immediately clear previous patient's data
+    state.prescription = {
+        consultation_id: action.meta.arg,
+        items: [],
+        total: 0,
+        specialInstructions: "",
+        reviewDate: "",
+    };
 
-                state.allergies =
-                    data.items?.[0]?.patient_allergies || [];
-            })
+    state.allergies = [];
+})
 
-            .addCase(loadPrescription.rejected, (state) => {
-                state.loading = false;
 
-                state.prescription = {
-                    items: [],
-                    total: 0,
-                    specialInstructions: "",
-                    reviewDate: "",
-                };
-            })
+.addCase(loadPrescription.fulfilled, (state, action) => {
+
+    // ========================================
+    // IMPORTANT
+    // Ignore old/stale API responses
+    // ========================================
+
+    if (
+        state.prescriptionRequestId !==
+        action.meta.requestId
+    ) {
+        return;
+    }
+
+    state.loading = false;
+
+    const data = action.payload || {};
+
+    state.prescription = {
+
+        consultation_id:
+            data.consultation_id ||
+            action.meta.arg,
+
+        items:
+            data.items || [],
+
+        total:
+            data.total || 0,
+
+        specialInstructions:
+            data.special_instructions || "",
+
+        reviewDate:
+            data.review_date || "",
+    };
+
+    state.allergies =
+        data.items?.[0]?.patient_allergies || [];
+})
+
+
+.addCase(loadPrescription.rejected, (state, action) => {
+
+    // Ignore stale rejected requests too
+    if (
+        state.prescriptionRequestId !==
+        action.meta.requestId
+    ) {
+        return;
+    }
+
+    state.loading = false;
+
+    state.prescription = {
+        consultation_id: null,
+        items: [],
+        total: 0,
+        specialInstructions: "",
+        reviewDate: "",
+    };
+
+    state.allergies = [];
+
+    state.prescriptionRequestId = null;
+})
 
             .addCase(
                 savePrescriptionThunk.fulfilled,

@@ -106,24 +106,85 @@ const Prescription = ({
 
     useEffect(() => {
 
-        if (!consultationId) return;
+        console.log(
+            "🔵 Prescription changed:",
+            consultationId
+        );
 
-        dispatch(loadPrescription(consultationId));
+        // ALWAYS clear previous patient UI first
+        setEditableMedicines([]);
+        setBackupMedicines([]);
+        setDeletedMedicines([]);
 
-    }, [consultationId]);
+        setHasExistingPrescription(false);
 
+        setSpecialInstructions("");
+        setReviewDate("");
+        setPatientAllergies([]);
+
+        setDosagePopup(null);
+        setDurationPopup(null);
+
+        setSearch("");
+        setShowSearch(false);
+
+        // Then check consultation
+        if (!consultationId) {
+
+            console.log(
+                "❌ No consultationId"
+            );
+
+            return;
+        }
+
+        console.log(
+            "🚀 GET prescription:",
+            consultationId
+        );
+
+        dispatch(
+            loadPrescription(consultationId)
+        );
+
+    }, [
+        consultationId,
+        dispatch
+    ]);
     useEffect(() => {
 
-        const items = prescription.items || [];
+        if (!prescription) {
+            return;
+        }
 
-        // Deep clone
-        const cloned = JSON.parse(
-            JSON.stringify(items)
-        );
+        // ========================================
+        // VERY IMPORTANT
+        // Make sure this prescription belongs
+        // to the currently selected patient
+        // ========================================
+
+        if (
+            prescription.consultation_id &&
+            prescription.consultation_id !== consultationId
+        ) {
+            return;
+        }
+
+        const items =
+            prescription.items || [];
+
+        const cloned =
+            JSON.parse(
+                JSON.stringify(items)
+            );
 
         setEditableMedicines(cloned);
 
-        setBackupMedicines(cloned);
+        setBackupMedicines(
+            JSON.parse(
+                JSON.stringify(cloned)
+            )
+        );
 
         setDeletedMedicines([]);
 
@@ -143,8 +204,10 @@ const Prescription = ({
             items[0]?.patient_allergies || []
         );
 
-    }, [consultationId]);
-
+    }, [
+        prescription,
+        consultationId
+    ]);
 
 
     useEffect(() => {

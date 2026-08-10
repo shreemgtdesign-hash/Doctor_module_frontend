@@ -1,7 +1,16 @@
-import { loginDoctor } from "../api/authApi";
+import api from "../api/axios";
 
-export const doctorLogin = async (values) => {
-  const response = await loginDoctor(values);
+export const unifiedLogin = async (credentials) => {
+    const response = await api.post(
+        "/auth/login",
+        credentials
+    );
 
-  return response.data;
+    return {
+        token: response.data.token,
+        role: response.data.role,
+        user:
+            response.data.user ||
+            response.data.patient,
+    };
 };

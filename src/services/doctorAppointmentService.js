@@ -27,8 +27,8 @@ import {
   getDoctorsList,
   addAssociateDoctor,
   deleteAssociateDoctor,
-  
-  
+
+
 
 } from "../api/doctorAppointmentApi";
 
@@ -97,7 +97,7 @@ export const fetchChiefComplaints = async (
 ) => {
   const response =
     await getChiefComplaints(appointmentId);
-  
+
   console.log("GET Chief Complaints:", response.data);
   return response.data.data;
 };
@@ -161,28 +161,44 @@ export const fetchPrescriptionProducts = async (
 // Get Prescription
 // ============================
 
-export const fetchPrescription = async (consultationId) => {
-  const response = await getPrescription(consultationId);
+export const fetchPrescription = async (
+  consultationId
+) => {
 
-  const medicines = response.data.data || [];
+  const response =
+    await getPrescription(
+      consultationId
+    );
+
+  const medicines =
+    response.data.data || [];
 
   return {
-    items: medicines,
-    total: medicines.reduce(
-      (sum, item) =>
-        sum + Number(item.price || 0) * Number(item.quantity || 1),
-      0
-    ),
+
+    consultation_id:
+      consultationId,
+
+    items:
+      medicines,
+
+    total:
+      medicines.reduce(
+        (sum, item) =>
+          sum +
+          Number(item.price || 0) *
+          Number(item.quantity || 1),
+        0
+      ),
+
     special_instructions:
       medicines[0]?.special_instructions || "",
+
     review_date:
       medicines[0]?.review_date || "",
   };
 };
 
-// ============================
-// Save Prescription
-// ============================
+
 
 export const savePrescription =
   async (payload) => {
@@ -231,7 +247,7 @@ export const savePatientAllergies =
   };
 
 
-  // ============================
+// ============================
 // Search Therapies
 // ============================
 
@@ -314,39 +330,39 @@ export const fetchMedicinesPrescribedList =
     return response.data;
   };
 
-  export const fetchDiagnosisCategories = async () => {
+export const fetchDiagnosisCategories = async () => {
   const response = await getDiagnosisCategories();
   return response.data.data;
 };
 
 
 export const editPrescription = async (
-    consultationId,
-    payload
+  consultationId,
+  payload
 ) => {
 
-    const response =
-        await updatePrescription(
-            consultationId,
-            payload
-        );
+  const response =
+    await updatePrescription(
+      consultationId,
+      payload
+    );
 
-    return response.data;
+  return response.data;
 
 };
 
 export const editPrescriptionItem = async (
-    itemId,
-    payload
+  itemId,
+  payload
 ) => {
 
-    const response =
-        await updatePrescriptionItem(
-            itemId,
-            payload
-        );
+  const response =
+    await updatePrescriptionItem(
+      itemId,
+      payload
+    );
 
-    return response.data;
+  return response.data;
 
 };
 
@@ -355,9 +371,9 @@ export const editPrescriptionItem = async (
 // =========================
 
 export const fetchDoctorsList = async () => {
-    const response = await getDoctorsList();
+  const response = await getDoctorsList();
 
-    return response.data.data;
+  return response.data.data;
 };
 
 // =========================
@@ -365,16 +381,16 @@ export const fetchDoctorsList = async () => {
 // =========================
 
 export const createAssociateDoctor = async (
-    appointmentId,
-    payload
+  appointmentId,
+  payload
 ) => {
 
-    const response = await addAssociateDoctor(
-        appointmentId,
-        payload
-    );
+  const response = await addAssociateDoctor(
+    appointmentId,
+    payload
+  );
 
-    return response.data;
+  return response.data;
 };
 
 // =========================
@@ -382,12 +398,12 @@ export const createAssociateDoctor = async (
 // =========================
 
 export const removeAssociateDoctor = async (
-    associateDoctorId
+  associateDoctorId
 ) => {
 
-    const response = await deleteAssociateDoctor(
-        associateDoctorId
-    );
+  const response = await deleteAssociateDoctor(
+    associateDoctorId
+  );
 
-    return response.data;
+  return response.data;
 };
