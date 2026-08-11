@@ -47,7 +47,7 @@ const doctorMenu = [
     {
         name: "Dashboard",
         icon: HiHome,
-        path: "/",
+        path: "/doctordashboard",
     },
     {
         name: "MIS",

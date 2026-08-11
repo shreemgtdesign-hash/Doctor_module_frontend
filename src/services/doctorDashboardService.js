@@ -7,6 +7,7 @@ import {
     getMedicines,
     getWellnessSummary,
     getBeautySummary,
+    getTherapyAppointments,
 } from "../api/doctorDashboardApi";
 
 export const fetchDashboard = async (
@@ -109,4 +110,12 @@ export const fetchWellness = async (doctorId, period) => {
 export const fetchBeauty = async (doctorId, period) => {
     const response = await getBeautySummary(doctorId, period);
     return response.data.data;
+};
+export const fetchTherapyAppointments = async () => {
+
+    const response =
+        await getTherapyAppointments();
+
+    return response.data;
+
 };

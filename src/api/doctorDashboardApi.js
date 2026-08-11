@@ -55,3 +55,6 @@ export const getBeautySummary = (
   api.get(
     `/doctor-dashboard/beauty-summary?id=${doctorId}&period=${period}`
   );
+
+  export const getTherapyAppointments = () =>
+    api.get("/therapist/appointments");

@@ -1,21 +1,18 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-
-import {
-    unifiedLogin,
-} from "../../services/authService";
-
+import { unifiedLogin } from "../../services/authService";
 
 export const login = createAsyncThunk(
     "auth/login",
 
     async (credentials, { rejectWithValue }) => {
-
         try {
+            const response = await unifiedLogin(credentials);
 
-            const response =
-                await unifiedLogin(credentials);
+            // Clear old role-specific data
+            localStorage.removeItem("doctor");
+            localStorage.removeItem("pharmacist");
 
-            // Save common authentication
+            // Save common authentication data
             localStorage.setItem(
                 "token",
                 response.token
@@ -34,13 +31,10 @@ export const login = createAsyncThunk(
             return response;
 
         } catch (error) {
-
             return rejectWithValue(
                 error.response?.data?.message ||
                 "Login failed"
             );
-
         }
-
     }
 );

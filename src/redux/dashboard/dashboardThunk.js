@@ -9,6 +9,7 @@ import {
     fetchMedicines,
     fetchWellness,
     fetchBeauty,
+    fetchTherapyAppointments
 
 } from "../../services/doctorDashboardService"; import { fetchConsultationHistoryList, fetchMedicinesPrescribedList } from "../../services/doctorAppointmentService";
 
@@ -197,4 +198,33 @@ export const loadBeauty =
                 );
             }
         }
+    );
+
+
+    // ==========================
+// Therapy Appointments Table
+// ==========================
+
+export const loadTherapyAppointments =
+    createAsyncThunk(
+
+        "dashboard/loadTherapyAppointments",
+
+        async (_, { rejectWithValue }) => {
+
+            try {
+
+                return await fetchTherapyAppointments();
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+
+            }
+
+        }
+
     );

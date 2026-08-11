@@ -9,6 +9,7 @@ import MedicinePrescribedTable from "./pages/DoctorDashboard/components/Medicine
 import AilmentsAddressedTable from "./pages/DoctorDashboard/components/AilmentsAddressedTable";
 import PharmacistDashboard from "./pages/Pharmacist/PharmacistDashboard";
 import PharmacistAppointments from "./pages/Pharmacist/PharmacistAppointments";
+import TherapiesPrescribedTable from "./pages/DoctorDashboard/components/TherapiesPrescribedTable";
 
 function App() {
   return (
@@ -84,6 +85,11 @@ function App() {
             />
         }
     />
+
+    <Route
+    path="/doctor/therapies-prescribed"
+    element={<TherapiesPrescribedTable />}
+/>
 
 </Routes>
   );

@@ -33,13 +33,8 @@ const PharmacistDashboard = () => {
 
         <DashboardLayout role="pharmacist">
 
-            {/* Dashboard Container */}
 
             <div className="w-full px-1 py-1">
-
-                {/* ========================================= */}
-                {/* TOP CARD */}
-                {/* ========================================= */}
 
                 <div className="mb-6">
 
@@ -47,16 +42,9 @@ const PharmacistDashboard = () => {
 
                 </div>
 
-
-                {/* ========================================= */}
-                {/* BOTTOM GRID */}
-                {/* ========================================= */}
-
                 <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
 
-                    {/* ===================================== */}
-                    {/* LEFT */}
-                    {/* ===================================== */}
+
 
                     <div className="min-w-0">
 
@@ -64,10 +52,6 @@ const PharmacistDashboard = () => {
 
                     </div>
 
-
-                    {/* ===================================== */}
-                    {/* RIGHT */}
-                    {/* ===================================== */}
 
                     <div className="min-w-0 space-y-6">
 
