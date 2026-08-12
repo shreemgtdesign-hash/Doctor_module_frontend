@@ -1,47 +1,45 @@
 import api from "./axios";
 
 // Schedule Overview
-export const getScheduleOverview = (doctorId, period) =>
+export const getScheduleOverview = (period) =>
   api.get(
-    `/doctor-dashboard/schedule-overview?id=${doctorId}&period=${period}`
+    `/doctor-dashboard/schedule-overview?period=${period}`
   );
-
 // Today's Schedule
-export const getTodaySchedule = (doctorId) =>
+export const getTodaySchedule = (period) =>
   api.get(
-    `/doctor-dashboard/todays-schedule?id=${doctorId}`
+    `/doctor-dashboard/todays-schedule?period=${period}`
   );
-
 // Consultation History
-export const getConsultationHistory = (doctorId, period) =>
+export const getConsultationHistory = (period) =>
   api.get(
-    `/doctor-dashboard/consultations-history?id=${doctorId}&period=${period}`
+    `/doctor-dashboard/consultations-history?period=${period}`
   );
 
 // Ailments
-export const getAilments = (doctorId, period) =>
+export const getAilments = (period) =>
   api.get(
-    `/doctor-dashboard/ailments-addressed?id=${doctorId}&period=${period}`
+    `/doctor-dashboard/ailments-addressed?period=${period}`
   );
 
 // Therapies
-export const getTherapies = (doctorId, period) =>
+export const getTherapies = (period) =>
   api.get(
-    `/doctor-dashboard/therapies-prescribed?id=${doctorId}&period=${period}`
+    `/doctor-dashboard/therapies-prescribed?period=${period}`
   );
 
 // Medicines
-export const getMedicines = (doctorId, period) =>
+export const getMedicines = (period) =>
   api.get(
-    `/doctor-dashboard/medicines-prescribed?id=${doctorId}&period=${period}`
+    `/doctor-dashboard/medicines-prescribed?period=${period}`
   );
 
-  export const getWellnessSummary = (
-  doctorId,
+export const getWellnessSummary = (
+
   period
 ) =>
   api.get(
-    `/doctor-dashboard/wellness-summary?id=${doctorId}&period=${period}`
+    `/doctor-dashboard/wellness-summary?period=${period}`
   );
 
 // ==========================
@@ -49,12 +47,12 @@ export const getMedicines = (doctorId, period) =>
 // ==========================
 
 export const getBeautySummary = (
-  doctorId,
+
   period
 ) =>
   api.get(
-    `/doctor-dashboard/beauty-summary?id=${doctorId}&period=${period}`
+    `/doctor-dashboard/beauty-summary?period=${period}`
   );
 
-  export const getTherapyAppointments = () =>
-    api.get("/therapist/appointments");
+export const getTherapyAppointments = () =>
+  api.get("/therapist/appointments");

@@ -54,7 +54,7 @@ const PatientsTended = () => {
             <div className="mt-5">
 
                 <h1 className="text-[36px] font-bold text-[#4D2E23]">
-                    {patients?.total || 0}
+                    {patients?.total_patients || 0}
                 </h1>
 
                 <p className="text-sm text-[#8B7A70]">

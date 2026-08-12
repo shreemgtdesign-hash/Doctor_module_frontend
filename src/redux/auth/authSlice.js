@@ -1,150 +1,73 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { login } from "./authThunk";
 
-// ==========================================
-// RESTORE AUTH DATA FROM LOCAL STORAGE
-// ==========================================
-
-const storedUser = localStorage.getItem("user");
-const storedToken = localStorage.getItem("token");
-
-let parsedUser = null;
-
-try {
-    parsedUser = storedUser
-        ? JSON.parse(storedUser)
-        : null;
-} catch (error) {
-    console.error(
-        "Failed to parse stored user:",
-        error
-    );
-
-    parsedUser = null;
-}
+const storedUser = localStorage.getItem("doctor");
+const storedToken = localStorage.getItem("doctor_token");
 
 const initialState = {
-    loading: false,
+  loading: false,
 
-    user: parsedUser,
+  user: storedUser
+    ? JSON.parse(storedUser)
+    : null,
 
-    token: storedToken || null,
+  token: storedToken || null,
 
-    isAuthenticated:
-        !!storedToken && !!parsedUser,
+  isAuthenticated: !!storedToken,
 
-    error: null,
+  error: null,
 };
 
-
-// ==========================================
-// AUTH SLICE
-// ==========================================
-
 const authSlice = createSlice({
+  name: "auth",
 
-    name: "auth",
+  initialState,
 
-    initialState,
+  reducers: {
+    logout: (state) => {
+      state.user = null;
+      state.token = null;
+      state.isAuthenticated = false;
 
-    reducers: {
-
-        // ==================================
-        // LOGOUT
-        // ==================================
-
-        logout: (state) => {
-
-            state.user = null;
-
-            state.token = null;
-
-            state.isAuthenticated = false;
-
-            state.error = null;
-
-            // Clear COMMON auth storage
-            localStorage.removeItem("user");
-
-            localStorage.removeItem("token");
-
-            // Remove old doctor-specific keys
-            localStorage.removeItem("doctor");
-
-            localStorage.removeItem("doctor_token");
-        },
-
+      localStorage.removeItem("doctor");
+      localStorage.removeItem("doctor_token");
     },
+  },
 
-    extraReducers: (builder) => {
+  extraReducers: (builder) => {
+    builder
 
-        // ==================================
-        // LOGIN PENDING
-        // ==================================
+      .addCase(login.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
 
-        builder.addCase(
-            login.pending,
-            (state) => {
+      .addCase(login.fulfilled, (state, action) => {
+        state.loading = false;
 
-                state.loading = true;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
 
-                state.error = null;
-
-            }
+        // IMPORTANT
+        localStorage.setItem(
+          "doctor",
+          JSON.stringify(action.payload.user)
         );
 
-
-        // ==================================
-        // LOGIN SUCCESS
-        // ==================================
-
-        builder.addCase(
-            login.fulfilled,
-            (state, action) => {
-
-                state.loading = false;
-
-                state.user =
-                    action.payload.user;
-
-                state.token =
-                    action.payload.token;
-
-                state.isAuthenticated = true;
-
-                state.error = null;
-
-            }
+        localStorage.setItem(
+          "token",
+          action.payload.token
         );
+      })
 
-
-        // ==================================
-        // LOGIN FAILED
-        // ==================================
-
-        builder.addCase(
-            login.rejected,
-            (state, action) => {
-
-                state.loading = false;
-
-                state.error =
-                    action.payload ||
-                    "Login failed";
-
-                state.isAuthenticated = false;
-
-            }
-        );
-
-    },
-
+      .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
 });
 
-
-export const {
-    logout,
-} = authSlice.actions;
-
+export const { logout } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -40,7 +40,7 @@ const ConsultationHistoryTable = () => {
       {/* Back Button */}
 
       <button
-        onClick={() => navigate("/doctordashboard")}
+        onClick={() => navigate("/")}
         className="flex items-center gap-2 text-[16px] font-semibold text-[#4D2E23] hover:text-[#7A4A35]">
         <HiOutlineArrowLeft size={22} />
         Back to Dashboard

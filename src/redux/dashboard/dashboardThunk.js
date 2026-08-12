@@ -86,27 +86,26 @@ export const loadMedicinesPrescribedList =
     );
 
 export const loadConsultation = createAsyncThunk(
-    "dashboard/loadConsultation",
+  "dashboard/loadConsultation",
 
-    async ({ doctorId, period }, thunkAPI) => {
-        try {
-            return await fetchConsultation(
-                doctorId,
-                period
-            );
-        } catch (err) {
-            return thunkAPI.rejectWithValue(err.response?.data);
-        }
+  async ({ period }, thunkAPI) => {
+    try {
+      return await fetchConsultation(period);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data || err.message
+      );
     }
+  }
 );
 
 export const loadMedicines = createAsyncThunk(
     "dashboard/loadMedicines",
 
-    async ({ doctorId, period }, thunkAPI) => {
+    async ({  period }, thunkAPI) => {
         try {
             return await fetchMedicines(
-                doctorId,
+                
                 period
             );
         } catch (err) {
@@ -118,10 +117,10 @@ export const loadMedicines = createAsyncThunk(
 export const loadTherapiesDashboard = createAsyncThunk(
     "dashboard/loadTherapiesDashboard",
 
-    async ({ doctorId, period }, thunkAPI) => {
+    async ({  period }, thunkAPI) => {
         try {
             return await fetchTherapiesDashboard(
-                doctorId,
+                
                 period
             );
         } catch (err) {
@@ -133,10 +132,10 @@ export const loadTherapiesDashboard = createAsyncThunk(
 export const loadAilments = createAsyncThunk(
     "dashboard/loadAilments",
 
-    async ({ doctorId, period }, thunkAPI) => {
+    async ({  period }, thunkAPI) => {
         try {
             return await fetchAilments(
-                doctorId,
+                
                 period
             );
         } catch (err) {
@@ -148,15 +147,26 @@ export const loadAilments = createAsyncThunk(
 export const loadOverview = createAsyncThunk(
     "dashboard/loadOverview",
 
-    async ({ doctorId, period }, thunkAPI) => {
+    async (
+        { period },
+        thunkAPI
+    ) => {
+
         try {
+
             return await fetchOverview(
-                doctorId,
                 period
             );
+
         } catch (err) {
-            return thunkAPI.rejectWithValue(err.response?.data);
+
+            return thunkAPI.rejectWithValue(
+                err.response?.data ||
+                err.message
+            );
+
         }
+
     }
 );
 
@@ -164,12 +174,12 @@ export const loadWellness =
     createAsyncThunk(
         "dashboard/loadWellness",
         async (
-            { doctorId, period },
+            {  period },
             { rejectWithValue }
         ) => {
             try {
                 return await fetchWellness(
-                    doctorId,
+                    
                     period
                 );
             } catch (error) {
@@ -184,12 +194,12 @@ export const loadBeauty =
     createAsyncThunk(
         "dashboard/loadBeauty",
         async (
-            { doctorId, period },
+            {  period },
             { rejectWithValue }
         ) => {
             try {
                 return await fetchBeauty(
-                    doctorId,
+                    
                     period
                 );
             } catch (error) {

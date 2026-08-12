@@ -12,7 +12,6 @@ const ScheduleOverview = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const doctor = useSelector((state) => state.auth.user);
 
   const overview = useSelector(
     (state) => state.dashboard.overview
@@ -20,17 +19,15 @@ const ScheduleOverview = () => {
 
   const [period, setPeriod] = useState("today");
 
-  useEffect(() => {
-    if (!doctor?.id) return;
+useEffect(() => {
 
     dispatch(
-      loadOverview({
-        doctorId: doctor.id,
-        period,
-      })
+        loadOverview({
+            period,
+        })
     );
-  }, [dispatch, doctor?.id, period]);
 
+}, [dispatch, period]);
   return (
     <DashboardCard className="px-5 pt-5 pb-3">
 

@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
 
 import DashboardLayout from "../../components/Layout/DashboardLayout";
 
@@ -12,64 +11,9 @@ import TherapiesPrescribed from "./components/therapiesPrescribed";
 import Beauty from "./components/Beauty";
 import Wellness from "./components/Wellness";
 
-import { getDashboard } from "../../redux/dashboard/dashboardThunk";
-
 const DoctorDashboard = () => {
-    const dispatch = useDispatch();
-
-    const reduxDoctor = useSelector(
-        (state) => state.auth.user
-    );
 
     const [period, setPeriod] = useState("today");
-
-    /*
-     * Redux user after login.
-     *
-     * If page is refreshed, Redux may initially be empty,
-     * so get the persisted user from localStorage.
-     */
-    const storedDoctor = (() => {
-        try {
-            const user = localStorage.getItem("user");
-
-            return user
-                ? JSON.parse(user)
-                : null;
-
-        } catch {
-            return null;
-        }
-    })();
-
-    const doctor = reduxDoctor || storedDoctor;
-
-    useEffect(() => {
-        if (!doctor?.id) {
-            console.log(
-                "Doctor ID not available yet"
-            );
-
-            return;
-        }
-
-        console.log(
-            "Loading dashboard for doctor:",
-            doctor.id
-        );
-
-        dispatch(
-            getDashboard({
-                doctorId: doctor.id,
-                period,
-            })
-        );
-
-    }, [
-        dispatch,
-        doctor?.id,
-        period,
-    ]);
 
     return (
         <DashboardLayout role="doctor">
@@ -78,21 +22,36 @@ const DoctorDashboard = () => {
 
                 <div className="m-5 grid grid-cols-2 gap-5">
 
-                    <ScheduleOverview />
+                    <ScheduleOverview
+                        period={period}
+                        setPeriod={setPeriod}
+                    />
 
-                    <ConsultationHistory />
+                    <ConsultationHistory
+                        period={period}
+                    />
 
-                    <Wellness />
+                    <Wellness
+                        period={period}
+                    />
 
-                    <Beauty />
+                    <Beauty
+                        period={period}
+                    />
 
-                    <AilmentsAddressed />
+                    <AilmentsAddressed
+                        period={period}
+                    />
 
                     <div className="space-y-4">
 
-                        <TherapiesPrescribed />
+                        <TherapiesPrescribed
+                            period={period}
+                        />
 
-                        <MedicinesPrescribed />
+                        <MedicinesPrescribed
+                            period={period}
+                        />
 
                     </div>
 

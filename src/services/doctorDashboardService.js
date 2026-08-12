@@ -11,7 +11,6 @@ import {
 } from "../api/doctorDashboardApi";
 
 export const fetchDashboard = async (
-    doctorId,
     period
 ) => {
 
@@ -26,39 +25,31 @@ export const fetchDashboard = async (
         beauty,
     ] = await Promise.all([
 
-        getScheduleOverview(doctorId, period),
+        getScheduleOverview(period),
 
-        getTodaySchedule(doctorId),
+        getTodaySchedule(period),
 
-        getConsultationHistory(
-            doctorId,
-            period
-        ),
+        getConsultationHistory(period),
 
-        getAilments(
-            doctorId,
-            period
-        ),
+        getAilments(period),
 
-        getTherapies(
-            doctorId,
-            period
-        ),
+        getTherapies(period),
 
-        getMedicines(
-            doctorId,
-            period
-        ),
-        getWellnessSummary(doctorId, period),
-        getBeautySummary(doctorId, period),
+        getMedicines(period),
+
+        getWellnessSummary(period),
+
+        getBeautySummary(period),
 
     ]);
 
     return {
 
-        overview: overview.data.data,
+        overview:
+            overview.data.data,
 
-        schedule: schedule.data.data,
+        schedule:
+            schedule.data.data,
 
         consultation:
             consultation.data.data,
@@ -71,44 +62,53 @@ export const fetchDashboard = async (
 
         medicines:
             medicines.data.data,
-        wellness: wellness.data.data,
-        beauty: beauty.data.data,
+
+        wellness:
+            wellness.data.data,
+
+        beauty:
+            beauty.data.data,
 
     };
-
 };
+export const fetchOverview = async (
+    period
+) => {
 
-export const fetchOverview = async (doctorId, period) => {
-    const response = await getScheduleOverview(doctorId, period);
+    const response =
+        await getScheduleOverview(
+            period
+        );
+
     return response.data.data;
 };
 
-export const fetchConsultation = async (doctorId, period) => {
-    const response = await getConsultationHistory(doctorId, period);
+export const fetchConsultation = async (period) => {
+    const response = await getConsultationHistory(period);
     return response.data.data;
 };
 
-export const fetchAilments = async (doctorId, period) => {
-    const response = await getAilments(doctorId, period);
+export const fetchAilments = async (period) => {
+    const response = await getAilments(period);
     return response.data.data;
 };
 
-export const fetchTherapiesDashboard = async (doctorId, period) => {
-    const response = await getTherapies(doctorId, period);
+export const fetchTherapiesDashboard = async (period) => {
+    const response = await getTherapies(period);
     return response.data.data;
 };
 
-export const fetchMedicines = async (doctorId, period) => {
-    const response = await getMedicines(doctorId, period);
+export const fetchMedicines = async (period) => {
+    const response = await getMedicines(period);
     return response.data.data;
 };
 
-export const fetchWellness = async (doctorId, period) => {
-    const response = await getWellnessSummary(doctorId, period);
+export const fetchWellness = async (period) => {
+    const response = await getWellnessSummary(period);
     return response.data.data;
 };
-export const fetchBeauty = async (doctorId, period) => {
-    const response = await getBeautySummary(doctorId, period);
+export const fetchBeauty = async (period) => {
+    const response = await getBeautySummary(period);
     return response.data.data;
 };
 export const fetchTherapyAppointments = async () => {
