@@ -64,7 +64,7 @@ const Sales = () => {
                 <h1 className="mt-2 text-[28px] font-bold text-[#4D2E23]">
                     ₹
                     {Number(
-                        sales?.total_business || 0
+                        sales?.total_amount || 0
                     ).toLocaleString("en-IN")}
                 </h1>
 

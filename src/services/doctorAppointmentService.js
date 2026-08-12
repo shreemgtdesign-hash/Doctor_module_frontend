@@ -48,17 +48,19 @@ export const fetchDashboard = async (doctorId, period) => {
 };
 
 export const fetchAppointments = async (
-  doctorId,
-  date,
-  status = ""
-) => {
-  const response = await getAppointments(
-    doctorId,
-    date,
-    status
-  );
 
-  return response.data.data;
+    period,
+    status = ""
+) => {
+
+    const response =
+        await getAppointments(
+          
+            period,
+            status
+        );
+
+    return response.data.data;
 };
 
 export const fetchPatientProfile = async (

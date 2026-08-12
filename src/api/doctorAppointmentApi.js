@@ -64,9 +64,8 @@ export const updatePatientAllergies = (
 /* Appointment APIs */
 
 // Today's appointments
-export const getAppointments = (doctorId, date, status = "") => {
-  console.log("doctorId", doctorId);
-  let url = `/appointments?id=${doctorId}&date=${date}`;
+export const getAppointments = ( period, status = "") => {
+  let url = `/appointments?period=${period}&status=${status}`;
    
   if (status) {
     url += `&status=${status}`;

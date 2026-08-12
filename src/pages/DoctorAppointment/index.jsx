@@ -1,100 +1,220 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLayoutEffect, useRef } from "react";
 
 import DashboardLayout from "../../components/Layout/DashboardLayout";
+
 import { setActiveFilter } from "../../redux/consultation/consultationSlice";
+
 import ScheduleOverview from "./components/ScheduleOverview";
 import AppointmentList from "./components/AppointmentList";
 import PatientProfile from "./components/PatientProfile";
 
 import { getDashboard } from "../../redux/dashboard/dashboardThunk";
-import { loadAppointments } from "../../redux/consultation/consultationThunk";
-import {useLayoutEffect,useRef,} from "react";
 
 const DoctorAppointment = () => {
+
     const dispatch = useDispatch();
+
     const profileRef = useRef(null);
-    const [profileHeight, setProfileHeight] = useState(0);
 
-    useLayoutEffect(() => {
-        if (!profileRef.current) return;
+    const [profileHeight, setProfileHeight] =
+        useState(0);
 
-        const observer = new ResizeObserver(() => {
-            setProfileHeight(profileRef.current.offsetHeight);
-        });
+    const [activeSection, setActiveSection] =
+        useState("overview");
 
-        observer.observe(profileRef.current);
+    const [period, setPeriod] =
+        useState("today");
 
-        return () => observer.disconnect();
-    }, []);
-    const [activeSection, setActiveSection] = useState("overview");
-    const doctor = useSelector((state) => state.auth.user);
 
-    const { overview } = useSelector(
-        (state) => state.dashboard
+    // ==========================================
+    // DOCTOR
+    // ==========================================
+
+    const doctor = useSelector(
+        (state) => state.auth.user
     );
 
-    const [period, setPeriod] = useState("today");
 
-    const handlePeriodChange = (newPeriod) => {
-        setPeriod(newPeriod);
+    // ==========================================
+    // DASHBOARD OVERVIEW
+    // ==========================================
 
-        // Reset status filter to "All"
-        dispatch(setActiveFilter(""));
-    };
+    const { overview } =
+        useSelector(
+            (state) => state.dashboard
+        );
 
-    useEffect(() => {
-        if (doctor?.id) {
-            dispatch(
-                getDashboard({
-                    doctorId: doctor.id,
-                    period,
-                })
-            );
 
-            dispatch(
-                loadAppointments({
-                    doctorId: doctor.id,
-                    date: new Date().toISOString().split("T")[0],
-                    status: "",
-                })
-            );
-        }
-    }, [dispatch, doctor, period]);
+    // ==========================================
+    // PROFILE HEIGHT
+    // ==========================================
 
     useLayoutEffect(() => {
+
+        if (!profileRef.current) {
+            return;
+        }
+
+        const observer =
+            new ResizeObserver(() => {
+
+                setProfileHeight(
+                    profileRef.current
+                        .offsetHeight
+                );
+
+            });
+
+        observer.observe(
+            profileRef.current
+        );
+
+        return () =>
+            observer.disconnect();
+
+    }, []);
+
+
+    useLayoutEffect(() => {
+
         requestAnimationFrame(() => {
+
             if (profileRef.current) {
-                setProfileHeight(profileRef.current.offsetHeight);
+
+                setProfileHeight(
+                    profileRef.current
+                        .offsetHeight
+                );
+
             }
+
         });
+
     }, [activeSection]);
+
+
+    // ==========================================
+    // PERIOD CHANGE
+    // ==========================================
+
+    const handlePeriodChange = (
+        newPeriod
+    ) => {
+
+        setPeriod(newPeriod);
+
+        // Reset appointment filter
+        dispatch(
+            setActiveFilter("")
+        );
+
+        // Optional:
+        // reset active section
+        setActiveSection(
+            "overview"
+        );
+
+    };
+
+
+    // ==========================================
+    // LOAD SCHEDULE OVERVIEW
+    // ==========================================
+
+    useEffect(() => {
+
+        const doctorId =
+            doctor?.doctor_id ||
+            doctor?.id;
+
+        if (!doctorId) {
+            return;
+        }
+
+        dispatch(
+            getDashboard({
+                 doctorId,
+                period,
+            })
+        );
+
+    }, [
+        dispatch,
+        doctor?.doctor_id,
+        doctor?.id,
+        period,
+    ]);
+
+
     return (
-        <DashboardLayout>
-            <div className="min-h-screen bg-[#F7F7F7] p-8">
+
+        <DashboardLayout role="doctor">
+
+            <div className="
+                min-h-screen
+                bg-[#F7F7F7]
+                p-8
+            ">
+
+                {/* ================================= */}
+                {/* SCHEDULE OVERVIEW */}
+                {/* ================================= */}
+
                 <ScheduleOverview
                     overview={overview}
                     period={period}
-                    setPeriod={handlePeriodChange}
+                    setPeriod={
+                        handlePeriodChange
+                    }
                 />
 
-                <div className="mt-6 grid grid-cols-[430px_1fr] gap-5">
+
+                {/* ================================= */}
+                {/* PATIENT + PROFILE */}
+                {/* ================================= */}
+
+                <div className="
+                    mt-6
+                    grid
+                    grid-cols-[430px_1fr]
+                    gap-5
+                ">
+
+                    {/* LEFT */}
 
                     <AppointmentList
-                        height={profileHeight}
-                        activeSection={activeSection}
-                        setActiveSection={setActiveSection}
+                        height={
+                            profileHeight
+                        }
+                        period={period}
                     />
-                    <div ref={profileRef}>
-                        <PatientProfile
 
-                            activeSection={activeSection}
-                            setActiveSection={setActiveSection}
+
+                    {/* RIGHT */}
+
+                    <div
+                        ref={profileRef}
+                    >
+
+                        <PatientProfile
+                            activeSection={
+                                activeSection
+                            }
+                            setActiveSection={
+                                setActiveSection
+                            }
                         />
+
                     </div>
+
                 </div>
+
             </div>
+
         </DashboardLayout>
+
     );
 };
 

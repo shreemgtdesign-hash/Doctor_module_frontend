@@ -4,29 +4,41 @@ import {
   getPatientProfile,
   getPatientWellness,
 } from "../../api/doctorAppointmentApi";
-import { fetchChiefComplaints, saveChiefComplaints,fetchDiagnosis,saveDiagnosis,fetchAssociateDoctors,fetchPrescriptionProducts,
-  fetchPrescription,savePrescription,savePrescriptionNotes,savePatientAllergies,fetchTherapiesSearch,fetchTherapies,
-  saveTherapy,editTherapy,fetchDiagnosisCategories,editPrescription, 
-  editPrescriptionItem,fetchDoctorsList,createAssociateDoctor,removeAssociateDoctor,} from "../../services/doctorAppointmentService";
+import {
+  fetchChiefComplaints, saveChiefComplaints, fetchDiagnosis, saveDiagnosis, fetchAssociateDoctors, fetchPrescriptionProducts,
+  fetchPrescription, savePrescription, savePrescriptionNotes, savePatientAllergies, fetchTherapiesSearch, fetchTherapies,
+  saveTherapy, editTherapy, fetchDiagnosisCategories, editPrescription,
+  editPrescriptionItem, fetchDoctorsList, createAssociateDoctor, removeAssociateDoctor,
+  fetchAppointments,
+} from "../../services/doctorAppointmentService";
 
 export const loadAppointments = createAsyncThunk(
   "consultation/loadAppointments",
-  async ({ doctorId, date, status = "" }, { rejectWithValue }) => {
+
+  async (
+    {
+      period,
+      status = "",
+    },
+    { rejectWithValue }
+  ) => {
+
     try {
-      const response = await getAppointments(
-        doctorId,
-        date,
+
+      return await fetchAppointments(
+        period,
         status
       );
 
-      console.log("Appointments API Response:", response.data);
-
-      return response.data.data;
     } catch (error) {
+
       return rejectWithValue(
-        error.response?.data || error.message
+        error.response?.data ||
+        error.message
       );
+
     }
+
   }
 );
 
@@ -52,42 +64,42 @@ export const loadPatientDetails = createAsyncThunk(
 );
 
 export const loadChiefComplaints =
-createAsyncThunk(
-  "consultation/loadChiefComplaints",
+  createAsyncThunk(
+    "consultation/loadChiefComplaints",
 
-  async (appointmentId, { rejectWithValue }) => {
-    try {
-      return await fetchChiefComplaints(
-        appointmentId
-      );
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data || error.message
-      );
+    async (appointmentId, { rejectWithValue }) => {
+      try {
+        return await fetchChiefComplaints(
+          appointmentId
+        );
+      } catch (error) {
+        return rejectWithValue(
+          error.response?.data || error.message
+        );
+      }
     }
-  }
-);
+  );
 
 export const saveChiefComplaintsThunk =
-createAsyncThunk(
-  "consultation/saveChiefComplaints",
+  createAsyncThunk(
+    "consultation/saveChiefComplaints",
 
-  async (
-    { appointmentId, payload },
-    { rejectWithValue }
-  ) => {
-    try {
-      return await saveChiefComplaints(
-        appointmentId,
-        payload
-      );
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data || error.message
-      );
+    async (
+      { appointmentId, payload },
+      { rejectWithValue }
+    ) => {
+      try {
+        return await saveChiefComplaints(
+          appointmentId,
+          payload
+        );
+      } catch (error) {
+        return rejectWithValue(
+          error.response?.data || error.message
+        );
+      }
     }
-  }
-);
+  );
 
 export const loadDiagnosis = createAsyncThunk(
   "consultation/loadDiagnosis",
@@ -138,7 +150,7 @@ export const loadAssociateDoctors = createAsyncThunk(
 
 
 
-  export const searchPrescriptionProductsThunk =
+export const searchPrescriptionProductsThunk =
   createAsyncThunk(
     "consultation/searchPrescriptionProducts",
     async (search, { rejectWithValue }) => {
@@ -151,7 +163,7 @@ export const loadAssociateDoctors = createAsyncThunk(
       }
     }
   )
-  export const loadPrescription =
+export const loadPrescription =
   createAsyncThunk(
     "consultation/loadPrescription",
     async (appointmentId, { rejectWithValue }) => {
@@ -167,7 +179,7 @@ export const loadAssociateDoctors = createAsyncThunk(
     }
   );
 
-  export const savePrescriptionThunk =
+export const savePrescriptionThunk =
   createAsyncThunk(
     "consultation/savePrescription",
     async (payload, { rejectWithValue }) => {
@@ -181,7 +193,7 @@ export const loadAssociateDoctors = createAsyncThunk(
     }
   );
 
-  export const savePrescriptionNotesThunk =
+export const savePrescriptionNotesThunk =
   createAsyncThunk(
     "consultation/savePrescriptionNotes",
     async (
@@ -201,7 +213,7 @@ export const loadAssociateDoctors = createAsyncThunk(
     }
   );
 
-  export const savePatientAllergiesThunk =
+export const savePatientAllergiesThunk =
   createAsyncThunk(
     "consultation/savePatientAllergies",
     async (
@@ -223,7 +235,7 @@ export const loadAssociateDoctors = createAsyncThunk(
 
 
 
-  export const searchTherapiesThunk = createAsyncThunk(
+export const searchTherapiesThunk = createAsyncThunk(
   "consultation/searchTherapies",
   async (search, thunkAPI) => {
     try {
@@ -281,131 +293,131 @@ export const searchDiagnosisCategoriesThunk = createAsyncThunk(
 );
 
 export const updatePrescriptionThunk =
-createAsyncThunk(
+  createAsyncThunk(
     "consultation/updatePrescription",
 
     async (
-        { consultationId, payload },
-        { rejectWithValue }
+      { consultationId, payload },
+      { rejectWithValue }
     ) => {
 
-        try {
+      try {
 
-            return await editPrescription(
-                consultationId,
-                payload
-            );
+        return await editPrescription(
+          consultationId,
+          payload
+        );
 
-        } catch (error) {
+      } catch (error) {
 
-            return rejectWithValue(
-                error.response?.data ||
-                error.message
-            );
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
 
-        }
+      }
 
     }
-);
+  );
 
 export const updatePrescriptionItemThunk =
-createAsyncThunk(
+  createAsyncThunk(
     "consultation/updatePrescriptionItem",
 
     async (
-        { itemId, payload },
-        { rejectWithValue }
+      { itemId, payload },
+      { rejectWithValue }
     ) => {
 
-        try {
+      try {
 
-            return await editPrescriptionItem(
-                itemId,
-                payload
-            );
+        return await editPrescriptionItem(
+          itemId,
+          payload
+        );
 
-        } catch (error) {
+      } catch (error) {
 
-            return rejectWithValue(
-                error.response?.data ||
-                error.message
-            );
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
 
-        }
+      }
 
     }
-);
+  );
 
 export const loadDoctorsList =
-createAsyncThunk(
+  createAsyncThunk(
     "consultation/loadDoctorsList",
 
     async (_, { rejectWithValue }) => {
 
-        try {
+      try {
 
-            return await fetchDoctorsList();
+        return await fetchDoctorsList();
 
-        } catch (error) {
+      } catch (error) {
 
-            return rejectWithValue(
-                error.response?.data || error.message
-            );
+        return rejectWithValue(
+          error.response?.data || error.message
+        );
 
-        }
+      }
 
     }
-);
+  );
 
 export const addAssociateDoctorThunk =
-createAsyncThunk(
+  createAsyncThunk(
     "consultation/addAssociateDoctor",
 
     async (
-        { appointmentId, payload },
-        { rejectWithValue }
+      { appointmentId, payload },
+      { rejectWithValue }
     ) => {
 
-        try {
+      try {
 
-            return await createAssociateDoctor(
-                appointmentId,
-                payload
-            );
+        return await createAssociateDoctor(
+          appointmentId,
+          payload
+        );
 
-        } catch (error) {
+      } catch (error) {
 
-            return rejectWithValue(
-                error.response?.data || error.message
-            );
+        return rejectWithValue(
+          error.response?.data || error.message
+        );
 
-        }
+      }
 
     }
-);
+  );
 
 export const deleteAssociateDoctorThunk =
-createAsyncThunk(
+  createAsyncThunk(
     "consultation/deleteAssociateDoctor",
 
     async (
-        associateDoctorId,
-        { rejectWithValue }
+      associateDoctorId,
+      { rejectWithValue }
     ) => {
 
-        try {
+      try {
 
-            return await removeAssociateDoctor(
-                associateDoctorId
-            );
+        return await removeAssociateDoctor(
+          associateDoctorId
+        );
 
-        } catch (error) {
+      } catch (error) {
 
-            return rejectWithValue(
-                error.response?.data || error.message
-            );
+        return rejectWithValue(
+          error.response?.data || error.message
+        );
 
-        }
+      }
 
     }
-);
+  );
