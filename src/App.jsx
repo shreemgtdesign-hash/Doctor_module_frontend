@@ -10,89 +10,102 @@ import AilmentsAddressedTable from "./pages/DoctorDashboard/components/AilmentsA
 import PharmacistDashboard from "./pages/Pharmacist/PharmacistDashboard";
 import PharmacistAppointments from "./pages/Pharmacist/PharmacistAppointments";
 import TherapiesPrescribedTable from "./pages/DoctorDashboard/components/TherapiesPrescribedTable";
+import TherapistDashboard from "./pages/TherapistDashboard";
+import TherapistAppointments from "./pages/TherapistAppointments/TherapistAppointments";
 
 function App() {
-  return (
-    <Routes>
+    return (
+        <Routes>
 
-    {/* Root */}
-    <Route
-        path="/"
-        element={
-            <Navigate
-                to="/login"
-                replace
+            {/* Root */}
+            <Route
+                path="/"
+                element={
+                    <Navigate
+                        to="/login"
+                        replace
+                    />
+                }
             />
-        }
-    />
 
 
-    {/* Login */}
-    <Route
-        path="/login"
-        element={<Login />}
-    />
-
-
-    {/* Doctor */}
-    <Route
-        path="/doctordashboard"
-        element={<DoctorDashboard />}
-    />
-
-    <Route
-        path="/doctor/appointments"
-        element={<DoctorAppointment />}
-    />
-
-
-    {/* Pharmacist */}
-    <Route
-        path="/pharmacist/dashboard"
-        element={<PharmacistDashboard />}
-    />
-
-    <Route
-        path="/pharmacist/appointments"
-        element={<PharmacistAppointments />}
-    />
-
-
-    {/* Doctor tables */}
-    <Route
-        path="/doctor/consultation-history"
-        element={<ConsultationHistoryTable />}
-    />
-
-    <Route
-        path="/doctor/medicines-prescribed"
-        element={<MedicinePrescribedTable />}
-    />
-
-    <Route
-        path="/doctor/ailments-addressed"
-        element={<AilmentsAddressedTable />}
-    />
-
-
-    {/* Unknown route */}
-    <Route
-        path="*"
-        element={
-            <Navigate
-                to="/login"
-                replace
+            {/* Login */}
+            <Route
+                path="/login"
+                element={<Login />}
             />
-        }
-    />
 
-    <Route
-    path="/doctor/therapies-prescribed"
-    element={<TherapiesPrescribedTable />}
+
+            {/* Doctor */}
+            <Route
+                path="/doctordashboard"
+                element={<DoctorDashboard />}
+            />
+
+            <Route
+                path="/doctor/appointments"
+                element={<DoctorAppointment />}
+            />
+
+
+            {/* Pharmacist */}
+            <Route
+                path="/pharmacist/dashboard"
+                element={<PharmacistDashboard />}
+            />
+
+            <Route
+                path="/pharmacist/appointments"
+                element={<PharmacistAppointments />}
+            />
+
+
+            {/* Doctor tables */}
+            <Route
+                path="/doctor/consultation-history"
+                element={<ConsultationHistoryTable />}
+            />
+
+            <Route
+                path="/doctor/medicines-prescribed"
+                element={<MedicinePrescribedTable />}
+            />
+
+            <Route
+                path="/doctor/ailments-addressed"
+                element={<AilmentsAddressedTable />}
+            />
+
+
+            {/* Unknown route */}
+            <Route
+                path="*"
+                element={
+                    <Navigate
+                        to="/login"
+                        replace
+                    />
+                }
+            />
+
+            <Route
+                path="/doctor/therapies-prescribed"
+                element={<TherapiesPrescribedTable />}
+            />
+            <Route
+    path="/therapist/dashboard"
+    element={
+        <TherapistDashboard />
+    }
 />
-
-</Routes>
-  );
+<Route
+    path="/therapist/appointments"
+    element={
+        <TherapistAppointments />
+    }
+/>
+        </Routes>
+    );
 }
 
 export default App;

@@ -22,6 +22,10 @@ export const getAilments = (period) =>
     `/doctor-dashboard/ailments-addressed?period=${period}`
   );
 
+  export const getAilmentsList = (period) =>
+  api.get(
+    `/doctor-dashboard/ailments-addressed/list?period=${period}`
+  );
 // Therapies
 export const getTherapies = (period) =>
   api.get(

@@ -5,6 +5,8 @@ import dashboardReducer from "../redux/dashboard/dashboardSlice";
 import appointmentReducer from "../redux/appointment/appointmentSlice";
 import consultationReducer from "../redux/consultation/consultationSlice";
 import pharmacistReducer from "../redux/pharmacist/pharmacistSlice";
+import therapistReducer from "../redux/therapist/therapistSlice";
+
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -12,6 +14,8 @@ export const store = configureStore({
     appointment: appointmentReducer,
     consultation: consultationReducer,
     pharmacist: pharmacistReducer,
+    therapist: therapistReducer,
+
 
   },
 });

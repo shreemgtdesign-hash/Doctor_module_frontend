@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { login } from "./authThunk";
 
-const storedUser = localStorage.getItem("doctor");
-const storedToken = localStorage.getItem("doctor_token");
+const storedUser = localStorage.getItem("user");
+const storedToken = localStorage.getItem("token");
 
 const initialState = {
   loading: false,
@@ -29,8 +29,8 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
 
-      localStorage.removeItem("doctor");
-      localStorage.removeItem("doctor_token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
     },
   },
 
@@ -51,7 +51,7 @@ const authSlice = createSlice({
 
         // IMPORTANT
         localStorage.setItem(
-          "doctor",
+          "user",
           JSON.stringify(action.payload.user)
         );
 

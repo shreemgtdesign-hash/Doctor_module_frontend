@@ -3,6 +3,7 @@ import {
     getTodaySchedule,
     getConsultationHistory,
     getAilments,
+    getAilmentsList,
     getTherapies,
     getMedicines,
     getWellnessSummary,
@@ -118,4 +119,10 @@ export const fetchTherapyAppointments = async () => {
 
     return response.data;
 
+};
+
+export const fetchAilmentsList = async (period) => {
+  const response = await getAilmentsList(period);
+
+  return response.data;
 };

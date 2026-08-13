@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getDashboard, loadAilments, loadConsultation, loadConsultationHistoryList, loadMedicines, loadMedicinesPrescribedList, loadOverview, loadTherapiesDashboard, loadBeauty, loadWellness, loadTherapyAppointments } from "./dashboardThunk";
+import { getDashboard, loadAilmentsList, loadAilments, loadConsultation, loadConsultationHistoryList, loadMedicines, loadMedicinesPrescribedList, loadOverview, loadTherapiesDashboard, loadBeauty, loadWellness, loadTherapyAppointments } from "./dashboardThunk";
 
 
 const initialState = {
@@ -13,6 +13,7 @@ const initialState = {
     consultation: {},
 
     ailments: [],
+    ailmentsHistory: [],
 
     // Dashboard therapy card
     therapies: {},
@@ -135,40 +136,47 @@ const dashboardSlice = createSlice({
                 }
             )
 
-        .addCase(
-            loadTherapyAppointments.fulfilled,
-            (state, action) => {
+            .addCase(
+                loadTherapyAppointments.fulfilled,
+                (state, action) => {
 
-                state.therapyAppointmentsLoading = false;
+                    state.therapyAppointmentsLoading = false;
 
-                state.therapyAppointments =
-                    action.payload?.data || [];
+                    state.therapyAppointments =
+                        action.payload?.data || [];
 
-                state.therapyAppointmentsCount =
-                    action.payload?.count || 0;
-            }
-        )
+                    state.therapyAppointmentsCount =
+                        action.payload?.count || 0;
+                }
+            )
 
-        .addCase(
-            loadTherapyAppointments.rejected,
-            (state, action) => {
+            .addCase(
+                loadTherapyAppointments.rejected,
+                (state, action) => {
 
-                state.therapyAppointmentsLoading = false;
+                    state.therapyAppointmentsLoading = false;
 
-                state.therapyAppointments = [];
+                    state.therapyAppointments = [];
 
-                state.therapyAppointmentsCount = 0;
+                    state.therapyAppointmentsCount = 0;
 
-                state.therapyAppointmentsError =
-                    action.payload ||
-                    "Failed to load therapy appointments";
-            }
-        )
+                    state.therapyAppointmentsError =
+                        action.payload ||
+                        "Failed to load therapy appointments";
+                }
+            )
+            .addCase(
+                loadAilmentsList.fulfilled,
+                (state, action) => {
+                    state.ailmentsHistory =
+                        action.payload?.ailments_history || [];
+                }
+            )
 
 
 
 
-},
+    },
 
 });
 

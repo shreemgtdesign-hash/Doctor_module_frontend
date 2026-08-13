@@ -6,9 +6,11 @@ import {
     HiOutlineCog,
     HiOutlineSupport,
     HiChevronLeft,
+    HiOutlineLogout,
 } from "react-icons/hi";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 import {
     FaChartBar,
@@ -19,6 +21,8 @@ import {
     FaExclamationTriangle,
     FaNotesMedical,
 } from "react-icons/fa";
+
+import { logout } from "../../redux/auth/authSlice";
 
 
 // ==========================================
@@ -35,6 +39,24 @@ const pharmacistMenu = [
         name: "Appointments",
         icon: HiOutlineCalendar,
         path: "/pharmacist/appointments",
+    },
+];
+
+
+// ==========================================
+// THERAPIST MENU
+// ==========================================
+
+const therapistMenu = [
+    {
+        name: "Dashboard",
+        icon: HiHome,
+        path: "/therapist/dashboard",
+    },
+    {
+        name: "Appointments",
+        icon: HiOutlineCalendar,
+        path: "/therapist/appointments",
     },
 ];
 
@@ -112,11 +134,46 @@ const Sidebar = ({
     role = "doctor",
 }) => {
 
-    // Choose menu based on role
-    const currentMenu =
-        role === "pharmacist"
-            ? pharmacistMenu
-            : doctorMenu;
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+
+    // ==========================================
+    // SELECT MENU BASED ON ROLE
+    // ==========================================
+
+    let currentMenu = doctorMenu;
+
+    if (role === "pharmacist") {
+        currentMenu = pharmacistMenu;
+    }
+
+    if (role === "therapist") {
+        currentMenu = therapistMenu;
+    }
+
+
+    // ==========================================
+    // LOGOUT
+    // ==========================================
+
+    const handleLogout = () => {
+
+        // Clear Redux authentication state
+        dispatch(logout());
+
+        // Remove EVERYTHING from browser storage
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // Close sidebar
+        setIsOpen(false);
+
+        // Redirect to login
+        navigate("/login", {
+            replace: true,
+        });
+    };
 
 
     return (
@@ -128,7 +185,7 @@ const Sidebar = ({
                 <>
 
                     {/* ================================= */}
-                    {/* Overlay */}
+                    {/* OVERLAY */}
                     {/* ================================= */}
 
                     <motion.div
@@ -147,7 +204,7 @@ const Sidebar = ({
 
 
                     {/* ================================= */}
-                    {/* Sidebar */}
+                    {/* SIDEBAR */}
                     {/* ================================= */}
 
                     <motion.aside
@@ -176,30 +233,52 @@ const Sidebar = ({
                     >
 
                         {/* ================================= */}
-                        {/* Logo */}
+                        {/* LOGO */}
                         {/* ================================= */}
 
-                        <div className="relative flex h-[105px] items-center px-8">
+                        <div className="
+                            relative
+                            flex
+                            h-[105px]
+                            shrink-0
+                            items-center
+                            px-8
+                        ">
 
-                            <div className="h-16 w-16 rounded-lg" />
+                            <div className="
+                                h-16
+                                w-16
+                                rounded-lg
+                            " />
 
                             <div>
 
-                                <h2 className="text-[22px] font-bold text-[#7A4A33]">
+                                <h2 className="
+                                    text-[22px]
+                                    font-bold
+                                    text-[#7A4A33]
+                                ">
                                     Shree
                                 </h2>
 
-                                <p className="text-[20px] font-semibold text-[#7A4A33]">
+                                <p className="
+                                    text-[20px]
+                                    font-semibold
+                                    text-[#7A4A33]
+                                ">
                                     Ayurvedic
                                 </p>
 
                             </div>
 
 
-                            {/* Close */}
+                            {/* CLOSE BUTTON */}
+
                             <button
                                 type="button"
-                                onClick={() => setIsOpen(false)}
+                                onClick={() =>
+                                    setIsOpen(false)
+                                }
                                 className="
                                     absolute
                                     right-0
@@ -213,20 +292,28 @@ const Sidebar = ({
                                     bg-[#FFF6F1]
                                 "
                             >
+
                                 <HiChevronLeft
                                     size={24}
                                     className="text-[#6A3F2D]"
                                 />
+
                             </button>
 
                         </div>
 
 
                         {/* ================================= */}
-                        {/* Menu */}
+                        {/* MENU */}
                         {/* ================================= */}
 
-                        <div className="flex-1 overflow-y-auto px-7 pt-6 pb-8">
+                        <div className="
+                            flex-1
+                            overflow-y-auto
+                            px-7
+                            pt-6
+                            pb-4
+                        ">
 
                             <nav className="flex flex-col">
 
@@ -268,17 +355,17 @@ const Sidebar = ({
 
                                                     <Icon
                                                         size={24}
-                                                        className="text-[#6A3F2D]"
+                                                        className="
+                                                            text-[#6A3F2D]
+                                                        "
                                                     />
 
-                                                    <span
-                                                        className="
-                                                            ml-4
-                                                            text-[18px]
-                                                            font-medium
-                                                            text-[#4D2E23]
-                                                        "
-                                                    >
+                                                    <span className="
+                                                        ml-4
+                                                        text-[18px]
+                                                        font-medium
+                                                        text-[#4D2E23]
+                                                    ">
                                                         {item.name}
                                                     </span>
 
@@ -293,6 +380,56 @@ const Sidebar = ({
                                 })}
 
                             </nav>
+
+                        </div>
+
+
+                        {/* ================================= */}
+                        {/* LOGOUT */}
+                        {/* ================================= */}
+
+                        <div className="
+                            shrink-0
+                            border-t
+                            border-[#EFE4DC]
+                            bg-white
+                            px-7
+                            py-5
+                        ">
+
+                            <button
+                                type="button"
+                                onClick={handleLogout}
+                                className="
+                                    flex
+                                    h-14
+                                    w-full
+                                    items-center
+                                    rounded-[20px]
+                                    px-5
+                                    text-[#B42318]
+                                    transition-all
+                                    duration-200
+                                    hover:bg-[#FFF1F0]
+                                "
+                            >
+
+                                <HiOutlineLogout
+                                    size={24}
+                                    className="
+                                        text-[#B42318]
+                                    "
+                                />
+
+                                <span className="
+                                    ml-4
+                                    text-[18px]
+                                    font-medium
+                                ">
+                                    Logout
+                                </span>
+
+                            </button>
 
                         </div>
 

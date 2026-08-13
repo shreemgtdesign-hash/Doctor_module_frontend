@@ -9,7 +9,8 @@ import {
     fetchMedicines,
     fetchWellness,
     fetchBeauty,
-    fetchTherapyAppointments
+    fetchTherapyAppointments,
+    fetchAilmentsList,
 
 } from "../../services/doctorDashboardService"; import { fetchConsultationHistoryList, fetchMedicinesPrescribedList } from "../../services/doctorAppointmentService";
 
@@ -86,26 +87,26 @@ export const loadMedicinesPrescribedList =
     );
 
 export const loadConsultation = createAsyncThunk(
-  "dashboard/loadConsultation",
+    "dashboard/loadConsultation",
 
-  async ({ period }, thunkAPI) => {
-    try {
-      return await fetchConsultation(period);
-    } catch (err) {
-      return thunkAPI.rejectWithValue(
-        err.response?.data || err.message
-      );
+    async ({ period }, thunkAPI) => {
+        try {
+            return await fetchConsultation(period);
+        } catch (err) {
+            return thunkAPI.rejectWithValue(
+                err.response?.data || err.message
+            );
+        }
     }
-  }
 );
 
 export const loadMedicines = createAsyncThunk(
     "dashboard/loadMedicines",
 
-    async ({  period }, thunkAPI) => {
+    async ({ period }, thunkAPI) => {
         try {
             return await fetchMedicines(
-                
+
                 period
             );
         } catch (err) {
@@ -117,10 +118,10 @@ export const loadMedicines = createAsyncThunk(
 export const loadTherapiesDashboard = createAsyncThunk(
     "dashboard/loadTherapiesDashboard",
 
-    async ({  period }, thunkAPI) => {
+    async ({ period }, thunkAPI) => {
         try {
             return await fetchTherapiesDashboard(
-                
+
                 period
             );
         } catch (err) {
@@ -132,10 +133,10 @@ export const loadTherapiesDashboard = createAsyncThunk(
 export const loadAilments = createAsyncThunk(
     "dashboard/loadAilments",
 
-    async ({  period }, thunkAPI) => {
+    async ({ period }, thunkAPI) => {
         try {
             return await fetchAilments(
-                
+
                 period
             );
         } catch (err) {
@@ -174,12 +175,12 @@ export const loadWellness =
     createAsyncThunk(
         "dashboard/loadWellness",
         async (
-            {  period },
+            { period },
             { rejectWithValue }
         ) => {
             try {
                 return await fetchWellness(
-                    
+
                     period
                 );
             } catch (error) {
@@ -194,12 +195,12 @@ export const loadBeauty =
     createAsyncThunk(
         "dashboard/loadBeauty",
         async (
-            {  period },
+            { period },
             { rejectWithValue }
         ) => {
             try {
                 return await fetchBeauty(
-                    
+
                     period
                 );
             } catch (error) {
@@ -211,7 +212,7 @@ export const loadBeauty =
     );
 
 
-    // ==========================
+// ==========================
 // Therapy Appointments Table
 // ==========================
 
@@ -238,3 +239,17 @@ export const loadTherapyAppointments =
         }
 
     );
+
+export const loadAilmentsList = createAsyncThunk(
+    "dashboard/loadAilmentsList",
+
+    async ({ period }, { rejectWithValue }) => {
+        try {
+            return await fetchAilmentsList(period);
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || error.message
+            );
+        }
+    }
+);
