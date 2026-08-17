@@ -7,6 +7,7 @@ import {
     loadTherapistPatients,
     loadTherapistSales,
     loadTherapistAppointments,
+    completeTherapistAppointments
 } from "./therapistThunk";
 
 
@@ -39,6 +40,7 @@ const initialState = {
     // =================================
 
     appointments: [],
+    completingAppointments: false,
 
     count: 0,
 
@@ -216,6 +218,28 @@ const therapistDashboardSlice = createSlice({
 
                 }
             )
+            .addCase(
+                completeTherapistAppointments.pending,
+                (state) => {
+                    state.completingAppointments = true;
+                }
+            )
+
+            .addCase(
+                completeTherapistAppointments.fulfilled,
+                (state) => {
+                    state.completingAppointments = false;
+                }
+            )
+
+            .addCase(
+                completeTherapistAppointments.rejected,
+                (state, action) => {
+                    state.completingAppointments = false;
+
+                    state.error = action.payload;
+                }
+            );
 
     },
 

@@ -44,7 +44,7 @@ const AppointmentCard = ({
 
         <div className="rounded-xl bg-[#FFF4ED] px-3 py-2">
           <span className="text-[16px] font-bold text-[#4D2E23]">
-            #{patient.token_no ?? "--"}
+            #{patient.token ?? "--"}
           </span>
         </div>
       </div>

@@ -165,14 +165,18 @@ const PrescriptionTable = ({
     }
 
 
-    const total =
-        items.reduce(
-            (sum, item) =>
-                sum +
-                Number(item.price || 0) *
-                Number(item.quantity || 0),
-            0
+    const total = items.reduce(
+    (sum, item) => {
+        const dispensed = getDispensedQuantity(item);
+
+        return (
+            sum +
+            Number(item.price || 0) *
+            Number(dispensed || 0)
         );
+    },
+    0
+);
 
 
     return (

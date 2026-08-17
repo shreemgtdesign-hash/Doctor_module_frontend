@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -7,7 +7,10 @@ import {
     HiOutlineCalendar,
 } from "react-icons/hi2";
 
-import { loadTherapistAppointments } from "../../redux/therapist/therapistThunk";
+import {
+    loadTherapistAppointments,
+    completeTherapistAppointments,
+} from "../../redux/therapist/therapistThunk";
 
 
 const TherapistAppointments = () => {
@@ -31,6 +34,16 @@ const TherapistAppointments = () => {
 
 
     // ==========================================
+    // LOCAL CHECKBOX STATE
+    // ==========================================
+
+    const [
+        selectedAppointments,
+        setSelectedAppointments,
+    ] = useState({});
+
+
+    // ==========================================
     // LOAD APPOINTMENTS
     // ==========================================
 
@@ -44,26 +57,7 @@ const TherapistAppointments = () => {
 
 
     // ==========================================
-    // FORMAT PRICE
-    // ==========================================
-
-    const formatPrice = (price) => {
-
-        if (
-            price === null ||
-            price === undefined ||
-            price === ""
-        ) {
-            return "₹0";
-        }
-
-        return `₹${Number(price).toLocaleString("en-IN")}`;
-
-    };
-
-
-    // ==========================================
-    // STATUS CHECK
+    // CHECK COMPLETED STATUS
     // ==========================================
 
     const isCompleted = (appointment) => {
@@ -77,17 +71,192 @@ const TherapistAppointments = () => {
     };
 
 
+    // ==========================================
+    // INITIALIZE CHECKBOX STATES
+    // ==========================================
+
+    useEffect(() => {
+
+        const statusMap = {};
+
+        appointments.forEach(
+            (appointment) => {
+
+                const bookingId =
+                    appointment.booking_id ||
+                    appointment.id;
+
+                if (!bookingId) return;
+
+                statusMap[bookingId] =
+                    isCompleted(appointment);
+
+            }
+        );
+
+        setSelectedAppointments(
+            statusMap
+        );
+
+    }, [appointments]);
+
+
+    // ==========================================
+    // HANDLE STATUS CHANGE
+    // ==========================================
+
+    const handleStatusChange = async (
+        appointment
+    ) => {
+
+        const bookingId =
+            appointment.booking_id ||
+            appointment.id;
+
+
+        if (!bookingId) {
+
+            console.error(
+                "Booking ID not found:",
+                appointment
+            );
+
+            return;
+
+        }
+
+
+        const previousValue =
+            selectedAppointments[
+                bookingId
+            ] || false;
+
+
+        const newValue =
+            !previousValue;
+
+
+        // ==========================================
+        // UPDATE ONLY THIS CHECKBOX
+        // ==========================================
+
+        setSelectedAppointments(
+            (prev) => ({
+                ...prev,
+                [bookingId]:
+                    newValue,
+            })
+        );
+
+
+        // ==========================================
+        // CHECKING
+        // ==========================================
+
+        if (newValue) {
+
+            try {
+
+                await dispatch(
+                    completeTherapistAppointments(
+                        [bookingId]
+                    )
+                ).unwrap();
+
+
+                console.log(
+                    "Appointment completed:",
+                    bookingId
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Failed to complete appointment:",
+                    error
+                );
+
+
+                // ==========================================
+                // ROLLBACK ONLY THIS CHECKBOX
+                // ==========================================
+
+                setSelectedAppointments(
+                    (prev) => ({
+                        ...prev,
+                        [bookingId]:
+                            previousValue,
+                    })
+                );
+
+            }
+
+        }
+
+        // ==========================================
+        // UNCHECKING
+        // ==========================================
+        // No API call here because your current
+        // backend API only provides:
+        //
+        // PUT /therapist/appointments/complete
+        //
+        // There is currently no "uncomplete"
+        // API provided.
+        // ==========================================
+
+    };
+
+
+    // ==========================================
+    // FORMAT PRICE
+    // ==========================================
+
+    const formatPrice = (price) => {
+
+        if (
+            price === null ||
+            price === undefined ||
+            price === ""
+        ) {
+
+            return "₹0";
+
+        }
+
+
+        return `₹${Number(
+            price
+        ).toLocaleString("en-IN")}`;
+
+    };
+
+
+    // ==========================================
+    // RENDER
+    // ==========================================
+
     return (
 
-        <div className="min-h-screen bg-[#F8F6F3] px-8 py-6">
+        <div className="
+            min-h-screen
+            bg-[#F8F6F3]
+            px-8
+            py-6
+        ">
+
 
             {/* ================================= */}
             {/* BACK BUTTON */}
             {/* ================================= */}
 
             <button
+                type="button"
                 onClick={() =>
-                    navigate("/therapist/dashboard")
+                    navigate(
+                        "/therapist/dashboard"
+                    )
                 }
                 className="
                     flex
@@ -114,41 +283,39 @@ const TherapistAppointments = () => {
             {/* HEADER */}
             {/* ================================= */}
 
-            <div
-                className="
-                    mt-8
-                    flex
-                    items-start
-                    justify-between
-                "
-            >
+            <div className="
+                mt-8
+                flex
+                items-start
+                justify-between
+            ">
 
                 <div>
 
-                    <h1
-                        className="
-                            text-[30px]
-                            font-bold
-                            text-[#2F2F2F]
-                        "
-                    >
+                    <h1 className="
+                        text-[30px]
+                        font-bold
+                        text-[#2F2F2F]
+                    ">
                         Today's Appointments
                     </h1>
 
 
-                    <p
-                        className="
-                            mt-2
-                            text-[17px]
-                            text-[#5B3A32]
-                        "
-                    >
+                    <p className="
+                        mt-2
+                        text-[17px]
+                        text-[#5B3A32]
+                    ">
+
                         <span className="mr-2">
                             •
                         </span>
 
                         {count} Patient
-                        {count !== 1 ? "s" : ""}
+                        {count !== 1
+                            ? "s"
+                            : ""}
+
                     </p>
 
                 </div>
@@ -158,22 +325,20 @@ const TherapistAppointments = () => {
                 {/* APPOINTMENTS BADGE */}
                 {/* ================================= */}
 
-                <div
-                    className="
-                        flex
-                        h-12
-                        items-center
-                        gap-2
-                        rounded-xl
-                        border
-                        border-[#E7DBD3]
-                        bg-white
-                        px-5
-                        text-[15px]
-                        font-medium
-                        text-[#4D2E23]
-                    "
-                >
+                <div className="
+                    flex
+                    h-12
+                    items-center
+                    gap-2
+                    rounded-xl
+                    border
+                    border-[#E7DBD3]
+                    bg-white
+                    px-5
+                    text-[15px]
+                    font-medium
+                    text-[#4D2E23]
+                ">
 
                     <HiOutlineCalendar
                         size={19}
@@ -192,19 +357,17 @@ const TherapistAppointments = () => {
 
             {error && (
 
-                <div
-                    className="
-                        mt-6
-                        rounded-xl
-                        border
-                        border-red-200
-                        bg-red-50
-                        px-5
-                        py-4
-                        text-sm
-                        text-red-600
-                    "
-                >
+                <div className="
+                    mt-6
+                    rounded-xl
+                    border
+                    border-red-200
+                    bg-red-50
+                    px-5
+                    py-4
+                    text-sm
+                    text-red-600
+                ">
 
                     {typeof error === "string"
                         ? error
@@ -219,166 +382,148 @@ const TherapistAppointments = () => {
             {/* TABLE */}
             {/* ================================= */}
 
-            <div
-                className="
-                    mt-6
-                    overflow-hidden
-                    rounded-[24px]
-                    border
-                    border-[#E7DBD3]
-                    bg-white
-                "
-            >
+            <div className="
+                mt-6
+                overflow-hidden
+                rounded-[24px]
+                border
+                border-[#E7DBD3]
+                bg-white
+            ">
+
 
                 {/* ================================= */}
                 {/* TABLE HEADER */}
                 {/* ================================= */}
 
-                <div
-                    className="
-                        grid
-                        min-w-[1100px]
-                        grid-cols-[1.5fr_1.25fr_0.9fr_1.2fr_1.2fr_0.55fr_0.8fr_0.7fr]
-                        border-b
-                        border-[#EFE2D7]
-                        bg-[#FFF9F3]
-                    "
-                >
+                <div className="
+                    grid
+                    min-w-[1100px]
+                    grid-cols-[1.5fr_1.25fr_0.9fr_1.2fr_1.2fr_0.55fr_0.8fr_0.7fr]
+                    border-b
+                    border-[#EFE2D7]
+                    bg-[#FFF9F3]
+                ">
+
 
                     {/* PATIENT DETAILS */}
 
-                    <div
-                        className="
-                            border-r
-                            border-[#EFE2D7]
-                            px-5
-                            py-5
-                            text-[15px]
-                            font-semibold
-                            text-[#4D2E23]
-                        "
-                    >
+                    <div className="
+                        border-r
+                        border-[#EFE2D7]
+                        px-5
+                        py-5
+                        text-[15px]
+                        font-semibold
+                        text-[#4D2E23]
+                    ">
                         Patient Details
                     </div>
 
 
                     {/* THERAPY */}
 
-                    <div
-                        className="
-                            border-r
-                            border-[#EFE2D7]
-                            px-5
-                            py-5
-                            text-[15px]
-                            font-semibold
-                            text-[#4D2E23]
-                        "
-                    >
+                    <div className="
+                        border-r
+                        border-[#EFE2D7]
+                        px-5
+                        py-5
+                        text-[15px]
+                        font-semibold
+                        text-[#4D2E23]
+                    ">
                         Therapy
                     </div>
 
 
                     {/* TIME */}
 
-                    <div
-                        className="
-                            border-r
-                            border-[#EFE2D7]
-                            px-5
-                            py-5
-                            text-center
-                            text-[15px]
-                            font-semibold
-                            text-[#4D2E23]
-                        "
-                    >
+                    <div className="
+                        border-r
+                        border-[#EFE2D7]
+                        px-5
+                        py-5
+                        text-center
+                        text-[15px]
+                        font-semibold
+                        text-[#4D2E23]
+                    ">
                         Time
                     </div>
 
 
                     {/* DOCTOR */}
 
-                    <div
-                        className="
-                            border-r
-                            border-[#EFE2D7]
-                            px-5
-                            py-5
-                            text-[15px]
-                            font-semibold
-                            text-[#4D2E23]
-                        "
-                    >
+                    <div className="
+                        border-r
+                        border-[#EFE2D7]
+                        px-5
+                        py-5
+                        text-[15px]
+                        font-semibold
+                        text-[#4D2E23]
+                    ">
                         Doctor
                     </div>
 
 
                     {/* THERAPIST */}
 
-                    <div
-                        className="
-                            border-r
-                            border-[#EFE2D7]
-                            px-5
-                            py-5
-                            text-[15px]
-                            font-semibold
-                            text-[#4D2E23]
-                        "
-                    >
+                    <div className="
+                        border-r
+                        border-[#EFE2D7]
+                        px-5
+                        py-5
+                        text-[15px]
+                        font-semibold
+                        text-[#4D2E23]
+                    ">
                         Therapist
                     </div>
 
 
                     {/* ROOM */}
 
-                    <div
-                        className="
-                            border-r
-                            border-[#EFE2D7]
-                            px-4
-                            py-5
-                            text-center
-                            text-[15px]
-                            font-semibold
-                            text-[#4D2E23]
-                        "
-                    >
+                    <div className="
+                        border-r
+                        border-[#EFE2D7]
+                        px-4
+                        py-5
+                        text-center
+                        text-[15px]
+                        font-semibold
+                        text-[#4D2E23]
+                    ">
                         Room
                     </div>
 
 
                     {/* PRICE */}
 
-                    <div
-                        className="
-                            border-r
-                            border-[#EFE2D7]
-                            px-4
-                            py-5
-                            text-center
-                            text-[15px]
-                            font-semibold
-                            text-[#4D2E23]
-                        "
-                    >
+                    <div className="
+                        border-r
+                        border-[#EFE2D7]
+                        px-4
+                        py-5
+                        text-center
+                        text-[15px]
+                        font-semibold
+                        text-[#4D2E23]
+                    ">
                         Price
                     </div>
 
 
                     {/* STATUS */}
 
-                    <div
-                        className="
-                            px-4
-                            py-5
-                            text-center
-                            text-[15px]
-                            font-semibold
-                            text-[#4D2E23]
-                        "
-                    >
+                    <div className="
+                        px-4
+                        py-5
+                        text-center
+                        text-[15px]
+                        font-semibold
+                        text-[#4D2E23]
+                    ">
                         Status
                     </div>
 
@@ -386,20 +531,18 @@ const TherapistAppointments = () => {
 
 
                 {/* ================================= */}
-                {/* LOADING */}
+                {/* INITIAL LOADING */}
                 {/* ================================= */}
 
                 {loading ? (
 
-                    <div
-                        className="
-                            flex
-                            h-40
-                            items-center
-                            justify-center
-                            text-[#8A756B]
-                        "
-                    >
+                    <div className="
+                        flex
+                        h-40
+                        items-center
+                        justify-center
+                        text-[#8A756B]
+                    ">
                         Loading appointments...
                     </div>
 
@@ -409,15 +552,13 @@ const TherapistAppointments = () => {
                     /* EMPTY */
                     /* ================================= */
 
-                    <div
-                        className="
-                            flex
-                            h-40
-                            items-center
-                            justify-center
-                            text-[#8A756B]
-                        "
-                    >
+                    <div className="
+                        flex
+                        h-40
+                        items-center
+                        justify-center
+                        text-[#8A756B]
+                    ">
                         No appointments found
                     </div>
 
@@ -430,111 +571,108 @@ const TherapistAppointments = () => {
                     <div className="min-w-[1100px]">
 
                         {appointments.map(
-                            (appointment, index) => (
+                            (
+                                appointment,
+                                index
+                            ) => {
 
-                                <div
-                                    key={
-                                        appointment.id ||
-                                        `${appointment.patient_id}-${appointment.slot_time}-${index}`
-                                    }
-                                    className="
-                                        grid
-                                        grid-cols-[1.5fr_1.25fr_0.9fr_1.2fr_1.2fr_0.55fr_0.8fr_0.7fr]
-                                        border-b
-                                        border-[#EFE2D7]
-                                        last:border-b-0
-                                        transition
-                                        hover:bg-[#FFFCF9]
-                                    "
-                                >
+                                const bookingId =
+                                    appointment.booking_id ||
+                                    appointment.id;
 
-                                    {/* ================================= */}
-                                    {/* PATIENT DETAILS */}
-                                    {/* ================================= */}
+
+                                return (
 
                                     <div
+                                        key={
+                                            bookingId ||
+                                            `${appointment.patient_id}-${appointment.slot_time}-${index}`
+                                        }
                                         className="
+                                            grid
+                                            grid-cols-[1.5fr_1.25fr_0.9fr_1.2fr_1.2fr_0.55fr_0.8fr_0.7fr]
+                                            border-b
+                                            border-[#EFE2D7]
+                                            last:border-b-0
+                                            transition
+                                            hover:bg-[#FFFCF9]
+                                        "
+                                    >
+
+
+                                        {/* ================================= */}
+                                        {/* PATIENT DETAILS */}
+                                        {/* ================================= */}
+
+                                        <div className="
                                             border-r
                                             border-[#EFE2D7]
                                             px-5
                                             py-5
-                                        "
-                                    >
+                                        ">
 
-                                        <h3
-                                            className="
+                                            <h3 className="
                                                 text-[16px]
                                                 font-semibold
                                                 text-[#4D2E23]
-                                            "
-                                        >
-                                            {appointment.patient_name ||
-                                                "Unknown Patient"}
-                                        </h3>
+                                            ">
+                                                {appointment.patient_name ||
+                                                    "Unknown Patient"}
+                                            </h3>
 
 
-                                        <p
-                                            className="
+                                            <p className="
                                                 mt-1
                                                 text-[13px]
                                                 text-[#858585]
-                                            "
-                                        >
-                                            Patient ID:{" "}
+                                            ">
+                                                Patient ID:{" "}
+                                                {appointment.patient_id ||
+                                                    appointment.patient_code ||
+                                                    "-"}
+                                            </p>
 
-                                            {appointment.patient_id ||
-                                                appointment.patient_code ||
-                                                "-"}
-                                        </p>
-
-                                    </div>
+                                        </div>
 
 
-                                    {/* ================================= */}
-                                    {/* THERAPY */}
-                                    {/* ================================= */}
+                                        {/* ================================= */}
+                                        {/* THERAPY */}
+                                        {/* ================================= */}
 
-                                    <div
-                                        className="
+                                        <div className="
                                             border-r
                                             border-[#EFE2D7]
                                             px-5
                                             py-5
-                                        "
-                                    >
+                                        ">
 
-                                        <h3
-                                            className="
+                                            <h3 className="
                                                 text-[16px]
                                                 font-semibold
                                                 text-[#4D2E23]
-                                            "
-                                        >
-                                            {appointment.therapy_name ||
-                                                "Therapy"}
-                                        </h3>
+                                            ">
+                                                {appointment.therapy_name ||
+                                                    "Therapy"}
+                                            </h3>
 
 
-                                        <p
-                                            className="
+                                            <p className="
                                                 mt-1
                                                 text-[13px]
                                                 text-[#858585]
-                                            "
-                                        >
-                                            {appointment.duration ||
-                                                "-"}
-                                        </p>
+                                            ">
+                                                {appointment.duration ||
+                                                    "-"}
+                                            </p>
 
-                                    </div>
+                                        </div>
 
 
-                                    {/* ================================= */}
-                                    {/* TIME */}
-                                    {/* ================================= */}
+                                        {/* ================================= */}
+                                        {/* TIME */}
+                                        {/* ================================= */}
 
-                                    <div
-                                        className="
+                                        <div className="
                                             flex
                                             items-center
                                             justify-center
@@ -543,88 +681,76 @@ const TherapistAppointments = () => {
                                             px-4
                                             py-5
                                             text-center
-                                        "
-                                    >
+                                        ">
 
-                                        <span
-                                            className="
+                                            <span className="
                                                 text-[16px]
                                                 font-semibold
                                                 text-[#4D2E23]
-                                            "
-                                        >
-                                            {appointment.time ||
-                                                appointment.slot_time ||
-                                                "-"}
-                                        </span>
+                                            ">
+                                                {appointment.time ||
+                                                    appointment.slot_time ||
+                                                    "-"}
+                                            </span>
 
-                                    </div>
+                                        </div>
 
 
-                                    {/* ================================= */}
-                                    {/* DOCTOR */}
-                                    {/* ================================= */}
+                                        {/* ================================= */}
+                                        {/* DOCTOR */}
+                                        {/* ================================= */}
 
-                                    <div
-                                        className="
+                                        <div className="
                                             flex
                                             items-center
                                             border-r
                                             border-[#EFE2D7]
                                             px-5
                                             py-5
-                                        "
-                                    >
+                                        ">
 
-                                        <span
-                                            className="
+                                            <span className="
                                                 text-[16px]
                                                 font-semibold
                                                 text-[#4D2E23]
-                                            "
-                                        >
-                                            {appointment.doctor_name ||
-                                                "-"}
-                                        </span>
+                                            ">
+                                                {appointment.doctor_name ||
+                                                    "-"}
+                                            </span>
 
-                                    </div>
+                                        </div>
 
 
-                                    {/* ================================= */}
-                                    {/* THERAPIST */}
-                                    {/* ================================= */}
+                                        {/* ================================= */}
+                                        {/* THERAPIST */}
+                                        {/* ================================= */}
 
-                                    <div
-                                        className="
+                                        <div className="
                                             flex
                                             items-center
                                             border-r
                                             border-[#EFE2D7]
                                             px-5
                                             py-5
-                                        "
-                                    >
+                                        ">
 
-                                        <span
-                                            className="
+                                            <span className="
                                                 text-[16px]
                                                 font-semibold
                                                 text-[#4D2E23]
-                                            "
-                                        >
-                                            {appointment.therapist_name ||
-                                                "-"}
-                                        </span>
+                                            ">
+                                                {appointment.therapist_name ||
+                                                    "-"}
+                                            </span>
 
-                                    </div>
+                                        </div>
 
 
-                                    {/* ================================= */}
-                                    {/* ROOM */}
-                                    {/* ================================= */}
+                                        {/* ================================= */}
+                                        {/* ROOM */}
+                                        {/* ================================= */}
 
-                                    <div
-                                        className="
+                                        <div className="
                                             flex
                                             items-center
                                             justify-center
@@ -633,29 +759,25 @@ const TherapistAppointments = () => {
                                             px-4
                                             py-5
                                             text-center
-                                        "
-                                    >
+                                        ">
 
-                                        <span
-                                            className="
+                                            <span className="
                                                 text-[16px]
                                                 font-semibold
                                                 text-[#4D2E23]
-                                            "
-                                        >
-                                            {appointment.room ||
-                                                "-"}
-                                        </span>
+                                            ">
+                                                {appointment.room ||
+                                                    "-"}
+                                            </span>
 
-                                    </div>
+                                        </div>
 
 
-                                    {/* ================================= */}
-                                    {/* PRICE */}
-                                    {/* ================================= */}
+                                        {/* ================================= */}
+                                        {/* PRICE */}
+                                        {/* ================================= */}
 
-                                    <div
-                                        className="
+                                        <div className="
                                             flex
                                             items-center
                                             justify-center
@@ -664,57 +786,60 @@ const TherapistAppointments = () => {
                                             px-4
                                             py-5
                                             text-center
-                                        "
-                                    >
+                                        ">
 
-                                        <span
-                                            className="
+                                            <span className="
                                                 text-[16px]
                                                 font-semibold
                                                 text-[#4D2E23]
-                                            "
-                                        >
-                                            {formatPrice(
-                                                appointment.price
-                                            )}
-                                        </span>
+                                            ">
+                                                {formatPrice(
+                                                    appointment.price
+                                                )}
+                                            </span>
 
-                                    </div>
+                                        </div>
 
 
-                                    {/* ================================= */}
-                                    {/* STATUS */}
-                                    {/* ================================= */}
+                                        {/* ================================= */}
+                                        {/* STATUS */}
+                                        {/* ================================= */}
 
-                                    <div
-                                        className="
+                                        <div className="
                                             flex
                                             items-center
                                             justify-center
                                             px-4
                                             py-5
-                                        "
-                                    >
+                                        ">
 
-                                        <input
-                                            type="checkbox"
-                                            checked={isCompleted(
-                                                appointment
-                                            )}
-                                            readOnly
-                                            className="
-                                                h-5
-                                                w-5
-                                                cursor-default
-                                                accent-[#4D2E23]
-                                            "
-                                        />
+                                            <input
+                                                type="checkbox"
+                                                checked={
+                                                    selectedAppointments[
+                                                        bookingId
+                                                    ] || false
+                                                }
+                                                onChange={() =>
+                                                    handleStatusChange(
+                                                        appointment
+                                                    )
+                                                }
+                                                className="
+                                                    h-5
+                                                    w-5
+                                                    cursor-pointer
+                                                    accent-[#4D2E23]
+                                                "
+                                            />
+
+                                        </div>
 
                                     </div>
 
-                                </div>
+                                );
 
-                            )
+                            }
                         )}
 
                     </div>
@@ -726,6 +851,7 @@ const TherapistAppointments = () => {
         </div>
 
     );
+
 };
 
 

@@ -1,4 +1,5 @@
 import {
+    completeTherapistAppointments,
     getTherapistAppointments,
 } from "../api/therapistAppointmentsApi";
 
@@ -12,3 +13,14 @@ export const fetchTherapistAppointments = async () => {
         data: response.data.data,
     };
 };
+
+export const markTherapistAppointmentsComplete =
+    async (bookingIds) => {
+
+        const response =
+            await completeTherapistAppointments(
+                bookingIds
+            );
+
+        return response.data;
+    };
