@@ -166,7 +166,7 @@ export const getConsultationHistoryList = (
   period = "today"
 ) =>
   api.get(
-    `/doctor-dashboard/consultations-history/list?period=${period}&id=${doctorId}`
+    `/doctor-dashboard/consultations-history/list?period=${period}`
   );
 
 // ============================
@@ -174,11 +174,10 @@ export const getConsultationHistoryList = (
 // ============================
 
 export const getMedicinesPrescribedList = (
-  doctorId,
   period = "today"
 ) =>
   api.get(
-    `/doctor-dashboard/medicines-prescribed/list?period=${period}&id=${doctorId}`
+    `/doctor-dashboard/medicines-prescribed/list?period=${period}`
   );
 
 
@@ -213,3 +212,38 @@ export const deleteTherapy = (therapyId) =>
   api.delete(
     `/visits/therapies/${therapyId}`
   );
+
+  // ============================
+// Wellness Summary List
+// ============================
+
+export const getWellnessSummaryList = (
+  period = "today"
+) =>
+  api.get(
+    `/doctor-dashboard/wellness-summary/list?period=${period}`
+  );
+
+
+// ============================
+// Beauty Summary List
+// ============================
+
+export const getBeautySummaryList = (
+  period = "today"
+) =>
+  api.get(
+    `/doctor-dashboard/beauty-summary/list?period=${period}`
+  );
+
+  // ============================
+// Finish Consultation
+export const finishConsultation = (
+  appointmentId,
+  payload
+) => {
+  return api.put(
+    `/appointments/${appointmentId}/status`,
+    payload
+  );
+};

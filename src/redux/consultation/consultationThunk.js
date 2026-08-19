@@ -11,6 +11,7 @@ import {
   editPrescriptionItem, fetchDoctorsList, createAssociateDoctor, removeAssociateDoctor,
   fetchAppointments,
   removeTherapy,
+  completeConsultation,
 } from "../../services/doctorAppointmentService";
 
 export const loadAppointments = createAsyncThunk(
@@ -447,3 +448,24 @@ export const deleteTherapyThunk = createAsyncThunk(
 
   }
 );
+
+// Thunk
+export const finishConsultationThunk =
+  createAsyncThunk(
+    "consultation/finishConsultation",
+    async (
+      appointmentId,
+      { rejectWithValue }
+    ) => {
+      try {
+        return await completeConsultation(
+          appointmentId
+        );
+      } catch (error) {
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+      }
+    }
+  );

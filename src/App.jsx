@@ -12,6 +12,8 @@ import PharmacistAppointments from "./pages/Pharmacist/PharmacistAppointments";
 import TherapiesPrescribedTable from "./pages/DoctorDashboard/components/TherapiesPrescribedTable";
 import TherapistDashboard from "./pages/TherapistDashboard";
 import TherapistAppointments from "./pages/TherapistAppointments/TherapistAppointments";
+import WellnessTable from "./pages/DoctorDashboard/components/WellnessTable";
+import BeautyTable from "./pages/DoctorDashboard/components/BeautyTable";
 
 function App() {
     return (
@@ -102,6 +104,18 @@ function App() {
     path="/therapist/appointments"
     element={
         <TherapistAppointments />
+    }
+/>
+<Route
+    path="/doctor/wellness-table"
+    element={
+        <WellnessTable />
+    }
+/>
+<Route
+    path="/doctor/beauty-table"
+    element={
+        <BeautyTable />
     }
 />
         </Routes>

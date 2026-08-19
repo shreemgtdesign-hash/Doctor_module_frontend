@@ -1,3 +1,4 @@
+import { getBeautySummaryList, getMedicinesPrescribedList, getWellnessSummaryList } from "../api/doctorAppointmentApi";
 import {
     getScheduleOverview,
     getTodaySchedule,
@@ -123,6 +124,52 @@ export const fetchTherapyAppointments = async () => {
 
 export const fetchAilmentsList = async (period) => {
   const response = await getAilmentsList(period);
+
+  return response.data;
+};
+
+// ============================
+// Medicines Prescribed List
+// ============================
+
+export const fetchMedicinesPrescribedList = async (
+  period = "today"
+) => {
+  const response =
+    await getMedicinesPrescribedList(period);
+
+  return response.data;
+};
+
+// ============================
+// Wellness Summary List
+// ============================
+
+export const fetchWellnessSummaryList = async (
+  period = "today"
+) => {
+
+  const response =
+    await getWellnessSummaryList(
+      period
+    );
+
+  return response.data;
+};
+
+
+// ============================
+// Beauty Summary List
+// ============================
+
+export const fetchBeautySummaryList = async (
+  period = "today"
+) => {
+
+  const response =
+    await getBeautySummaryList(
+      period
+    );
 
   return response.data;
 };

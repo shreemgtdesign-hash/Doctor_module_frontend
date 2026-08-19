@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getDashboard, loadAilmentsList, loadAilments, loadConsultation, loadConsultationHistoryList, loadMedicines, loadMedicinesPrescribedList, loadOverview, loadTherapiesDashboard, loadBeauty, loadWellness, loadTherapyAppointments } from "./dashboardThunk";
+import { getDashboard, loadAilmentsList, loadAilments, loadConsultation, loadConsultationHistoryList, loadMedicines, loadMedicinesPrescribedList, loadOverview, loadTherapiesDashboard, loadBeauty, loadWellness, loadTherapyAppointments, loadBeautySummaryList, loadWellnessSummaryList } from "./dashboardThunk";
 
 
 const initialState = {
@@ -35,8 +35,40 @@ const initialState = {
 
     consultationHistoryList: [],
 
-    medicinesPrescribedList: [],
+    medicinesPrescribedList: {
+        success: false,
+        period: "today",
+        count: 0,
+        prescribed_medicines: [],
+    },
 
+    medicinesPrescribedListLoading: false,
+     wellnessSummaryList: {
+    success: false,
+    period: "today",
+    total_consultations: 0,
+    count: 0,
+    data: [],
+  },
+
+  wellnessSummaryListLoading: false,
+
+  wellnessSummaryListError: null,
+
+
+  // ==========================================
+  // BEAUTY LIST
+  // ==========================================
+
+  beautySummaryList: {
+    success: false,
+    period: "today",
+    total_consultations: 0,
+    count: 0,
+    data: [],
+  },
+
+  beautySummaryListLoading: false,
     error: null,
 };
 
@@ -66,10 +98,26 @@ const dashboardSlice = createSlice({
             )
 
             .addCase(
+                loadMedicinesPrescribedList.pending,
+                (state) => {
+                    state.medicinesPrescribedListLoading = true;
+                }
+            )
+
+            .addCase(
                 loadMedicinesPrescribedList.fulfilled,
                 (state, action) => {
+                    state.medicinesPrescribedListLoading = false;
+
                     state.medicinesPrescribedList =
-                        action.payload.prescribed_medicines || [];
+                        action.payload;
+                }
+            )
+
+            .addCase(
+                loadMedicinesPrescribedList.rejected,
+                (state) => {
+                    state.medicinesPrescribedListLoading = false;
                 }
             )
 
@@ -172,6 +220,107 @@ const dashboardSlice = createSlice({
                         action.payload?.ailments_history || [];
                 }
             )
+
+            // ==========================================
+// WELLNESS SUMMARY LIST
+// ==========================================
+
+builder
+
+  .addCase(
+    loadWellnessSummaryList.pending,
+    (state) => {
+
+      state.wellnessSummaryListLoading =
+        true;
+
+      state.wellnessSummaryListError =
+        null;
+    }
+  )
+
+  .addCase(
+    loadWellnessSummaryList.fulfilled,
+    (state, action) => {
+
+      state.wellnessSummaryListLoading =
+        false;
+
+      state.wellnessSummaryList =
+        action.payload;
+    }
+  )
+
+  .addCase(
+    loadWellnessSummaryList.rejected,
+    (state, action) => {
+
+      state.wellnessSummaryListLoading =
+        false;
+
+      state.wellnessSummaryListError =
+        action.payload;
+
+      state.wellnessSummaryList = {
+        success: false,
+        period: "today",
+        total_consultations: 0,
+        count: 0,
+        data: [],
+      };
+    }
+  );
+
+
+// ==========================================
+// BEAUTY SUMMARY LIST
+// ==========================================
+
+builder
+
+  .addCase(
+    loadBeautySummaryList.pending,
+    (state) => {
+
+      state.beautySummaryListLoading =
+        true;
+
+      state.beautySummaryListError =
+        null;
+    }
+  )
+
+  .addCase(
+    loadBeautySummaryList.fulfilled,
+    (state, action) => {
+
+      state.beautySummaryListLoading =
+        false;
+
+      state.beautySummaryList =
+        action.payload;
+    }
+  )
+
+  .addCase(
+    loadBeautySummaryList.rejected,
+    (state, action) => {
+
+      state.beautySummaryListLoading =
+        false;
+
+      state.beautySummaryListError =
+        action.payload;
+
+      state.beautySummaryList = {
+        success: false,
+        period: "today",
+        total_consultations: 0,
+        count: 0,
+        data: [],
+      };
+    }
+  );
 
 
 

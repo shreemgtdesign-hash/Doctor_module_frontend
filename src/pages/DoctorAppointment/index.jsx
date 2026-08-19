@@ -18,7 +18,7 @@ const DoctorAppointment = () => {
 
     const profileRef = useRef(null);
 
-
+    const [profileHeight, setProfileHeight] = useState(720);
 
     const [activeSection, setActiveSection] =
         useState("overview");

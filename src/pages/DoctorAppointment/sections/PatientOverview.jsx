@@ -5,7 +5,7 @@ import ConsultationGrid from "../components/ConsultationGrid";
 import FinishButton from "../components/FinishButton";
 
 const PatientOverview = ({ activeSection,setActiveSection }) => {
-  const { patientWellness } = useSelector(
+  const { patientWellness,selectedPatient, } = useSelector(
     (state) => state.consultation
   );
 
@@ -54,7 +54,9 @@ const PatientOverview = ({ activeSection,setActiveSection }) => {
                 setActiveSection={setActiveSection}
       />
 
-      <FinishButton />
+      <FinishButton
+  appointmentId={selectedPatient?.id}
+/>
     </>
   );
 };

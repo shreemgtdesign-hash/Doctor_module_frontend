@@ -11,6 +11,8 @@ import {
     fetchBeauty,
     fetchTherapyAppointments,
     fetchAilmentsList,
+    fetchWellnessSummaryList,
+    fetchBeautySummaryList,
 
 } from "../../services/doctorDashboardService"; import { fetchConsultationHistoryList, fetchMedicinesPrescribedList } from "../../services/doctorAppointmentService";
 
@@ -67,24 +69,25 @@ export const loadConsultationHistoryList =
     );
 
 export const loadMedicinesPrescribedList =
-    createAsyncThunk(
-        "dashboard/loadMedicinesPrescribedList",
-        async (
-            { doctorId, period },
-            { rejectWithValue }
-        ) => {
-            try {
-                return await fetchMedicinesPrescribedList(
-                    doctorId,
-                    period
-                );
-            } catch (error) {
-                return rejectWithValue(
-                    error.response?.data || error.message
-                );
-            }
-        }
-    );
+  createAsyncThunk(
+    "dashboard/loadMedicinesPrescribedList",
+
+    async (
+      period = "today",
+      { rejectWithValue }
+    ) => {
+      try {
+        return await fetchMedicinesPrescribedList(
+          period
+        );
+      } catch (error) {
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+      }
+    }
+  );
 
 export const loadConsultation = createAsyncThunk(
     "dashboard/loadConsultation",
@@ -253,3 +256,66 @@ export const loadAilmentsList = createAsyncThunk(
         }
     }
 );
+
+// ==========================================
+// WELLNESS SUMMARY LIST
+// ==========================================
+
+export const loadWellnessSummaryList =
+  createAsyncThunk(
+    "dashboard/loadWellnessSummaryList",
+
+    async (
+      period = "today",
+      { rejectWithValue }
+    ) => {
+
+      try {
+
+        return await fetchWellnessSummaryList(
+          period
+        );
+
+      } catch (error) {
+
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+
+      }
+
+    }
+  );
+
+
+// ==========================================
+// BEAUTY SUMMARY LIST
+// ==========================================
+
+export const loadBeautySummaryList =
+  createAsyncThunk(
+    "dashboard/loadBeautySummaryList",
+
+    async (
+      period = "today",
+      { rejectWithValue }
+    ) => {
+
+      try {
+
+        return await fetchBeautySummaryList(
+          period
+        );
+
+      } catch (error) {
+
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+
+      }
+
+    }
+  );

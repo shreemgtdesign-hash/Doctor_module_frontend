@@ -22,6 +22,7 @@ import {
     loadDoctorsList,
     deleteAssociateDoctorThunk,
     deleteTherapyThunk,
+    finishConsultationThunk,
 } from "./consultationThunk";
 import { searchDiagnosisCategoriesThunk } from "../appointment/appointmentThunk";
 
@@ -45,7 +46,7 @@ const initialState = {
     patientProfile: null,
     patientLoading: false,
     patientWellness: null,
-      prescriptionRequestId: null,
+    prescriptionRequestId: null,
     error: null,
     prescriptionSearch: [],
 
@@ -70,6 +71,8 @@ const initialState = {
     associateDoctors: [],
 
     doctorsList: [],
+    finishLoading: false,
+    finishSuccess: false,
 };
 
 const consultationSlice = createSlice({
@@ -194,95 +197,95 @@ const consultationSlice = createSlice({
                 }
             )
             // ========================================
-// LOAD PRESCRIPTION
-// ========================================
+            // LOAD PRESCRIPTION
+            // ========================================
 
-.addCase(loadPrescription.pending, (state, action) => {
+            .addCase(loadPrescription.pending, (state, action) => {
 
-    state.loading = true;
+                state.loading = true;
 
-    // Store the request ID of the CURRENT request
-    state.prescriptionRequestId = action.meta.requestId;
+                // Store the request ID of the CURRENT request
+                state.prescriptionRequestId = action.meta.requestId;
 
-    // Immediately clear previous patient's data
-    state.prescription = {
-        consultation_id: action.meta.arg,
-        items: [],
-        total: 0,
-        specialInstructions: "",
-        reviewDate: "",
-    };
+                // Immediately clear previous patient's data
+                state.prescription = {
+                    consultation_id: action.meta.arg,
+                    items: [],
+                    total: 0,
+                    specialInstructions: "",
+                    reviewDate: "",
+                };
 
-    state.allergies = [];
-})
-
-
-.addCase(loadPrescription.fulfilled, (state, action) => {
-
-    // ========================================
-    // IMPORTANT
-    // Ignore old/stale API responses
-    // ========================================
-
-    if (
-        state.prescriptionRequestId !==
-        action.meta.requestId
-    ) {
-        return;
-    }
-
-    state.loading = false;
-
-    const data = action.payload || {};
-
-    state.prescription = {
-
-        consultation_id:
-            data.consultation_id ||
-            action.meta.arg,
-
-        items:
-            data.items || [],
-
-        total:
-            data.total || 0,
-
-        specialInstructions:
-            data.special_instructions || "",
-
-        reviewDate:
-            data.review_date || "",
-    };
-
-    state.allergies =
-        data.items?.[0]?.patient_allergies || [];
-})
+                state.allergies = [];
+            })
 
 
-.addCase(loadPrescription.rejected, (state, action) => {
+            .addCase(loadPrescription.fulfilled, (state, action) => {
 
-    // Ignore stale rejected requests too
-    if (
-        state.prescriptionRequestId !==
-        action.meta.requestId
-    ) {
-        return;
-    }
+                // ========================================
+                // IMPORTANT
+                // Ignore old/stale API responses
+                // ========================================
 
-    state.loading = false;
+                if (
+                    state.prescriptionRequestId !==
+                    action.meta.requestId
+                ) {
+                    return;
+                }
 
-    state.prescription = {
-        consultation_id: null,
-        items: [],
-        total: 0,
-        specialInstructions: "",
-        reviewDate: "",
-    };
+                state.loading = false;
 
-    state.allergies = [];
+                const data = action.payload || {};
 
-    state.prescriptionRequestId = null;
-})
+                state.prescription = {
+
+                    consultation_id:
+                        data.consultation_id ||
+                        action.meta.arg,
+
+                    items:
+                        data.items || [],
+
+                    total:
+                        data.total || 0,
+
+                    specialInstructions:
+                        data.special_instructions || "",
+
+                    reviewDate:
+                        data.review_date || "",
+                };
+
+                state.allergies =
+                    data.items?.[0]?.patient_allergies || [];
+            })
+
+
+            .addCase(loadPrescription.rejected, (state, action) => {
+
+                // Ignore stale rejected requests too
+                if (
+                    state.prescriptionRequestId !==
+                    action.meta.requestId
+                ) {
+                    return;
+                }
+
+                state.loading = false;
+
+                state.prescription = {
+                    consultation_id: null,
+                    items: [],
+                    total: 0,
+                    specialInstructions: "",
+                    reviewDate: "",
+                };
+
+                state.allergies = [];
+
+                state.prescriptionRequestId = null;
+            })
 
             .addCase(
                 savePrescriptionThunk.fulfilled,
@@ -396,41 +399,67 @@ const consultationSlice = createSlice({
             })
 
             .addCase(
-    deleteTherapyThunk.pending,
+                deleteTherapyThunk.pending,
+                (state) => {
+                    state.therapyDeleteLoading = true;
+                    state.error = null;
+                }
+            )
+
+            .addCase(
+                deleteTherapyThunk.fulfilled,
+                (state, action) => {
+
+                    state.therapyDeleteLoading = false;
+
+                    const therapyId = action.meta.arg;
+
+                    state.therapy.items =
+                        state.therapy.items.filter(
+                            (item) =>
+                                item.id !== therapyId
+                        );
+
+                    state.therapy.total =
+                        state.therapy.items.reduce(
+                            (sum, item) =>
+                                sum + Number(item.amount || 0),
+                            0
+                        );
+                }
+            )
+
+            .addCase(
+                deleteTherapyThunk.rejected,
+                (state, action) => {
+
+                    state.therapyDeleteLoading = false;
+                    state.error = action.payload;
+                }
+            )
+
+            .addCase(
+    finishConsultationThunk.pending,
     (state) => {
-        state.therapyDeleteLoading = true;
+        state.finishLoading = true;
+        state.finishSuccess = false;
         state.error = null;
     }
 )
 
 .addCase(
-    deleteTherapyThunk.fulfilled,
-    (state, action) => {
-
-        state.therapyDeleteLoading = false;
-
-        const therapyId = action.meta.arg;
-
-        state.therapy.items =
-            state.therapy.items.filter(
-                (item) =>
-                    item.id !== therapyId
-            );
-
-        state.therapy.total =
-            state.therapy.items.reduce(
-                (sum, item) =>
-                    sum + Number(item.amount || 0),
-                0
-            );
+    finishConsultationThunk.fulfilled,
+    (state) => {
+        state.finishLoading = false;
+        state.finishSuccess = true;
     }
 )
 
 .addCase(
-    deleteTherapyThunk.rejected,
+    finishConsultationThunk.rejected,
     (state, action) => {
-
-        state.therapyDeleteLoading = false;
+        state.finishLoading = false;
+        state.finishSuccess = false;
         state.error = action.payload;
     }
 )

@@ -28,6 +28,7 @@ import {
   addAssociateDoctor,
   deleteAssociateDoctor,
   deleteTherapy,
+  finishConsultation,
 
 
 
@@ -333,17 +334,14 @@ export const fetchConsultationHistoryList =
 // Medicines Prescribed List
 // ============================
 
-export const fetchMedicinesPrescribedList =
-  async (doctorId, period) => {
-    const response =
-      await getMedicinesPrescribedList(
-        doctorId,
-        period
-      );
+export const fetchMedicinesPrescribedList = async (
+  period = "today"
+) => {
+  const response =
+    await getMedicinesPrescribedList(period);
 
-    return response.data;
-  };
-
+  return response.data;
+};
 export const fetchDiagnosisCategories = async () => {
   const response = await getDiagnosisCategories();
   return response.data.data;
@@ -417,6 +415,23 @@ export const removeAssociateDoctor = async (
 
   const response = await deleteAssociateDoctor(
     associateDoctorId
+  );
+
+  return response.data;
+};
+
+// ============================
+// Finish Consultation
+// ============================
+
+export const completeConsultation = async (
+  appointmentId
+) => {
+  const response = await finishConsultation(
+    appointmentId,
+    {
+      status: "completed",
+    }
   );
 
   return response.data;

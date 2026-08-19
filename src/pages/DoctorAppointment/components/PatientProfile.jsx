@@ -510,6 +510,12 @@ const PatientProfile = forwardRef(
                   "section"
                 )
               }
+              onContinue={() =>
+                goToSection(
+                  "reports",
+                  "section"
+                )
+              }
             />
 
           )}

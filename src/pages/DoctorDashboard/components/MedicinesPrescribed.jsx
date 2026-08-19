@@ -5,20 +5,38 @@ import { useNavigate } from "react-router-dom";
 
 import DashboardCard from "../../../components/Dashboard/DashboardCard";
 import DashboardDropdown from "../../../components/Dashboard/DashboardDropdown";
-import StatsCard from "../../../components/Dashboard/StatsCard";
-import {loadMedicines } from "../../../redux/dashboard/dashboardThunk";
+
+import { loadMedicines } from "../../../redux/dashboard/dashboardThunk";
 
 const MedicinesPrescribed = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const doctor = useSelector((state) => state.auth.user);
+  // ==========================================
+  // DOCTOR
+  // ==========================================
+
+  const doctor = useSelector(
+    (state) => state.auth.user
+  );
+
+  // ==========================================
+  // MEDICINES
+  // ==========================================
 
   const medicines = useSelector(
     (state) => state.dashboard.medicines
   );
 
+  // ==========================================
+  // PERIOD
+  // ==========================================
+
   const [period, setPeriod] = useState("today");
+
+  // ==========================================
+  // LOAD MEDICINES
+  // ==========================================
 
   useEffect(() => {
     if (!doctor?.id) return;
@@ -29,65 +47,218 @@ const MedicinesPrescribed = () => {
         period,
       })
     );
-  }, [dispatch, doctor?.id, period]);
+  }, [
+    dispatch,
+    doctor?.id,
+    period,
+  ]);
+
+  // ==========================================
+  // API DATA
+  // ==========================================
+
+  const medicineData =
+    medicines?.data ?? medicines ?? {};
+
+  const totalMedicines =
+    medicineData?.total_medicines ?? 0;
+
+  const inHouseManufactures =
+    medicineData?.in_house_manufactures ?? 0;
+
+  const otherManufacturers =
+    medicineData?.other_manufacturers ?? 0;
 
   return (
     <div
-      onClick={() => navigate("/doctor/medicines-prescribed")}
+      onClick={() =>
+        navigate(
+          "/doctor/medicines-prescribed"
+        )
+      }
       className="cursor-pointer"
     >
       <DashboardCard className="px-5 pt-5 pb-3">
-        {/* Header */}
+
+        {/* ================================= */}
+        {/* HEADER */}
+        {/* ================================= */}
 
         <div className="flex items-center justify-between">
-          <h2 className="text-[18px] font-semibold text-[#4B2E2A]">
+
+          <h2 className="
+            text-[18px]
+            font-semibold
+            text-[#4B2E2A]
+          ">
             Medicines Prescribed
           </h2>
 
           <DashboardDropdown
             value={period}
             options={[
-              { label: "Today", value: "today" },
-              { label: "This Week", value: "week" },
-              { label: "This Month", value: "month" },
+              {
+                label: "Today",
+                value: "today",
+              },
+              {
+                label: "This Week",
+                value: "week",
+              },
+              {
+                label: "This Month",
+                value: "month",
+              },
             ]}
             onChange={setPeriod}
           />
+
         </div>
 
-        {/* Main */}
 
-        <div className="mt-3 flex items-start justify-between">
+        {/* ================================= */}
+        {/* TOTAL MEDICINES */}
+        {/* ================================= */}
+
+        <div className="
+          mt-4
+          flex
+          items-start
+          justify-between
+        ">
+
           <div>
-            <h1 className="text-[28px] font-bold leading-none text-[#4B2E2A]">
-              {medicines?.total ?? 0}
+
+            <h1 className="
+              text-[28px]
+              font-bold
+              leading-none
+              text-[#4B2E2A]
+            ">
+              {totalMedicines}
             </h1>
 
-            <p className="mt-1 text-[14px] text-[#7D726B]">
+            <p className="
+              mt-2
+              text-[12px]
+              text-[#7D726B]
+            ">
               Total Medicines
             </p>
+
           </div>
 
-          <div className="flex h-14 w-14 items-center justify-center">
+
+          {/* MEDICINE ICON */}
+
+          <div className="
+            flex
+            h-[76px]
+            w-[76px]
+            items-center
+            justify-center
+            mr-1
+          ">
+
             <FaCapsules
-              size={30}
+              size={48}
               className="text-[#E4C08D]"
             />
+
           </div>
+
         </div>
 
-        <div className="mt-3 mb-2 border-t border-[#EFE4DC]" />
 
-        <div className="grid grid-cols-3">
-          {medicines?.breakdown?.map((item, index) => (
-            <StatsCard
-              key={item.category}
-              title={item.category}
-              value={item.count}
-              border={index !== medicines.breakdown.length - 1}
-            />
-          ))}
+        {/* ================================= */}
+        {/* DIVIDER */}
+        {/* ================================= */}
+
+        <div className="
+          mt-4
+          border-t
+          border-[#EFE4DC]
+        " />
+
+
+        {/* ================================= */}
+        {/* MANUFACTURER BREAKDOWN */}
+        {/* ================================= */}
+
+        <div className="
+          mt-3
+          grid
+          grid-cols-2
+        ">
+
+          {/* IN-HOUSE */}
+
+          <div className="
+            flex
+            flex-col
+            items-center
+            justify-center
+            border-r
+            border-[#EFE4DC]
+            pr-4
+            mt-4
+          ">
+
+            <p className="
+              text-center
+              text-[17px]
+              font-medium
+              text-[#4B2E2A]
+            ">
+              In-house Manufactures
+            </p>
+
+            <p className="
+              mt-2
+              text-[16px]
+              font-bold
+              leading-none
+              text-[#4B2E2A]
+            ">
+              {inHouseManufactures}
+            </p>
+
+          </div>
+
+
+          {/* OTHER */}
+
+          <div className="
+            flex
+            flex-col
+            items-center
+            justify-center
+            pl-4
+          ">
+
+            <p className="
+              text-center
+              text-[17px]
+              font-medium
+              text-[#4B2E2A]
+            ">
+              Other Manufacturers
+            </p>
+
+            <p className="
+              mt-2
+              text-[16px]
+              font-bold
+              leading-none
+              text-[#4B2E2A]
+            ">
+              {otherManufacturers}
+            </p>
+
+          </div>
+
         </div>
+
       </DashboardCard>
     </div>
   );

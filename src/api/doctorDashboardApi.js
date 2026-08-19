@@ -60,3 +60,10 @@ export const getBeautySummary = (
 
 export const getTherapyAppointments = () =>
   api.get("/therapist/appointments");
+
+export const getMedicinesPrescribedList = (
+  period = "today"
+) =>
+  api.get(
+    `/doctor-dashboard/medicines-prescribed/list?period=${period}`
+  );
