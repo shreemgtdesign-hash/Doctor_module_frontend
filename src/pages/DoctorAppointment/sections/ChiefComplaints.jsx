@@ -39,26 +39,26 @@ const ChiefComplaints = ({
   );
 
   const [search, setSearch] = useState("");
-
-  const [selectedSymptoms, setSelectedSymptoms] =
-    useState([]);
-
+  const [selectedSymptoms, setSelectedSymptoms] = useState([]);
   const [notes, setNotes] = useState("");
 
-  // Store the original values loaded from backend.
-  // This is used to detect unsaved changes.
-  const [initialSymptoms, setInitialSymptoms] =
-    useState([]);
+  // Original backend values
+  const [initialSymptoms, setInitialSymptoms] = useState([]);
+  const [initialNotes, setInitialNotes] = useState("");
 
-  const [initialNotes, setInitialNotes] =
-    useState("");
-
-  // Popup state
+  // Unsaved changes popup
   const [showUnsavedModal, setShowUnsavedModal] =
     useState(false);
 
   // Saving state
   const [isSaving, setIsSaving] = useState(false);
+
+  // Validation
+  const [validationErrors, setValidationErrors] =
+    useState({
+      complaints: "",
+      notes: "",
+    });
 
   // =========================================================
   // Load Chief Complaints
@@ -71,7 +71,7 @@ const ChiefComplaints = ({
   }, [appointmentId, dispatch]);
 
   // =========================================================
-  // Set backend data into local state
+  // Set backend data
   // =========================================================
 
   useEffect(() => {
@@ -117,16 +117,26 @@ const ChiefComplaints = ({
         ...prev,
         symptom,
       ]);
+
+      setValidationErrors((prev) => ({
+        ...prev,
+        complaints: "",
+      }));
     }
   };
 
   // =========================================================
-  // Check whether user changed anything
+  // Check unsaved changes
   // =========================================================
 
   const hasUnsavedChanges = () => {
-    const currentSymptoms = [...selectedSymptoms].sort();
-    const savedSymptoms = [...initialSymptoms].sort();
+    const currentSymptoms = [
+      ...selectedSymptoms,
+    ].sort();
+
+    const savedSymptoms = [
+      ...initialSymptoms,
+    ].sort();
 
     const symptomsChanged =
       JSON.stringify(currentSymptoms) !==
@@ -136,6 +146,34 @@ const ChiefComplaints = ({
       notes !== initialNotes;
 
     return symptomsChanged || notesChanged;
+  };
+
+  // =========================================================
+  // Validation
+  // =========================================================
+
+  const validateForm = () => {
+    const errors = {
+      complaints: "",
+      notes: "",
+    };
+
+    if (selectedSymptoms.length === 0) {
+      errors.complaints =
+        "Please select at least one chief complaint.";
+    }
+
+    if (!notes.trim()) {
+      errors.notes =
+        "Complaints notes are required.";
+    }
+
+    setValidationErrors(errors);
+
+    return (
+      !errors.complaints &&
+      !errors.notes
+    );
   };
 
   // =========================================================
@@ -166,7 +204,10 @@ const ChiefComplaints = ({
       ).unwrap();
 
       // Update original values after successful save
-      setInitialSymptoms([...selectedSymptoms]);
+      setInitialSymptoms([
+        ...selectedSymptoms,
+      ]);
+
       setInitialNotes(notes);
 
       return true;
@@ -202,7 +243,10 @@ const ChiefComplaints = ({
 
   const handleDiscardAndGoBack = () => {
     // Restore original values
-    setSelectedSymptoms([...initialSymptoms]);
+    setSelectedSymptoms([
+      ...initialSymptoms,
+    ]);
+
     setNotes(initialNotes);
 
     setShowUnsavedModal(false);
@@ -230,11 +274,20 @@ const ChiefComplaints = ({
   // =========================================================
 
   const handleSaveAndContinue = async () => {
+    // Validate before API call
+    const isValid = validateForm();
+
+    if (!isValid) {
+      return;
+    }
+
     const success = await saveChanges();
 
-    if (!success) return;
+    if (!success) {
+      return;
+    }
 
-    // Go to next section only after successful save
+    // Move to Diagnosis after successful save
     setActiveSection("diagnosis");
   };
 
@@ -245,13 +298,17 @@ const ChiefComplaints = ({
   return (
     <>
       <div className="mt-6">
+
         {/* ================================================= */}
         {/* Heading */}
         {/* ================================================= */}
 
         <div>
-          <h2 className="text-[34px] font-bold text-[#4D2E23]">
+          <h2 className="text-[24px] font-bold text-[#4D2E23]">
             Chief Complaints
+            <span className="ml-1 text-red-500">
+              *
+            </span>
           </h2>
 
           <p className="mt-1 text-[18px] text-[#6F625A]">
@@ -264,6 +321,7 @@ const ChiefComplaints = ({
         {/* ================================================= */}
 
         <div className="relative mt-8">
+
           <HiOutlineMagnifyingGlass
             className="absolute left-5 top-1/2 -translate-y-1/2 text-[#5B3428]"
             size={22}
@@ -348,11 +406,20 @@ const ChiefComplaints = ({
             )}
         </div>
 
+        {/* Validation */}
+
+        {validationErrors.complaints && (
+          <p className="mt-2 text-sm font-medium text-red-500">
+            {validationErrors.complaints}
+          </p>
+        )}
+
         {/* ================================================= */}
         {/* Selected Complaints */}
         {/* ================================================= */}
 
         <div className="mt-6 flex flex-wrap gap-3">
+
           {selectedSymptoms.map((item) => (
             <div
               key={item}
@@ -388,6 +455,7 @@ const ChiefComplaints = ({
               </button>
             </div>
           ))}
+
         </div>
 
         {/* ================================================= */}
@@ -395,6 +463,7 @@ const ChiefComplaints = ({
         {/* ================================================= */}
 
         <div className="mt-10">
+
           <label
             className="
               mb-3
@@ -405,28 +474,51 @@ const ChiefComplaints = ({
             "
           >
             Complaints Notes
+            <span className="ml-1 text-red-500">
+              *
+            </span>
           </label>
 
           <textarea
             rows={5}
             value={notes}
-            onChange={(e) =>
-              setNotes(e.target.value)
-            }
+            onChange={(e) => {
+              setNotes(e.target.value);
+
+              if (e.target.value.trim()) {
+                setValidationErrors(
+                  (prev) => ({
+                    ...prev,
+                    notes: "",
+                  })
+                );
+              }
+            }}
             placeholder="Enter Complaints"
-            className="
+            className={`
               w-full
               resize-none
               rounded-[22px]
               border
-              border-[#D9C8BE]
               p-5
               text-base
               outline-none
               placeholder:text-[#8E8E8E]
-              focus:border-[#8B573D]
-            "
+
+              ${
+                validationErrors.notes
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-[#D9C8BE] focus:border-[#8B573D]"
+              }
+            `}
           />
+
+          {validationErrors.notes && (
+            <p className="mt-2 text-sm font-medium text-red-500">
+              {validationErrors.notes}
+            </p>
+          )}
+
         </div>
 
         {/* ================================================= */}
@@ -435,20 +527,21 @@ const ChiefComplaints = ({
 
         <div
           className="
-            mt-10
+            mt-8
             flex
             items-center
             justify-between
-            gap-6
-            rounded-[28px]
+            gap-5
+            rounded-[24px]
             border
             border-[#E7DBD3]
             bg-white
-            px-8
-            py-6
+            px-6
+            py-5
             shadow-[0_4px_20px_rgba(0,0,0,0.04)]
           "
         >
+
           {/* Back */}
 
           <button
@@ -457,16 +550,16 @@ const ChiefComplaints = ({
             disabled={isSaving}
             className="
               flex
-              h-[72px]
+              h-[58px]
               flex-1
               items-center
               justify-center
-              gap-3
-              rounded-[24px]
+              gap-2
+              rounded-[18px]
               border
               border-[#E5D3C5]
               bg-[#FFFBF7]
-              text-[20px]
+              text-[18px]
               font-semibold
               text-[#4D2E23]
               shadow-[0_2px_5px_rgba(0,0,0,0.05)]
@@ -476,9 +569,11 @@ const ChiefComplaints = ({
               disabled:opacity-50
             "
           >
-            <HiOutlineArrowLeft size={28} />
+            <HiOutlineArrowLeft size={22} />
 
-            <span>Back</span>
+            <span>
+              Back
+            </span>
           </button>
 
           {/* Save and Continue */}
@@ -489,14 +584,14 @@ const ChiefComplaints = ({
             disabled={isSaving}
             className="
               flex
-              h-[72px]
+              h-[58px]
               flex-1
               items-center
               justify-center
-              gap-3
-              rounded-[24px]
+              gap-2
+              rounded-[18px]
               bg-[#8B573D]
-              text-[20px]
+              text-[18px]
               font-semibold
               text-white
               shadow-[0_4px_10px_rgba(139,87,61,0.18)]
@@ -507,7 +602,7 @@ const ChiefComplaints = ({
             "
           >
             <HiOutlineArrowRightOnRectangle
-              size={28}
+              size={22}
             />
 
             <span>
@@ -516,7 +611,9 @@ const ChiefComplaints = ({
                 : "Save and Continue"}
             </span>
           </button>
+
         </div>
+
       </div>
 
       {/* ===================================================== */}
@@ -537,6 +634,7 @@ const ChiefComplaints = ({
             backdrop-blur-[2px]
           "
         >
+
           {/* Modal */}
 
           <div
@@ -551,9 +649,11 @@ const ChiefComplaints = ({
               shadow-[0_20px_60px_rgba(0,0,0,0.25)]
             "
           >
+
             {/* Title */}
 
             <div className="text-center">
+
               <h2
                 className="
                   text-[22px]
@@ -579,16 +679,20 @@ const ChiefComplaints = ({
                 If you go back, your changes will
                 not be saved.
               </p>
+
             </div>
 
             {/* Modal Buttons */}
 
             <div className="mt-10 grid grid-cols-2 gap-5">
+
               {/* Go Back */}
 
               <button
                 type="button"
-                onClick={handleDiscardAndGoBack}
+                onClick={
+                  handleDiscardAndGoBack
+                }
                 disabled={isSaving}
                 className="
                   h-[62px]
@@ -612,7 +716,9 @@ const ChiefComplaints = ({
 
               <button
                 type="button"
-                onClick={handleSaveFromModal}
+                onClick={
+                  handleSaveFromModal
+                }
                 disabled={isSaving}
                 className="
                   h-[62px]
@@ -631,8 +737,11 @@ const ChiefComplaints = ({
                   ? "Saving..."
                   : "Save Changes"}
               </button>
+
             </div>
+
           </div>
+
         </div>
       )}
     </>

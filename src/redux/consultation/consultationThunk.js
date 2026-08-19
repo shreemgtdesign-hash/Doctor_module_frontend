@@ -10,6 +10,7 @@ import {
   saveTherapy, editTherapy, fetchDiagnosisCategories, editPrescription,
   editPrescriptionItem, fetchDoctorsList, createAssociateDoctor, removeAssociateDoctor,
   fetchAppointments,
+  removeTherapy,
 } from "../../services/doctorAppointmentService";
 
 export const loadAppointments = createAsyncThunk(
@@ -421,3 +422,28 @@ export const deleteAssociateDoctorThunk =
 
     }
   );
+export const deleteTherapyThunk = createAsyncThunk(
+  "consultation/deleteTherapy",
+
+  async (
+    therapyId,
+    { rejectWithValue }
+  ) => {
+
+    try {
+
+      return await removeTherapy(
+        therapyId
+      );
+
+    } catch (error) {
+
+      return rejectWithValue(
+        error.response?.data ||
+        error.message
+      );
+
+    }
+
+  }
+);

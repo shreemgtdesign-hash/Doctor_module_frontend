@@ -21,6 +21,7 @@ import {
     updatePrescriptionItemThunk,
     loadDoctorsList,
     deleteAssociateDoctorThunk,
+    deleteTherapyThunk,
 } from "./consultationThunk";
 import { searchDiagnosisCategoriesThunk } from "../appointment/appointmentThunk";
 
@@ -63,6 +64,7 @@ const initialState = {
         items: [],
         total: 0,
     },
+    therapyDeleteLoading: false,
     diagnosisCategories: [],
 
     associateDoctors: [],
@@ -393,7 +395,45 @@ const consultationSlice = createSlice({
                     );
             })
 
+            .addCase(
+    deleteTherapyThunk.pending,
+    (state) => {
+        state.therapyDeleteLoading = true;
+        state.error = null;
+    }
+)
 
+.addCase(
+    deleteTherapyThunk.fulfilled,
+    (state, action) => {
+
+        state.therapyDeleteLoading = false;
+
+        const therapyId = action.meta.arg;
+
+        state.therapy.items =
+            state.therapy.items.filter(
+                (item) =>
+                    item.id !== therapyId
+            );
+
+        state.therapy.total =
+            state.therapy.items.reduce(
+                (sum, item) =>
+                    sum + Number(item.amount || 0),
+                0
+            );
+    }
+)
+
+.addCase(
+    deleteTherapyThunk.rejected,
+    (state, action) => {
+
+        state.therapyDeleteLoading = false;
+        state.error = action.payload;
+    }
+)
 
             .addCase(
                 saveTherapyThunk.fulfilled,

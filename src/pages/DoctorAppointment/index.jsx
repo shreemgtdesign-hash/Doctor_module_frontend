@@ -18,8 +18,7 @@ const DoctorAppointment = () => {
 
     const profileRef = useRef(null);
 
-    const [profileHeight, setProfileHeight] =
-        useState(0);
+
 
     const [activeSection, setActiveSection] =
         useState("overview");
@@ -185,9 +184,7 @@ const DoctorAppointment = () => {
                     {/* LEFT */}
 
                     <AppointmentList
-                        height={
-                            profileHeight
-                        }
+                        
                         period={period}
                     />
 

@@ -103,7 +103,43 @@ const Prescription = ({
     const [durationPopup,
         setDurationPopup] =
         useState(null);
+    const parseDosage = (dosage) => {
 
+        if (!dosage) {
+
+            return {
+                morning: 0,
+                afternoon: 0,
+                evening: 0,
+                night: 0,
+            };
+
+        }
+
+        const values =
+            dosage
+                .split("-")
+                .map((value) =>
+                    Number(value.trim()) || 0
+                );
+
+        return {
+
+            morning:
+                values[0] ?? 0,
+
+            afternoon:
+                values[1] ?? 0,
+
+            evening:
+                values[2] ?? 0,
+
+            night:
+                values[3] ?? 0,
+
+        };
+
+    };
     useEffect(() => {
 
         console.log(
@@ -164,21 +200,102 @@ const Prescription = ({
         // ========================================
 
         if (
+            !Array.isArray(prescription) &&
             prescription.consultation_id &&
             prescription.consultation_id !== consultationId
         ) {
             return;
         }
+        const items = Array.isArray(prescription)
+            ? prescription
+            : prescription.items ||
+            prescription.data ||
+            [];
 
-        const items =
-            prescription.items || [];
+        const cloned = items.map((item) => {
 
-        const cloned =
+            // Backend dosage:
+            // "1 - 1 - 0 - 1"
+
+            const dosageParts =
+                parseDosage(item.dosage);
+
+            const morning =
+                Number(
+                    item.morning ??
+                    dosageParts.morning
+                ) || 0;
+
+            const afternoon =
+                Number(
+                    item.afternoon ??
+                    dosageParts.afternoon
+                ) || 0;
+
+            const evening =
+                Number(
+                    item.evening ??
+                    dosageParts.evening
+                ) || 0;
+
+            const night =
+                Number(
+                    item.night ??
+                    dosageParts.night
+                ) || 0;
+
+            const dosage =
+                `${morning} - ${afternoon} - ${evening} - ${night}`;
+
+            return {
+                ...item,
+
+                id: item.id,
+
+                product_id:
+                    item.product_id,
+
+                medicine_name:
+                    item.medicine_name,
+
+                category:
+                    item.category,
+
+                price:
+                    Number(item.price) || 0,
+
+                image_url:
+                    item.image_url,
+
+                morning,
+                afternoon,
+                evening,
+                night,
+
+                dosage,
+
+                food:
+                    item.food || "Before Food",
+
+                duration:
+                    item.duration || "30 Days",
+
+                quantity:
+                    Number(item.quantity) || 1,
+
+                frequency:
+                    item.frequency ?? null,
+
+                timeOfDay:
+                    item.time_of_day || [],
+            };
+        });
+
+        setEditableMedicines(
             JSON.parse(
-                JSON.stringify(items)
-            );
-
-        setEditableMedicines(cloned);
+                JSON.stringify(cloned)
+            )
+        );
 
         setBackupMedicines(
             JSON.parse(
@@ -193,11 +310,17 @@ const Prescription = ({
         );
 
         setSpecialInstructions(
-            prescription.specialInstructions || ""
+            prescription.special_instructions ||
+            prescription.specialInstructions ||
+            items[0]?.special_instructions ||
+            ""
         );
 
         setReviewDate(
-            prescription.reviewDate || ""
+            prescription.review_date ||
+            prescription.reviewDate ||
+            items[0]?.review_date ||
+            ""
         );
 
         setPatientAllergies(
@@ -262,17 +385,18 @@ const Prescription = ({
 
                 quantity: 1,
 
-                dosage: "1 tablet",
+                morning: 1,
+                afternoon: 0,
+                evening: 0,
+                night: 0,
 
-                frequency: "Once daily",
+                dosage: "1 - 0 - 0 - 0",
+
+                frequency: null,
 
                 duration: "30 Days",
 
                 food: "Before Food",
-
-                tabletCount: 1,
-
-                timeOfDay: ["Morning"],
             },
 
         ]);
@@ -355,81 +479,118 @@ const Prescription = ({
     };
     console.log("consultationId prop:", consultationId);
     const handleSaveAndContinue = async () => {
-
         try {
 
             const payload = {
-
                 consultation_id: consultationId,
 
-                special_instructions: specialInstructions,
+                special_instructions:
+                    specialInstructions,
 
-                review_date: reviewDate,
+                review_date:
+                    reviewDate,
 
-                patient_allergies: patientAllergies,
+                patient_allergies:
+                    patientAllergies,
 
-                items: editableMedicines.map((item) => ({
+                items: editableMedicines.map((item) => {
 
-                    medicine_name: item.medicine_name,
+                    const morning =
+                        Number(item.morning) || 0;
 
-                    category: item.category,
+                    const afternoon =
+                        Number(item.afternoon) || 0;
 
-                    quantity: Number(item.quantity),
+                    const evening =
+                        Number(item.evening) || 0;
 
-                    dosage: item.dosage,
+                    const night =
+                        Number(item.night) || 0;
 
-                    frequency: item.frequency,
+                    const dosage =
+                        `${morning} - ${afternoon} - ${evening} - ${night}`;
 
-                    duration: item.duration,
+                    return {
+                        product_id:
+                            item.product_id,
 
-                    price: Number(item.price),
+                        medicine_name:
+                            item.medicine_name,
 
+                        category:
+                            item.category,
 
+                        price:
+                            Number(item.price) || 0,
 
-                    time_of_day:
-                        item.timeOfDay ??
-                        item.time_of_day ??
-                        ["Morning"],
+                        morning,
 
-                    food: item.food,
+                        afternoon,
 
-                })),
+                        evening,
 
+                        night,
+
+                        dosage,
+
+                        food:
+                            item.food || "Before Food",
+
+                        duration:
+                            item.duration,
+
+                        quantity:
+                            Number(item.quantity) || 1,
+                    };
+                }),
             };
+
+            console.log(
+                "Prescription payload:",
+                payload
+            );
 
             if (hasExistingPrescription) {
 
                 await dispatch(
                     updatePrescriptionThunk({
-
-                        // We'll replace this with the actual prescription id
-                        prescriptionId: consultationId,
+                        prescriptionId:
+                            consultationId,
 
                         payload,
-
                     })
                 ).unwrap();
 
             } else {
 
                 await dispatch(
-                    savePrescriptionThunk(payload)
+                    savePrescriptionThunk(
+                        payload
+                    )
                 ).unwrap();
 
             }
 
-            dispatch(loadPrescription(consultationId));
+            // Reload latest prescription
+            await dispatch(
+                loadPrescription(
+                    consultationId
+                )
+            );
 
             setEditing(false);
 
+            // Go to next section
             onContinue?.();
 
         } catch (error) {
 
-            console.log(error);
+            console.error(
+                "Failed to save prescription:",
+                error
+            );
 
         }
-
     };
     const total = useMemo(() => {
 
@@ -493,64 +654,124 @@ const Prescription = ({
 
                 {/* Dropdown */}
 
-                {showSearch &&
-                    prescriptionSearch.length > 0 && (
+                {/* Dropdown */}
+                {showSearch && prescriptionSearch.length > 0 && (
+                    <div
+                        className="
+            absolute
+            left-0
+            right-0
+            top-[68px]
+            z-50
+            max-h-[280px]
+            overflow-y-auto
+            rounded-2xl
+            border
+            border-[#E7DBD3]
+            bg-white
+            shadow-xl
+            hide-scrollbar
+        "
+                    >
+                        {prescriptionSearch.map((medicine) => (
+                            <button
+                                key={medicine.id}
+                                type="button"
+                                onClick={() => addMedicine(medicine)}
+                                className="
+                    flex
+                    w-full
+                    items-center
+                    justify-between
+                    border-b
+                    border-[#F2E8E2]
+                    px-4
+                    py-3
+                    text-left
+                    transition
+                    last:border-b-0
+                    hover:bg-[#FFF8F4]
+                "
+                            >
+                                {/* Left */}
+                                <div className="flex min-w-0 items-center gap-3">
 
-                        <div className="absolute left-0 right-0 top-[72px] z-50 overflow-hidden rounded-[28px] border border-[#E7DBD3] bg-white shadow-2xl">
+                                    <img
+                                        src={medicine.image_url}
+                                        alt=""
+                                        className="
+                            h-11
+                            w-11
+                            flex-shrink-0
+                            rounded-xl
+                            border
+                            border-[#EEE3DB]
+                            object-cover
+                        "
+                                    />
 
-                            {prescriptionSearch.map((medicine) => (
+                                    <div className="min-w-0">
 
-                                <button
-                                    key={medicine.id}
-                                    onClick={() =>
-                                        addMedicine(medicine)
-                                    }
-                                    className="flex w-full items-center justify-between border-b border-[#F2E8E2] p-5 text-left transition hover:bg-[#FFF8F4]"
-                                >
+                                        <h3 className="
+                            truncate
+                            text-[14px]
+                            font-semibold
+                            text-[#4D2E23]
+                        ">
+                                            {medicine.name}
+                                        </h3>
 
-                                    <div className="flex items-center gap-4">
-
-                                        <img
-                                            src={medicine.image_url}
-                                            alt=""
-                                            className="h-16 w-16 rounded-2xl border border-[#EEE3DB] object-cover"
-                                        />
-
-                                        <div>
-
-                                            <h3 className="text-[17px] font-semibold text-[#4D2E23]">
-                                                {medicine.name}
-                                            </h3>
-
-                                            <p className="mt-1 text-sm text-[#8D8D8D]">
-                                                {medicine.category}
-                                            </p>
-
-                                        </div>
+                                        <p className="
+                            mt-0.5
+                            text-xs
+                            text-[#8D8D8D]
+                        ">
+                                            {medicine.category}
+                                        </p>
 
                                     </div>
 
-                                    <div className="text-right">
+                                </div>
 
-                                        <div className="rounded-full bg-[#EAF9EC] px-4 py-1 text-xs font-medium text-[#317C4A]">
-                                            In Stock
-                                        </div>
+                                {/* Right */}
+                                <div className="
+                    ml-4
+                    flex
+                    flex-shrink-0
+                    items-center
+                    gap-3
+                ">
 
-                                        <h2 className="mt-3 text-[26px] font-bold text-[#4D2E23]">
-                                            ₹{Number(
-                                                medicine.unit_rate
-                                            ).toFixed(0)}
-                                        </h2>
+                                    <span className="
+                        rounded-full
+                        bg-[#EAF9EC]
+                        px-2.5
+                        py-1
+                        text-[10px]
+                        font-medium
+                        text-[#317C4A]
+                    ">
+                                        In Stock
+                                    </span>
 
-                                    </div>
+                                    <span className="
+                        min-w-[55px]
+                        text-right
+                        text-[16px]
+                        font-bold
+                        text-[#4D2E23]
+                    ">
+                                        ₹{Number(
+                                            medicine.unit_rate
+                                        ).toFixed(0)}
+                                    </span>
 
-                                </button>
+                                </div>
 
-                            ))}
-
-                        </div>
-
-                    )}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
             </div>
 
@@ -651,7 +872,7 @@ const Prescription = ({
                                         In Stock
                                     </div>
 
-                                    <h2 className="mt-3 text-[34px] font-bold text-[#4D2E23]">
+                                    <h2 className="mt-3 text-[24px] font-bold text-[#4D2E23]">
                                         ₹{Number(
                                             medicine.price
                                         ).toFixed(2)}
@@ -683,9 +904,20 @@ const Prescription = ({
                                                 className="mt-2 flex items-center gap-2 rounded-xl border border-[#E7DBD3] bg-[#FFF8F4] px-4 py-3 font-medium text-[#4D2E23]"
                                             >
 
-                                                {medicine.dosage} •{" "}
-                                                {(medicine.timeOfDay || []).join(", ")} •{" "}
-                                                {medicine.food}
+                                                <p className="
+                                                  mt-2
+                                                  text-[16px]
+                                                  font-medium
+                                                  text-[#4D2E23]
+                                              ">
+
+                                                    {medicine.dosage || "0 - 0 - 0 - 0"}
+
+                                                    {" • "}
+
+                                                    {medicine.food || "Before Food"}
+
+                                                </p>
 
                                                 <HiChevronDown size={18} />
 
@@ -696,7 +928,7 @@ const Prescription = ({
                                             <p className="mt-2 text-[16px] font-medium text-[#4D2E23]">
 
                                                 {medicine.dosage} •{" "}
-                                                {(medicine.timeOfDay || []).join(", ")} •{" "}
+                                                {(medicine.timeOfDay || []).join(", ")}
                                                 {medicine.food}
 
                                             </p>
@@ -740,224 +972,465 @@ const Prescription = ({
 
                                 {/* Right */}
 
-                                <div className="ml-8 flex flex-col items-end justify-between">
-
-                                    {editing ? (
-
-                                        <div className="mt-4 flex items-center justify-end gap-3">
-
-                                            <button
-                                                onClick={() =>
-                                                    updateMedicine(
-                                                        index,
-                                                        "quantity",
-                                                        Math.max(
-                                                            1,
-                                                            Number(medicine.quantity) - 1
-                                                        )
-                                                    )
-                                                }
-                                                className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#DDD]"
-                                            >
-
-                                                -
-
-                                            </button>
-
-                                            <span className="w-8 text-center font-semibold">
-
-                                                {medicine.quantity}
-
-                                            </span>
-
-                                            <button
-                                                onClick={() =>
-                                                    updateMedicine(
-                                                        index,
-                                                        "quantity",
-                                                        Number(medicine.quantity) + 1
-                                                    )
-                                                }
-                                                className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#DDD]"
-                                            >
-
-                                                +
-
-                                            </button>
-
-                                        </div>
-
-                                    ) : (
-
-                                        <h2 className="mt-3 text-[34px] font-bold text-[#4D2E23]">
-
-                                            ₹{(
-                                                Number(medicine.price) *
-                                                Number(medicine.quantity)
-                                            ).toFixed(2)}
-
-                                        </h2>
-
-                                    )}
-
-                                    {editing && (
-
-                                        <button
-                                            onClick={() => removeMedicine(index)}
-                                            className="mt-8 rounded-xl p-3 text-red-500 transition hover:bg-red-50"
-                                        >
-
-                                            <HiOutlineTrash size={22} />
-
-                                        </button>
-
-                                    )}
-
-                                </div>
+                              
 
                             </div>
 
                             {/* DOSAGE POPUP */}
 
+                            {/* ==========================================
+    DOSAGE POPUP
+========================================== */}
+
                             {dosagePopup === index && (
 
-                                <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                                <div
+                                    className="
+            fixed
+            inset-0
+            z-[999]
+            flex
+            items-center
+            justify-center
+            bg-black/40
+            backdrop-blur-sm
+        "
+                                >
 
-                                    <div className="w-[460px] rounded-[32px] bg-white p-8 shadow-2xl">
+                                    <div
+                                        className="
+                w-[520px]
+                rounded-[32px]
+                bg-white
+                p-8
+                shadow-2xl
+            "
+                                    >
 
-                                        <h2 className="text-[28px] font-bold text-[#4D2E23]">
+                                        {/* ================================= */}
+                                        {/* HEADER */}
+                                        {/* ================================= */}
+
+                                        <h2 className="
+                text-[28px]
+                font-bold
+                text-[#4D2E23]
+            ">
                                             Dosage
                                         </h2>
 
-                                        <p className="mt-2 text-[#85766D]">
-                                            Select dosage details
+                                        <p className="
+                mt-2
+                text-[#85766D]
+            ">
+                                            Select dosage for each session
                                         </p>
 
-                                        {/* Tablet */}
+
+                                        {/* ================================= */}
+                                        {/* MORNING */}
+                                        {/* ================================= */}
 
                                         <div className="mt-8">
 
-                                            <p className="mb-3 font-semibold">
-                                                Tablet Count
+                                            <p className="
+                    mb-3
+                    font-semibold
+                    text-[#4D2E23]
+                ">
+                                                Morning
                                             </p>
 
-                                            <div className="flex gap-3">
+                                            <div className="
+                    flex
+                    gap-3
+                ">
 
-                                                {tabletOptions.map((item) => (
+                                                {[0, 1, 2].map(
+                                                    (value) => (
 
-                                                    <button
-                                                        key={item}
-                                                        onClick={() =>
-                                                            updateMedicine(index, "tabletCount", item)
-                                                        }
-                                                        className={`h-12 w-12 rounded-xl border transition
+                                                        <button
+                                                            key={value}
+                                                            type="button"
 
-                                                            ${medicine.tabletCount === item
-                                                                ?
-                                                                "bg-[#8A563B] border-[#8A563B] text-white"
-                                                                :
-                                                                "border-[#DDD]"
-                                                            }`}
+                                                            onClick={() =>
+                                                                updateMedicine(
+                                                                    index,
+                                                                    "morning",
+                                                                    value
+                                                                )
+                                                            }
 
-                                                    >
+                                                            className={`
+                                    flex
+                                    h-12
+                                    w-12
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    border
+                                    font-semibold
+                                    transition
 
-                                                        {item}
+                                    ${Number(
+                                                                medicine.morning
+                                                            ) === value
 
-                                                    </button>
+                                                                    ? `
+                                                border-[#8A563B]
+                                                bg-[#8A563B]
+                                                text-white
+                                            `
 
-                                                ))}
+                                                                    : `
+                                                border-[#DDD]
+                                                bg-white
+                                                text-[#4D2E23]
+                                            `
+                                                                }
+                                `}
+                                                        >
+                                                            {value}
+                                                        </button>
+
+                                                    )
+                                                )}
 
                                             </div>
 
                                         </div>
 
-                                        {/* Time */}
 
-                                        <div className="mt-8">
+                                        {/* ================================= */}
+                                        {/* AFTERNOON */}
+                                        {/* ================================= */}
 
-                                            <p className="mb-3 font-semibold">
-                                                Time
+                                        <div className="mt-6">
+
+                                            <p className="
+                    mb-3
+                    font-semibold
+                    text-[#4D2E23]
+                ">
+                                                Afternoon
                                             </p>
 
-                                            <div className="flex flex-wrap gap-3">
+                                            <div className="
+                    flex
+                    gap-3
+                ">
 
-                                                {timeOptions.map((item) => (
+                                                {[0, 1, 2].map(
+                                                    (value) => (
 
-                                                    <button
-                                                        key={item}
-                                                        onClick={() =>
-                                                            toggleTime(index, item)
-                                                        }
-                                                        className={`rounded-full px-5 py-2 border transition
+                                                        <button
+                                                            key={value}
+                                                            type="button"
 
-                                                  ${medicine.timeOfDay?.includes(item)
-                                                                ?
-                                                                "bg-[#8A563B] border-[#8A563B] text-white"
-                                                                :
-                                                                "border-[#DDD]"
-                                                            }`}
+                                                            onClick={() =>
+                                                                updateMedicine(
+                                                                    index,
+                                                                    "afternoon",
+                                                                    value
+                                                                )
+                                                            }
 
-                                                    >
+                                                            className={`
+                                    flex
+                                    h-12
+                                    w-12
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    border
+                                    font-semibold
+                                    transition
 
-                                                        {item}
+                                    ${Number(
+                                                                medicine.afternoon
+                                                            ) === value
 
-                                                    </button>
+                                                                    ? `
+                                                border-[#8A563B]
+                                                bg-[#8A563B]
+                                                text-white
+                                            `
 
-                                                ))}
+                                                                    : `
+                                                border-[#DDD]
+                                                bg-white
+                                                text-[#4D2E23]
+                                            `
+                                                                }
+                                `}
+                                                        >
+                                                            {value}
+                                                        </button>
+
+                                                    )
+                                                )}
 
                                             </div>
 
                                         </div>
 
-                                        {/* Food */}
+
+                                        {/* ================================= */}
+                                        {/* EVENING */}
+                                        {/* ================================= */}
+
+                                        <div className="mt-6">
+
+                                            <p className="
+                    mb-3
+                    font-semibold
+                    text-[#4D2E23]
+                ">
+                                                Evening
+                                            </p>
+
+                                            <div className="
+                    flex
+                    gap-3
+                ">
+
+                                                {[0, 1, 2].map(
+                                                    (value) => (
+
+                                                        <button
+                                                            key={value}
+                                                            type="button"
+
+                                                            onClick={() =>
+                                                                updateMedicine(
+                                                                    index,
+                                                                    "evening",
+                                                                    value
+                                                                )
+                                                            }
+
+                                                            className={`
+                                    flex
+                                    h-12
+                                    w-12
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    border
+                                    font-semibold
+                                    transition
+
+                                    ${Number(
+                                                                medicine.evening
+                                                            ) === value
+
+                                                                    ? `
+                                                border-[#8A563B]
+                                                bg-[#8A563B]
+                                                text-white
+                                            `
+
+                                                                    : `
+                                                border-[#DDD]
+                                                bg-white
+                                                text-[#4D2E23]
+                                            `
+                                                                }
+                                `}
+                                                        >
+                                                            {value}
+                                                        </button>
+
+                                                    )
+                                                )}
+
+                                            </div>
+
+                                        </div>
+
+
+                                        {/* ================================= */}
+                                        {/* NIGHT */}
+                                        {/* ================================= */}
+
+                                        <div className="mt-6">
+
+                                            <p className="
+                    mb-3
+                    font-semibold
+                    text-[#4D2E23]
+                ">
+                                                Night
+                                            </p>
+
+                                            <div className="
+                    flex
+                    gap-3
+                ">
+
+                                                {[0, 1, 2].map(
+                                                    (value) => (
+
+                                                        <button
+                                                            key={value}
+                                                            type="button"
+
+                                                            onClick={() =>
+                                                                updateMedicine(
+                                                                    index,
+                                                                    "night",
+                                                                    value
+                                                                )
+                                                            }
+
+                                                            className={`
+                                    flex
+                                    h-12
+                                    w-12
+                                    items-center
+                                    justify-center
+                                    rounded-xl
+                                    border
+                                    font-semibold
+                                    transition
+
+                                    ${Number(
+                                                                medicine.night
+                                                            ) === value
+
+                                                                    ? `
+                                                border-[#8A563B]
+                                                bg-[#8A563B]
+                                                text-white
+                                            `
+
+                                                                    : `
+                                                border-[#DDD]
+                                                bg-white
+                                                text-[#4D2E23]
+                                            `
+                                                                }
+                                `}
+                                                        >
+                                                            {value}
+                                                        </button>
+
+                                                    )
+                                                )}
+
+                                            </div>
+
+                                        </div>
+
+
+                                        {/* ================================= */}
+                                        {/* FOOD */}
+                                        {/* ================================= */}
 
                                         <div className="mt-8">
 
-                                            <p className="mb-3 font-semibold">
+                                            <p className="
+                    mb-3
+                    font-semibold
+                    text-[#4D2E23]
+                ">
                                                 Food
                                             </p>
 
-                                            <div className="flex gap-3">
+                                            <div className="
+                    flex
+                    gap-3
+                ">
 
-                                                {foodOptions.map((item) => (
+                                                {[
+                                                    "Before Food",
+                                                    "After Food",
+                                                ].map(
+                                                    (food) => (
 
-                                                    <button
-                                                        key={item}
-                                                        onClick={() =>
-                                                            updateMedicine(index, "food", item)
-                                                        }
-                                                        className={`rounded-full px-5 py-2 border transition
+                                                        <button
+                                                            key={food}
+                                                            type="button"
 
-${medicine.food === item
-                                                                ?
-                                                                "bg-[#8A563B] border-[#8A563B] text-white"
-                                                                :
-                                                                "border-[#DDD]"
-                                                            }`}
+                                                            onClick={() =>
+                                                                updateMedicine(
+                                                                    index,
+                                                                    "food",
+                                                                    food
+                                                                )
+                                                            }
 
-                                                    >
+                                                            className={`
+                                    rounded-full
+                                    border
+                                    px-5
+                                    py-2
+                                    transition
 
-                                                        {item}
+                                    ${medicine.food === food
 
-                                                    </button>
+                                                                    ? `
+                                                border-[#8A563B]
+                                                bg-[#8A563B]
+                                                text-white
+                                            `
 
-                                                ))}
+                                                                    : `
+                                                border-[#DDD]
+                                                bg-white
+                                                text-[#4D2E23]
+                                            `
+                                                                }
+                                `}
+                                                        >
+                                                            {food}
+                                                        </button>
+
+                                                    )
+                                                )}
 
                                             </div>
 
                                         </div>
 
+
+                                        {/* ================================= */}
+                                        {/* SAVE */}
+                                        {/* ================================= */}
+
                                         <button
+                                            type="button"
+
                                             onClick={() => {
+
+                                                const dosage =
+                                                    `${medicine.morning} - ` +
+                                                    `${medicine.afternoon} - ` +
+                                                    `${medicine.evening} - ` +
+                                                    `${medicine.night}`;
+
                                                 updateMedicine(
                                                     index,
                                                     "dosage",
-                                                    `${medicine.tabletCount} tablet${medicine.tabletCount > 1 ? "s" : ""}`
+                                                    dosage
                                                 );
 
-                                                setDosagePopup(null);
+                                                setDosagePopup(
+                                                    null
+                                                );
+
                                             }}
-                                            className="mt-10 h-14 w-full rounded-xl bg-[#8A563B] font-semibold text-white hover:bg-[#74452E]"
+
+                                            className="
+                    mt-10
+                    h-14
+                    w-full
+                    rounded-xl
+                    bg-[#8A563B]
+                    font-semibold
+                    text-white
+                    hover:bg-[#74452E]
+                "
                                         >
                                             Save
                                         </button>
@@ -967,9 +1440,6 @@ ${medicine.food === item
                                 </div>
 
                             )}
-                            {/* ============================
-   Duration Popup
-============================ */}
 
                             {durationPopup === index && (
 

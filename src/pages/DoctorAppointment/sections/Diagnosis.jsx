@@ -50,7 +50,10 @@ const Diagnosis = ({
     useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
-
+  const [validationErrors, setValidationErrors] = useState({
+    diagnosis: "",
+    notes: "",
+  });
   // =========================================================
   // Associate doctor state
   // =========================================================
@@ -184,7 +187,26 @@ const Diagnosis = ({
   // =========================================================
   // Save Diagnosis
   // =========================================================
+  const validateForm = () => {
+    const errors = {
+      diagnosis: "",
+      notes: "",
+    };
 
+    // Diagnosis mandatory
+    if (selectedDiagnosis.length === 0) {
+      errors.diagnosis = "Please select a diagnosis.";
+    }
+
+    // Diagnosis notes mandatory
+    if (!notes.trim()) {
+      errors.notes = "Diagnosis notes are required.";
+    }
+
+    setValidationErrors(errors);
+
+    return !errors.diagnosis && !errors.notes;
+  };
   const saveChanges = async () => {
     if (!appointmentId) return false;
 
@@ -285,9 +307,17 @@ const Diagnosis = ({
   // =========================================================
 
   const handleSaveAndContinue = async () => {
+    const isValid = validateForm();
+
+    if (!isValid) {
+      return;
+    }
+
     const success = await saveChanges();
 
-    if (!success) return;
+    if (!success) {
+      return;
+    }
 
     onContinue?.();
   };
@@ -408,8 +438,9 @@ const Diagnosis = ({
         {/* ================================================= */}
 
         <div>
-          <h2 className="text-[34px] font-bold text-[#4D2E23]">
+          <h2 className="text-[24px] font-bold text-[#4D2E23]">
             Diagnosis
+            <span className="ml-1 text-red-500">*</span>
           </h2>
 
           <p className="mt-1 text-[18px] text-[#6F625A]">
@@ -501,45 +532,50 @@ const Diagnosis = ({
 
         <div className="mt-5 flex flex-wrap gap-3">
 
-          {selectedDiagnosis.map(
-            (item) => (
-              <div
-                key={item}
-                className="
-                  flex
-                  items-center
-                  gap-2
-                  rounded-xl
-                  bg-[#FFEAD8]
-                  px-4
-                  py-2
-                  text-[#4D2E23]
-                "
-              >
-                <span>
-                  {item}
-                </span>
+          {selectedDiagnosis.map((item) => (
+            <div
+              key={item}
+              className="
+               flex
+               items-center
+               gap-2
+               rounded-xl
+              bg-[#FFEAD8]
+               px-4
+               py-2
+               text-[#4D2E23]
+             "
+            >
+              <span>{item}</span>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleRemoveDiagnosis(
-                      item
-                    )
-                  }
-                  className="
-                    rounded-full
-                    px-1
-                    hover:bg-[#F7D8C4]
-                  "
-                >
-                  ✕
-                </button>
-              </div>
-            )
-          )}
+              <button
+                type="button"
+                onClick={() => {
+                  handleRemoveDiagnosis(item);
+
+                  setValidationErrors((prev) => ({
+                    ...prev,
+                    diagnosis: "",
+                  }));
+                }}
+                className="
+          rounded-full
+          px-1
+          hover:bg-[#F7D8C4]
+        "
+              >
+                ✕
+              </button>
+            </div>
+          ))}
 
         </div>
+
+        {validationErrors.diagnosis && (
+          <p className="text-sm font-medium text-red-500">
+            {validationErrors.diagnosis}
+          </p>
+        )}
 
         {/* ================================================= */}
         {/* Diagnosis Notes */}
@@ -557,30 +593,47 @@ const Diagnosis = ({
             "
           >
             Diagnosis Notes
+            <span className="ml-1 text-red-500">*</span>
           </label>
 
           <textarea
             rows={6}
             value={notes}
-            onChange={(e) =>
-              setNotes(e.target.value)
-            }
+            onChange={(e) => {
+              setNotes(e.target.value);
+
+              if (e.target.value.trim()) {
+                setValidationErrors((prev) => ({
+                  ...prev,
+                  notes: "",
+                }));
+              }
+            }}
             placeholder="Enter diagnosis notes..."
-            className="
-              w-full
-              resize-none
-              rounded-[22px]
-              border
-              border-[#DDD0C8]
-              bg-white
-              p-5
-              text-[16px]
-              text-[#4D2E23]
-              outline-none
-              placeholder:text-[#8B7A70]
-              focus:border-[#8B573D]
-            "
+            className={`
+    w-full
+    resize-none
+    rounded-[22px]
+    border
+    bg-white
+    p-5
+    text-[16px]
+    text-[#4D2E23]
+    outline-none
+    placeholder:text-[#8B7A70]
+
+    ${validationErrors.notes
+                ? "border-red-500 focus:border-red-500"
+                : "border-[#DDD0C8] focus:border-[#8B573D]"
+              }
+  `}
           />
+
+          {validationErrors.notes && (
+            <p className="mt-2 text-sm font-medium text-red-500">
+              {validationErrors.notes}
+            </p>
+          )}
 
         </div>
 
@@ -629,7 +682,7 @@ const Diagnosis = ({
           <div className="grid grid-cols-3 gap-8">
 
             {enrichedAssociateDoctors.length >
-            0 ? (
+              0 ? (
               enrichedAssociateDoctors.map(
                 (doctor) => (
                   <div
@@ -1093,11 +1146,10 @@ const Diagnosis = ({
                         transition-all
                         duration-200
 
-                        ${
-                          selectedDoctor?.doctor_id ===
+                        ${selectedDoctor?.doctor_id ===
                           doctor.doctor_id
-                            ? "border-[#8B573D] bg-[#FFF5EF] shadow-md"
-                            : "border-[#E8DDD5] hover:border-[#8B573D] hover:bg-[#FFF9F5]"
+                          ? "border-[#8B573D] bg-[#FFF5EF] shadow-md"
+                          : "border-[#E8DDD5] hover:border-[#8B573D] hover:bg-[#FFF9F5]"
                         }
                       `}
                     >

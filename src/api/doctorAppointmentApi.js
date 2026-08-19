@@ -207,3 +207,9 @@ export const deleteAssociateDoctor = (
   api.delete(
     `/visits/associate-doctors/${associateDoctorId}`
   );
+
+  // Delete Therapy
+export const deleteTherapy = (therapyId) =>
+  api.delete(
+    `/visits/therapies/${therapyId}`
+  );

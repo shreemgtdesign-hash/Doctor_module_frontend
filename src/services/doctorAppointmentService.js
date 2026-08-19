@@ -27,6 +27,7 @@ import {
   getDoctorsList,
   addAssociateDoctor,
   deleteAssociateDoctor,
+  deleteTherapy,
 
 
 
@@ -296,6 +297,17 @@ export const editTherapy = async (
     therapyId,
     payload
   );
+
+  return response.data;
+};
+
+export const removeTherapy = async (
+  therapyId
+) => {
+  const response =
+    await deleteTherapy(
+      therapyId
+    );
 
   return response.data;
 };
