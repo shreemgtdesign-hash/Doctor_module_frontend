@@ -118,6 +118,8 @@ function App() {
         <BeautyTable />
     }
 />
+
+
         </Routes>
     );
 }

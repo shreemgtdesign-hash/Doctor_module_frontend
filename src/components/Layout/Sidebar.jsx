@@ -123,7 +123,7 @@ const doctorMenu = [
     },
 ];
 
-
+const hospitalLogo = "https://res.cloudinary.com/hj1d367n/image/upload/v1787122082/sadop/logo/eupc9h2ibkpwzozw77tu.jpg";
 // ==========================================
 // SIDEBAR
 // ==========================================
@@ -236,40 +236,53 @@ const Sidebar = ({
                         {/* LOGO */}
                         {/* ================================= */}
 
-                        <div className="
-                            relative
-                            flex
-                            h-[105px]
-                            shrink-0
-                            items-center
-                            px-8
-                        ">
+                        {/* ================================= */}
+                        {/* LOGO */}
+                        {/* ================================= */}
 
-                            <div className="
-                                h-16
-                                w-16
-                                rounded-lg
-                            " />
+                        <div
+                            className="
+        relative
+        flex
+        h-[105px]
+        shrink-0
+        items-center
+        px-8
+    "
+                        >
 
-                            <div>
+                            {/* Hospital Logo */}
 
-                                <h2 className="
-                                    text-[22px]
-                                    font-bold
-                                    text-[#7A4A33]
-                                ">
-                                    Shree
-                                </h2>
+                            <div
+                                className="
+            flex
+            h-30
+            w-[200px]
+            shrink-0
+            items-center
+            justify-center
+            overflow-hidden
+            rounded-lg
+            bg-white
+        "
+                            >
 
-                                <p className="
-                                    text-[20px]
-                                    font-semibold
-                                    text-[#7A4A33]
-                                ">
-                                    Ayurvedic
-                                </p>
+                                <img
+                                    src={hospitalLogo}
+                                    alt="Shree Ayurveda Hospital"
+                                    className="
+                h-full
+                w-full
+                object-contain
+            "
+                                />
 
                             </div>
+
+
+                            {/* Hospital Name */}
+
+                            
 
 
                             {/* CLOSE BUTTON */}
@@ -280,17 +293,17 @@ const Sidebar = ({
                                     setIsOpen(false)
                                 }
                                 className="
-                                    absolute
-                                    right-0
-                                    top-0
-                                    flex
-                                    h-[72px]
-                                    w-[72px]
-                                    items-center
-                                    justify-center
-                                    rounded-bl-[30px]
-                                    bg-[#FFF6F1]
-                                "
+            absolute
+            right-0
+            top-0
+            flex
+            h-[72px]
+            w-[72px]
+            items-center
+            justify-center
+            rounded-bl-[30px]
+            bg-[#FFF6F1]
+        "
                             >
 
                                 <HiChevronLeft
@@ -345,10 +358,9 @@ const Sidebar = ({
                                                         transition-all
                                                         duration-200
 
-                                                        ${
-                                                            isActive
-                                                                ? "border border-[#6A3F2D] bg-[#FFF9F5]"
-                                                                : "hover:bg-[#FAF7F4]"
+                                                        ${isActive
+                                                            ? "border border-[#6A3F2D] bg-[#FFF9F5]"
+                                                            : "hover:bg-[#FAF7F4]"
                                                         }
                                                     `}
                                                 >

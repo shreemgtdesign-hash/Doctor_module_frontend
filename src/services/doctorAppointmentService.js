@@ -29,6 +29,8 @@ import {
   deleteAssociateDoctor,
   deleteTherapy,
   finishConsultation,
+  getPatientHistory,
+  getPatientConsultationReport,
 
 
 
@@ -435,4 +437,32 @@ export const completeConsultation = async (
   );
 
   return response.data;
+};
+
+// ============================
+// Patient History
+// ============================
+
+export const fetchPatientHistory = async (
+  patientId
+) => {
+  const response =
+    await getPatientHistory(patientId);
+
+  return response.data.data || [];
+};
+
+// ============================
+// Patient Consultation Report
+// ============================
+
+export const fetchPatientConsultationReport = async (
+  consultationId
+) => {
+  const response =
+    await getPatientConsultationReport(
+      consultationId
+    );
+
+  return response.data.data;
 };

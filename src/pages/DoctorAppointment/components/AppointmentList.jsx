@@ -5,7 +5,9 @@ import {
 
 import {
   useEffect,
+  useMemo,
   useRef,
+  useState,
 } from "react";
 
 import SearchBar from "./SearchBar";
@@ -34,6 +36,19 @@ const AppointmentList = ({
   const listRef = useRef(null);
 
   // ==========================================
+  // SEARCH STATE
+  // ==========================================
+
+  const [search, setSearch] = useState("");
+
+  // ==========================================
+  // FILTER STATE
+  // ==========================================
+
+  const [activeFilter, setActiveFilter] =
+    useState("");
+
+  // ==========================================
   // CONSULTATION STATE
   // ==========================================
 
@@ -54,12 +69,6 @@ const AppointmentList = ({
   );
 
   // ==========================================
-  // TOTAL
-  // ==========================================
-
-  const totalPatients = appointments.length;
-
-  // ==========================================
   // PERIOD LABEL
   // ==========================================
 
@@ -78,41 +87,188 @@ const AppointmentList = ({
   };
 
   // ==========================================
+  // SEARCH VALUE
+  // ==========================================
+
+  const normalizedSearch =
+    search.trim().toLowerCase();
+
+  // ==========================================
+  // FILTER + SEARCH + SELECTED FIRST
+  // ==========================================
+
+  const displayedAppointments = useMemo(() => {
+
+    let result = [...appointments];
+
+    // ========================================
+    // SEARCH
+    // ========================================
+
+    if (normalizedSearch) {
+
+      result = result.filter(
+        (patient) => {
+
+          const patientName =
+            patient?.patient_name ||
+            patient?.patientName ||
+            patient?.name ||
+            patient?.patient?.name ||
+            "";
+
+          const patientId =
+            patient?.patient_id ||
+            patient?.patient_code ||
+            patient?.patientId ||
+            patient?.patient?.id ||
+            "";
+
+          const mobile =
+            patient?.mobile ||
+            patient?.phone ||
+            patient?.mobile_number ||
+            patient?.patient?.mobile ||
+            patient?.patient?.phone ||
+            "";
+
+          const searchableText =
+            `${patientName} ${patientId} ${mobile}`
+              .toLowerCase();
+
+          return searchableText.includes(
+            normalizedSearch
+          );
+        }
+      );
+
+    }
+
+    // ========================================
+    // STATUS FILTER
+    // ========================================
+
+    if (activeFilter) {
+
+      const normalizedFilter =
+        activeFilter
+          .toString()
+          .toLowerCase();
+
+      result = result.filter(
+        (patient) => {
+
+          const status =
+            patient?.status
+              ?.toString()
+              .toLowerCase();
+
+          return (
+            status ===
+            normalizedFilter
+          );
+
+        }
+      );
+
+    }
+
+    // ========================================
+    // SELECTED PATIENT FIRST
+    // ========================================
+
+    if (selectedPatient?.id) {
+
+      const selectedIndex =
+        result.findIndex(
+          (patient) =>
+            patient.id ===
+            selectedPatient.id
+        );
+
+      if (selectedIndex > 0) {
+
+        const selectedPatientItem =
+          result[selectedIndex];
+
+        result = [
+          selectedPatientItem,
+          ...result.filter(
+            (_, index) =>
+              index !== selectedIndex
+          ),
+        ];
+
+      }
+
+    }
+
+    return result;
+
+  }, [
+    appointments,
+    normalizedSearch,
+    activeFilter,
+    selectedPatient?.id,
+  ]);
+
+  // ==========================================
   // SELECT PATIENT
   // ==========================================
 
-  const handleSelectPatient = (patient) => {
-    if (!patient) return;
+  const handleSelectPatient = (
+    patient
+  ) => {
 
-    if (selectedPatient?.id === patient.id) {
+    if (!patient) {
       return;
     }
 
-    // Save current scroll position
-    const currentScrollTop =
-      listRef.current?.scrollTop || 0;
+    // ========================================
+    // SELECT PATIENT
+    // ========================================
 
-    // Select patient
     dispatch(
-      setSelectedPatient(patient)
-    );
-
-    // Load patient details
-    dispatch(
-      loadPatientDetails(
-        patient.patient_id
+      setSelectedPatient(
+        patient
       )
     );
 
-    // Restore list scroll position
+    // ========================================
+    // LOAD PATIENT DETAILS
+    // ========================================
+
+    if (patient.patient_id) {
+
+      dispatch(
+        loadPatientDetails(
+          patient.patient_id
+        )
+      );
+
+    }
+
+    // ========================================
+    // MOVE SCROLL TO TOP
+    // ========================================
+
     requestAnimationFrame(() => {
+
       requestAnimationFrame(() => {
+
         if (listRef.current) {
-          listRef.current.scrollTop =
-            currentScrollTop;
+
+          listRef.current.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+
         }
+
       });
+
     });
+
   };
 
   // ==========================================
@@ -120,6 +276,7 @@ const AppointmentList = ({
   // ==========================================
 
   useEffect(() => {
+
     if (!doctor?.id) {
       return;
     }
@@ -135,6 +292,7 @@ const AppointmentList = ({
         status: "",
       })
     );
+
   }, [
     dispatch,
     doctor?.doctor_id,
@@ -143,10 +301,22 @@ const AppointmentList = ({
   ]);
 
   // ==========================================
+  // RESET SEARCH/FILTER WHEN PERIOD CHANGES
+  // ==========================================
+
+  useEffect(() => {
+
+    setSearch("");
+    setActiveFilter("");
+
+  }, [period]);
+
+  // ==========================================
   // AUTO SELECT FIRST PATIENT
   // ==========================================
 
   useEffect(() => {
+
     if (!appointments.length) {
       return;
     }
@@ -158,29 +328,67 @@ const AppointmentList = ({
           selectedPatient?.id
       );
 
-    if (!selectedStillExists) {
-      const firstPatient =
-        appointments[0];
+    // ========================================
+    // DON'T CHANGE CURRENT PATIENT
+    // ========================================
 
-      dispatch(
-        setSelectedPatient(
-          firstPatient
-        )
-      );
+    if (selectedStillExists) {
+      return;
+    }
+
+    // ========================================
+    // SELECT FIRST PATIENT
+    // ========================================
+
+    const firstPatient =
+      appointments[0];
+
+    dispatch(
+      setSelectedPatient(
+        firstPatient
+      )
+    );
+
+    if (firstPatient.patient_id) {
 
       dispatch(
         loadPatientDetails(
           firstPatient.patient_id
         )
       );
+
     }
+
   }, [
     appointments,
     dispatch,
     selectedPatient?.id,
   ]);
 
+  // ==========================================
+  // TOTAL DISPLAYED PATIENTS
+  // ==========================================
+
+  const totalPatients =
+    displayedAppointments.length;
+
+  // ==========================================
+  // CLEAR SEARCH + FILTER
+  // ==========================================
+
+  const clearSearchAndFilter = () => {
+
+    setSearch("");
+    setActiveFilter("");
+
+  };
+
+  // ==========================================
+  // RENDER
+  // ==========================================
+
   return (
+
     <div
       className="
         flex
@@ -194,12 +402,21 @@ const AppointmentList = ({
         p-6
       "
     >
+
       {/* ================================= */}
       {/* HEADER */}
       {/* ================================= */}
 
-      <div className="flex items-center justify-between">
+      <div
+        className="
+          flex
+          items-center
+          justify-between
+        "
+      >
+
         <div>
+
           <h2
             className="
               text-[24px]
@@ -222,20 +439,31 @@ const AppointmentList = ({
               ? "s"
               : ""}
           </p>
+
         </div>
+
       </div>
+
 
       {/* ================================= */}
       {/* SEARCH */}
       {/* ================================= */}
 
-      <SearchBar />
+      <SearchBar
+        value={search}
+        onChange={setSearch}
+      />
+
 
       {/* ================================= */}
       {/* FILTER */}
       {/* ================================= */}
 
-      <FilterTabs />
+      <FilterTabs
+        value={activeFilter}
+        onChange={setActiveFilter}
+      />
+
 
       {/* ================================= */}
       {/* APPOINTMENT LIST */}
@@ -252,8 +480,14 @@ const AppointmentList = ({
           hide-scrollbar
         "
       >
+
+        {/* ================================= */}
+        {/* LOADING */}
+        {/* ================================= */}
+
         {loading &&
         appointments.length === 0 ? (
+
           <div
             className="
               flex
@@ -265,39 +499,86 @@ const AppointmentList = ({
           >
             Loading appointments...
           </div>
-        ) : appointments.length > 0 ? (
-          appointments.map(
+
+        ) : displayedAppointments.length >
+          0 ? (
+
+          /* ================================= */
+          /* PATIENT LIST */
+          /* ================================= */
+
+          displayedAppointments.map(
             (patient) => (
+
               <AppointmentCard
                 key={patient.id}
                 patient={patient}
+
                 selected={
                   selectedPatient?.id ===
                   patient.id
                 }
+
                 onClick={() =>
                   handleSelectPatient(
                     patient
                   )
                 }
               />
+
             )
           )
+
         ) : (
+
+          /* ================================= */
+          /* NO RESULTS */
+          /* ================================= */
+
           <div
             className="
               flex
               h-full
+              flex-col
               items-center
               justify-center
               text-gray-500
             "
           >
-            No appointments found
+
+            <p className="text-base">
+              No appointments found
+            </p>
+
+            {(search ||
+              activeFilter) && (
+
+              <button
+                type="button"
+                onClick={
+                  clearSearchAndFilter
+                }
+                className="
+                  mt-3
+                  text-sm
+                  font-semibold
+                  text-[#8B573D]
+                  hover:underline
+                "
+              >
+                Clear search and filters
+              </button>
+
+            )}
+
           </div>
+
         )}
+
       </div>
+
     </div>
+
   );
 };
 

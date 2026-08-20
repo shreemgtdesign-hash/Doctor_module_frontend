@@ -23,6 +23,8 @@ import {
     deleteAssociateDoctorThunk,
     deleteTherapyThunk,
     finishConsultationThunk,
+    loadPatientHistory,
+    loadPatientConsultationReport,
 } from "./consultationThunk";
 import { searchDiagnosisCategoriesThunk } from "../appointment/appointmentThunk";
 
@@ -73,6 +75,14 @@ const initialState = {
     doctorsList: [],
     finishLoading: false,
     finishSuccess: false,
+
+    patientHistory: [],
+    patientHistoryLoading: false,
+    patientHistoryError: null,
+
+      consultationReport: null,
+  consultationReportLoading: false,
+  consultationReportError: null,
 };
 
 const consultationSlice = createSlice({
@@ -439,29 +449,80 @@ const consultationSlice = createSlice({
             )
 
             .addCase(
-    finishConsultationThunk.pending,
-    (state) => {
-        state.finishLoading = true;
-        state.finishSuccess = false;
-        state.error = null;
-    }
+                finishConsultationThunk.pending,
+                (state) => {
+                    state.finishLoading = true;
+                    state.finishSuccess = false;
+                    state.error = null;
+                }
+            )
+
+            .addCase(
+                finishConsultationThunk.fulfilled,
+                (state) => {
+                    state.finishLoading = false;
+                    state.finishSuccess = true;
+                }
+            )
+
+            .addCase(
+                finishConsultationThunk.rejected,
+                (state, action) => {
+                    state.finishLoading = false;
+                    state.finishSuccess = false;
+                    state.error = action.payload;
+                }
+            )
+
+            .addCase(
+                loadPatientHistory.pending,
+                (state) => {
+                    state.patientHistoryLoading = true;
+                    state.patientHistoryError = null;
+                }
+            )
+
+            .addCase(
+                loadPatientHistory.fulfilled,
+                (state, action) => {
+                    state.patientHistoryLoading = false;
+                    state.patientHistory =
+                        action.payload || [];
+                }
+            )
+
+            .addCase(
+                loadPatientHistory.rejected,
+                (state, action) => {
+                    state.patientHistoryLoading = false;
+                    state.patientHistoryError =
+                        action.payload ||
+                        "Failed to load patient history";
+                }
+            )
+            .addCase(
+  loadPatientConsultationReport.pending,
+  (state) => {
+    state.consultationReportLoading = true;
+    state.consultationReportError = null;
+  }
 )
 
 .addCase(
-    finishConsultationThunk.fulfilled,
-    (state) => {
-        state.finishLoading = false;
-        state.finishSuccess = true;
-    }
+  loadPatientConsultationReport.fulfilled,
+  (state, action) => {
+    state.consultationReportLoading = false;
+    state.consultationReport = action.payload;
+  }
 )
 
 .addCase(
-    finishConsultationThunk.rejected,
-    (state, action) => {
-        state.finishLoading = false;
-        state.finishSuccess = false;
-        state.error = action.payload;
-    }
+  loadPatientConsultationReport.rejected,
+  (state, action) => {
+    state.consultationReportLoading = false;
+    state.consultationReportError =
+      action.payload;
+  }
 )
 
             .addCase(

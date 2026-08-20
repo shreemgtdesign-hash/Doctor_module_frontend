@@ -2,9 +2,12 @@ import {
   forwardRef,
   useEffect,
   useRef,
+  useState,
 } from "react";
 
-import { useSelector } from "react-redux";
+import {
+  useSelector,
+} from "react-redux";
 
 import PatientHeader from "./PatientHeader";
 
@@ -15,6 +18,8 @@ import Prescription from "../sections/Prescription";
 import Therapy from "../sections/Therapy";
 import Reports from "../sections/Reports";
 import PatientHistory from "../sections/PatientHistory";
+import ViewReport from "../sections/ViewReport";
+
 
 const PatientProfile = forwardRef(
   (
@@ -24,6 +29,10 @@ const PatientProfile = forwardRef(
     },
     ref
   ) => {
+
+    // ==========================================
+    // CONSULTATION STATE
+    // ==========================================
 
     const {
       selectedPatient,
@@ -36,36 +45,50 @@ const PatientProfile = forwardRef(
 
 
     // ==========================================
+    // VIEW REPORT STATE
+    // ==========================================
+
+    const [
+      selectedConsultationId,
+      setSelectedConsultationId,
+    ] = useState(null);
+
+
+    // ==========================================
     // SCROLL REFS
     // ==========================================
 
-    const profileTopRef = useRef(null);
+    const profileTopRef =
+      useRef(null);
 
-    const sectionTopRef = useRef(null);
+    const sectionTopRef =
+      useRef(null);
 
-    /*
-      "profile" = scroll to patient name/header
-      "section" = scroll to current section
-    */
-    const scrollModeRef = useRef("section");
+    const scrollModeRef =
+      useRef("section");
 
 
     // ==========================================
-    // FIND THE ACTUAL SCROLLABLE CONTAINER
+    // FIND SCROLL CONTAINER
     // ==========================================
 
-    const getScrollContainer = (element) => {
+    const getScrollContainer = (
+      element
+    ) => {
 
       if (!element) {
         return null;
       }
 
-      let parent = element.parentElement;
+      let parent =
+        element.parentElement;
 
       while (parent) {
 
         const style =
-          window.getComputedStyle(parent);
+          window.getComputedStyle(
+            parent
+          );
 
         const isScrollable =
           /(auto|scroll)/.test(
@@ -82,23 +105,26 @@ const PatientProfile = forwardRef(
           parent.parentElement;
       }
 
-      // Fallback to document
       return document.scrollingElement;
     };
 
 
     // ==========================================
-    // SCROLL TO TARGET
+    // SCROLL TARGET
     // ==========================================
 
-    const scrollToTarget = (target) => {
+    const scrollToTarget = (
+      target
+    ) => {
 
       if (!target) {
         return;
       }
 
       const scrollContainer =
-        getScrollContainer(target);
+        getScrollContainer(
+          target
+        );
 
       if (!scrollContainer) {
         return;
@@ -106,7 +132,7 @@ const PatientProfile = forwardRef(
 
 
       // ========================================
-      // DOCUMENT / WINDOW SCROLL
+      // DOCUMENT SCROLL
       // ========================================
 
       if (
@@ -132,7 +158,7 @@ const PatientProfile = forwardRef(
 
 
       // ========================================
-      // NESTED SCROLL CONTAINER
+      // NESTED SCROLL
       // ========================================
 
       const targetRect =
@@ -141,34 +167,16 @@ const PatientProfile = forwardRef(
       const containerRect =
         scrollContainer.getBoundingClientRect();
 
-
-      /*
-        Calculate target position
-        relative to the scrollable
-        patient-profile container.
-      */
-
       const targetPosition =
         targetRect.top -
         containerRect.top +
         scrollContainer.scrollTop;
-
-
-      /*
-        Keep approximately 60px space
-        above the target.
-
-        Change 60 to:
-        40 = less space
-        80 = more space
-      */
 
       const finalPosition =
         Math.max(
           0,
           targetPosition - 60
         );
-
 
       scrollContainer.scrollTo({
         top: finalPosition,
@@ -179,7 +187,7 @@ const PatientProfile = forwardRef(
 
 
     // ==========================================
-    // SCROLL AFTER SECTION CHANGE
+    // SCROLL WHEN SECTION CHANGES
     // ==========================================
 
     useEffect(() => {
@@ -188,12 +196,6 @@ const PatientProfile = forwardRef(
         return;
       }
 
-
-      /*
-        Wait until React has finished rendering
-        the new section.
-      */
-
       const frameId =
         requestAnimationFrame(() => {
 
@@ -201,28 +203,30 @@ const PatientProfile = forwardRef(
             scrollModeRef.current ===
             "profile";
 
-
           const target =
             isProfile
               ? profileTopRef.current
               : sectionTopRef.current;
 
-
           if (!target) {
             return;
           }
 
-
-          scrollToTarget(target);
+          scrollToTarget(
+            target
+          );
 
         });
 
-
       return () => {
-        cancelAnimationFrame(frameId);
+        cancelAnimationFrame(
+          frameId
+        );
       };
 
-    }, [activeSection]);
+    }, [
+      activeSection,
+    ]);
 
 
     // ==========================================
@@ -237,7 +241,53 @@ const PatientProfile = forwardRef(
       scrollModeRef.current =
         scrollTo;
 
-      setActiveSection(section);
+      setActiveSection(
+        section
+      );
+
+    };
+
+
+    // ==========================================
+    // OPEN VIEW REPORT
+    // ==========================================
+
+    const handleViewReport = (
+      consultationId
+    ) => {
+
+      if (!consultationId) {
+        console.error(
+          "Consultation ID is missing"
+        );
+
+        return;
+      }
+
+      console.log(
+        "Selected consultation:",
+        consultationId
+      );
+
+
+      // Save consultation ID
+
+      setSelectedConsultationId(
+        consultationId
+      );
+
+
+      // Scroll to section
+
+      scrollModeRef.current =
+        "section";
+
+
+      // Change active section
+
+      setActiveSection(
+        "viewReport"
+      );
 
     };
 
@@ -294,10 +344,12 @@ const PatientProfile = forwardRef(
             justify-center
           "
         >
+
           <p className="text-lg text-[#8B7A70]">
             Select a patient to begin
             consultation
           </p>
+
         </div>
       );
 
@@ -333,9 +385,15 @@ const PatientProfile = forwardRef(
         >
 
           <PatientHeader
-            patient={patientProfile}
-            wellness={patientWellness}
-            appointment={selectedPatient}
+            patient={
+              patientProfile
+            }
+            wellness={
+              patientWellness
+            }
+            appointment={
+              selectedPatient
+            }
           />
 
         </div>
@@ -349,20 +407,19 @@ const PatientProfile = forwardRef(
           ref={sectionTopRef}
         >
 
-
           {/* ================================= */}
           {/* OVERVIEW */}
           {/* ================================= */}
 
-          {activeSection === "overview" && (
+          {activeSection ===
+            "overview" && (
 
             <PatientOverview
-              setActiveSection={
-                setActiveSection
-              }
-
               activeSection={
                 activeSection
+              }
+              setActiveSection={
+                setActiveSection
               }
             />
 
@@ -373,7 +430,8 @@ const PatientProfile = forwardRef(
           {/* CHIEF COMPLAINTS */}
           {/* ================================= */}
 
-          {activeSection === "complaints" && (
+          {activeSection ===
+            "complaints" && (
 
             <ChiefComplaints
               appointmentId={
@@ -406,7 +464,8 @@ const PatientProfile = forwardRef(
           {/* DIAGNOSIS */}
           {/* ================================= */}
 
-          {activeSection === "diagnosis" && (
+          {activeSection ===
+            "diagnosis" && (
 
             <Diagnosis
               patient={
@@ -439,7 +498,8 @@ const PatientProfile = forwardRef(
           {/* PRESCRIPTION */}
           {/* ================================= */}
 
-          {activeSection === "prescription" && (
+          {activeSection ===
+            "prescription" && (
 
             <Prescription
               key={
@@ -488,7 +548,8 @@ const PatientProfile = forwardRef(
           {/* THERAPY */}
           {/* ================================= */}
 
-          {activeSection === "therapy" && (
+          {activeSection ===
+            "therapy" && (
 
             <Therapy
               patient={
@@ -510,6 +571,7 @@ const PatientProfile = forwardRef(
                   "section"
                 )
               }
+
               onContinue={() =>
                 goToSection(
                   "reports",
@@ -525,7 +587,8 @@ const PatientProfile = forwardRef(
           {/* REPORTS */}
           {/* ================================= */}
 
-          {activeSection === "reports" && (
+          {activeSection ===
+            "reports" && (
 
             <Reports
               patient={
@@ -541,10 +604,11 @@ const PatientProfile = forwardRef(
 
 
           {/* ================================= */}
-          {/* HISTORY */}
+          {/* PATIENT HISTORY */}
           {/* ================================= */}
 
-          {activeSection === "history" && (
+          {activeSection ===
+            "history" && (
 
             <PatientHistory
               patient={
@@ -554,6 +618,40 @@ const PatientProfile = forwardRef(
               appointment={
                 selectedPatient
               }
+
+              onViewReport={
+                handleViewReport
+              }
+
+              onBack={() =>
+                goToSection(
+                  "overview",
+                  "profile"
+                )
+              }
+            />
+
+          )}
+
+
+          {/* ================================= */}
+          {/* VIEW REPORT */}
+          {/* ================================= */}
+
+          {activeSection ===
+            "viewReport" && (
+
+            <ViewReport
+              consultationId={
+                selectedConsultationId
+              }
+
+              onBack={() =>
+                goToSection(
+                  "history",
+                  "section"
+                )
+              }
             />
 
           )}
@@ -561,9 +659,11 @@ const PatientProfile = forwardRef(
         </div>
 
       </div>
+
     );
 
   }
 );
+
 
 export default PatientProfile;

@@ -247,3 +247,25 @@ export const finishConsultation = (
     payload
   );
 };
+
+// ============================
+// Patient History
+// ============================
+
+export const getPatientHistory = (patientId) => {
+  return api.get(
+    `/visits/patient/${patientId}/history`
+  );
+};
+
+// ============================
+// Patient Consultation Report
+// ============================
+
+export const getPatientConsultationReport = (
+  consultationId
+) => {
+  return api.get(
+    `/visits/patient/consultation/${consultationId}/history`
+  );
+};

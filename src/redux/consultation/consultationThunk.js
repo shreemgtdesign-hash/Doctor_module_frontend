@@ -12,6 +12,8 @@ import {
   fetchAppointments,
   removeTherapy,
   completeConsultation,
+  fetchPatientHistory,
+  fetchPatientConsultationReport,
 } from "../../services/doctorAppointmentService";
 
 export const loadAppointments = createAsyncThunk(
@@ -460,6 +462,62 @@ export const finishConsultationThunk =
       try {
         return await completeConsultation(
           appointmentId
+        );
+      } catch (error) {
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+      }
+    }
+  );
+
+  // ==========================================
+// LOAD PATIENT HISTORY
+// ==========================================
+
+export const loadPatientHistory =
+  createAsyncThunk(
+    "consultation/loadPatientHistory",
+
+    async (
+      patientId,
+      { rejectWithValue }
+    ) => {
+
+      try {
+
+        return await fetchPatientHistory(
+          patientId
+        );
+
+      } catch (error) {
+
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+
+      }
+
+    }
+  );
+
+  // ============================
+// Patient Consultation Report
+// ============================
+
+export const loadPatientConsultationReport =
+  createAsyncThunk(
+    "consultation/loadPatientConsultationReport",
+
+    async (
+      consultationId,
+      { rejectWithValue }
+    ) => {
+      try {
+        return await fetchPatientConsultationReport(
+          consultationId
         );
       } catch (error) {
         return rejectWithValue(
