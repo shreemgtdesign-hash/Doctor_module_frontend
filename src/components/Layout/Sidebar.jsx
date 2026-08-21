@@ -242,50 +242,43 @@ const Sidebar = ({
 
                         <div
                             className="
-        relative
-        flex
-        h-[105px]
-        shrink-0
-        items-center
-        px-8
-    "
+                              relative
+                              flex
+                              h-[105px]
+                              shrink-0
+                              items-center
+                              px-2
+                         "
                         >
 
                             {/* Hospital Logo */}
 
                             <div
                                 className="
-            flex
-            h-30
-            w-[200px]
-            shrink-0
-            items-center
-            justify-center
-            overflow-hidden
-            rounded-lg
-            bg-white
-        "
+                                  flex
+                                  h-30
+                                  w-[230px]
+                                  shrink-0
+                                  items-center
+                                  justify-center
+                                  overflow-hidden
+                                  rounded-lg
+                                  bg-white
+                              "
                             >
 
                                 <img
                                     src={hospitalLogo}
                                     alt="Shree Ayurveda Hospital"
                                     className="
-                h-full
-                w-full
-                object-contain
-            "
+                                      h-full
+                                      w-full
+                                      object-contain
+                                  "
                                 />
 
                             </div>
 
-
-                            {/* Hospital Name */}
-
-                            
-
-
-                            {/* CLOSE BUTTON */}
 
                             <button
                                 type="button"
@@ -293,17 +286,17 @@ const Sidebar = ({
                                     setIsOpen(false)
                                 }
                                 className="
-            absolute
-            right-0
-            top-0
-            flex
-            h-[72px]
-            w-[72px]
-            items-center
-            justify-center
-            rounded-bl-[30px]
-            bg-[#FFF6F1]
-        "
+                                  absolute
+                                  right-0
+                                  top-0
+                                  flex
+                                  h-[72px]
+                                  w-[72px]
+                                  items-center
+                                  justify-center
+                                  rounded-bl-[30px]
+                                  bg-[#FFF6F1]
+                              "
                             >
 
                                 <HiChevronLeft

@@ -45,6 +45,19 @@ const PatientOverview = ({ activeSection,setActiveSection }) => {
           title="Stress"
           value={patientWellness?.stress || "--"}
         />
+        <VitalCard
+          title="Spo-2"
+          value={patientWellness?.stress || "--"}
+        />
+        <VitalCard
+          title="Temperature"
+          value={patientWellness?.stress || "--"}
+        />
+        <VitalCard
+          title="Pulse"
+          value={patientWellness?.stress || "--"}
+        />
+        
       </div>
 
       {/* Consultation */}

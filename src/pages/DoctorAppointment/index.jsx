@@ -10,7 +10,7 @@ import ScheduleOverview from "./components/ScheduleOverview";
 import AppointmentList from "./components/AppointmentList";
 import PatientProfile from "./components/PatientProfile";
 
-import { getDashboard } from "../../redux/dashboard/dashboardThunk";
+import { loadOverview } from "../../redux/dashboard/dashboardThunk";
 
 const DoctorAppointment = () => {
 
@@ -133,7 +133,7 @@ const DoctorAppointment = () => {
         }
 
         dispatch(
-            getDashboard({
+            loadOverview({
                  doctorId,
                 period,
             })
