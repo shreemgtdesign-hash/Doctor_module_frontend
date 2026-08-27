@@ -14,6 +14,15 @@ import TherapistDashboard from "./pages/TherapistDashboard";
 import TherapistAppointments from "./pages/TherapistAppointments/TherapistAppointments";
 import WellnessTable from "./pages/DoctorDashboard/components/WellnessTable";
 import BeautyTable from "./pages/DoctorDashboard/components/BeautyTable";
+import FrontOfficeDashboard from "./pages/FrontOfficeDashboard";
+import DoctorMaster from "./pages/FrontOfficeAppointment/components/DoctorMaster";
+import FrontOfficeAppointments from "./pages/FrontOfficeAppointment/components/FrontOfficeAppointments";
+import AppointmentConfirmation from "./pages/FrontOfficeAppointment/components/AppointmentConfirmation";
+import InsuranceList from "./pages/FrontOfficeAppointment/components/InsuranceList";
+import Packages from "./pages/FrontOfficeAppointment/components/Packages";
+import ReferralList from "./pages/FrontOfficeAppointment/components/ReferralList";
+import MedCampCalender from "./pages/FrontOfficeAppointment/components/Med-Camp-Calender";
+import MedicalCampDetails from "./pages/FrontOfficeAppointment/components/MedicalCampDetails";
 
 function App() {
     return (
@@ -95,29 +104,86 @@ function App() {
                 element={<TherapiesPrescribedTable />}
             />
             <Route
-    path="/therapist/dashboard"
-    element={
-        <TherapistDashboard />
-    }
+                path="/therapist/dashboard"
+                element={
+                    <TherapistDashboard />
+                }
+            />
+            <Route
+                path="/therapist/appointments"
+                element={
+                    <TherapistAppointments />
+                }
+            />
+            <Route
+                path="/doctor/wellness-table"
+                element={
+                    <WellnessTable />
+                }
+            />
+            <Route
+                path="/doctor/beauty-table"
+                element={
+                    <BeautyTable />
+                }
+            />
+
+            <Route
+                path="/frontoffice/dashboard"
+                element={
+                    <FrontOfficeDashboard />
+                }
+            />
+
+            <Route
+    path="/frontoffice/doctors"
+    element={<DoctorMaster />}
+/>
+
+<Route
+    path="/frontoffice/pending-actions"
+    element={<FrontOfficeAppointments />}
 />
 <Route
-    path="/therapist/appointments"
-    element={
-        <TherapistAppointments />
-    }
+  path="/frontoffice/appointment-confirmation"
+  element={
+    <AppointmentConfirmation />
+  }
 />
 <Route
-    path="/doctor/wellness-table"
-    element={
-        <WellnessTable />
-    }
+  path="/frontoffice/insurance-list"
+  element={
+    <InsuranceList />
+  }
 />
 <Route
-    path="/doctor/beauty-table"
-    element={
-        <BeautyTable />
-    }
+  path="/frontoffice/packages-list"
+  element={
+    <Packages />
+  }
 />
+<Route
+  path="/frontoffice/referral-list"
+  element={
+    < ReferralList/>
+  }
+/>
+
+<Route
+  path="/frontoffice/medcamp-calender"
+  element={
+    < MedCampCalender/>
+  }
+/>
+<Route
+  path="/frontoffice/medcamp-details"
+  element={
+    < MedicalCampDetails/>
+  }
+/>
+
+
+
 
 
         </Routes>

@@ -10,7 +10,7 @@ const Header = ({ setSidebarOpen }) => {
     );
 
     return (
-        <header className="flex h-24 items-center justify-between bg-[#FFF8F4] pr-5 shadow-sm">
+        <header className="flex border border-[#E4D9C580] h-24 items-center justify-between bg-[#FFF8F2] pr-5 shadow-sm">
 
             {/* ================================= */}
             {/* LEFT */}

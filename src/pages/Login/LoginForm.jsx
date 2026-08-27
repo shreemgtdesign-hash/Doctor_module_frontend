@@ -53,8 +53,8 @@ const LoginForm = () => {
                     });
                     break;
 
-                case "staff":
-                    navigate("/frontdesk/dashboard", {
+                case "front_office":
+                    navigate("/frontoffice/dashboard", {
                         replace: true,
                     });
                     break;

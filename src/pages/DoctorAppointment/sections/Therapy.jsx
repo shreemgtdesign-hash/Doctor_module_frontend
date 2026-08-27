@@ -626,7 +626,7 @@ const Therapy = ({
                       border-[#EFE7E1]
                       p-3
                       text-left
-                      hover:bg-[#FFF8F4]
+                      hover:bg-[#FFF8F2]
                       last:border-b-0
                     "
                   >

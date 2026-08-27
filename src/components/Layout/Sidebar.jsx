@@ -7,6 +7,7 @@ import {
     HiOutlineSupport,
     HiChevronLeft,
     HiOutlineLogout,
+    HiOutlineUserCircle,
 } from "react-icons/hi";
 
 import { NavLink, useNavigate } from "react-router-dom";
@@ -20,9 +21,27 @@ import {
     FaAmbulance,
     FaExclamationTriangle,
     FaNotesMedical,
+    FaUserMd,
+    FaClipboardCheck,
+    FaFileMedical,
+    FaBoxes,
+    FaMedkit,
 } from "react-icons/fa";
 
+import {
+    FaHandHoldingMedical,
+    FaPeopleArrows,
+} from "react-icons/fa6";
+
 import { logout } from "../../redux/auth/authSlice";
+
+
+// ==========================================
+// HOSPITAL LOGO
+// ==========================================
+
+const hospitalLogo =
+    "https://res.cloudinary.com/hj1d367n/image/upload/v1787122082/sadop/logo/eupc9h2ibkpwzozw77tu.jpg";
 
 
 // ==========================================
@@ -123,7 +142,85 @@ const doctorMenu = [
     },
 ];
 
-const hospitalLogo = "https://res.cloudinary.com/hj1d367n/image/upload/v1787122082/sadop/logo/eupc9h2ibkpwzozw77tu.jpg";
+
+// ==========================================
+// FRONT OFFICE MENU
+// ==========================================
+
+const frontOfficeMenu = [
+    {
+        name: "Dashboard",
+        icon: HiHome,
+        path: "/frontoffice/dashboard",
+    },
+    {
+        name: "Appointments",
+        icon: HiOutlineCalendar,
+        path: "/frontoffice/appointments",
+    },
+    {
+        name: "Patients",
+        icon: FaUserFriends,
+        path: "/frontoffice/patients",
+    },
+    {
+        name: "Doctor Master",
+        icon: FaUserMd,
+        path: "/frontoffice/doctors",
+    },
+    {
+        name: "Pending Actions",
+        icon: FaClipboardCheck,
+        path: "/frontoffice/pending-actions",
+    },
+    {
+        name: "Therapies",
+        icon: FaHandHoldingMedical,
+        path: "/frontoffice/therapies",
+    },
+    {
+        name: "Referrals",
+        icon: FaPeopleArrows,
+        path: "/frontoffice/referral-list",
+    },
+    {
+        name: "Insurance",
+        icon: FaFileMedical,
+        path: "/frontoffice/insurance-list",
+    },
+    {
+        name: "Packages",
+        icon: FaBoxes,
+        path: "/frontoffice/packages-list",
+    },
+    {
+        name: "Medical Camps",
+        icon: FaHospital,
+        path: "/frontoffice/medcamp-calender",
+    },
+    {
+        name: "Medicines",
+        icon: FaMedkit,
+        path: "/frontoffice/medicines",
+    },
+    {
+        name: "Support",
+        icon: HiOutlineSupport,
+        path: "/frontoffice/support",
+    },
+    {
+        name: "Profile",
+        icon: HiOutlineUserCircle,
+        path: "/frontoffice/profile",
+    },
+    {
+        name: "Settings",
+        icon: HiOutlineCog,
+        path: "/frontoffice/settings",
+    },
+];
+
+
 // ==========================================
 // SIDEBAR
 // ==========================================
@@ -144,6 +241,10 @@ const Sidebar = ({
 
     let currentMenu = doctorMenu;
 
+    if (role === "frontoffice") {
+        currentMenu = frontOfficeMenu;
+    }
+
     if (role === "pharmacist") {
         currentMenu = pharmacistMenu;
     }
@@ -159,17 +260,13 @@ const Sidebar = ({
 
     const handleLogout = () => {
 
-        // Clear Redux authentication state
         dispatch(logout());
 
-        // Remove EVERYTHING from browser storage
         localStorage.clear();
         sessionStorage.clear();
 
-        // Close sidebar
         setIsOpen(false);
 
-        // Redirect to login
         navigate("/login", {
             replace: true,
         });
@@ -189,11 +286,21 @@ const Sidebar = ({
                     {/* ================================= */}
 
                     <motion.div
-                        onClick={() => setIsOpen(false)}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 0.45 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.25 }}
+                        onClick={() =>
+                            setIsOpen(false)
+                        }
+                        initial={{
+                            opacity: 0,
+                        }}
+                        animate={{
+                            opacity: 0.45,
+                        }}
+                        exit={{
+                            opacity: 0,
+                        }}
+                        transition={{
+                            duration: 0.25,
+                        }}
                         className="
                             fixed
                             inset-0
@@ -208,9 +315,15 @@ const Sidebar = ({
                     {/* ================================= */}
 
                     <motion.aside
-                        initial={{ x: -420 }}
-                        animate={{ x: 0 }}
-                        exit={{ x: -420 }}
+                        initial={{
+                            x: -420,
+                        }}
+                        animate={{
+                            x: 0,
+                        }}
+                        exit={{
+                            x: -420,
+                        }}
                         transition={{
                             duration: 0.35,
                             ease: "easeOut",
@@ -236,49 +349,45 @@ const Sidebar = ({
                         {/* LOGO */}
                         {/* ================================= */}
 
-                        {/* ================================= */}
-                        {/* LOGO */}
-                        {/* ================================= */}
-
                         <div
                             className="
-                              relative
-                              flex
-                              h-[105px]
-                              shrink-0
-                              items-center
-                              px-2
-                         "
+                                relative
+                                flex
+                                h-[105px]
+                                shrink-0
+                                items-center
+                                px-2
+                            "
                         >
-
-                            {/* Hospital Logo */}
 
                             <div
                                 className="
-                                  flex
-                                  h-30
-                                  w-[230px]
-                                  shrink-0
-                                  items-center
-                                  justify-center
-                                  overflow-hidden
-                                  rounded-lg
-                                  bg-white
-                              "
+                                    flex
+                                    h-[105px]
+                                    w-[230px]
+                                    shrink-0
+                                    items-center
+                                    justify-center
+                                    overflow-hidden
+                                    rounded-lg
+                                    bg-white
+                                "
                             >
 
                                 <img
                                     src={hospitalLogo}
-                                    alt="Shree Ayurveda Hospital"
+                                    alt="Shree Ayurvedic Hospital"
                                     className="
-                                      h-full
-                                      w-full
-                                      object-contain
-                                  "
+                                        h-full
+                                        w-full
+                                        object-contain
+                                    "
                                 />
 
                             </div>
 
+
+                            {/* CLOSE */}
 
                             <button
                                 type="button"
@@ -286,22 +395,24 @@ const Sidebar = ({
                                     setIsOpen(false)
                                 }
                                 className="
-                                  absolute
-                                  right-0
-                                  top-0
-                                  flex
-                                  h-[72px]
-                                  w-[72px]
-                                  items-center
-                                  justify-center
-                                  rounded-bl-[30px]
-                                  bg-[#FFF6F1]
-                              "
+                                    absolute
+                                    right-0
+                                    top-0
+                                    flex
+                                    h-[72px]
+                                    w-[72px]
+                                    items-center
+                                    justify-center
+                                    rounded-bl-[30px]
+                                    bg-[#FFF6F1]
+                                "
                             >
 
                                 <HiChevronLeft
                                     size={24}
-                                    className="text-[#6A3F2D]"
+                                    className="
+                                        text-[#6A3F2D]
+                                    "
                                 />
 
                             </button>
@@ -313,76 +424,104 @@ const Sidebar = ({
                         {/* MENU */}
                         {/* ================================= */}
 
-                        <div className="
-                            flex-1
-                            overflow-y-auto
-                            px-7
-                            pt-6
-                            pb-4
-                        ">
+                        <div
+                            className="
+                                flex-1
+                                overflow-y-auto
+                                px-7
+                                pt-6
+                                pb-4
+                                hide-scrollbar
+                            "
+                        >
 
-                            <nav className="flex flex-col">
+                            <nav
+                                className="
+                                    flex
+                                    flex-col
+                                "
+                            >
 
-                                {currentMenu.map((item) => {
+                                {currentMenu.map(
+                                    (item) => {
 
-                                    const Icon = item.icon;
+                                        const Icon =
+                                            item.icon;
 
-                                    return (
+                                        return (
 
-                                        <NavLink
-                                            key={item.name}
-                                            to={item.path}
-                                            onClick={() =>
-                                                setIsOpen(false)
-                                            }
-                                        >
+                                            <NavLink
+                                                key={
+                                                    item.name
+                                                }
+                                                to={
+                                                    item.path
+                                                }
+                                                onClick={() =>
+                                                    setIsOpen(
+                                                        false
+                                                    )
+                                                }
+                                            >
 
-                                            {({ isActive }) => (
+                                                {({
+                                                    isActive,
+                                                }) => (
 
-                                                <div
-                                                    className={`
-                                                        mb-4
-                                                        flex
-                                                        h-14
-                                                        w-full
-                                                        items-center
-                                                        rounded-[20px]
-                                                        px-5
-                                                        transition-all
-                                                        duration-200
+                                                    <div
+                                                        className={`
+                                                            mb-4
+                                                            flex
+                                                            h-14
+                                                            w-full
+                                                            items-center
+                                                            rounded-[20px]
+                                                            px-5
+                                                            transition-all
+                                                            duration-200
 
-                                                        ${isActive
-                                                            ? "border border-[#6A3F2D] bg-[#FFF9F5]"
-                                                            : "hover:bg-[#FAF7F4]"
-                                                        }
-                                                    `}
-                                                >
+                                                            ${
+                                                                isActive
+                                                                    ? "border border-[#6A3F2D] bg-[#FFF9F5]"
+                                                                    : "hover:bg-[#FAF7F4]"
+                                                            }
+                                                        `}
+                                                    >
 
-                                                    <Icon
-                                                        size={24}
-                                                        className="
-                                                            text-[#6A3F2D]
-                                                        "
-                                                    />
+                                                        <Icon
+                                                            size={
+                                                                24
+                                                            }
+                                                            className="
+                                                                shrink-0
+                                                                text-[#6A3F2D]
+                                                            "
+                                                        />
 
-                                                    <span className="
-                                                        ml-4
-                                                        text-[18px]
-                                                        font-medium
-                                                        text-[#4D2E23]
-                                                    ">
-                                                        {item.name}
-                                                    </span>
 
-                                                </div>
+                                                        <span
+                                                            className="
+                                                                ml-4
+                                                                text-[18px]
+                                                                font-medium
+                                                                text-[#4D2E23]
+                                                            "
+                                                        >
+                                                            {
+                                                                item.name
+                                                            }
+                                                        </span>
 
-                                            )}
+                                                    </div>
 
-                                        </NavLink>
+                                                )}
 
-                                    );
+                                            </NavLink>
 
-                                })}
+                                        );
+
+                                    }
+                                )}
 
                             </nav>
 
@@ -393,18 +532,22 @@ const Sidebar = ({
                         {/* LOGOUT */}
                         {/* ================================= */}
 
-                        <div className="
-                            shrink-0
-                            border-t
-                            border-[#EFE4DC]
-                            bg-white
-                            px-7
-                            py-5
-                        ">
+                        <div
+                            className="
+                                shrink-0
+                                border-t
+                                border-[#EFE4DC]
+                                bg-white
+                                px-7
+                                py-5
+                            "
+                        >
 
                             <button
                                 type="button"
-                                onClick={handleLogout}
+                                onClick={
+                                    handleLogout
+                                }
                                 className="
                                     flex
                                     h-14
@@ -426,11 +569,13 @@ const Sidebar = ({
                                     "
                                 />
 
-                                <span className="
-                                    ml-4
-                                    text-[18px]
-                                    font-medium
-                                ">
+                                <span
+                                    className="
+                                        ml-4
+                                        text-[18px]
+                                        font-medium
+                                    "
+                                >
                                     Logout
                                 </span>
 
@@ -448,5 +593,6 @@ const Sidebar = ({
 
     );
 };
+
 
 export default Sidebar;

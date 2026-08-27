@@ -15,17 +15,30 @@ import {
 } from "../../../redux/consultation/consultationThunk";
 
 const symptoms = [
-  "Fever",
-  "Headache",
-  "Body Pain",
-  "Cold",
-  "Cough",
-  "Vomiting",
-  "Fatigue",
-  "Joint Pain",
-  "Back Ache",
-  "Muscle Pain",
-  "Weakness",
+  "back ache",
+        "muscle pain",
+        "weakness",
+        "stiffness",
+        "joint pain",
+        "fever",
+        "headache",
+        "cough",
+        "fatigue",
+        "digestive issue",
+        "insomnia",
+        "skin rash",
+        "neck pain",
+        "knee pain",
+        "lower back stiffness",
+        "Lower back ache and joint pain since 5 days",
+        "Severe headache and nerve pain",
+        "Lower back ache and joint pain since 3 days",
+        "Lower back ache and joint pain since 1 days",
+        "Chest discomfort and high BP",
+        "Persistent cough and cold",
+        "Child fever and runny nose",
+        "Itching and skin redness",
+        "Stomach acid reflux and indigestion"
 ];
 
 const ChiefComplaints = ({
@@ -45,6 +58,10 @@ const ChiefComplaints = ({
   // Original backend values
   const [initialSymptoms, setInitialSymptoms] = useState([]);
   const [initialNotes, setInitialNotes] = useState("");
+  const [allergies, setAllergies] = useState([]);
+  const [initialAllergies, setInitialAllergies] = useState([]);
+  const [allergyInput, setAllergyInput] = useState("");
+  const [showAllergyInput, setShowAllergyInput] = useState(false);
 
   // Unsaved changes popup
   const [showUnsavedModal, setShowUnsavedModal] =
@@ -83,10 +100,40 @@ const ChiefComplaints = ({
     const complaintNotes =
       chiefComplaints?.complaint_notes || "";
 
+    // ==========================================
+    // ALLERGIES
+    // ==========================================
+
+    const savedAllergies =
+      chiefComplaints?.allergies ||
+      chiefComplaints?.allergies_conditions ||
+      [];
+
+    let formattedAllergies = [];
+
+    if (Array.isArray(savedAllergies)) {
+      formattedAllergies = savedAllergies;
+    } else if (
+      typeof savedAllergies === "string" &&
+      savedAllergies.trim()
+    ) {
+      formattedAllergies = savedAllergies
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
     setSelectedSymptoms(complaints);
     setNotes(complaintNotes);
 
-    // Save original state for dirty checking
+    setAllergies(formattedAllergies);
+    setInitialAllergies([
+      ...formattedAllergies,
+    ]);
+    // ==========================================
+    // SAVE ORIGINAL STATE FOR DIRTY CHECKING
+    // ==========================================
+
     setInitialSymptoms(complaints);
     setInitialNotes(complaintNotes);
   }, [chiefComplaints]);
@@ -130,23 +177,40 @@ const ChiefComplaints = ({
   // =========================================================
 
   const hasUnsavedChanges = () => {
+
     const currentSymptoms = [
-      ...selectedSymptoms,
+        ...selectedSymptoms,
     ].sort();
 
     const savedSymptoms = [
-      ...initialSymptoms,
+        ...initialSymptoms,
     ].sort();
 
     const symptomsChanged =
-      JSON.stringify(currentSymptoms) !==
-      JSON.stringify(savedSymptoms);
+        JSON.stringify(currentSymptoms) !==
+        JSON.stringify(savedSymptoms);
 
     const notesChanged =
-      notes !== initialNotes;
+        notes !== initialNotes;
 
-    return symptomsChanged || notesChanged;
-  };
+    const currentAllergies = [
+        ...allergies,
+    ].sort();
+
+    const savedAllergies = [
+        ...initialAllergies,
+    ].sort();
+
+    const allergiesChanged =
+        JSON.stringify(currentAllergies) !==
+        JSON.stringify(savedAllergies);
+
+    return (
+        symptomsChanged ||
+        notesChanged ||
+        allergiesChanged
+    );
+};
 
   // =========================================================
   // Validation
@@ -179,7 +243,43 @@ const ChiefComplaints = ({
   // =========================================================
   // Save
   // =========================================================
+  const handleAddAllergy = () => {
+    const allergy = allergyInput.trim();
 
+    if (!allergy) return;
+
+    if (
+      allergies.some(
+        (item) =>
+          item.toLowerCase() === allergy.toLowerCase()
+      )
+    ) {
+      setAllergyInput("");
+      return;
+    }
+
+    setAllergies((prev) => [
+      ...prev,
+      allergy,
+    ]);
+
+    setAllergyInput("");
+  };
+
+  const handleRemoveAllergy = (index) => {
+    setAllergies((prev) =>
+      prev.filter(
+        (_, i) => i !== index
+      )
+    );
+  };
+
+  const handleAllergyKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddAllergy();
+    }
+  };
   const saveChanges = async () => {
     if (!appointmentId) return false;
 
@@ -189,6 +289,7 @@ const ChiefComplaints = ({
       const payload = {
         complaint_tags: selectedSymptoms,
         complaint_notes: notes,
+        allergies: allergies,
       };
 
       console.log(
@@ -210,14 +311,21 @@ const ChiefComplaints = ({
 
       setInitialNotes(notes);
 
+      setInitialAllergies([
+        ...allergies,
+      ]);
+
       return true;
+
     } catch (error) {
+
       console.error(
         "Failed to save chief complaints:",
         error
       );
 
       return false;
+
     } finally {
       setIsSaving(false);
     }
@@ -242,18 +350,29 @@ const ChiefComplaints = ({
   // =========================================================
 
   const handleDiscardAndGoBack = () => {
-    // Restore original values
+
+    // Restore original complaints
     setSelectedSymptoms([
-      ...initialSymptoms,
+        ...initialSymptoms,
     ]);
 
+    // Restore original notes
     setNotes(initialNotes);
+
+    // Restore original allergies
+    setAllergies([
+        ...initialAllergies,
+    ]);
+
+    // Clear allergy input
+    setAllergyInput("");
+
+    setShowAllergyInput(false);
 
     setShowUnsavedModal(false);
 
-    // Go back
     setActiveSection("overview");
-  };
+};
 
   // =========================================================
   // SAVE FROM POPUP AND GO BACK
@@ -505,10 +624,9 @@ const ChiefComplaints = ({
               outline-none
               placeholder:text-[#8E8E8E]
 
-              ${
-                validationErrors.notes
-                  ? "border-red-500 focus:border-red-500"
-                  : "border-[#D9C8BE] focus:border-[#8B573D]"
+              ${validationErrors.notes
+                ? "border-red-500 focus:border-red-500"
+                : "border-[#D9C8BE] focus:border-[#8B573D]"
               }
             `}
           />
@@ -518,6 +636,107 @@ const ChiefComplaints = ({
               {validationErrors.notes}
             </p>
           )}
+
+        </div>
+        {/* ==========================================
+    ALLERGIES
+========================================== */}
+
+        <div className="mt-8">
+
+          {/* Header */}
+          <div className="flex items-center justify-between mb-5">
+
+            <h3 className="text-[20px] font-medium text-[#59352C]">
+              Allergies
+            </h3>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowAllergyInput(
+                  (prev) => !prev
+                );
+              }}
+              className="flex items-center gap-2 text-[20px] font-semibold text-[#59352C] hover:opacity-80 transition"
+            >
+              <span className="text-[30px] leading-none font-light">
+                +
+              </span>
+
+              Add
+            </button>
+
+          </div>
+
+
+          {/* Add Allergy Input */}
+          {showAllergyInput && (
+            <div className="flex items-center gap-3 mb-5">
+
+              <input
+                type="text"
+                value={allergyInput}
+                onChange={(e) =>
+                  setAllergyInput(
+                    e.target.value
+                  )
+                }
+                onKeyDown={
+                  handleAllergyKeyDown
+                }
+                placeholder="Enter allergy"
+                autoFocus
+                className="flex-1 h-[52px] px-4 rounded-[12px] border border-[#E5D4C3] bg-white text-[16px] text-[#59352C] outline-none focus:border-[#855137]"
+              />
+
+              <button
+                type="button"
+                onClick={
+                  handleAddAllergy
+                }
+                className="h-[52px] px-7 rounded-[12px] bg-[#855137] text-white font-medium hover:bg-[#75462F] transition"
+              >
+                Add
+              </button>
+
+            </div>
+          )}
+
+
+          {/* Allergy Chips */}
+          <div className="flex flex-wrap gap-4">
+
+            {allergies.map(
+              (allergy, index) => (
+                <div
+                  key={`${allergy}-${index}`}
+                  className="flex items-center gap-3 h-[52px] px-5 rounded-[16px] bg-[#FFF0E2] border border-[#F0D9C4] text-[#59352C]"
+                >
+
+                  <span className="text-[18px] font-medium">
+                    {allergy}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleRemoveAllergy(
+                        index
+                      )
+                    }
+                    className="flex items-center justify-center w-[24px] h-[24px] rounded-full border-2 border-[#59352C] text-[#59352C] hover:bg-[#59352C] hover:text-white transition"
+                  >
+                    <span className="text-[16px] leading-none">
+                      ×
+                    </span>
+                  </button>
+
+                </div>
+              )
+            )}
+
+          </div>
 
         </div>
 

@@ -690,7 +690,7 @@ const Prescription = ({
                     text-left
                     transition
                     last:border-b-0
-                    hover:bg-[#FFF8F4]
+                    hover:bg-[#FFF8F2]
                 "
                             >
                                 {/* Left */}
@@ -901,7 +901,7 @@ const Prescription = ({
 
                                             <button
                                                 onClick={() => setDosagePopup(index)}
-                                                className="mt-2 flex items-center gap-2 rounded-xl border border-[#E7DBD3] bg-[#FFF8F4] px-4 py-3 font-medium text-[#4D2E23]"
+                                                className="mt-2 flex items-center gap-2 rounded-xl border border-[#E7DBD3] bg-[#FFF8F2] px-4 py-3 font-medium text-[#4D2E23]"
                                             >
 
                                                 <p className="
@@ -949,7 +949,7 @@ const Prescription = ({
 
                                             <button
                                                 onClick={() => setDurationPopup(index)}
-                                                className="mt-2 flex items-center gap-2 rounded-xl border border-[#E7DBD3] bg-[#FFF8F4] px-4 py-3 font-medium text-[#4D2E23]"
+                                                className="mt-2 flex items-center gap-2 rounded-xl border border-[#E7DBD3] bg-[#FFF8F2] px-4 py-3 font-medium text-[#4D2E23]"
                                             >
 
                                                 {medicine.duration}
@@ -1619,7 +1619,7 @@ const Prescription = ({
 
                         <div
                             key={index}
-                            className="flex items-center gap-3 rounded-full border border-[#E7DBD3] bg-[#FFF8F4] px-5 py-3">
+                            className="flex items-center gap-3 rounded-full border border-[#E7DBD3] bg-[#FFF8F2] px-5 py-3">
 
                             <span className="font-medium">
 
