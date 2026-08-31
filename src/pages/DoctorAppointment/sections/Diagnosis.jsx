@@ -523,26 +523,26 @@ const Diagnosis = ({
         {/* ================================================= */}
 
         <div className="flex justify-between">
-           <div >
-          <h2 className="text-[24px] font-bold text-[#4D2E23]">
-            Diagnosis
-            <span className="ml-1 text-red-500">
-              *
-            </span>
-          </h2>
+          <div >
+            <h2 className="text-[24px] font-bold text-[#4D2E23]">
+              Diagnosis
+              <span className="ml-1 text-red-500">
+                *
+              </span>
+            </h2>
 
-          <p className="mt-1 text-[18px] text-[#6F625A]">
-            Add and manage patient diagnosis
-          </p>
+            <p className="mt-1 text-[18px] text-[#6F625A]">
+              Add and manage patient diagnosis
+            </p>
           </div>
 
-           {consultationTimerStarted && (
-    <ConsultationTimer
-      timeLeft={
-        consultationTimeLeft
-      }
-    />
-  )}
+          {consultationTimerStarted && (
+            <ConsultationTimer
+              timeLeft={
+                consultationTimeLeft
+              }
+            />
+          )}
         </div>
 
         {/* ================================================= */}
@@ -577,10 +577,9 @@ const Diagnosis = ({
               outline-none
               placeholder:text-[#8B7A70]
 
-              ${
-                validationErrors.notes
-                  ? "border-red-500 focus:border-red-500"
-                  : "border-[#DDD0C8] focus:border-[#8B573D]"
+              ${validationErrors.notes
+                ? "border-red-500 focus:border-red-500"
+                : "border-[#DDD0C8] focus:border-[#8B573D]"
               }
             `}
           />
@@ -904,7 +903,7 @@ const Diagnosis = ({
           <div className="grid grid-cols-3 gap-8">
 
             {enrichedAssociateDoctors.length >
-            0 ? (
+              0 ? (
               enrichedAssociateDoctors.map(
                 (doctor) => (
                   <div
@@ -1368,11 +1367,10 @@ const Diagnosis = ({
                         transition-all
                         duration-200
 
-                        ${
-                          selectedDoctor?.doctor_id ===
+                        ${selectedDoctor?.doctor_id ===
                           doctor.doctor_id
-                            ? "border-[#8B573D] bg-[#FFF5EF] shadow-md"
-                            : "border-[#E8DDD5] hover:border-[#8B573D] hover:bg-[#FFF9F5]"
+                          ? "border-[#8B573D] bg-[#FFF5EF] shadow-md"
+                          : "border-[#E8DDD5] hover:border-[#8B573D] hover:bg-[#FFF9F5]"
                         }
                       `}
                     >

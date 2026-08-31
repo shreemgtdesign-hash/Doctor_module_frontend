@@ -360,12 +360,12 @@ const Therapy = ({
               notes:
                 item.notes || "",
 
-               no_of_days:
-    Number(
-      item.no_of_days ||
-      item.days_count ||
-      0
-    ),
+              no_of_days:
+                Number(
+                  item.no_of_days ||
+                  item.days_count ||
+                  0
+                ),
 
             }
 
@@ -1157,34 +1157,34 @@ const Therapy = ({
 
 
                         {/* NO OF DAYS */}
-{/* NO OF DAYS */}
-<div className="flex items-center gap-2">
+                        {/* NO OF DAYS */}
+                        <div className="flex items-center gap-2">
 
-  <HiOutlineCalendarDays
-    className="text-[#A16D18]"
-    size={22}
-  />
+                          <HiOutlineCalendarDays
+                            className="text-[#A16D18]"
+                            size={22}
+                          />
 
-  {editing ? (
+                          {editing ? (
 
-    <input
-      type="number"
-      min="1"
-      value={
-        item.no_of_days
-          ? Number(
-              String(item.no_of_days).replace(/\D/g, "")
-            )
-          : item.days_count || ""
-      }
-      onChange={(e) =>
-        updateTherapy(
-          index,
-          "no_of_days",
-          e.target.value
-        )
-      }
-      className="
+                            <input
+                              type="number"
+                              min="1"
+                              value={
+                                item.no_of_days
+                                  ? Number(
+                                    String(item.no_of_days).replace(/\D/g, "")
+                                  )
+                                  : item.days_count || ""
+                              }
+                              onChange={(e) =>
+                                updateTherapy(
+                                  index,
+                                  "no_of_days",
+                                  e.target.value
+                                )
+                              }
+                              className="
         w-[90px]
         rounded-lg
         border
@@ -1196,27 +1196,27 @@ const Therapy = ({
         outline-none
         focus:border-[#A16D18]
       "
-    />
+                            />
 
-  ) : (
+                          ) : (
 
-    <span className="text-[15px] font-medium">
-      {item.no_of_days
-        ? item.no_of_days
-        : item.days_count
-        ? `${item.days_count} Days`
-        : "--"}
-    </span>
+                            <span className="text-[15px] font-medium">
+                              {item.no_of_days
+                                ? item.no_of_days
+                                : item.days_count
+                                  ? `${item.days_count} Days`
+                                  : "--"}
+                            </span>
 
-  )}
+                          )}
 
-  {editing && (
-    <span className="text-[15px] font-medium text-[#59352C]">
-      Days
-    </span>
-  )}
+                          {editing && (
+                            <span className="text-[15px] font-medium text-[#59352C]">
+                              Days
+                            </span>
+                          )}
 
-</div>
+                        </div>
 
                       </div>
 

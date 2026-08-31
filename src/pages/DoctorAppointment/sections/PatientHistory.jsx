@@ -157,7 +157,7 @@ const PatientHistory = ({
           >
             View consultation history of patient
           </p>
-         
+
 
         </div>
 
@@ -251,33 +251,33 @@ const PatientHistory = ({
       {/* ================================= */}
 
       <div className="mb-6 flex justify-between">
-<div>
-        <h2
-          className="
+        <div>
+          <h2
+            className="
             text-2xl
             font-bold
             text-[#4D2E23]
           "
-        >
-          Patient History
-        </h2>
+          >
+            Patient History
+          </h2>
 
-        <p
-          className="
+          <p
+            className="
             mt-1
             text-[#8B7A70]
           "
-        >
-          View consultation history of patient
-        </p>
+          >
+            View consultation history of patient
+          </p>
         </div>
-  {consultationTimerStarted && (
-              <ConsultationTimer
-                timeLeft={
-                  consultationTimeLeft
-                }
-              />
-            )}
+        {consultationTimerStarted && (
+          <ConsultationTimer
+            timeLeft={
+              consultationTimeLeft
+            }
+          />
+        )}
       </div>
 
 
@@ -382,12 +382,11 @@ const PatientHistory = ({
                       py-1
                       text-[11px]
                       font-medium
-                      ${
-                        visit.type
-                          ?.toLowerCase()
-                          .includes("video")
-                          ? "bg-[#EAF9EF] text-[#317A4D]"
-                          : "bg-[#FFF4E8] text-[#6A4939]"
+                      ${visit.type
+                        ?.toLowerCase()
+                        .includes("video")
+                        ? "bg-[#EAF9EF] text-[#317A4D]"
+                        : "bg-[#FFF4E8] text-[#6A4939]"
                       }
                     `}
                   >

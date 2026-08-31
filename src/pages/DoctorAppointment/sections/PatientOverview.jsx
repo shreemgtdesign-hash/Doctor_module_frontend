@@ -4,8 +4,8 @@ import VitalCard from "../components/VitalCard";
 import ConsultationGrid from "../components/ConsultationGrid";
 import FinishButton from "../components/FinishButton";
 
-const PatientOverview = ({ activeSection,setActiveSection }) => {
-  const { patientWellness,selectedPatient, } = useSelector(
+const PatientOverview = ({ activeSection, setActiveSection }) => {
+  const { patientWellness, selectedPatient, } = useSelector(
     (state) => state.consultation
   );
 
@@ -32,7 +32,7 @@ const PatientOverview = ({ activeSection,setActiveSection }) => {
           }
         />
 
-        
+
         <VitalCard
           title="Spo-2"
           value={patientWellness?.pulse || "--"}
@@ -45,19 +45,19 @@ const PatientOverview = ({ activeSection,setActiveSection }) => {
           title="Toxicity"
           value={patientWellness?.toxicity || "--"}
         />
-        
+
       </div>
 
       {/* Consultation */}
 
       <ConsultationGrid
-         activeSection={activeSection}
-                setActiveSection={setActiveSection}
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
       />
 
       <FinishButton
-  appointmentId={selectedPatient?.id}
-/>
+        appointmentId={selectedPatient?.id}
+      />
     </>
   );
 };

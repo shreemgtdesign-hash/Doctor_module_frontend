@@ -10,8 +10,8 @@ import {
 import ConsultationTimer from "../components/ConsultationTimer";
 
 const Reports = (
-consultationTimerStarted,
-consultationTimeLeft
+  consultationTimerStarted,
+  consultationTimeLeft
 ) => {
   const [reports, setReports] = useState([
     {
@@ -40,21 +40,21 @@ consultationTimeLeft
 
       <div className="flex justify-between" >
         <div >
-        <h2 className="text-2xl font-bold text-[#4D2E23]">
-          Reports
-        </h2>
+          <h2 className="text-2xl font-bold text-[#4D2E23]">
+            Reports
+          </h2>
 
-        <p className="mt-1 text-[#8B7A70]">
-          Upload and manage patient reports.
-        </p>
+          <p className="mt-1 text-[#8B7A70]">
+            Upload and manage patient reports.
+          </p>
         </div>
-         {consultationTimerStarted && (
-            <ConsultationTimer
-              timeLeft={
-                consultationTimeLeft
-              }
-            />
-          )}
+        {consultationTimerStarted && (
+          <ConsultationTimer
+            timeLeft={
+              consultationTimeLeft
+            }
+          />
+        )}
       </div>
 
       {/* Upload */}

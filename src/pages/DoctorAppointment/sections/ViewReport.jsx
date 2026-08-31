@@ -277,13 +277,13 @@ const ViewReport = ({
           >
 
             {/* DOCTOR */}
- {consultationTimerStarted && (
-    <ConsultationTimer
-      timeLeft={
-        consultationTimeLeft
-      }
-    />
-  )}
+            {consultationTimerStarted && (
+              <ConsultationTimer
+                timeLeft={
+                  consultationTimeLeft
+                }
+              />
+            )}
             <div
               className="
                 flex

@@ -17,29 +17,29 @@ import ConsultationTimer from "../components/ConsultationTimer";
 
 const symptoms = [
   "back ache",
-        "muscle pain",
-        "weakness",
-        "stiffness",
-        "joint pain",
-        "fever",
-        "headache",
-        "cough",
-        "fatigue",
-        "digestive issue",
-        "insomnia",
-        "skin rash",
-        "neck pain",
-        "knee pain",
-        "lower back stiffness",
-        "Lower back ache and joint pain since 5 days",
-        "Severe headache and nerve pain",
-        "Lower back ache and joint pain since 3 days",
-        "Lower back ache and joint pain since 1 days",
-        "Chest discomfort and high BP",
-        "Persistent cough and cold",
-        "Child fever and runny nose",
-        "Itching and skin redness",
-        "Stomach acid reflux and indigestion"
+  "muscle pain",
+  "weakness",
+  "stiffness",
+  "joint pain",
+  "fever",
+  "headache",
+  "cough",
+  "fatigue",
+  "digestive issue",
+  "insomnia",
+  "skin rash",
+  "neck pain",
+  "knee pain",
+  "lower back stiffness",
+  "Lower back ache and joint pain since 5 days",
+  "Severe headache and nerve pain",
+  "Lower back ache and joint pain since 3 days",
+  "Lower back ache and joint pain since 1 days",
+  "Chest discomfort and high BP",
+  "Persistent cough and cold",
+  "Child fever and runny nose",
+  "Itching and skin redness",
+  "Stomach acid reflux and indigestion"
 ];
 
 const ChiefComplaints = ({
@@ -47,7 +47,7 @@ const ChiefComplaints = ({
   setActiveSection,
   consultationTimerStarted,
   consultationTimeLeft
-  
+
 }) => {
   const dispatch = useDispatch();
 
@@ -183,38 +183,38 @@ const ChiefComplaints = ({
   const hasUnsavedChanges = () => {
 
     const currentSymptoms = [
-        ...selectedSymptoms,
+      ...selectedSymptoms,
     ].sort();
 
     const savedSymptoms = [
-        ...initialSymptoms,
+      ...initialSymptoms,
     ].sort();
 
     const symptomsChanged =
-        JSON.stringify(currentSymptoms) !==
-        JSON.stringify(savedSymptoms);
+      JSON.stringify(currentSymptoms) !==
+      JSON.stringify(savedSymptoms);
 
     const notesChanged =
-        notes !== initialNotes;
+      notes !== initialNotes;
 
     const currentAllergies = [
-        ...allergies,
+      ...allergies,
     ].sort();
 
     const savedAllergies = [
-        ...initialAllergies,
+      ...initialAllergies,
     ].sort();
 
     const allergiesChanged =
-        JSON.stringify(currentAllergies) !==
-        JSON.stringify(savedAllergies);
+      JSON.stringify(currentAllergies) !==
+      JSON.stringify(savedAllergies);
 
     return (
-        symptomsChanged ||
-        notesChanged ||
-        allergiesChanged
+      symptomsChanged ||
+      notesChanged ||
+      allergiesChanged
     );
-};
+  };
 
   // =========================================================
   // Validation
@@ -357,7 +357,7 @@ const ChiefComplaints = ({
 
     // Restore original complaints
     setSelectedSymptoms([
-        ...initialSymptoms,
+      ...initialSymptoms,
     ]);
 
     // Restore original notes
@@ -365,7 +365,7 @@ const ChiefComplaints = ({
 
     // Restore original allergies
     setAllergies([
-        ...initialAllergies,
+      ...initialAllergies,
     ]);
 
     // Clear allergy input
@@ -376,7 +376,7 @@ const ChiefComplaints = ({
     setShowUnsavedModal(false);
 
     setActiveSection("overview");
-};
+  };
 
   // =========================================================
   // SAVE FROM POPUP AND GO BACK
@@ -428,25 +428,25 @@ const ChiefComplaints = ({
 
         <div className="flex justify-between">
           <div>
-          <h2 className="text-[24px] font-bold text-[#4D2E23]">
-            Chief Complaints
-            <span className="ml-1 text-red-500">
-              *
-            </span>
-          </h2>
+            <h2 className="text-[24px] font-bold text-[#4D2E23]">
+              Chief Complaints
+              <span className="ml-1 text-red-500">
+                *
+              </span>
+            </h2>
 
-          <p className="mt-1 text-[18px] text-[#6F625A]">
-            Add and manage patient chief complaints
-          </p>
+            <p className="mt-1 text-[18px] text-[#6F625A]">
+              Add and manage patient chief complaints
+            </p>
           </div>
 
-           {consultationTimerStarted && (
-    <ConsultationTimer
-      timeLeft={
-        consultationTimeLeft
-      }
-    />
-  )}
+          {consultationTimerStarted && (
+            <ConsultationTimer
+              timeLeft={
+                consultationTimeLeft
+              }
+            />
+          )}
         </div>
 
         {/* ================================================= */}
