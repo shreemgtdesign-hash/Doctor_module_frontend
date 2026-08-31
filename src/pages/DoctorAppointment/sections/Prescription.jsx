@@ -37,7 +37,6 @@ const durationOptions = [
 
 const Prescription = ({
     consultationId,
-    patientId,
     onContinue,
     consultationTimerStarted,
     consultationTimeLeft,
@@ -51,7 +50,6 @@ const Prescription = ({
         prescription,
         prescriptionSearch,
         chiefComplaints,
-        allergies,
         loading,
     } = useSelector(
         (state) => state.consultation
@@ -184,6 +182,147 @@ const Prescription = ({
         dispatch
     ]);
     useEffect(() => {
+    if (!prescription) return;
+
+    const items = Array.isArray(prescription)
+        ? prescription
+        : Array.isArray(prescription?.data)
+            ? prescription.data
+            : Array.isArray(prescription?.items)
+                ? prescription.items
+                : [];
+
+    if (items.length === 0) {
+        setEditableMedicines([]);
+        setBackupMedicines([]);
+        setHasExistingPrescription(false);
+        return;
+    }
+
+    const cloned = items.map((item) => {
+        const dosageParts = parseDosage(item.dosage);
+
+        const morning =
+            Number(
+                item.morning ??
+                dosageParts.morning
+            ) || 0;
+
+        const afternoon =
+            Number(
+                item.afternoon ??
+                dosageParts.afternoon
+            ) || 0;
+
+        const evening =
+            Number(
+                item.evening ??
+                dosageParts.evening
+            ) || 0;
+
+        const night =
+            Number(
+                item.night ??
+                dosageParts.night
+            ) || 0;
+
+        return {
+            ...item,
+
+            id: item.id,
+
+            product_id:
+                item.product_id,
+
+            medicine_name:
+                item.medicine_name,
+
+            category:
+                item.category,
+
+            price:
+                Number(item.price) || 0,
+
+            image_url:
+                item.image_url,
+
+            morning,
+            afternoon,
+            evening,
+            night,
+
+            dosage:
+                `${morning} - ${afternoon} - ${evening} - ${night}`,
+
+            food:
+                item.food || "Before Food",
+
+            duration:
+                item.duration || "30 Days",
+
+            quantity:
+                Number(item.quantity) || 1,
+
+            frequency:
+                item.frequency ?? null,
+
+            timeOfDay:
+                item.time_of_day || [],
+        };
+    });
+
+    setEditableMedicines(
+        JSON.parse(JSON.stringify(cloned))
+    );
+
+    setBackupMedicines(
+        JSON.parse(JSON.stringify(cloned))
+    );
+
+    setDeletedMedicines([]);
+
+    setHasExistingPrescription(
+        cloned.length > 0
+    );
+
+    setSpecialInstructions(
+        prescription?.special_instructions ||
+        prescription?.specialInstructions ||
+        items[0]?.special_instructions ||
+        ""
+    );
+
+    setReviewDate(
+        prescription?.review_date ||
+        prescription?.reviewDate ||
+        items[0]?.review_date ||
+        ""
+    );
+
+    // Prescription API allergies
+    const prescriptionAllergies =
+        items.find(
+            (item) =>
+                Array.isArray(item.patient_allergies) &&
+                item.patient_allergies.length > 0
+        )?.patient_allergies || [];
+
+    // Only use prescription allergies if
+    // Chief Complaints allergies are not available.
+    if (
+        !chiefComplaints?.allergies?.length &&
+        !chiefComplaints?.allergies_conditions?.length
+    ) {
+        setPatientAllergies(
+            prescriptionAllergies
+        );
+    }
+
+}, [
+    prescription,
+    chiefComplaints
+]);
+    useEffect(() => {
 
         const savedChiefComplaintAllergies =
             chiefComplaints?.allergies ??
@@ -315,26 +454,26 @@ const Prescription = ({
 
     };
 
-    const removeMedicine = (index) => {
+    // const removeMedicine = (index) => {
 
-        const medicine =
-            editableMedicines[index];
+    //     const medicine =
+    //         editableMedicines[index];
 
-        // Track removed medicines that already exist in DB
-        if (medicine.id) {
+    //     // Track removed medicines that already exist in DB
+    //     if (medicine.id) {
 
-            setDeletedMedicines(prev => [
-                ...prev,
-                medicine,
-            ]);
+    //         setDeletedMedicines(prev => [
+    //             ...prev,
+    //             medicine,
+    //         ]);
 
-        }
+    //     }
 
-        setEditableMedicines(prev =>
-            prev.filter((_, i) => i !== index)
-        );
+    //     setEditableMedicines(prev =>
+    //         prev.filter((_, i) => i !== index)
+    //     );
 
-    };
+    // };
 
     const updateMedicine = (
         index,
@@ -355,36 +494,36 @@ const Prescription = ({
 
     };
 
-    const toggleTime = (
-        index,
-        value
-    ) => {
+    // const toggleTime = (
+    //     index,
+    //     value
+    // ) => {
 
-        const medicine =
-            editableMedicines[index];
+    //     const medicine =
+    //         editableMedicines[index];
 
-        let times =
-            medicine.timeOfDay || [];
+    //     let times =
+    //         medicine.timeOfDay || [];
 
-        if (times.includes(value)) {
+    //     if (times.includes(value)) {
 
-            times = times.filter(
-                (x) => x !== value
-            );
+    //         times = times.filter(
+    //             (x) => x !== value
+    //         );
 
-        } else {
+    //     } else {
 
-            times = [...times, value];
+    //         times = [...times, value];
 
-        }
+    //     }
 
-        updateMedicine(
-            index,
-            "timeOfDay",
-            times
-        );
+    //     updateMedicine(
+    //         index,
+    //         "timeOfDay",
+    //         times
+    //     );
 
-    };
+    // };
     console.log("consultationId prop:", consultationId);
     const handleSaveAndContinue = async () => {
         try {
