@@ -23,6 +23,7 @@ import Packages from "./pages/FrontOfficeAppointment/components/Packages";
 import ReferralList from "./pages/FrontOfficeAppointment/components/ReferralList";
 import MedCampCalender from "./pages/FrontOfficeAppointment/components/Med-Camp-Calender";
 import MedicalCampDetails from "./pages/FrontOfficeAppointment/components/MedicalCampDetails";
+import MedicineDispensedTable from "./pages/Pharmacist/PharmacistDashboard/components/MedicineDespensedTable";
 
 function App() {
     return (
@@ -68,6 +69,10 @@ function App() {
             <Route
                 path="/pharmacist/appointments"
                 element={<PharmacistAppointments />}
+            />
+            <Route
+                path="/pharmacist/medicine-dispensed"
+                element={<MedicineDispensedTable />}
             />
 
 

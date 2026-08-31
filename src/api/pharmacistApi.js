@@ -11,7 +11,8 @@ export const pharmacistLogin = (payload) =>
 // ==========================================
 // Pharmacist Dashboard
 // ==========================================
-
+export const getMedicinesDispensedTable = () =>
+    api.get("/pharmacist/medicines-dispensed");
 // Medicines Dispensed
 export const getMedicinesDispensed = () =>
     api.get("/pharmacist/dashboard/medicines-dispensed");

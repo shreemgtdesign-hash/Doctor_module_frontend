@@ -5,10 +5,11 @@ import DashboardCard
 
 import DashboardDropdown
     from "../../../../components/Dashboard/DashboardDropdown";
+import { useNavigate } from "react-router-dom";
 
 
 const MedicinesDispensed = () => {
-
+    const navigate = useNavigate()
     const medicinesDispensed =
         useSelector(
             (state) =>
@@ -22,7 +23,8 @@ const MedicinesDispensed = () => {
 
     return (
 
-        <DashboardCard className="p-5">
+        <DashboardCard className="p-5"
+          onClick={()=> navigate('/pharmacist/medicine-dispensed')}>
 
             {/* Header */}
 

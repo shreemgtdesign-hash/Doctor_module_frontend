@@ -10,6 +10,7 @@ import {
     loadPrescriptionItems,
     dispenseSingleItem,
     dispenseBulk,
+    loadMedicinesDispensedTable,
 } from "./pharmacistThunk";
 
 
@@ -26,6 +27,11 @@ const initialState = {
         total: 0,
         breakdown: [],
         period: "",
+    },
+    medicinesDispensedTable: {
+        data: [],
+        count: 0,
+        total_records: 0,
     },
 
     ailments: {
@@ -385,7 +391,49 @@ const pharmacistSlice = createSlice({
         // =====================================
         // BULK DISPENSE
         // =====================================
+        // =====================================
+        // MEDICINES DISPENSED TABLE
+        // =====================================
 
+        builder
+
+            .addCase(
+                loadMedicinesDispensedTable.pending,
+                (state) => {
+
+                    state.loading = true;
+                    state.error = null;
+
+                }
+            )
+
+            .addCase(
+                loadMedicinesDispensedTable.fulfilled,
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.medicinesDispensedTable =
+                        action.payload || {
+                            data: [],
+                            count: 0,
+                            total_records: 0,
+                        };
+
+                }
+            )
+
+            .addCase(
+                loadMedicinesDispensedTable.rejected,
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.error =
+                        action.payload;
+
+                }
+            );
         builder
 
             .addCase(

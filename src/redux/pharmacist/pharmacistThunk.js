@@ -10,6 +10,7 @@ import {
     getPrescriptionItems,
     dispensePrescriptionItem,
     dispensePrescriptionBulk,
+    getMedicinesDispensedTable,
 } from "../../api/pharmacistApi";
 
 
@@ -267,6 +268,40 @@ export const dispenseBulk =
                 return rejectWithValue(
                     error.response?.data ||
                     "Failed to dispense medicines"
+                );
+
+            }
+
+        }
+    );
+
+export const loadMedicinesDispensedTable =
+    createAsyncThunk(
+        "pharmacist/loadMedicinesDispensedTable",
+
+        async (_, { rejectWithValue }) => {
+
+            try {
+
+                const response =
+                    await getMedicinesDispensedTable();
+
+                return {
+                    data:
+                        response.data?.data || [],
+
+                    count:
+                        response.data?.count || 0,
+
+                    total_records:
+                        response.data?.total_records || 0,
+                };
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    "Failed to load medicines dispensed"
                 );
 
             }
