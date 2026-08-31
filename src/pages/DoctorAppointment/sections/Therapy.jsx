@@ -24,12 +24,15 @@ import {
   updateTherapyThunk,
   deleteTherapyThunk,
 } from "../../../redux/consultation/consultationThunk";
+import ConsultationTimer from "../components/ConsultationTimer";
 
 
 const Therapy = ({
   appointmentId,
   onBack,
   onContinue,
+  consultationTimeLeft,
+  consultationTimerStarted
 }) => {
 
   const dispatch = useDispatch();
@@ -39,7 +42,7 @@ const Therapy = ({
   // ==========================================
 
   const [search, setSearch] = useState("");
-
+  const [noOfDays, setNoOfDays] = useState("");
   const [showDropdown, setShowDropdown] =
     useState(false);
 
@@ -215,6 +218,8 @@ const Therapy = ({
           ),
 
         notes: "",
+        no_of_days:
+          Number(noOfDays),
 
       };
 
@@ -355,7 +360,16 @@ const Therapy = ({
               notes:
                 item.notes || "",
 
-            },
+               no_of_days:
+    Number(
+      item.no_of_days ||
+      item.days_count ||
+      0
+    ),
+
+            }
+
+
 
           })
         ).unwrap();
@@ -476,24 +490,33 @@ const Therapy = ({
       {/* HEADER */}
       {/* ===================================== */}
 
-      <div>
-
-        <h2 className="
+      <div className="flex justify-between">
+        <div>
+          <h2 className="
           text-[24px]
           font-bold
           text-[#4D2E23]
         ">
-          Therapy
-        </h2>
+            Therapy
+          </h2>
 
 
-        <p className="
+          <p className="
           mt-1
           text-[15px]
           text-[#5D514A]
         ">
-          Add and manage Therapies
-        </p>
+            Add and manage Therapies
+          </p>
+        </div>
+
+        {consultationTimerStarted && (
+          <ConsultationTimer
+            timeLeft={
+              consultationTimeLeft
+            }
+          />
+        )}
 
       </div>
 
@@ -1009,33 +1032,32 @@ const Therapy = ({
 
                       {/* INFO */}
 
+                      {/* INFO */}
                       <div className="
-                        mt-6
-                        flex
-                        items-center
-                        gap-10
-                      ">
-
+                       mt-6
+                       flex
+                       items-center
+                       gap-10
+                     ">
 
                         {/* DURATION */}
-
                         <div className="
-                          flex
-                          items-center
-                          gap-2
-                        ">
+                         flex
+                         items-center
+                         gap-2
+                       ">
 
                           <HiOutlineClock
                             className="
-                              text-[#A16D18]
-                            "
+                             text-[#A16D18]
+                           "
                             size={22}
                           />
 
                           <span className="
-                            text-[15px]
-                            font-medium
-                          ">
+                           text-[15px]
+                           font-medium
+                         ">
                             {
                               item.duration_minutes ||
                               45
@@ -1047,38 +1069,32 @@ const Therapy = ({
 
 
                         {/* DATE / TIME */}
-
                         <div className="
-                          flex
-                          items-center
-                          gap-2
-                        ">
+                         flex
+                         items-center
+                         gap-2
+                       ">
 
                           <HiOutlineCalendarDays
                             className="
-                              text-[#A16D18]
-                            "
+                             text-[#A16D18]
+                           "
                             size={22}
                           />
-
 
                           {editing ? (
 
                             <div className="
-                              flex
-                              gap-2
-                            ">
+                             flex
+                             gap-2
+                           ">
 
                               <input
                                 type="date"
-
                                 value={
                                   item.booking_date
-                                    ?.split(
-                                      "T"
-                                    )[0] || ""
+                                    ?.split("T")[0] || ""
                                 }
-
                                 onChange={(e) =>
                                   updateTherapy(
                                     index,
@@ -1086,24 +1102,19 @@ const Therapy = ({
                                     e.target.value
                                   )
                                 }
-
                                 className="
-                                  rounded-lg
-                                  border
-                                  border-[#E7DBD3]
-                                  p-2
-                                "
+                                 rounded-lg
+                                 border
+                                 border-[#E7DBD3]
+                                 p-2
+                               "
                               />
-
 
                               <input
                                 type="time"
-
                                 value={
-                                  item.slot_time ||
-                                  ""
+                                  item.slot_time || ""
                                 }
-
                                 onChange={(e) =>
                                   updateTherapy(
                                     index,
@@ -1111,13 +1122,12 @@ const Therapy = ({
                                     e.target.value
                                   )
                                 }
-
                                 className="
-                                  rounded-lg
-                                  border
-                                  border-[#E7DBD3]
-                                  p-2
-                                "
+                                 rounded-lg
+                                 border
+                                 border-[#E7DBD3]
+                                                      p-2
+                               "
                               />
 
                             </div>
@@ -1125,9 +1135,9 @@ const Therapy = ({
                           ) : (
 
                             <span className="
-                              text-[15px]
-                              font-medium
-                            ">
+                             text-[15px]
+                             font-medium
+                           ">
                               {
                                 formatDate(
                                   item.booking_date
@@ -1145,6 +1155,69 @@ const Therapy = ({
 
                         </div>
 
+
+                        {/* NO OF DAYS */}
+{/* NO OF DAYS */}
+<div className="flex items-center gap-2">
+
+  <HiOutlineCalendarDays
+    className="text-[#A16D18]"
+    size={22}
+  />
+
+  {editing ? (
+
+    <input
+      type="number"
+      min="1"
+      value={
+        item.no_of_days
+          ? Number(
+              String(item.no_of_days).replace(/\D/g, "")
+            )
+          : item.days_count || ""
+      }
+      onChange={(e) =>
+        updateTherapy(
+          index,
+          "no_of_days",
+          e.target.value
+        )
+      }
+      className="
+        w-[90px]
+        rounded-lg
+        border
+        border-[#E7DBD3]
+        px-3
+        py-2
+        text-[15px]
+        font-medium
+        outline-none
+        focus:border-[#A16D18]
+      "
+    />
+
+  ) : (
+
+    <span className="text-[15px] font-medium">
+      {item.no_of_days
+        ? item.no_of_days
+        : item.days_count
+        ? `${item.days_count} Days`
+        : "--"}
+    </span>
+
+  )}
+
+  {editing && (
+    <span className="text-[15px] font-medium text-[#59352C]">
+      Days
+    </span>
+  )}
+
+</div>
+
                       </div>
 
                     </div>
@@ -1156,26 +1229,17 @@ const Therapy = ({
 
                   {/* PRICE + DELETE */}
 
-<div className="flex flex-col items-end gap-4">
+                  <div className="flex flex-col items-end gap-4">
 
-  <h2 className="
-    text-[30px]
-    font-bold
-    text-[#4D2E23]
-  ">
-    ₹
-    {Number(
-      item.amount || 0
-    ).toLocaleString()}
-  </h2>
 
-  {editing && (
-    <button
-      type="button"
-      onClick={() =>
-        deleteTherapy(item.id)
-      }
-      className="
+
+                    {editing && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          deleteTherapy(item.id)
+                        }
+                        className="
         flex
         items-center
         gap-2
@@ -1190,12 +1254,12 @@ const Therapy = ({
         transition
         hover:bg-[#FDECEC]
       "
-    >
-      Delete
-    </button>
-  )}
+                      >
+                        Delete
+                      </button>
+                    )}
 
-</div>
+                  </div>
 
                 </div>
 

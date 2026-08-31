@@ -15,6 +15,7 @@ import {
 import {
   loadPatientHistory,
 } from "../../../redux/consultation/consultationThunk";
+import ConsultationTimer from "../components/ConsultationTimer";
 
 
 const PatientHistory = ({
@@ -22,6 +23,8 @@ const PatientHistory = ({
   appointment,
   onBack,
   onViewReport,
+  consultationTimerStarted,
+  consultationTimeLeft
 }) => {
 
   const dispatch = useDispatch();
@@ -134,7 +137,7 @@ const PatientHistory = ({
     return (
       <div className="mt-6">
 
-        <div className="mb-6">
+        <div className="mb-6 ">
 
           <h2
             className="
@@ -154,6 +157,7 @@ const PatientHistory = ({
           >
             View consultation history of patient
           </p>
+         
 
         </div>
 
@@ -246,8 +250,8 @@ const PatientHistory = ({
       {/* HEADER */}
       {/* ================================= */}
 
-      <div className="mb-6">
-
+      <div className="mb-6 flex justify-between">
+<div>
         <h2
           className="
             text-2xl
@@ -266,7 +270,14 @@ const PatientHistory = ({
         >
           View consultation history of patient
         </p>
-
+        </div>
+  {consultationTimerStarted && (
+              <ConsultationTimer
+                timeLeft={
+                  consultationTimeLeft
+                }
+              />
+            )}
       </div>
 
 

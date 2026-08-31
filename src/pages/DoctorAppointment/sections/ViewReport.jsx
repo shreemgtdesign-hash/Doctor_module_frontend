@@ -16,11 +16,14 @@ import {
 import {
   loadPatientConsultationReport,
 } from "../../../redux/consultation/consultationThunk";
+import ConsultationTimer from "../components/ConsultationTimer";
 
 
 const ViewReport = ({
   consultationId,
   onBack,
+  consultationTimeLeft,
+  consultationTimerStarted
 }) => {
 
   const dispatch = useDispatch();
@@ -274,7 +277,13 @@ const ViewReport = ({
           >
 
             {/* DOCTOR */}
-
+ {consultationTimerStarted && (
+    <ConsultationTimer
+      timeLeft={
+        consultationTimeLeft
+      }
+    />
+  )}
             <div
               className="
                 flex

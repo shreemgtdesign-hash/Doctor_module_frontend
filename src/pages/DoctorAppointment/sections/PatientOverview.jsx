@@ -32,30 +32,18 @@ const PatientOverview = ({ activeSection,setActiveSection }) => {
           }
         />
 
-        <VitalCard
-          title="Sleep"
-          value={
-            patientWellness?.sleep
-              ? `${patientWellness.sleep} ${patientWellness.sleep_unit ?? ""}`
-              : "--"
-          }
-        />
-
-        <VitalCard
-          title="Stress"
-          value={patientWellness?.stress || "--"}
-        />
+        
         <VitalCard
           title="Spo-2"
+          value={patientWellness?.pulse || "--"}
+        />
+        <VitalCard
+          title="Temp"
           value={patientWellness?.stress || "--"}
         />
         <VitalCard
-          title="Temperature"
-          value={patientWellness?.stress || "--"}
-        />
-        <VitalCard
-          title="Pulse"
-          value={patientWellness?.stress || "--"}
+          title="Toxicity"
+          value={patientWellness?.toxicity || "--"}
         />
         
       </div>

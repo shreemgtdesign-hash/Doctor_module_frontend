@@ -17,11 +17,14 @@ import {
 } from "../../../redux/consultation/consultationThunk";
 
 import { searchDiagnosisCategoriesThunk } from "../../../redux/appointment/appointmentThunk";
+import ConsultationTimer from "../components/ConsultationTimer";
 
 const Diagnosis = ({
   appointmentId,
   onContinue,
   onBack,
+  consultationTimerStarted,
+  consultationTimeLeft
 }) => {
   const dispatch = useDispatch();
 
@@ -34,8 +37,21 @@ const Diagnosis = ({
   const [notes, setNotes] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // =========================================================
+  // DIFFERENTIAL DIAGNOSIS
+  // =========================================================
+
+  const [differentialDiagnosis, setDifferentialDiagnosis] =
+    useState("");
+
+  const [initialDifferentialDiagnosis, setInitialDifferentialDiagnosis] =
+    useState("");
+
+  // =========================================================
   // Original values loaded from backend.
   // Used to detect unsaved changes.
+  // =========================================================
+
   const [initialDiagnosis, setInitialDiagnosis] =
     useState([]);
 
@@ -50,10 +66,12 @@ const Diagnosis = ({
     useState(false);
 
   const [isSaving, setIsSaving] = useState(false);
+
   const [validationErrors, setValidationErrors] = useState({
     diagnosis: "",
     notes: "",
   });
+
   // =========================================================
   // Associate doctor state
   // =========================================================
@@ -91,8 +109,16 @@ const Diagnosis = ({
     setSearch("");
     setSelectedDiagnosis([]);
     setNotes("");
+
+    // Differential Diagnosis reset
+    setDifferentialDiagnosis("");
+
     setInitialDiagnosis([]);
     setInitialNotes("");
+
+    // Differential Diagnosis original value reset
+    setInitialDifferentialDiagnosis("");
+
     setShowDropdown(false);
 
     dispatch(searchDiagnosisCategoriesThunk());
@@ -115,12 +141,29 @@ const Diagnosis = ({
     const diagnosisNotes =
       diagnosis.diagnosis || "";
 
+    // =======================================================
+    // DIFFERENTIAL DIAGNOSIS FROM BACKEND
+    // =======================================================
+
+    const differentialDiagnosisNotes =
+      diagnosis.differential_diagnosis || "";
+
     setSelectedDiagnosis(diagnosisCategory);
+
     setNotes(diagnosisNotes);
+
+    setDifferentialDiagnosis(
+      differentialDiagnosisNotes
+    );
 
     // Store original backend values
     setInitialDiagnosis(diagnosisCategory);
+
     setInitialNotes(diagnosisNotes);
+
+    setInitialDifferentialDiagnosis(
+      differentialDiagnosisNotes
+    );
   }, [diagnosis]);
 
   // =========================================================
@@ -178,15 +221,25 @@ const Diagnosis = ({
     const notesChanged =
       notes !== initialNotes;
 
+    // =======================================================
+    // DIFFERENTIAL DIAGNOSIS DIRTY CHECK
+    // =======================================================
+
+    const differentialDiagnosisChanged =
+      differentialDiagnosis !==
+      initialDifferentialDiagnosis;
+
     return (
       diagnosisChanged ||
-      notesChanged
+      notesChanged ||
+      differentialDiagnosisChanged
     );
   };
 
   // =========================================================
   // Save Diagnosis
   // =========================================================
+
   const validateForm = () => {
     const errors = {
       diagnosis: "",
@@ -195,18 +248,24 @@ const Diagnosis = ({
 
     // Diagnosis mandatory
     if (selectedDiagnosis.length === 0) {
-      errors.diagnosis = "Please select a diagnosis.";
+      errors.diagnosis =
+        "Please select a diagnosis.";
     }
 
     // Diagnosis notes mandatory
     if (!notes.trim()) {
-      errors.notes = "Diagnosis notes are required.";
+      errors.notes =
+        "Diagnosis notes are required.";
     }
 
     setValidationErrors(errors);
 
-    return !errors.diagnosis && !errors.notes;
+    return (
+      !errors.diagnosis &&
+      !errors.notes
+    );
   };
+
   const saveChanges = async () => {
     if (!appointmentId) return false;
 
@@ -214,7 +273,14 @@ const Diagnosis = ({
       setIsSaving(true);
 
       const payload = {
+        // Existing diagnosis
         diagnosis: notes,
+
+        // ===================================================
+        // DIFFERENTIAL DIAGNOSIS
+        // ===================================================
+        differential_diagnosis:
+          differentialDiagnosis,
 
         // Keeping your existing backend contract:
         // first selected diagnosis is sent as category.
@@ -234,12 +300,22 @@ const Diagnosis = ({
         })
       ).unwrap();
 
-      // Update original values only after successful save
+      // Update original values only after
+      // successful save
+
       setInitialDiagnosis([
         ...selectedDiagnosis,
       ]);
 
       setInitialNotes(notes);
+
+      // =====================================================
+      // Update original Differential Diagnosis
+      // =====================================================
+
+      setInitialDifferentialDiagnosis(
+        differentialDiagnosis
+      );
 
       return true;
     } catch (error) {
@@ -274,11 +350,20 @@ const Diagnosis = ({
 
   const handleDiscardAndGoBack = () => {
     // Restore original values
+
     setSelectedDiagnosis([
       ...initialDiagnosis,
     ]);
 
     setNotes(initialNotes);
+
+    // =======================================================
+    // Restore Differential Diagnosis
+    // =======================================================
+
+    setDifferentialDiagnosis(
+      initialDifferentialDiagnosis
+    );
 
     setSearch("");
     setShowDropdown(false);
@@ -437,15 +522,206 @@ const Diagnosis = ({
         {/* Header */}
         {/* ================================================= */}
 
-        <div>
+        <div className="flex justify-between">
+           <div >
           <h2 className="text-[24px] font-bold text-[#4D2E23]">
             Diagnosis
-            <span className="ml-1 text-red-500">*</span>
+            <span className="ml-1 text-red-500">
+              *
+            </span>
           </h2>
 
           <p className="mt-1 text-[18px] text-[#6F625A]">
-            Add diagnosis details
+            Add and manage patient diagnosis
           </p>
+          </div>
+
+           {consultationTimerStarted && (
+    <ConsultationTimer
+      timeLeft={
+        consultationTimeLeft
+      }
+    />
+  )}
+        </div>
+
+        {/* ================================================= */}
+        {/* Diagnosis Notes */}
+        {/* ================================================= */}
+
+        <div className="mt-8">
+
+          <textarea
+            rows={6}
+            value={notes}
+            onChange={(e) => {
+              setNotes(e.target.value);
+
+              if (e.target.value.trim()) {
+                setValidationErrors((prev) => ({
+                  ...prev,
+                  notes: "",
+                }));
+              }
+            }}
+            placeholder="Enter diagnosis notes..."
+            className={`
+              w-full
+              resize-none
+              rounded-[22px]
+              border
+              bg-white
+              p-5
+              text-[16px]
+              text-[#4D2E23]
+              outline-none
+              placeholder:text-[#8B7A70]
+
+              ${
+                validationErrors.notes
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-[#DDD0C8] focus:border-[#8B573D]"
+              }
+            `}
+          />
+
+          {validationErrors.notes && (
+            <p className="mt-2 text-sm font-medium text-red-500">
+              {validationErrors.notes}
+            </p>
+          )}
+
+        </div>
+
+        {/* ================================================= */}
+        {/* DIFFERENTIAL DIAGNOSIS */}
+        {/* ================================================= */}
+
+        <div className="mt-8">
+
+          <h3 className="text-[24px] font-bold text-[#4D2E23]">
+            Differential Diagnosis
+          </h3>
+
+          <textarea
+            rows={5}
+            value={differentialDiagnosis}
+            onChange={(e) =>
+              setDifferentialDiagnosis(
+                e.target.value
+              )
+            }
+            placeholder="Enter Diagnosis Notes"
+            className="
+              mt-5
+              w-full
+              resize-none
+              rounded-[22px]
+              border
+              border-[#DDD0C8]
+              bg-white
+              p-5
+              text-[16px]
+              text-[#4D2E23]
+              outline-none
+              placeholder:text-[#8B7A70]
+              focus:border-[#8B573D]
+            "
+          />
+
+          {/* Edit / Save - matching the existing design style */}
+
+          <div className="mt-4 flex items-center justify-end gap-7">
+
+            <button
+              type="button"
+              onClick={() =>
+                setDifferentialDiagnosis(
+                  initialDifferentialDiagnosis
+                )
+              }
+              className="
+                flex
+                items-center
+                gap-2
+                text-[17px]
+                font-medium
+                text-[#8B573D]
+                hover:text-[#6F4632]
+              "
+            >
+              <span className="text-[20px]">
+                ✎
+              </span>
+
+              Edit
+            </button>
+
+            <button
+              type="button"
+              onClick={async () => {
+                if (!appointmentId) return;
+
+                try {
+                  setIsSaving(true);
+
+                  const payload = {
+                    diagnosis: notes,
+
+                    differential_diagnosis:
+                      differentialDiagnosis,
+
+                    category:
+                      selectedDiagnosis[0] || "",
+                  };
+
+                  await dispatch(
+                    saveDiagnosisThunk({
+                      appointmentId,
+                      payload,
+                    })
+                  ).unwrap();
+
+                  setInitialDiagnosis([
+                    ...selectedDiagnosis,
+                  ]);
+
+                  setInitialNotes(notes);
+
+                  setInitialDifferentialDiagnosis(
+                    differentialDiagnosis
+                  );
+                } catch (error) {
+                  console.error(
+                    "Failed to save differential diagnosis:",
+                    error
+                  );
+                } finally {
+                  setIsSaving(false);
+                }
+              }}
+              disabled={isSaving}
+              className="
+                flex
+                items-center
+                gap-2
+                text-[17px]
+                font-medium
+                text-[#B8A9A2]
+                hover:text-[#8B573D]
+                disabled:cursor-not-allowed
+                disabled:opacity-60
+              "
+            >
+              <span className="text-[20px]">
+                ▣
+              </span>
+
+              Save
+            </button>
+
+          </div>
+
         </div>
 
         {/* ================================================= */}
@@ -460,7 +736,7 @@ const Diagnosis = ({
               setSearch(e.target.value);
               setShowDropdown(true);
             }}
-            placeholder="Search Diagnosis"
+            placeholder="Search Diagnosis by Category"
             className="
               h-16
               w-full
@@ -536,33 +812,39 @@ const Diagnosis = ({
             <div
               key={item}
               className="
-               flex
-               items-center
-               gap-2
-               rounded-xl
-              bg-[#FFEAD8]
-               px-4
-               py-2
-               text-[#4D2E23]
-             "
+                flex
+                items-center
+                gap-2
+                rounded-xl
+                bg-[#FFEAD8]
+                px-4
+                py-2
+                text-[#4D2E23]
+              "
             >
-              <span>{item}</span>
+              <span>
+                {item}
+              </span>
 
               <button
                 type="button"
                 onClick={() => {
-                  handleRemoveDiagnosis(item);
+                  handleRemoveDiagnosis(
+                    item
+                  );
 
-                  setValidationErrors((prev) => ({
-                    ...prev,
-                    diagnosis: "",
-                  }));
+                  setValidationErrors(
+                    (prev) => ({
+                      ...prev,
+                      diagnosis: "",
+                    })
+                  );
                 }}
                 className="
-          rounded-full
-          px-1
-          hover:bg-[#F7D8C4]
-        "
+                  rounded-full
+                  px-1
+                  hover:bg-[#F7D8C4]
+                "
               >
                 ✕
               </button>
@@ -576,66 +858,6 @@ const Diagnosis = ({
             {validationErrors.diagnosis}
           </p>
         )}
-
-        {/* ================================================= */}
-        {/* Diagnosis Notes */}
-        {/* ================================================= */}
-
-        <div className="mt-8">
-
-          <label
-            className="
-              mb-3
-              block
-              text-[20px]
-              font-semibold
-              text-[#4D2E23]
-            "
-          >
-            Diagnosis Notes
-            <span className="ml-1 text-red-500">*</span>
-          </label>
-
-          <textarea
-            rows={6}
-            value={notes}
-            onChange={(e) => {
-              setNotes(e.target.value);
-
-              if (e.target.value.trim()) {
-                setValidationErrors((prev) => ({
-                  ...prev,
-                  notes: "",
-                }));
-              }
-            }}
-            placeholder="Enter diagnosis notes..."
-            className={`
-    w-full
-    resize-none
-    rounded-[22px]
-    border
-    bg-white
-    p-5
-    text-[16px]
-    text-[#4D2E23]
-    outline-none
-    placeholder:text-[#8B7A70]
-
-    ${validationErrors.notes
-                ? "border-red-500 focus:border-red-500"
-                : "border-[#DDD0C8] focus:border-[#8B573D]"
-              }
-  `}
-          />
-
-          {validationErrors.notes && (
-            <p className="mt-2 text-sm font-medium text-red-500">
-              {validationErrors.notes}
-            </p>
-          )}
-
-        </div>
 
         {/* ================================================= */}
         {/* Associate Doctors */}
@@ -682,7 +904,7 @@ const Diagnosis = ({
           <div className="grid grid-cols-3 gap-8">
 
             {enrichedAssociateDoctors.length >
-              0 ? (
+            0 ? (
               enrichedAssociateDoctors.map(
                 (doctor) => (
                   <div
@@ -847,7 +1069,7 @@ const Diagnosis = ({
             disabled={isSaving}
             className="
               flex
-              h-[72px]
+              h-[58px]
               flex-1
               items-center
               justify-center
@@ -879,7 +1101,7 @@ const Diagnosis = ({
             disabled={isSaving || loading}
             className="
               flex
-              h-[72px]
+              h-[58px]
               flex-1
               items-center
               justify-center
@@ -1146,10 +1368,11 @@ const Diagnosis = ({
                         transition-all
                         duration-200
 
-                        ${selectedDoctor?.doctor_id ===
+                        ${
+                          selectedDoctor?.doctor_id ===
                           doctor.doctor_id
-                          ? "border-[#8B573D] bg-[#FFF5EF] shadow-md"
-                          : "border-[#E8DDD5] hover:border-[#8B573D] hover:bg-[#FFF9F5]"
+                            ? "border-[#8B573D] bg-[#FFF5EF] shadow-md"
+                            : "border-[#E8DDD5] hover:border-[#8B573D] hover:bg-[#FFF9F5]"
                         }
                       `}
                     >
@@ -1305,6 +1528,7 @@ const Diagnosis = ({
 
         </div>
       )}
+
     </>
   );
 };

@@ -7,8 +7,12 @@ import {
   HiOutlineCheckCircle,
   HiOutlinePencilSquare,
 } from "react-icons/hi2";
+import ConsultationTimer from "../components/ConsultationTimer";
 
-const Reports = () => {
+const Reports = (
+consultationTimerStarted,
+consultationTimeLeft
+) => {
   const [reports, setReports] = useState([
     {
       id: 1,
@@ -34,7 +38,8 @@ const Reports = () => {
     <div className="mt-6 space-y-8">
       {/* Header */}
 
-      <div>
+      <div className="flex justify-between" >
+        <div >
         <h2 className="text-2xl font-bold text-[#4D2E23]">
           Reports
         </h2>
@@ -42,6 +47,14 @@ const Reports = () => {
         <p className="mt-1 text-[#8B7A70]">
           Upload and manage patient reports.
         </p>
+        </div>
+         {consultationTimerStarted && (
+            <ConsultationTimer
+              timeLeft={
+                consultationTimeLeft
+              }
+            />
+          )}
       </div>
 
       {/* Upload */}

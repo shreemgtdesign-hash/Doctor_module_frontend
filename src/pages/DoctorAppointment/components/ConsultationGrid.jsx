@@ -16,6 +16,16 @@ const cards = [
     icon: <HiOutlinePlus size={30} />,
   },
   {
+    title: "Patient History",
+    section: "history",
+    icon: <HiOutlineArrowPathRoundedSquare size={30} />,
+  },
+  {
+    title: "Reports",
+    section: "reports",
+    icon: <HiOutlineDocumentChartBar size={30} />,
+  },
+  {
     title: "Diagnosis",
     section: "diagnosis",
     icon: <HiOutlineMagnifyingGlass size={30} />,
@@ -30,16 +40,8 @@ const cards = [
     section: "therapy",
     icon: <HiOutlineClipboardDocumentList size={30} />,
   },
-  {
-    title: "Reports",
-    section: "reports",
-    icon: <HiOutlineDocumentChartBar size={30} />,
-  },
-  {
-    title: "Patient History",
-    section: "history",
-    icon: <HiOutlineArrowPathRoundedSquare size={30} />,
-  },
+  
+  
 ];
 
 const ConsultationGrid = ({

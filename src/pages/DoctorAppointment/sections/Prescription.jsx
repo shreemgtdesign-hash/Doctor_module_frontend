@@ -16,24 +16,15 @@ import {
 
 import {
     loadPrescription,
+    loadChiefComplaints,
     searchPrescriptionProductsThunk,
     savePrescriptionThunk,
     updatePrescriptionThunk,
 
 } from "../../../redux/consultation/consultationThunk";
+import ConsultationTimer from "../components/ConsultationTimer";
 
-const tabletOptions = [1, 2, 3, 4, 5];
 
-const timeOptions = [
-    "Morning",
-    "Afternoon",
-    "Night",
-];
-
-const foodOptions = [
-    "Before Food",
-    "After Food",
-];
 
 const durationOptions = [
     "3 Days",
@@ -48,6 +39,9 @@ const Prescription = ({
     consultationId,
     patientId,
     onContinue,
+    consultationTimerStarted,
+    consultationTimeLeft,
+    appointment,
     onBack,
 }) => {
 
@@ -56,7 +50,8 @@ const Prescription = ({
     const {
         prescription,
         prescriptionSearch,
-
+        chiefComplaints,
+        allergies,
         loading,
     } = useSelector(
         (state) => state.consultation
@@ -181,6 +176,7 @@ const Prescription = ({
 
         dispatch(
             loadPrescription(consultationId)
+
         );
 
     }, [
@@ -189,148 +185,60 @@ const Prescription = ({
     ]);
     useEffect(() => {
 
-        if (!prescription) {
-            return;
-        }
-
-        // ========================================
-        // VERY IMPORTANT
-        // Make sure this prescription belongs
-        // to the currently selected patient
-        // ========================================
-
-        if (
-            !Array.isArray(prescription) &&
-            prescription.consultation_id &&
-            prescription.consultation_id !== consultationId
-        ) {
-            return;
-        }
-        const items = Array.isArray(prescription)
-            ? prescription
-            : prescription.items ||
-            prescription.data ||
+        const savedChiefComplaintAllergies =
+            chiefComplaints?.allergies ??
+            chiefComplaints?.allergies_conditions ??
             [];
 
-        const cloned = items.map((item) => {
+        let formattedChiefComplaintAllergies = [];
 
-            // Backend dosage:
-            // "1 - 1 - 0 - 1"
+        if (Array.isArray(savedChiefComplaintAllergies)) {
 
-            const dosageParts =
-                parseDosage(item.dosage);
+            formattedChiefComplaintAllergies =
+                savedChiefComplaintAllergies
+                    .filter(Boolean);
 
-            const morning =
-                Number(
-                    item.morning ??
-                    dosageParts.morning
-                ) || 0;
+        } else if (
+            typeof savedChiefComplaintAllergies === "string" &&
+            savedChiefComplaintAllergies.trim()
+        ) {
 
-            const afternoon =
-                Number(
-                    item.afternoon ??
-                    dosageParts.afternoon
-                ) || 0;
+            formattedChiefComplaintAllergies =
+                savedChiefComplaintAllergies
+                    .split(",")
+                    .map((item) => item.trim())
+                    .filter(Boolean);
+        }
 
-            const evening =
-                Number(
-                    item.evening ??
-                    dosageParts.evening
-                ) || 0;
+        if (formattedChiefComplaintAllergies.length > 0) {
 
-            const night =
-                Number(
-                    item.night ??
-                    dosageParts.night
-                ) || 0;
+            // Chief Complaints allergies
+            // should be displayed in Prescription
 
-            const dosage =
-                `${morning} - ${afternoon} - ${evening} - ${night}`;
+            setPatientAllergies(
+                formattedChiefComplaintAllergies
+            );
 
-            return {
-                ...item,
+        }
 
-                id: item.id,
+    }, [chiefComplaints]);
+    useEffect(() => {
 
-                product_id:
-                    item.product_id,
+        if (!appointment) return;
 
-                medicine_name:
-                    item.medicine_name,
-
-                category:
-                    item.category,
-
-                price:
-                    Number(item.price) || 0,
-
-                image_url:
-                    item.image_url,
-
-                morning,
-                afternoon,
-                evening,
-                night,
-
-                dosage,
-
-                food:
-                    item.food || "Before Food",
-
-                duration:
-                    item.duration || "30 Days",
-
-                quantity:
-                    Number(item.quantity) || 1,
-
-                frequency:
-                    item.frequency ?? null,
-
-                timeOfDay:
-                    item.time_of_day || [],
-            };
-        });
-
-        setEditableMedicines(
-            JSON.parse(
-                JSON.stringify(cloned)
+        dispatch(
+            loadChiefComplaints(
+                appointment
             )
-        );
-
-        setBackupMedicines(
-            JSON.parse(
-                JSON.stringify(cloned)
-            )
-        );
-
-        setDeletedMedicines([]);
-
-        setHasExistingPrescription(
-            cloned.length > 0
-        );
-
-        setSpecialInstructions(
-            prescription.special_instructions ||
-            prescription.specialInstructions ||
-            items[0]?.special_instructions ||
-            ""
-        );
-
-        setReviewDate(
-            prescription.review_date ||
-            prescription.reviewDate ||
-            items[0]?.review_date ||
-            ""
-        );
-
-        setPatientAllergies(
-            items[0]?.patient_allergies || []
         );
 
     }, [
-        prescription,
-        consultationId
+        appointment,
+        dispatch,
     ]);
+ 
+
+
 
 
     useEffect(() => {
@@ -622,7 +530,13 @@ const Prescription = ({
                 <p className="mt-1 text-[17px] text-[#786A61]">
                     Add and manage prescriptions
                 </p>
-
+ {consultationTimerStarted && (
+    <ConsultationTimer
+      timeLeft={
+        consultationTimeLeft
+      }
+    />
+  )}
             </div>
 
             {/* Search */}
@@ -972,7 +886,7 @@ const Prescription = ({
 
                                 {/* Right */}
 
-                              
+
 
                             </div>
 
@@ -1569,7 +1483,7 @@ const Prescription = ({
             <div>
 
                 <label className="mb-3 block text-[18px] font-semibold text-[#4D2E23]">
-                    Patient Allergies
+                    Allergies
                 </label>
 
                 <div className="flex gap-3">

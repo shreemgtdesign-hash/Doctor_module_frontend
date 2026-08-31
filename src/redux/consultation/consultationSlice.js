@@ -80,9 +80,9 @@ const initialState = {
     patientHistoryLoading: false,
     patientHistoryError: null,
 
-      consultationReport: null,
-  consultationReportLoading: false,
-  consultationReportError: null,
+    consultationReport: null,
+    consultationReportLoading: false,
+    consultationReportError: null,
 };
 
 const consultationSlice = createSlice({
@@ -185,6 +185,8 @@ const consultationSlice = createSlice({
                 state.diagnosis = {
                     diagnosis: action.payload?.diagnosis || "",
                     category: action.payload?.category || "",
+                    differential_diagnosis:
+                        action.payload?.differential_diagnosis || "",
                 };
             })
 
@@ -192,6 +194,12 @@ const consultationSlice = createSlice({
                 state.diagnosis = {
                     diagnosis: action.meta.arg.payload.diagnosis,
                     category: action.meta.arg.payload.category,
+                    differential_diagnosis:
+                        action.payload?.data?.differential_diagnosis ||
+                        action.meta.arg.payload.differential_diagnosis ||
+                        "",
+
+
                 };
             })
             .addCase(loadAssociateDoctors.fulfilled, (state, action) => {
@@ -501,29 +509,29 @@ const consultationSlice = createSlice({
                 }
             )
             .addCase(
-  loadPatientConsultationReport.pending,
-  (state) => {
-    state.consultationReportLoading = true;
-    state.consultationReportError = null;
-  }
-)
+                loadPatientConsultationReport.pending,
+                (state) => {
+                    state.consultationReportLoading = true;
+                    state.consultationReportError = null;
+                }
+            )
 
-.addCase(
-  loadPatientConsultationReport.fulfilled,
-  (state, action) => {
-    state.consultationReportLoading = false;
-    state.consultationReport = action.payload;
-  }
-)
+            .addCase(
+                loadPatientConsultationReport.fulfilled,
+                (state, action) => {
+                    state.consultationReportLoading = false;
+                    state.consultationReport = action.payload;
+                }
+            )
 
-.addCase(
-  loadPatientConsultationReport.rejected,
-  (state, action) => {
-    state.consultationReportLoading = false;
-    state.consultationReportError =
-      action.payload;
-  }
-)
+            .addCase(
+                loadPatientConsultationReport.rejected,
+                (state, action) => {
+                    state.consultationReportLoading = false;
+                    state.consultationReportError =
+                        action.payload;
+                }
+            )
 
             .addCase(
                 saveTherapyThunk.fulfilled,

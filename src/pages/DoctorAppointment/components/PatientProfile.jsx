@@ -20,7 +20,87 @@ import Reports from "../sections/Reports";
 import PatientHistory from "../sections/PatientHistory";
 import ViewReport from "../sections/ViewReport";
 
+// ==========================================
+// CONSULTATION TIMER
+// ==========================================
 
+const ConsultationTimer = ({
+  timeLeft = 0,
+}) => {
+
+  const minutes = Math.floor(
+    timeLeft / 60
+  );
+
+  const seconds =
+    timeLeft % 60;
+
+  const formattedTime =
+    `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+  const progress =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        (timeLeft / (15 * 60)) * 100
+      )
+    );
+
+  return (
+    <div className="relative w-[92px] h-[52px]">
+
+      {/* Timer background */}
+      <div
+        className="
+          absolute
+          inset-0
+          rounded-[17px]
+          border-[6px]
+          border-[#F0F1F1]
+          bg-white
+        "
+      />
+
+      {/* Timer progress */}
+      <div
+        className="
+          absolute
+          left-[6px]
+          top-0
+          h-[5px]
+          rounded-full
+          bg-[#A65E10]
+          transition-all
+          duration-1000
+        "
+        style={{
+          width: `calc(${progress}% - 12px)`,
+          maxWidth: "calc(100% - 12px)",
+        }}
+      />
+
+      {/* Timer value */}
+      <div
+        className="
+          relative
+          z-10
+          flex
+          h-full
+          w-full
+          items-center
+          justify-center
+          text-[20px]
+          font-semibold
+          text-[#59352C]
+        "
+      >
+        {formattedTime}
+      </div>
+
+    </div>
+  );
+};
 const PatientProfile = forwardRef(
   (
     {
@@ -43,6 +123,24 @@ const PatientProfile = forwardRef(
       (state) => state.consultation
     );
 
+    // ==========================================
+    // CONSULTATION TIMER STATE
+    // ==========================================
+
+    const CONSULTATION_DURATION = 15 * 60;
+
+    const [
+      consultationTimeLeft,
+      setConsultationTimeLeft,
+    ] = useState(CONSULTATION_DURATION);
+
+    const [
+      consultationTimerStarted,
+      setConsultationTimerStarted,
+    ] = useState(false);
+
+    const consultationTimerRef =
+      useRef(null);
 
     // ==========================================
     // VIEW REPORT STATE
@@ -54,6 +152,142 @@ const PatientProfile = forwardRef(
     ] = useState(null);
 
 
+    // ==========================================
+    // START CONSULTATION TIMER
+    // ==========================================
+
+    useEffect(() => {
+
+      if (
+        activeSection !== "complaints"
+      ) {
+        return;
+      }
+
+      if (
+        consultationTimerStarted
+      ) {
+        return;
+      }
+
+      setConsultationTimerStarted(
+        true
+      );
+
+    }, [
+      activeSection,
+      consultationTimerStarted,
+    ]);
+
+    // ==========================================
+    // CONSULTATION TIMER COUNTDOWN
+    // ==========================================
+
+    useEffect(() => {
+
+      if (
+        !consultationTimerStarted
+      ) {
+        return;
+      }
+
+      if (
+        consultationTimeLeft <= 0
+      ) {
+        return;
+      }
+
+      consultationTimerRef.current =
+        setInterval(() => {
+
+          setConsultationTimeLeft(
+            (previousTime) => {
+
+              if (
+                previousTime <= 1
+              ) {
+
+                clearInterval(
+                  consultationTimerRef.current
+                );
+
+                return 0;
+              }
+
+              return previousTime - 1;
+
+            }
+          );
+
+        }, 1000);
+
+
+      return () => {
+
+        if (
+          consultationTimerRef.current
+        ) {
+
+          clearInterval(
+            consultationTimerRef.current
+          );
+
+        }
+
+      };
+
+    }, [
+      consultationTimerStarted,
+      consultationTimeLeft,
+    ]);
+
+    // ==========================================
+    // RESET TIMER FOR NEW PATIENT
+    // ==========================================
+
+    const previousPatientIdRef =
+      useRef(null);
+
+    useEffect(() => {
+
+      const currentPatientId =
+        selectedPatient?.id;
+
+      if (!currentPatientId) {
+        return;
+      }
+
+      if (
+        previousPatientIdRef.current ===
+        currentPatientId
+      ) {
+        return;
+      }
+
+      previousPatientIdRef.current =
+        currentPatientId;
+
+      if (
+        consultationTimerRef.current
+      ) {
+
+        clearInterval(
+          consultationTimerRef.current
+        );
+
+      }
+
+      setConsultationTimerStarted(
+        false
+      );
+
+      setConsultationTimeLeft(
+        CONSULTATION_DURATION
+      );
+
+    }, [
+      selectedPatient?.id,
+    ]);
     // ==========================================
     // SCROLL REFS
     // ==========================================
@@ -95,7 +329,7 @@ const PatientProfile = forwardRef(
             style.overflowY
           ) &&
           parent.scrollHeight >
-            parent.clientHeight;
+          parent.clientHeight;
 
         if (isScrollable) {
           return parent;
@@ -356,6 +590,7 @@ const PatientProfile = forwardRef(
     }
 
 
+
     // ==========================================
     // MAIN
     // ==========================================
@@ -414,16 +649,16 @@ const PatientProfile = forwardRef(
           {activeSection ===
             "overview" && (
 
-            <PatientOverview
-              activeSection={
-                activeSection
-              }
-              setActiveSection={
-                setActiveSection
-              }
-            />
+              <PatientOverview
+                activeSection={
+                  activeSection
+                }
+                setActiveSection={
+                  setActiveSection
+                }
+              />
 
-          )}
+            )}
 
 
           {/* ================================= */}
@@ -433,31 +668,71 @@ const PatientProfile = forwardRef(
           {activeSection ===
             "complaints" && (
 
-            <ChiefComplaints
-              appointmentId={
-                selectedPatient?.id
-              }
+              <ChiefComplaints
+                appointmentId={
+                  selectedPatient?.id
+                }
+                consultationTimeLeft={
+                  consultationTimeLeft
+                }
 
-              setActiveSection={
-                setActiveSection
-              }
+                consultationTimerStarted={
+                  consultationTimerStarted
+                }
 
-              onBack={() =>
-                goToSection(
-                  "overview",
-                  "profile"
-                )
-              }
+                setActiveSection={
+                  setActiveSection
+                }
 
-              onContinue={() =>
-                goToSection(
-                  "diagnosis",
-                  "section"
-                )
-              }
-            />
+                onBack={() =>
+                  goToSection(
+                    "overview",
+                    "profile"
+                  )
+                }
 
-          )}
+                onContinue={() =>
+                  goToSection(
+                    "diagnosis",
+                    "section"
+                  )
+                }
+              />
+
+            )}
+
+          {activeSection ===
+            "history" && (
+
+              <PatientHistory
+                patient={
+                  patientProfile
+                }
+                consultationTimeLeft={
+                  consultationTimeLeft
+                }
+
+                consultationTimerStarted={
+                  consultationTimerStarted
+                }
+
+                appointment={
+                  selectedPatient
+                }
+
+                onViewReport={
+                  handleViewReport
+                }
+
+                onBack={() =>
+                  goToSection(
+                    "overview",
+                    "profile"
+                  )
+                }
+              />
+
+            )}
 
 
           {/* ================================= */}
@@ -467,31 +742,38 @@ const PatientProfile = forwardRef(
           {activeSection ===
             "diagnosis" && (
 
-            <Diagnosis
-              patient={
-                patientProfile
-              }
+              <Diagnosis
+                patient={
+                  patientProfile
+                }
+                consultationTimeLeft={
+                  consultationTimeLeft
+                }
 
-              appointmentId={
-                selectedPatient?.id
-              }
+                consultationTimerStarted={
+                  consultationTimerStarted
+                }
 
-              onBack={() =>
-                goToSection(
-                  "overview",
-                  "profile"
-                )
-              }
+                appointmentId={
+                  selectedPatient?.id
+                }
 
-              onContinue={() =>
-                goToSection(
-                  "prescription",
-                  "section"
-                )
-              }
-            />
+                onBack={() =>
+                  goToSection(
+                    "overview",
+                    "profile"
+                  )
+                }
 
-          )}
+                onContinue={() =>
+                  goToSection(
+                    "prescription",
+                    "section"
+                  )
+                }
+              />
+
+            )}
 
 
           {/* ================================= */}
@@ -501,47 +783,54 @@ const PatientProfile = forwardRef(
           {activeSection ===
             "prescription" && (
 
-            <Prescription
-              key={
-                selectedPatient
-                  ?.consultation_id ||
-                selectedPatient?.id
-              }
+              <Prescription
+                key={
+                  selectedPatient
+                    ?.consultation_id ||
+                  selectedPatient?.id
+                }
+                consultationTimeLeft={
+                  consultationTimeLeft
+                }
 
-              patient={
-                patientProfile
-              }
+                consultationTimerStarted={
+                  consultationTimerStarted
+                }
 
-              appointment={
-                selectedPatient?.id
-              }
+                patient={
+                  patientProfile
+                }
 
-              consultationId={
-                selectedPatient
-                  ?.consultation_id
-              }
+                appointment={
+                  selectedPatient?.id
+                }
 
-              patientId={
-                selectedPatient
-                  ?.patient_id
-              }
+                consultationId={
+                  selectedPatient
+                    ?.consultation_id
+                }
 
-              onBack={() =>
-                goToSection(
-                  "diagnosis",
-                  "section"
-                )
-              }
+                patientId={
+                  selectedPatient
+                    ?.patient_id
+                }
 
-              onContinue={() =>
-                goToSection(
-                  "therapy",
-                  "section"
-                )
-              }
-            />
+                onBack={() =>
+                  goToSection(
+                    "diagnosis",
+                    "section"
+                  )
+                }
 
-          )}
+                onContinue={() =>
+                  goToSection(
+                    "therapy",
+                    "section"
+                  )
+                }
+              />
+
+            )}
 
 
           {/* ================================= */}
@@ -551,36 +840,43 @@ const PatientProfile = forwardRef(
           {activeSection ===
             "therapy" && (
 
-            <Therapy
-              patient={
-                patientProfile
-              }
+              <Therapy
+                patient={
+                  patientProfile
+                }
+                consultationTimeLeft={
+                  consultationTimeLeft
+                }
 
-              appointmentId={
-                selectedPatient?.id
-              }
+                consultationTimerStarted={
+                  consultationTimerStarted
+                }
 
-              consultationId={
-                selectedPatient
-                  ?.consultation_id
-              }
+                appointmentId={
+                  selectedPatient?.id
+                }
 
-              onBack={() =>
-                goToSection(
-                  "prescription",
-                  "section"
-                )
-              }
+                consultationId={
+                  selectedPatient
+                    ?.consultation_id
+                }
 
-              onContinue={() =>
-                goToSection(
-                  "reports",
-                  "section"
-                )
-              }
-            />
+                onBack={() =>
+                  goToSection(
+                    "prescription",
+                    "section"
+                  )
+                }
 
-          )}
+                onContinue={() =>
+                  goToSection(
+                    "reports",
+                    "section"
+                  )
+                }
+              />
+
+            )}
 
 
           {/* ================================= */}
@@ -590,48 +886,26 @@ const PatientProfile = forwardRef(
           {activeSection ===
             "reports" && (
 
-            <Reports
-              patient={
-                patientProfile
-              }
+              <Reports
+                patient={
+                  patientProfile
+                }
+                consultationTimeLeft={
+                  consultationTimeLeft
+                }
 
-              appointment={
-                selectedPatient
-              }
-            />
+                consultationTimerStarted={
+                  consultationTimerStarted
+                }
+                appointment={
+                  selectedPatient
+                }
+              />
 
-          )}
+            )}
 
 
-          {/* ================================= */}
-          {/* PATIENT HISTORY */}
-          {/* ================================= */}
 
-          {activeSection ===
-            "history" && (
-
-            <PatientHistory
-              patient={
-                patientProfile
-              }
-
-              appointment={
-                selectedPatient
-              }
-
-              onViewReport={
-                handleViewReport
-              }
-
-              onBack={() =>
-                goToSection(
-                  "overview",
-                  "profile"
-                )
-              }
-            />
-
-          )}
 
 
           {/* ================================= */}
@@ -641,20 +915,27 @@ const PatientProfile = forwardRef(
           {activeSection ===
             "viewReport" && (
 
-            <ViewReport
-              consultationId={
-                selectedConsultationId
-              }
+              <ViewReport
+                consultationId={
+                  selectedConsultationId
+                }
+                consultationTimeLeft={
+                  consultationTimeLeft
+                }
 
-              onBack={() =>
-                goToSection(
-                  "history",
-                  "section"
-                )
-              }
-            />
+                consultationTimerStarted={
+                  consultationTimerStarted
+                }
 
-          )}
+                onBack={() =>
+                  goToSection(
+                    "history",
+                    "section"
+                  )
+                }
+              />
+
+            )}
 
         </div>
 

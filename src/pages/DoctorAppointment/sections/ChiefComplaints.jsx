@@ -13,6 +13,7 @@ import {
   loadChiefComplaints,
   saveChiefComplaintsThunk,
 } from "../../../redux/consultation/consultationThunk";
+import ConsultationTimer from "../components/ConsultationTimer";
 
 const symptoms = [
   "back ache",
@@ -44,6 +45,9 @@ const symptoms = [
 const ChiefComplaints = ({
   appointmentId,
   setActiveSection,
+  consultationTimerStarted,
+  consultationTimeLeft
+  
 }) => {
   const dispatch = useDispatch();
 
@@ -422,7 +426,8 @@ const ChiefComplaints = ({
         {/* Heading */}
         {/* ================================================= */}
 
-        <div>
+        <div className="flex justify-between">
+          <div>
           <h2 className="text-[24px] font-bold text-[#4D2E23]">
             Chief Complaints
             <span className="ml-1 text-red-500">
@@ -433,6 +438,15 @@ const ChiefComplaints = ({
           <p className="mt-1 text-[18px] text-[#6F625A]">
             Add and manage patient chief complaints
           </p>
+          </div>
+
+           {consultationTimerStarted && (
+    <ConsultationTimer
+      timeLeft={
+        consultationTimeLeft
+      }
+    />
+  )}
         </div>
 
         {/* ================================================= */}
