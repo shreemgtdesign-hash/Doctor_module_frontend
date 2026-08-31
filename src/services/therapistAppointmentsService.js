@@ -15,11 +15,17 @@ export const fetchTherapistAppointments = async () => {
 };
 
 export const markTherapistAppointmentsComplete =
-    async (bookingIds) => {
+    async ({
+        bookingIds,
+        notes,
+        status = "completed",
+    }) => {
 
         const response =
             await completeTherapistAppointments(
-                bookingIds
+                bookingIds,
+                notes,
+                status
             );
 
         return response.data;

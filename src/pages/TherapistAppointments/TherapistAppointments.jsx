@@ -1,10 +1,23 @@
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import {
+    useEffect,
+    useRef,
+    useState,
+} from "react";
+
+import {
+    useDispatch,
+    useSelector,
+} from "react-redux";
+
+import {
+    useNavigate,
+} from "react-router-dom";
 
 import {
     HiOutlineArrowLeft,
     HiOutlineCalendar,
+    HiOutlinePencil,
+    
 } from "react-icons/hi2";
 
 import {
@@ -16,6 +29,7 @@ import {
 const TherapistAppointments = () => {
 
     const dispatch = useDispatch();
+
     const navigate = useNavigate();
 
 
@@ -28,19 +42,48 @@ const TherapistAppointments = () => {
         count = 0,
         loading,
         error,
+        completingAppointments,
     } = useSelector(
         (state) => state.therapist
     );
 
 
     // ==========================================
-    // LOCAL CHECKBOX STATE
+    // CHECKBOX STATE
     // ==========================================
 
     const [
         selectedAppointments,
         setSelectedAppointments,
     ] = useState({});
+
+
+    // ==========================================
+    // NOTES STATE
+    // ==========================================
+
+    const [
+        appointmentNotes,
+        setAppointmentNotes,
+    ] = useState({});
+
+
+    // ==========================================
+    // EDITING NOTE STATE
+    // ==========================================
+
+    const [
+        editingNote,
+        setEditingNote,
+    ] = useState(null);
+
+
+    // ==========================================
+    // NOTE INPUT REFERENCES
+    // ==========================================
+
+    const noteInputRefs =
+        useRef({});
 
 
     // ==========================================
@@ -57,10 +100,12 @@ const TherapistAppointments = () => {
 
 
     // ==========================================
-    // CHECK COMPLETED STATUS
+    // CHECK COMPLETED
     // ==========================================
 
-    const isCompleted = (appointment) => {
+    const isCompleted = (
+        appointment
+    ) => {
 
         return (
             appointment.is_completed === true ||
@@ -72,12 +117,15 @@ const TherapistAppointments = () => {
 
 
     // ==========================================
-    // INITIALIZE CHECKBOX STATES
+    // INITIALIZE STATES
     // ==========================================
 
     useEffect(() => {
 
         const statusMap = {};
+
+        const notesMap = {};
+
 
         appointments.forEach(
             (appointment) => {
@@ -86,19 +134,248 @@ const TherapistAppointments = () => {
                     appointment.booking_id ||
                     appointment.id;
 
-                if (!bookingId) return;
+
+                if (!bookingId) {
+                    return;
+                }
+
+
+                // Checkbox
 
                 statusMap[bookingId] =
-                    isCompleted(appointment);
+                    isCompleted(
+                        appointment
+                    );
+
+
+                // Existing notes from API
+
+                notesMap[bookingId] =
+                    appointment.notes || "";
 
             }
         );
+
 
         setSelectedAppointments(
             statusMap
         );
 
+        setAppointmentNotes(
+            notesMap
+        );
+
     }, [appointments]);
+
+
+    // ==========================================
+    // GET BOOKING ID
+    // ==========================================
+
+    const getBookingId = (
+        appointment
+    ) => {
+
+        return (
+            appointment.booking_id ||
+            appointment.id
+        );
+
+    };
+
+
+    // ==========================================
+    // HANDLE NOTE CHANGE
+    // ==========================================
+
+    const handleNoteChange = (
+        appointment,
+        value
+    ) => {
+
+        const bookingId =
+            getBookingId(
+                appointment
+            );
+
+
+        if (!bookingId) {
+            return;
+        }
+
+
+        setAppointmentNotes(
+            (prev) => ({
+
+                ...prev,
+
+                [bookingId]:
+                    value,
+
+            })
+        );
+
+    };
+
+
+    // ==========================================
+    // START EDIT NOTE
+    // ==========================================
+
+    const handleEditNote = (
+        appointment
+    ) => {
+
+        const bookingId =
+            getBookingId(
+                appointment
+            );
+
+
+        if (!bookingId) {
+            return;
+        }
+
+
+        setEditingNote(
+            bookingId
+        );
+
+
+        setTimeout(() => {
+
+            noteInputRefs.current[
+                bookingId
+            ]?.focus();
+
+        }, 50);
+
+    };
+
+
+    // ==========================================
+    // CANCEL EDIT NOTE
+    // ==========================================
+
+    const handleCancelNote = (
+        appointment
+    ) => {
+
+        const bookingId =
+            getBookingId(
+                appointment
+            );
+
+
+        if (!bookingId) {
+            return;
+        }
+
+
+        // Restore original note
+
+        setAppointmentNotes(
+            (prev) => ({
+
+                ...prev,
+
+                [bookingId]:
+                    appointment.notes || "",
+
+            })
+        );
+
+
+        setEditingNote(
+            null
+        );
+
+    };
+
+
+    // ==========================================
+    // SAVE NOTE
+    // ==========================================
+    // Uses the SAME PUT API.
+    //
+    // Sends:
+    // booking_ids
+    // notes
+    // status
+    // ==========================================
+
+    const handleSaveNote = async (
+        appointment
+    ) => {
+
+        const bookingId =
+            getBookingId(
+                appointment
+            );
+
+
+        if (!bookingId) {
+            return;
+        }
+
+
+        const notes =
+            appointmentNotes[
+                bookingId
+            ] || "";
+
+
+        const currentStatus =
+            appointment.status ||
+            (
+                selectedAppointments[
+                    bookingId
+                ]
+                    ? "completed"
+                    : "booked"
+            );
+
+
+        try {
+
+            await dispatch(
+                completeTherapistAppointments({
+
+                    bookingIds: [
+                        bookingId,
+                    ],
+
+                    notes,
+
+                    status:
+                        currentStatus,
+
+                })
+            ).unwrap();
+
+
+            setEditingNote(
+                null
+            );
+
+
+            // Reload latest API data
+
+            dispatch(
+                loadTherapistAppointments()
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Failed to update note:",
+                error
+            );
+
+        }
+
+    };
 
 
     // ==========================================
@@ -110,8 +387,9 @@ const TherapistAppointments = () => {
     ) => {
 
         const bookingId =
-            appointment.booking_id ||
-            appointment.id;
+            getBookingId(
+                appointment
+            );
 
 
         if (!bookingId) {
@@ -136,37 +414,65 @@ const TherapistAppointments = () => {
             !previousValue;
 
 
-        // ==========================================
-        // UPDATE ONLY THIS CHECKBOX
-        // ==========================================
+        // ======================================
+        // UPDATE UI IMMEDIATELY
+        // ======================================
 
         setSelectedAppointments(
             (prev) => ({
+
                 ...prev,
+
                 [bookingId]:
                     newValue,
+
             })
         );
 
 
-        // ==========================================
+        // ======================================
         // CHECKING
-        // ==========================================
+        // ======================================
 
         if (newValue) {
 
             try {
 
+                const notes =
+                    appointmentNotes[
+                        bookingId
+                    ] ||
+                    appointment.notes ||
+                    "";
+
+
                 await dispatch(
-                    completeTherapistAppointments(
-                        [bookingId]
-                    )
+                    completeTherapistAppointments({
+
+                        bookingIds: [
+                            bookingId,
+                        ],
+
+                        notes,
+
+                        status:
+                            "completed",
+
+                    })
                 ).unwrap();
 
 
                 console.log(
                     "Appointment completed:",
                     bookingId
+                );
+
+
+                // Update local appointment data
+                // without changing other rows
+
+                dispatch(
+                    loadTherapistAppointments()
                 );
 
 
@@ -178,33 +484,24 @@ const TherapistAppointments = () => {
                 );
 
 
-                // ==========================================
+                // ==================================
                 // ROLLBACK ONLY THIS CHECKBOX
-                // ==========================================
+                // ==================================
 
                 setSelectedAppointments(
                     (prev) => ({
+
                         ...prev,
+
                         [bookingId]:
                             previousValue,
+
                     })
                 );
 
             }
 
         }
-
-        // ==========================================
-        // UNCHECKING
-        // ==========================================
-        // No API call here because your current
-        // backend API only provides:
-        //
-        // PUT /therapist/appointments/complete
-        //
-        // There is currently no "uncomplete"
-        // API provided.
-        // ==========================================
 
     };
 
@@ -213,24 +510,7 @@ const TherapistAppointments = () => {
     // FORMAT PRICE
     // ==========================================
 
-    const formatPrice = (price) => {
-
-        if (
-            price === null ||
-            price === undefined ||
-            price === ""
-        ) {
-
-            return "₹0";
-
-        }
-
-
-        return `₹${Number(
-            price
-        ).toLocaleString("en-IN")}`;
-
-    };
+  
 
 
     // ==========================================
@@ -239,13 +519,14 @@ const TherapistAppointments = () => {
 
     return (
 
-        <div className="
-            min-h-screen
-            bg-[#F8F6F3]
-            px-8
-            py-6
-        ">
-
+        <div
+            className="
+                min-h-screen
+                bg-[#F8F6F3]
+                px-8
+                py-6
+            "
+        >
 
             {/* ================================= */}
             {/* BACK BUTTON */}
@@ -283,31 +564,42 @@ const TherapistAppointments = () => {
             {/* HEADER */}
             {/* ================================= */}
 
-            <div className="
-                mt-8
-                flex
-                items-start
-                justify-between
-            ">
+            <div
+                className="
+                    mt-8
+                    flex
+                    items-start
+                    justify-between
+                "
+            >
 
                 <div>
 
-                    <h1 className="
-                        text-[30px]
-                        font-bold
-                        text-[#2F2F2F]
-                    ">
+                    <h1
+                        className="
+                            text-[30px]
+                            font-bold
+                            text-[#2F2F2F]
+                        "
+                    >
                         Today's Appointments
                     </h1>
 
 
-                    <p className="
-                        mt-2
-                        text-[17px]
-                        text-[#5B3A32]
-                    ">
+                    <p
+                        className="
+                            mt-2
+                            text-[17px]
+                            text-[#5B3A32]
+                        "
+                    >
 
-                        <span className="mr-2">
+                        <span
+                            className="
+                                mr-2
+                                text-[#4D2E23]
+                            "
+                        >
                             •
                         </span>
 
@@ -325,20 +617,22 @@ const TherapistAppointments = () => {
                 {/* APPOINTMENTS BADGE */}
                 {/* ================================= */}
 
-                <div className="
-                    flex
-                    h-12
-                    items-center
-                    gap-2
-                    rounded-xl
-                    border
-                    border-[#E7DBD3]
-                    bg-white
-                    px-5
-                    text-[15px]
-                    font-medium
-                    text-[#4D2E23]
-                ">
+                <div
+                    className="
+                        flex
+                        h-12
+                        items-center
+                        gap-2
+                        rounded-xl
+                        border
+                        border-[#E7DBD3]
+                        bg-white
+                        px-5
+                        text-[15px]
+                        font-medium
+                        text-[#4D2E23]
+                    "
+                >
 
                     <HiOutlineCalendar
                         size={19}
@@ -357,21 +651,24 @@ const TherapistAppointments = () => {
 
             {error && (
 
-                <div className="
-                    mt-6
-                    rounded-xl
-                    border
-                    border-red-200
-                    bg-red-50
-                    px-5
-                    py-4
-                    text-sm
-                    text-red-600
-                ">
+                <div
+                    className="
+                        mt-6
+                        rounded-xl
+                        border
+                        border-red-200
+                        bg-red-50
+                        px-5
+                        py-4
+                        text-sm
+                        text-red-600
+                    "
+                >
 
                     {typeof error === "string"
                         ? error
-                        : "Failed to load appointments"}
+                        : error?.message ||
+                          "Failed to load appointments"}
 
                 </div>
 
@@ -379,472 +676,768 @@ const TherapistAppointments = () => {
 
 
             {/* ================================= */}
-            {/* TABLE */}
+            {/* TABLE OUTER */}
             {/* ================================= */}
 
-            <div className="
-                mt-6
-                overflow-hidden
-                rounded-[24px]
-                border
-                border-[#E7DBD3]
-                bg-white
-            ">
-
+            <div
+                className="
+                    mt-6
+                    overflow-x-auto
+                    rounded-[24px]
+                    border
+                    border-[#E7DBD3]
+                    bg-white
+                "
+            >
 
                 {/* ================================= */}
-                {/* TABLE HEADER */}
-                {/* ================================= */}
+                {/* FIXED TABLE WIDTH
+                ================================== */}
 
-                <div className="
-                    grid
-                    min-w-[1100px]
-                    grid-cols-[1.5fr_1.25fr_0.9fr_1.2fr_1.2fr_0.55fr_0.8fr_0.7fr]
-                    border-b
-                    border-[#EFE2D7]
-                    bg-[#FFF9F3]
-                ">
+                <div
+                    className="
+                        min-w-[1400px]
+                    "
+                >
+
+                    {/* ================================= */}
+                    {/* TABLE HEADER */}
+                    {/* ================================= */}
+
+                    <div
+                        className="
+                            grid
+                            grid-cols-[210px_160px_125px_160px_160px_70px_245px_75px]
+                            border-b
+                            border-[#EFE2D7]
+                            bg-[#FFF9F3]
+                        "
+                    >
+
+                        {/* PATIENT */}
+
+                        <div
+                            className="
+                                border-r
+                                border-[#EFE2D7]
+                                px-5
+                                py-5
+                                text-[15px]
+                                font-semibold
+                                text-[#4D2E23]
+                            "
+                        >
+                            Patient Details
+                        </div>
 
 
-                    {/* PATIENT DETAILS */}
+                        {/* THERAPY */}
 
-                    <div className="
-                        border-r
-                        border-[#EFE2D7]
-                        px-5
-                        py-5
-                        text-[15px]
-                        font-semibold
-                        text-[#4D2E23]
-                    ">
-                        Patient Details
+                        <div
+                            className="
+                                border-r
+                                border-[#EFE2D7]
+                                px-5
+                                py-5
+                                text-[15px]
+                                font-semibold
+                                text-[#4D2E23]
+                            "
+                        >
+                            Therapy
+                        </div>
+
+
+                        {/* TIME */}
+
+                        <div
+                            className="
+                                border-r
+                                border-[#EFE2D7]
+                                px-5
+                                py-5
+                                text-center
+                                text-[15px]
+                                font-semibold
+                                text-[#4D2E23]
+                            "
+                        >
+                            Time
+                        </div>
+
+
+                        {/* DOCTOR */}
+
+                        <div
+                            className="
+                                border-r
+                                border-[#EFE2D7]
+                                px-5
+                                py-5
+                                text-[15px]
+                                font-semibold
+                                text-[#4D2E23]
+                            "
+                        >
+                            Doctor
+                        </div>
+
+
+                        {/* THERAPIST */}
+
+                        <div
+                            className="
+                                border-r
+                                border-[#EFE2D7]
+                                px-5
+                                py-5
+                                text-[15px]
+                                font-semibold
+                                text-[#4D2E23]
+                            "
+                        >
+                            Therapist
+                        </div>
+
+
+                        {/* ROOM */}
+
+                        <div
+                            className="
+                                border-r
+                                border-[#EFE2D7]
+                                px-3
+                                py-5
+                                text-center
+                                text-[15px]
+                                font-semibold
+                                text-[#4D2E23]
+                            "
+                        >
+                            Room
+                        </div>
+
+
+                        {/* NOTES */}
+
+                        <div
+                            className="
+                                border-r
+                                border-[#EFE2D7]
+                                px-5
+                                py-5
+                                text-[15px]
+                                font-semibold
+                                text-[#4D2E23]
+                            "
+                        >
+                            Notes
+                        </div>
+
+
+                        {/* STATUS */}
+
+                        <div
+                            className="
+                                px-3
+                                py-5
+                                text-center
+                                text-[15px]
+                                font-semibold
+                                text-[#4D2E23]
+                            "
+                        >
+                            Status
+                        </div>
+
                     </div>
 
 
-                    {/* THERAPY */}
+                    {/* ================================= */}
+                    {/* LOADING */}
+                    {/* ================================= */}
 
-                    <div className="
-                        border-r
-                        border-[#EFE2D7]
-                        px-5
-                        py-5
-                        text-[15px]
-                        font-semibold
-                        text-[#4D2E23]
-                    ">
-                        Therapy
-                    </div>
+                    {loading ? (
 
+                        <div
+                            className="
+                                flex
+                                h-40
+                                items-center
+                                justify-center
+                                text-[#8A756B]
+                            "
+                        >
+                            Loading appointments...
+                        </div>
 
-                    {/* TIME */}
+                    ) : appointments.length === 0 ? (
 
-                    <div className="
-                        border-r
-                        border-[#EFE2D7]
-                        px-5
-                        py-5
-                        text-center
-                        text-[15px]
-                        font-semibold
-                        text-[#4D2E23]
-                    ">
-                        Time
-                    </div>
+                        /* ================================= */
+                        /* EMPTY */
+                        /* ================================= */
 
+                        <div
+                            className="
+                                flex
+                                h-40
+                                items-center
+                                justify-center
+                                text-[#8A756B]
+                            "
+                        >
+                            No appointments found
+                        </div>
 
-                    {/* DOCTOR */}
+                    ) : (
 
-                    <div className="
-                        border-r
-                        border-[#EFE2D7]
-                        px-5
-                        py-5
-                        text-[15px]
-                        font-semibold
-                        text-[#4D2E23]
-                    ">
-                        Doctor
-                    </div>
+                        /* ================================= */
+                        /* ROWS */
+                        /* ================================= */
 
+                        <div>
 
-                    {/* THERAPIST */}
+                            {appointments.map(
+                                (
+                                    appointment,
+                                    index
+                                ) => {
 
-                    <div className="
-                        border-r
-                        border-[#EFE2D7]
-                        px-5
-                        py-5
-                        text-[15px]
-                        font-semibold
-                        text-[#4D2E23]
-                    ">
-                        Therapist
-                    </div>
+                                    const bookingId =
+                                        getBookingId(
+                                            appointment
+                                        );
 
 
-                    {/* ROOM */}
-
-                    <div className="
-                        border-r
-                        border-[#EFE2D7]
-                        px-4
-                        py-5
-                        text-center
-                        text-[15px]
-                        font-semibold
-                        text-[#4D2E23]
-                    ">
-                        Room
-                    </div>
+                                    const isChecked =
+                                        selectedAppointments[
+                                            bookingId
+                                        ] || false;
 
 
-                    {/* PRICE */}
-
-                    <div className="
-                        border-r
-                        border-[#EFE2D7]
-                        px-4
-                        py-5
-                        text-center
-                        text-[15px]
-                        font-semibold
-                        text-[#4D2E23]
-                    ">
-                        Price
-                    </div>
+                                    const note =
+                                        appointmentNotes[
+                                            bookingId
+                                        ] || "";
 
 
-                    {/* STATUS */}
+                                    const isEditing =
+                                        editingNote ===
+                                        bookingId;
 
-                    <div className="
-                        px-4
-                        py-5
-                        text-center
-                        text-[15px]
-                        font-semibold
-                        text-[#4D2E23]
-                    ">
-                        Status
-                    </div>
+
+                                    return (
+
+                                        <div
+                                            key={
+                                                bookingId ||
+                                                `${appointment.patient_id}-${appointment.slot_time}-${index}`
+                                            }
+                                            className={`
+                                                grid
+                                                grid-cols-[210px_160px_125px_160px_160px_70px_245px_75px]
+                                                border-b
+                                                border-[#EFE2D7]
+                                                last:border-b-0
+                                                transition
+                                                hover:bg-[#FFFCF9]
+                                                ${
+                                                    isEditing
+                                                        ? "bg-[#FFF5EA]"
+                                                        : ""
+                                                }
+                                            `}
+                                        >
+
+                                            {/* ================================= */}
+                                            {/* PATIENT DETAILS */}
+                                            {/* ================================= */}
+
+                                            <div
+                                                className="
+                                                    min-w-0
+                                                    border-r
+                                                    border-[#EFE2D7]
+                                                    px-5
+                                                    py-5
+                                                "
+                                            >
+
+                                                <h3
+                                                    className="
+                                                        truncate
+                                                        text-[16px]
+                                                        font-semibold
+                                                        text-[#4D2E23]
+                                                    "
+                                                    title={
+                                                        appointment.patient_name
+                                                    }
+                                                >
+                                                    {appointment.patient_name ||
+                                                        "Unknown Patient"}
+                                                </h3>
+
+
+                                                <p
+                                                    className="
+                                                        mt-1
+                                                        truncate
+                                                        text-[13px]
+                                                        text-[#858585]
+                                                    "
+                                                >
+                                                    Patient ID:{" "}
+                                                    {appointment.patient_id ||
+                                                        appointment.patient_code ||
+                                                        "-"}
+                                                </p>
+
+                                            </div>
+
+
+                                            {/* ================================= */}
+                                            {/* THERAPY */}
+                                            {/* ================================= */}
+
+                                            <div
+                                                className="
+                                                    min-w-0
+                                                    border-r
+                                                    border-[#EFE2D7]
+                                                    px-5
+                                                    py-5
+                                                "
+                                            >
+
+                                                <h3
+                                                    className="
+                                                        truncate
+                                                        text-[16px]
+                                                        font-semibold
+                                                        text-[#4D2E23]
+                                                    "
+                                                    title={
+                                                        appointment.therapy_name
+                                                    }
+                                                >
+                                                    {appointment.therapy_name ||
+                                                        "Therapy"}
+                                                </h3>
+
+
+                                                <p
+                                                    className="
+                                                        mt-1
+                                                        truncate
+                                                        text-[13px]
+                                                        text-[#858585]
+                                                    "
+                                                >
+                                                    {appointment.duration ||
+                                                        "-"}
+                                                </p>
+
+                                            </div>
+
+
+                                            {/* ================================= */}
+                                            {/* TIME */}
+                                            {/* ================================= */}
+
+                                            <div
+                                                className="
+                                                    flex
+                                                    items-center
+                                                    justify-center
+                                                    border-r
+                                                    border-[#EFE2D7]
+                                                    px-4
+                                                    py-5
+                                                    text-center
+                                                "
+                                            >
+
+                                                <span
+                                                    className="
+                                                        whitespace-nowrap
+                                                        text-[16px]
+                                                        font-semibold
+                                                        text-[#4D2E23]
+                                                    "
+                                                >
+                                                    {appointment.time ||
+                                                        appointment.slot_time ||
+                                                        "-"}
+                                                </span>
+
+                                            </div>
+
+
+                                            {/* ================================= */}
+                                            {/* DOCTOR */}
+                                            {/* ================================= */}
+
+                                            <div
+                                                className="
+                                                    flex
+                                                    min-w-0
+                                                    items-center
+                                                    border-r
+                                                    border-[#EFE2D7]
+                                                    px-5
+                                                    py-5
+                                                "
+                                            >
+
+                                                <span
+                                                    className="
+                                                        truncate
+                                                        text-[16px]
+                                                        font-semibold
+                                                        text-[#4D2E23]
+                                                    "
+                                                    title={
+                                                        appointment.doctor_name ||
+                                                        ""
+                                                    }
+                                                >
+                                                    {appointment.doctor_name ||
+                                                        "-"}
+                                                </span>
+
+                                            </div>
+
+
+                                            {/* ================================= */}
+                                            {/* THERAPIST */}
+                                            {/* ================================= */}
+
+                                            <div
+                                                className="
+                                                    flex
+                                                    min-w-0
+                                                    items-center
+                                                    border-r
+                                                    border-[#EFE2D7]
+                                                    px-5
+                                                    py-5
+                                                "
+                                            >
+
+                                                <span
+                                                    className="
+                                                        truncate
+                                                        text-[16px]
+                                                        font-semibold
+                                                        text-[#4D2E23]
+                                                    "
+                                                    title={
+                                                        appointment.therapist_name ||
+                                                        ""
+                                                    }
+                                                >
+                                                    {appointment.therapist_name ||
+                                                        "-"}
+                                                </span>
+
+                                            </div>
+
+
+                                            {/* ================================= */}
+                                            {/* ROOM */}
+                                            {/* ================================= */}
+
+                                            <div
+                                                className="
+                                                    flex
+                                                    items-center
+                                                    justify-center
+                                                    border-r
+                                                    border-[#EFE2D7]
+                                                    px-3
+                                                    py-5
+                                                "
+                                            >
+
+                                                <span
+                                                    className="
+                                                        text-[16px]
+                                                        font-semibold
+                                                        text-[#4D2E23]
+                                                    "
+                                                >
+                                                    {appointment.room ||
+                                                        "-"}
+                                                </span>
+
+                                            </div>
+
+
+                                            {/* ================================= */}
+                                            {/* NOTES */}
+                                            {/* ================================= */}
+
+                                            <div
+                                                className="
+                                                    flex
+                                                    min-w-0
+                                                    items-center
+                                                    border-r
+                                                    border-[#EFE2D7]
+                                                    px-3
+                                                    py-4
+                                                "
+                                            >
+
+                                                <div
+                                                    className="
+                                                        flex
+                                                        h-[50px]
+                                                        w-full
+                                                        min-w-0
+                                                        items-center
+                                                        rounded-full
+                                                        border
+                                                        border-[#E7D6C5]
+                                                        bg-white
+                                                        px-4
+                                                    "
+                                                >
+
+                                                    {/* NOTE INPUT */}
+
+                                                    <input
+                                                        ref={(element) => {
+
+                                                            noteInputRefs.current[
+                                                                bookingId
+                                                            ] = element;
+
+                                                        }}
+                                                        type="text"
+                                                        value={note}
+                                                        onChange={(event) =>
+                                                            handleNoteChange(
+                                                                appointment,
+                                                                event.target.value
+                                                            )
+                                                        }
+                                                        onKeyDown={(
+                                                            event
+                                                        ) => {
+
+                                                            if (
+                                                                event.key ===
+                                                                "Enter"
+                                                            ) {
+
+                                                                event.preventDefault();
+
+                                                                handleSaveNote(
+                                                                    appointment
+                                                                );
+
+                                                            }
+
+                                                            if (
+                                                                event.key ===
+                                                                "Escape"
+                                                            ) {
+
+                                                                handleCancelNote(
+                                                                    appointment
+                                                                );
+
+                                                            }
+
+                                                        }}
+                                                        disabled={
+                                                            !isEditing
+                                                        }
+                                                        placeholder="Add note..."
+                                                        maxLength={500}
+                                                        className="
+                                                            min-w-0
+                                                            flex-1
+                                                            bg-transparent
+                                                            text-[14px]
+                                                            text-[#3F332E]
+                                                            outline-none
+                                                            placeholder:text-[#858585]
+                                                            disabled:cursor-default
+                                                        "
+                                                    />
+
+
+                                                    {/* NOTE ACTION */}
+
+                                                    {isEditing ? (
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleSaveNote(
+                                                                    appointment
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                completingAppointments
+                                                            }
+                                                            className="
+                                                                ml-2
+                                                                flex
+                                                                h-8
+                                                                w-8
+                                                                flex-shrink-0
+                                                                items-center
+                                                                justify-center
+                                                                rounded-full
+                                                                text-[#4D2E23]
+                                                                transition
+                                                                hover:bg-[#F7EDE5]
+                                                                disabled:opacity-50
+                                                            "
+                                                            title="Save note"
+                                                        >
+
+                                                            <HiOutlineCalendar
+                                                                size={18}
+                                                                className="
+                                                                    rotate-45
+                                                                "
+                                                            />
+
+                                                        </button>
+
+                                                    ) : (
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleEditNote(
+                                                                    appointment
+                                                                )
+                                                            }
+                                                            className="
+                                                                ml-2
+                                                                flex
+                                                                h-8
+                                                                w-8
+                                                                flex-shrink-0
+                                                                items-center
+                                                                justify-center
+                                                                rounded-full
+                                                                text-[#4D2E23]
+                                                                transition
+                                                                hover:bg-[#F7EDE5]
+                                                            "
+                                                            title="Edit note"
+                                                        >
+
+                                                            <HiOutlinePencil
+                                                                size={19}
+                                                            />
+
+                                                        </button>
+
+                                                    )}
+
+                                                </div>
+
+                                            </div>
+
+
+                                            {/* ================================= */}
+                                            {/* STATUS */}
+                                            {/* ================================= */}
+
+                                            <div
+                                                className="
+                                                    flex
+                                                    items-center
+                                                    justify-center
+                                                    px-3
+                                                    py-5
+                                                "
+                                            >
+
+                                                <button
+                                                    type="button"
+                                                    role="checkbox"
+                                                    aria-checked={
+                                                        isChecked
+                                                    }
+                                                    disabled={
+                                                        completingAppointments
+                                                    }
+                                                    onClick={() =>
+                                                        handleStatusChange(
+                                                            appointment
+                                                        )
+                                                    }
+                                                    className={`
+                                                        flex
+                                                        h-[23px]
+                                                        w-[23px]
+                                                        flex-shrink-0
+                                                        items-center
+                                                        justify-center
+                                                        rounded-[4px]
+                                                        border-[2px]
+                                                        transition
+                                                        ${
+                                                            isChecked
+                                                                ? "border-[#4D2E23] bg-[#4D2E23]"
+                                                                : "border-[#4D2E23] bg-white"
+                                                        }
+                                                        ${
+                                                            completingAppointments
+                                                                ? "cursor-not-allowed opacity-50"
+                                                                : "cursor-pointer"
+                                                        }
+                                                    `}
+                                                >
+
+                                                    {isChecked && (
+
+                                                        <svg
+                                                            viewBox="0 0 20 20"
+                                                            fill="none"
+                                                            className="
+                                                                h-[16px]
+                                                                w-[16px]
+                                                            "
+                                                        >
+
+                                                            <path
+                                                                d="M4 10.5L8 14.5L16 6"
+                                                                stroke="white"
+                                                                strokeWidth="2.5"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                            />
+
+                                                        </svg>
+
+                                                    )}
+
+                                                </button>
+
+                                            </div>
+
+                                        </div>
+
+                                    );
+
+                                }
+                            )}
+
+                        </div>
+
+                    )}
 
                 </div>
-
-
-                {/* ================================= */}
-                {/* INITIAL LOADING */}
-                {/* ================================= */}
-
-                {loading ? (
-
-                    <div className="
-                        flex
-                        h-40
-                        items-center
-                        justify-center
-                        text-[#8A756B]
-                    ">
-                        Loading appointments...
-                    </div>
-
-                ) : appointments.length === 0 ? (
-
-                    /* ================================= */
-                    /* EMPTY */
-                    /* ================================= */
-
-                    <div className="
-                        flex
-                        h-40
-                        items-center
-                        justify-center
-                        text-[#8A756B]
-                    ">
-                        No appointments found
-                    </div>
-
-                ) : (
-
-                    /* ================================= */
-                    /* APPOINTMENT ROWS */
-                    /* ================================= */
-
-                    <div className="min-w-[1100px]">
-
-                        {appointments.map(
-                            (
-                                appointment,
-                                index
-                            ) => {
-
-                                const bookingId =
-                                    appointment.booking_id ||
-                                    appointment.id;
-
-
-                                return (
-
-                                    <div
-                                        key={
-                                            bookingId ||
-                                            `${appointment.patient_id}-${appointment.slot_time}-${index}`
-                                        }
-                                        className="
-                                            grid
-                                            grid-cols-[1.5fr_1.25fr_0.9fr_1.2fr_1.2fr_0.55fr_0.8fr_0.7fr]
-                                            border-b
-                                            border-[#EFE2D7]
-                                            last:border-b-0
-                                            transition
-                                            hover:bg-[#FFFCF9]
-                                        "
-                                    >
-
-
-                                        {/* ================================= */}
-                                        {/* PATIENT DETAILS */}
-                                        {/* ================================= */}
-
-                                        <div className="
-                                            border-r
-                                            border-[#EFE2D7]
-                                            px-5
-                                            py-5
-                                        ">
-
-                                            <h3 className="
-                                                text-[16px]
-                                                font-semibold
-                                                text-[#4D2E23]
-                                            ">
-                                                {appointment.patient_name ||
-                                                    "Unknown Patient"}
-                                            </h3>
-
-
-                                            <p className="
-                                                mt-1
-                                                text-[13px]
-                                                text-[#858585]
-                                            ">
-                                                Patient ID:{" "}
-                                                {appointment.patient_id ||
-                                                    appointment.patient_code ||
-                                                    "-"}
-                                            </p>
-
-                                        </div>
-
-
-                                        {/* ================================= */}
-                                        {/* THERAPY */}
-                                        {/* ================================= */}
-
-                                        <div className="
-                                            border-r
-                                            border-[#EFE2D7]
-                                            px-5
-                                            py-5
-                                        ">
-
-                                            <h3 className="
-                                                text-[16px]
-                                                font-semibold
-                                                text-[#4D2E23]
-                                            ">
-                                                {appointment.therapy_name ||
-                                                    "Therapy"}
-                                            </h3>
-
-
-                                            <p className="
-                                                mt-1
-                                                text-[13px]
-                                                text-[#858585]
-                                            ">
-                                                {appointment.duration ||
-                                                    "-"}
-                                            </p>
-
-                                        </div>
-
-
-                                        {/* ================================= */}
-                                        {/* TIME */}
-                                        {/* ================================= */}
-
-                                        <div className="
-                                            flex
-                                            items-center
-                                            justify-center
-                                            border-r
-                                            border-[#EFE2D7]
-                                            px-4
-                                            py-5
-                                            text-center
-                                        ">
-
-                                            <span className="
-                                                text-[16px]
-                                                font-semibold
-                                                text-[#4D2E23]
-                                            ">
-                                                {appointment.time ||
-                                                    appointment.slot_time ||
-                                                    "-"}
-                                            </span>
-
-                                        </div>
-
-
-                                        {/* ================================= */}
-                                        {/* DOCTOR */}
-                                        {/* ================================= */}
-
-                                        <div className="
-                                            flex
-                                            items-center
-                                            border-r
-                                            border-[#EFE2D7]
-                                            px-5
-                                            py-5
-                                        ">
-
-                                            <span className="
-                                                text-[16px]
-                                                font-semibold
-                                                text-[#4D2E23]
-                                            ">
-                                                {appointment.doctor_name ||
-                                                    "-"}
-                                            </span>
-
-                                        </div>
-
-
-                                        {/* ================================= */}
-                                        {/* THERAPIST */}
-                                        {/* ================================= */}
-
-                                        <div className="
-                                            flex
-                                            items-center
-                                            border-r
-                                            border-[#EFE2D7]
-                                            px-5
-                                            py-5
-                                        ">
-
-                                            <span className="
-                                                text-[16px]
-                                                font-semibold
-                                                text-[#4D2E23]
-                                            ">
-                                                {appointment.therapist_name ||
-                                                    "-"}
-                                            </span>
-
-                                        </div>
-
-
-                                        {/* ================================= */}
-                                        {/* ROOM */}
-                                        {/* ================================= */}
-
-                                        <div className="
-                                            flex
-                                            items-center
-                                            justify-center
-                                            border-r
-                                            border-[#EFE2D7]
-                                            px-4
-                                            py-5
-                                            text-center
-                                        ">
-
-                                            <span className="
-                                                text-[16px]
-                                                font-semibold
-                                                text-[#4D2E23]
-                                            ">
-                                                {appointment.room ||
-                                                    "-"}
-                                            </span>
-
-                                        </div>
-
-
-                                        {/* ================================= */}
-                                        {/* PRICE */}
-                                        {/* ================================= */}
-
-                                        <div className="
-                                            flex
-                                            items-center
-                                            justify-center
-                                            border-r
-                                            border-[#EFE2D7]
-                                            px-4
-                                            py-5
-                                            text-center
-                                        ">
-
-                                            <span className="
-                                                text-[16px]
-                                                font-semibold
-                                                text-[#4D2E23]
-                                            ">
-                                                {formatPrice(
-                                                    appointment.price
-                                                )}
-                                            </span>
-
-                                        </div>
-
-
-                                        {/* ================================= */}
-                                        {/* STATUS */}
-                                        {/* ================================= */}
-
-                                        <div className="
-                                            flex
-                                            items-center
-                                            justify-center
-                                            px-4
-                                            py-5
-                                        ">
-
-                                            <input
-                                                type="checkbox"
-                                                checked={
-                                                    selectedAppointments[
-                                                        bookingId
-                                                    ] || false
-                                                }
-                                                onChange={() =>
-                                                    handleStatusChange(
-                                                        appointment
-                                                    )
-                                                }
-                                                className="
-                                                    h-5
-                                                    w-5
-                                                    cursor-pointer
-                                                    accent-[#4D2E23]
-                                                "
-                                            />
-
-                                        </div>
-
-                                    </div>
-
-                                );
-
-                            }
-                        )}
-
-                    </div>
-
-                )}
 
             </div>
 

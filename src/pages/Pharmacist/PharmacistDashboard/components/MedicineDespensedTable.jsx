@@ -42,9 +42,7 @@ const MedicineDispensedTable = () => {
         );
 
 
-    // ==========================================
-    // PERIOD
-    // ==========================================
+
 
     const [period, setPeriod] =
         useState("This Week");
@@ -53,9 +51,7 @@ const MedicineDispensedTable = () => {
         useState(false);
 
 
-    // ==========================================
-    // LOAD DATA
-    // ==========================================
+
 
     useEffect(() => {
 
@@ -104,9 +100,7 @@ const MedicineDispensedTable = () => {
     };
 
 
-    // ==========================================
-    // PERIOD FILTER
-    // ==========================================
+
 
     const filteredMedicines = useMemo(() => {
 
@@ -167,9 +161,9 @@ const MedicineDispensedTable = () => {
 
                     return (
                         medicineDate.getFullYear() ===
-                            now.getFullYear() &&
+                        now.getFullYear() &&
                         medicineDate.getMonth() ===
-                            now.getMonth()
+                        now.getMonth()
                     );
 
                 }
@@ -178,10 +172,6 @@ const MedicineDispensedTable = () => {
         }
 
 
-        // ======================================
-        // THIS WEEK
-        // Monday -> Sunday
-        // ======================================
 
         const currentDay =
             now.getDay();
@@ -196,7 +186,7 @@ const MedicineDispensedTable = () => {
                 now.getFullYear(),
                 now.getMonth(),
                 now.getDate() -
-                    daysFromMonday
+                daysFromMonday
             );
 
         weekStart.setHours(
@@ -227,9 +217,9 @@ const MedicineDispensedTable = () => {
 
                 return (
                     medicineDate >=
-                        weekStart &&
+                    weekStart &&
                     medicineDate <
-                        weekEnd
+                    weekEnd
                 );
 
             }
@@ -241,9 +231,7 @@ const MedicineDispensedTable = () => {
     ]);
 
 
-    // ==========================================
-    // TOTAL QUANTITY
-    // ==========================================
+
 
     const totalMedicines =
         useMemo(() => {
@@ -278,9 +266,7 @@ const MedicineDispensedTable = () => {
         ]);
 
 
-    // ==========================================
-    // TABLE ROW
-    // ==========================================
+
 
     const renderTableRow = (
         medicine,
@@ -691,14 +677,13 @@ const MedicineDispensedTable = () => {
                             py-1.5
                             text-[12px]
                             font-medium
-                            ${
-                                paymentMode
-                                    .toLowerCase() === "cash"
-                                    ? "bg-[#E9F8ED] text-[#34794A]"
-                                    : paymentMode
-                                        .toLowerCase() === "upi"
-                                        ? "bg-[#FBEAF9] text-[#8A4282]"
-                                        : "bg-[#F7F0E4] text-[#705536]"
+                            ${paymentMode
+                                .toLowerCase() === "cash"
+                                ? "bg-[#E9F8ED] text-[#34794A]"
+                                : paymentMode
+                                    .toLowerCase() === "upi"
+                                    ? "bg-[#FBEAF9] text-[#8A4282]"
+                                    : "bg-[#F7F0E4] text-[#705536]"
                             }
                         `}
                     >
@@ -757,9 +742,7 @@ const MedicineDispensedTable = () => {
     }
 
 
-    // ==========================================
-    // ERROR
-    // ==========================================
+
 
     if (
         error &&
@@ -806,8 +789,8 @@ const MedicineDispensedTable = () => {
     return (
         <DashboardLayout role="pharmacist">
 
-        <div
-            className="
+            <div
+                className="
                 min-h-screen
                 bg-white
                 px-5
@@ -815,33 +798,30 @@ const MedicineDispensedTable = () => {
                 md:px-6
                 md:py-6
             "
-        >
+            >
 
-            {/* ================================= */}
-            {/* HEADER */}
-            {/* ================================= */}
 
-            <div
-                className="
+                <div
+                    className="
                     flex
                     items-center
                     justify-between
                     gap-4
                     pb-5
                 "
-            >
+                >
 
-                <div
-                    className="
+                    <div
+                        className="
                         flex
                         items-center
                         gap-3
                     "
-                >
+                    >
 
-                    <button
-                        type="button"
-                        className="
+                        <button
+                            type="button"
+                            className="
                             flex
                             h-9
                             w-9
@@ -852,65 +832,62 @@ const MedicineDispensedTable = () => {
                             transition
                             hover:bg-[#FFF5ED]
                         "
-                        onClick={() =>
-                            window.history.back()
-                        }
-                    >
+                            onClick={() =>
+                                window.history.back()
+                            }
+                        >
 
-                        <ArrowLeft
-                            size={22}
-                        />
+                            <ArrowLeft
+                                size={22}
+                            />
 
-                    </button>
+                        </button>
 
-                    <div>
+                        <div>
 
-                        <h1
-                            className="
+                            <h1
+                                className="
                                 text-[20px]
                                 font-semibold
                                 text-[#292929]
                                 md:text-[21px]
                             "
-                        >
-                            Medicines Dispensed
-                        </h1>
+                            >
+                                Medicines Dispensed
+                            </h1>
 
-                        <p
-                            className="
+                            <p
+                                className="
                                 mt-1
                                 text-[13px]
                                 text-[#777777]
                             "
-                        >
-                            {totalMedicines ||
-                                filteredMedicines.length}{" "}
-                            Total Medicines
-                        </p>
+                            >
+                                {totalMedicines ||
+                                    filteredMedicines.length}{" "}
+                                Total Medicines
+                            </p>
+
+                        </div>
 
                     </div>
 
-                </div>
 
 
-                {/* ================================= */}
-                {/* PERIOD DROPDOWN */}
-                {/* ================================= */}
-
-                <div
-                    className="
+                    <div
+                        className="
                         relative
                     "
-                >
+                    >
 
-                    <button
-                        type="button"
-                        onClick={() =>
-                            setShowPeriodMenu(
-                                (value) => !value
-                            )
-                        }
-                        className="
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setShowPeriodMenu(
+                                    (value) => !value
+                                )
+                            }
+                            className="
                             flex
                             h-[40px]
                             items-center
@@ -927,27 +904,27 @@ const MedicineDispensedTable = () => {
                             transition
                             hover:bg-[#FFF6EE]
                         "
-                    >
+                        >
 
-                        <CalendarDays
-                            size={15}
-                        />
+                            <CalendarDays
+                                size={15}
+                            />
 
-                        <span>
-                            {period}
-                        </span>
+                            <span>
+                                {period}
+                            </span>
 
-                        <ChevronDown
-                            size={15}
-                        />
+                            <ChevronDown
+                                size={15}
+                            />
 
-                    </button>
+                        </button>
 
 
-                    {showPeriodMenu && (
+                        {showPeriodMenu && (
 
-                        <div
-                            className="
+                            <div
+                                className="
                                 absolute
                                 right-0
                                 top-[46px]
@@ -960,30 +937,30 @@ const MedicineDispensedTable = () => {
                                 bg-white
                                 shadow-lg
                             "
-                        >
+                            >
 
-                            {[
-                                "Today",
-                                "This Week",
-                                "This Month",
-                            ].map(
-                                (option) => (
+                                {[
+                                    "Today",
+                                    "This Week",
+                                    "This Month",
+                                ].map(
+                                    (option) => (
 
-                                    <button
-                                        key={option}
-                                        type="button"
-                                        onClick={() => {
+                                        <button
+                                            key={option}
+                                            type="button"
+                                            onClick={() => {
 
-                                            setPeriod(
-                                                option
-                                            );
+                                                setPeriod(
+                                                    option
+                                                );
 
-                                            setShowPeriodMenu(
-                                                false
-                                            );
+                                                setShowPeriodMenu(
+                                                    false
+                                                );
 
-                                        }}
-                                        className={`
+                                            }}
+                                            className={`
                                             block
                                             w-full
                                             px-4
@@ -991,315 +968,310 @@ const MedicineDispensedTable = () => {
                                             text-left
                                             text-[13px]
                                             transition
-                                            ${
-                                                period ===
-                                                option
+                                            ${period ===
+                                                    option
                                                     ? "bg-[#FFF0E2] font-semibold text-[#59352C]"
                                                     : "text-[#555555] hover:bg-[#FFF8F3]"
-                                            }
+                                                }
                                         `}
-                                    >
-                                        {option}
-                                    </button>
+                                        >
+                                            {option}
+                                        </button>
 
-                                )
-                            )}
+                                    )
+                                )}
 
-                        </div>
+                            </div>
 
-                    )}
+                        )}
+
+                    </div>
 
                 </div>
 
-            </div>
 
 
-            {/* ================================= */}
-            {/* TABLE */}
-            {/* ================================= */}
 
-            <div
-                className="
+                <div
+                    className="
                     overflow-hidden
                     rounded-[14px]
                     border
                     border-[#E8DED7]
                     bg-white
                 "
-            >
+                >
 
-                <div
-                    className="
+                    <div
+                        className="
                         w-full
                         overflow-x-auto
                     "
-                >
+                    >
 
-                    <table
-                        className="
+                        <table
+                            className="
                             w-full
                             min-w-[1450px]
                             border-collapse
                         "
-                    >
+                        >
 
-                        <thead>
+                            <thead>
 
-                            <tr
-                                className="
+                                <tr
+                                    className="
                                     bg-[#FFF9F4]
                                 "
-                            >
-
-                                <th
-                                    className="
-                                        border-r
-                                        border-[#E8DED7]
-                                        px-3
-                                        py-3
-                                        text-left
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
                                 >
-                                    Patient Details
-                                </th>
 
-                                <th
-                                    className="
-                                        border-r
-                                        border-[#E8DED7]
-                                        px-3
-                                        py-3
-                                        text-left
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
-                                >
-                                    Date and Time
-                                </th>
-
-                                <th
-                                    className="
-                                        border-r
-                                        border-[#E8DED7]
-                                        px-3
-                                        py-3
-                                        text-left
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
-                                >
-                                    Doctor
-                                </th>
-
-                                <th
-                                    className="
-                                        border-r
-                                        border-[#E8DED7]
-                                        px-3
-                                        py-3
-                                        text-left
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
-                                >
-                                    Medicine details
-                                </th>
-
-                                <th
-                                    className="
-                                        border-r
-                                        border-[#E8DED7]
-                                        px-3
-                                        py-3
-                                        text-center
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
-                                >
-                                    Batch No.
-                                </th>
-
-                                <th
-                                    className="
-                                        border-r
-                                        border-[#E8DED7]
-                                        px-3
-                                        py-3
-                                        text-center
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
-                                >
-                                    Qty.
-                                </th>
-
-                                <th
-                                    className="
-                                        border-r
-                                        border-[#E8DED7]
-                                        px-3
-                                        py-3
-                                        text-left
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
-                                >
-                                    Expiry date
-                                </th>
-
-                                <th
-                                    className="
-                                        border-r
-                                        border-[#E8DED7]
-                                        px-3
-                                        py-3
-                                        text-right
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
-                                >
-                                    MRP(₹)
-                                </th>
-
-                                <th
-                                    className="
-                                        border-r
-                                        border-[#E8DED7]
-                                        px-3
-                                        py-3
-                                        text-right
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
-                                >
-                                    Discount(₹)
-                                </th>
-
-                                <th
-                                    className="
-                                        border-r
-                                        border-[#E8DED7]
-                                        px-3
-                                        py-3
-                                        text-right
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
-                                >
-                                    <span className="block">
-                                        Courier
-                                    </span>
-
-                                    <span className="block">
-                                        Charges(₹)
-                                    </span>
-
-                                </th>
-
-                                <th
-                                    className="
-                                        border-r
-                                        border-[#E8DED7]
-                                        px-3
-                                        py-3
-                                        text-right
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
-                                >
-                                    <span className="block">
-                                        Total
-                                    </span>
-
-                                    <span className="block">
-                                        Amount(₹)
-                                    </span>
-
-                                </th>
-
-                                <th
-                                    className="
-                                        px-3
-                                        py-3
-                                        text-center
-                                        text-[12px]
-                                        font-medium
-                                        text-[#59352C]
-                                    "
-                                >
-                                    <span className="block">
-                                        Payment
-                                    </span>
-
-                                    <span className="block">
-                                        Mode
-                                    </span>
-
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            {filteredMedicines.length >
-                            0 ? (
-
-                                filteredMedicines.map(
-                                    renderTableRow
-                                )
-
-                            ) : (
-
-                                <tr>
-
-                                    <td
-                                        colSpan={12}
+                                    <th
                                         className="
+                                        border-r
+                                        border-[#E8DED7]
+                                        px-3
+                                        py-3
+                                        text-left
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        Patient Details
+                                    </th>
+
+                                    <th
+                                        className="
+                                        border-r
+                                        border-[#E8DED7]
+                                        px-3
+                                        py-3
+                                        text-left
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        Date and Time
+                                    </th>
+
+                                    <th
+                                        className="
+                                        border-r
+                                        border-[#E8DED7]
+                                        px-3
+                                        py-3
+                                        text-left
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        Doctor
+                                    </th>
+
+                                    <th
+                                        className="
+                                        border-r
+                                        border-[#E8DED7]
+                                        px-3
+                                        py-3
+                                        text-left
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        Medicine details
+                                    </th>
+
+                                    <th
+                                        className="
+                                        border-r
+                                        border-[#E8DED7]
+                                        px-3
+                                        py-3
+                                        text-center
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        Batch No.
+                                    </th>
+
+                                    <th
+                                        className="
+                                        border-r
+                                        border-[#E8DED7]
+                                        px-3
+                                        py-3
+                                        text-center
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        Qty.
+                                    </th>
+
+                                    <th
+                                        className="
+                                        border-r
+                                        border-[#E8DED7]
+                                        px-3
+                                        py-3
+                                        text-left
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        Expiry date
+                                    </th>
+
+                                    <th
+                                        className="
+                                        border-r
+                                        border-[#E8DED7]
+                                        px-3
+                                        py-3
+                                        text-right
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        MRP(₹)
+                                    </th>
+
+                                    <th
+                                        className="
+                                        border-r
+                                        border-[#E8DED7]
+                                        px-3
+                                        py-3
+                                        text-right
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        Discount(₹)
+                                    </th>
+
+                                    <th
+                                        className="
+                                        border-r
+                                        border-[#E8DED7]
+                                        px-3
+                                        py-3
+                                        text-right
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        <span className="block">
+                                            Courier
+                                        </span>
+
+                                        <span className="block">
+                                            Charges(₹)
+                                        </span>
+
+                                    </th>
+
+                                    <th
+                                        className="
+                                        border-r
+                                        border-[#E8DED7]
+                                        px-3
+                                        py-3
+                                        text-right
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        <span className="block">
+                                            Total
+                                        </span>
+
+                                        <span className="block">
+                                            Amount(₹)
+                                        </span>
+
+                                    </th>
+
+                                    <th
+                                        className="
+                                        px-3
+                                        py-3
+                                        text-center
+                                        text-[12px]
+                                        font-medium
+                                        text-[#59352C]
+                                    "
+                                    >
+                                        <span className="block">
+                                            Payment
+                                        </span>
+
+                                        <span className="block">
+                                            Mode
+                                        </span>
+
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                {filteredMedicines.length >
+                                    0 ? (
+
+                                    filteredMedicines.map(
+                                        renderTableRow
+                                    )
+
+                                ) : (
+
+                                    <tr>
+
+                                        <td
+                                            colSpan={12}
+                                            className="
                                             h-[300px]
                                             text-center
                                             text-[15px]
                                             text-[#888888]
                                         "
-                                    >
-                                        No medicines dispensed
-                                        for {period.toLowerCase()}.
-                                    </td>
+                                        >
+                                            No medicines dispensed
+                                            for {period.toLowerCase()}.
+                                        </td>
 
-                                </tr>
+                                    </tr>
 
-                            )}
+                                )}
 
-                        </tbody>
+                            </tbody>
 
-                    </table>
+                        </table>
+
+                    </div>
 
                 </div>
 
-            </div>
 
 
-            {/* ================================= */}
-            {/* RESULT INFO */}
-            {/* ================================= */}
 
-            <div
-                className="
+                <div
+                    className="
                     flex
                     items-center
                     justify-between
@@ -1308,38 +1280,38 @@ const MedicineDispensedTable = () => {
                     text-[13px]
                     text-[#777777]
                 "
-            >
+                >
 
-                <span>
-                    Showing{" "}
-                    <span
-                        className="
+                    <span>
+                        Showing{" "}
+                        <span
+                            className="
                             font-medium
                             text-[#59352C]
                         "
-                    >
-                        {filteredMedicines.length}
-                    </span>{" "}
-                    records
-                </span>
-
-                <span>
-                    Total records:{" "}
-                    <span
-                        className="
-                            font-medium
-                            text-[#59352C]
-                        "
-                    >
-                        {total_records ||
-                            count ||
-                            0}
+                        >
+                            {filteredMedicines.length}
+                        </span>{" "}
+                        records
                     </span>
-                </span>
+
+                    <span>
+                        Total records:{" "}
+                        <span
+                            className="
+                            font-medium
+                            text-[#59352C]
+                        "
+                        >
+                            {total_records ||
+                                count ||
+                                0}
+                        </span>
+                    </span>
+
+                </div>
 
             </div>
-
-        </div>
         </DashboardLayout>
     );
 };

@@ -14,7 +14,7 @@ import {
 const PrescriptionTable = ({
     patient,
     items,
-    loading,
+   
 }) => {
 
     const dispatch = useDispatch();
@@ -127,42 +127,7 @@ const PrescriptionTable = ({
     };
 
 
-    if (loading) {
 
-        return (
-
-            <div className="flex h-64 items-center justify-center">
-
-                <p className="text-[#8B7A70]">
-                    Loading prescription...
-                </p>
-
-            </div>
-
-        );
-
-    }
-
-
-    if (!items.length) {
-
-        return (
-
-            <div className="mt-6 rounded-2xl border border-[#EFE4DC] p-10 text-center">
-
-                <p className="text-lg font-semibold text-[#4D2E23]">
-                    No prescription found
-                </p>
-
-                <p className="mt-2 text-sm text-[#8B7A70]">
-                    This patient has no prescribed medicines.
-                </p>
-
-            </div>
-
-        );
-
-    }
 
 
     const total = items.reduce(
@@ -198,210 +163,238 @@ const PrescriptionTable = ({
 
             <div className="overflow-hidden rounded-2xl border border-[#EFE4DC]">
 
-                <table className="w-full border-collapse">
+                <table className="w-full table-fixed border-collapse">
+    <colgroup>
+        {/* Medicine */}
+        <col className="w-[32%]" />
 
-                    <thead>
+        {/* Qty Prescribed */}
+        <col className="w-[12%]" />
 
-                        <tr className="bg-[#FFF9F5] text-left text-sm text-[#6F625A]">
+        {/* Qty Dispensed */}
+        <col className="w-[16%]" />
 
-                            <th className="px-5 py-4">
-                                Medicine
-                            </th>
+        {/* Stock */}
+        <col className="w-[14%]" />
 
-                            <th className="px-5 py-4 text-center">
-                                Qty.
-                                <br />
-                                Prescribed
-                            </th>
+        {/* Price */}
+        <col className="w-[12%]" />
 
-                            <th className="px-5 py-4 text-center">
-                                Qty.
-                                <br />
-                                Dispensed
-                            </th>
+        {/* Total */}
+        <col className="w-[14%]" />
+    </colgroup>
 
-                            <th className="px-5 py-4 text-center">
-                                Stock
-                            </th>
+    <thead>
+        <tr className="bg-[#FFF9F5] text-left text-sm text-[#6F625A]">
 
-                            <th className="px-5 py-4 text-right">
-                                Price
-                            </th>
+            <th className="px-5 py-4">
+                Medicine
+            </th>
 
-                            <th className="px-5 py-4 text-right">
-                                Total
-                            </th>
+            <th className="px-5 py-4 text-center">
+                Qty.
+                <br />
+                Prescribed
+            </th>
 
-                        </tr>
+            <th className="px-5 py-4 text-center">
+                Qty.
+                <br />
+                Dispensed
+            </th>
 
-                    </thead>
+            <th className="px-5 py-4 text-center">
+                Stock
+            </th>
 
+            <th className="px-5 py-4 text-right">
+                Price
+            </th>
 
-                    <tbody>
+            <th className="px-5 py-4 text-right">
+                Total
+            </th>
 
-                        {items.map((item) => {
+        </tr>
+    </thead>
 
-                            const prescribed =
-                                Number(
-                                    item.quantity || 0
-                                );
+    <tbody>
+        {items.map((item) => {
 
-                            const dispensed =
-                                getDispensedQuantity(
-                                    item
-                                );
+            const prescribed =
+                Number(item.quantity || 0);
 
+            const dispensed =
+                getDispensedQuantity(item);
 
-                            return (
+            return (
+                <tr
+                    key={item.id}
+                    className="border-t border-[#EFE4DC]"
+                >
 
-                                <tr
-                                    key={item.id}
-                                    className="border-t border-[#EFE4DC]"
-                                >
+                    {/* Medicine */}
+                    <td className="px-5 py-5 align-middle">
+                        <p className="truncate font-semibold text-[#4D2E23]">
+                            {item.medicine_name}
+                        </p>
 
-                                    {/* Medicine */}
-
-                                    <td className="px-5 py-5">
-
-                                        <p className="font-semibold text-[#4D2E23]">
-                                            {item.medicine_name}
-                                        </p>
-
-                                        <p className="mt-1 text-xs text-[#8B7A70]">
-                                            {item.category}
-                                        </p>
-
-                                    </td>
-
-
-                                    {/* Prescribed */}
-
-                                    <td className="px-5 py-5 text-center font-semibold text-[#4D2E23]">
-                                        {prescribed}
-                                    </td>
-
-
-                                    {/* Dispensed */}
-
-                                    <td className="px-5 py-5">
-
-                                        <div className="flex items-center justify-center gap-2">
-
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    handleQuantityChange(
-                                                        item,
-                                                        dispensed - 1
-                                                    )
-                                                }
-                                                className="h-8 w-8 rounded-lg border border-[#E5D8CF] text-[#4D2E23]"
-                                            >
-                                                −
-                                            </button>
+                        <p className="mt-1 truncate text-xs text-[#8B7A70]">
+                            {item.category}
+                        </p>
+                    </td>
 
 
-                                            <span className="w-8 text-center font-semibold">
-                                                {dispensed}
-                                            </span>
+                    {/* Prescribed */}
+                    <td className="px-5 py-5 text-center font-semibold text-[#4D2E23]">
+                        {prescribed}
+                    </td>
 
 
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    handleQuantityChange(
-                                                        item,
-                                                        dispensed + 1
-                                                    )
-                                                }
-                                                className="h-8 w-8 rounded-lg border border-[#E5D8CF] text-[#4D2E23]"
-                                            >
-                                                +
-                                            </button>
+                    {/* Dispensed */}
+                    <td className="px-5 py-5">
+                        <div className="flex items-center justify-center gap-2">
 
-                                        </div>
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    handleQuantityChange(
+                                        item,
+                                        dispensed - 1
+                                    )
+                                }
+                                className="
+                                    h-8
+                                    w-8
+                                    shrink-0
+                                    rounded-lg
+                                    border
+                                    border-[#E5D8CF]
+                                    text-[#4D2E23]
+                                "
+                            >
+                                −
+                            </button>
 
-                                    </td>
+                            <span className="w-8 shrink-0 text-center font-semibold">
+                                {dispensed}
+                            </span>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    handleQuantityChange(
+                                        item,
+                                        dispensed + 1
+                                    )
+                                }
+                                className="
+                                    h-8
+                                    w-8
+                                    shrink-0
+                                    rounded-lg
+                                    border
+                                    border-[#E5D8CF]
+                                    text-[#4D2E23]
+                                "
+                            >
+                                +
+                            </button>
+
+                        </div>
+                    </td>
 
 
-                                    {/* Stock */}
-
-                                    <td className="px-5 py-5 text-center">
-
-                                        <span className="rounded-lg bg-[#E8F8ED] px-3 py-2 text-xs font-medium text-green-700">
-                                            In stock
-                                        </span>
-
-                                    </td>
-
-
-                                    {/* Price */}
-
-                                    <td className="px-5 py-5 text-right font-semibold text-[#4D2E23]">
-
-                                        ₹
-                                        {Number(
-                                            item.price || 0
-                                        ).toLocaleString(
-                                            "en-IN"
-                                        )}
-
-                                    </td>
+                    {/* Stock */}
+                    <td className="px-5 py-5 text-center">
+                        <span className="
+                            inline-block
+                            whitespace-nowrap
+                            rounded-lg
+                            bg-[#E8F8ED]
+                            px-3
+                            py-2
+                            text-xs
+                            font-medium
+                            text-green-700
+                        ">
+                            In stock
+                        </span>
+                    </td>
 
 
-                                    {/* Total */}
-
-                                    <td className="px-5 py-5 text-right font-semibold text-[#4D2E23]">
-
-                                        ₹
-                                        {(
-                                            Number(
-                                                item.price || 0
-                                            ) *
-                                            dispensed
-                                        ).toLocaleString(
-                                            "en-IN"
-                                        )}
-
-                                    </td>
-
-                                </tr>
-
-                            );
-
-                        })}
-
-                    </tbody>
+                    {/* Price */}
+                    <td className="
+                        px-5
+                        py-5
+                        text-right
+                        font-semibold
+                        text-[#4D2E23]
+                        whitespace-nowrap
+                    ">
+                        ₹
+                        {Number(
+                            item.price || 0
+                        ).toLocaleString("en-IN")}
+                    </td>
 
 
                     {/* Total */}
+                    <td className="
+                        px-5
+                        py-5
+                        text-right
+                        font-semibold
+                        text-[#4D2E23]
+                        whitespace-nowrap
+                    ">
+                        ₹
+                        {(
+                            Number(item.price || 0) *
+                            dispensed
+                        ).toLocaleString("en-IN")}
+                    </td>
 
-                    <tfoot>
+                </tr>
+            );
+        })}
+    </tbody>
 
-                        <tr className="border-t border-[#EFE4DC]">
 
-                            <td
-                                colSpan="5"
-                                className="px-5 py-5 text-right text-lg font-bold text-[#4D2E23]"
-                            >
-                                Total
-                            </td>
+    <tfoot>
+        <tr className="border-t border-[#EFE4DC]">
 
-                            <td className="px-5 py-5 text-right text-xl font-bold text-[#4D2E23]">
+            <td
+                colSpan="5"
+                className="
+                    px-5
+                    py-5
+                    text-right
+                    text-lg
+                    font-bold
+                    text-[#4D2E23]
+                "
+            >
+                Total
+            </td>
 
-                                ₹
-                                {total.toLocaleString(
-                                    "en-IN"
-                                )}
+            <td className="
+                px-5
+                py-5
+                text-right
+                text-xl
+                font-bold
+                text-[#4D2E23]
+                whitespace-nowrap
+            ">
+                ₹
+                {total.toLocaleString("en-IN")}
+            </td>
 
-                            </td>
+        </tr>
+    </tfoot>
 
-                        </tr>
-
-                    </tfoot>
-
-                </table>
-
+</table>
             </div>
 
 

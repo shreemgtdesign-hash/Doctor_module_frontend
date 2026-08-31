@@ -184,21 +184,27 @@ export const loadTherapistSales =
         }
     );
 
-    export const completeTherapistAppointments =
+export const completeTherapistAppointments =
     createAsyncThunk(
 
         "therapist/completeAppointments",
 
         async (
-            bookingIds,
+            {
+                bookingIds,
+                notes,
+                status = "completed",
+            },
             { rejectWithValue }
         ) => {
 
             try {
 
-                return await markTherapistAppointmentsComplete(
-                    bookingIds
-                );
+                return await markTherapistAppointmentsComplete({
+                    bookingIds,
+                    notes,
+                    status,
+                });
 
             } catch (error) {
 

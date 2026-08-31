@@ -227,8 +227,33 @@ const therapistDashboardSlice = createSlice({
 
             .addCase(
                 completeTherapistAppointments.fulfilled,
-                (state) => {
+                (state, action) => {
+
                     state.completingAppointments = false;
+
+                    const updatedAppointment =
+                        action.payload?.data;
+
+                    if (!updatedAppointment?.id) {
+                        return;
+                    }
+
+                    const index =
+                        state.appointments.findIndex(
+                            (appointment) =>
+                                appointment.id ===
+                                updatedAppointment.id
+                        );
+
+                    if (index !== -1) {
+
+                        state.appointments[index] = {
+                            ...state.appointments[index],
+                            ...updatedAppointment,
+                        };
+
+                    }
+
                 }
             )
 
