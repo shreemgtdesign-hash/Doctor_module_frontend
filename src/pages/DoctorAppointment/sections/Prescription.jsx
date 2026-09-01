@@ -266,8 +266,7 @@ const Prescription = ({
             frequency:
                 item.frequency ?? null,
 
-            timeOfDay:
-                item.time_of_day || [],
+            
         };
     });
 

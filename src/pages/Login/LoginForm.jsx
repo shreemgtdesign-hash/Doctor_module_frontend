@@ -47,6 +47,12 @@ const LoginForm = () => {
                     });
                     break;
 
+                case "duty_doctor":
+                    navigate("/duty-doctor/dashboard", {
+                        replace: true,
+                    });
+                    break;
+
                 case "therapist":
                     navigate("/therapist/dashboard", {
                         replace: true,

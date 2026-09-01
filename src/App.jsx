@@ -24,6 +24,8 @@ import ReferralList from "./pages/FrontOfficeAppointment/components/ReferralList
 import MedCampCalender from "./pages/FrontOfficeAppointment/components/Med-Camp-Calender";
 import MedicalCampDetails from "./pages/FrontOfficeAppointment/components/MedicalCampDetails";
 import MedicineDispensedTable from "./pages/Pharmacist/PharmacistDashboard/components/MedicineDespensedTable";
+import DutyDoctorDashboard from "./pages/DutyDoctor/DutyDoctorDashboard";
+import DutyDoctorAssessment from "./pages/DutyDoctor/DutyDoctorAssessment";
 
 function App() {
     return (
@@ -187,6 +189,19 @@ function App() {
   }
 />
 
+<Route
+  path="/duty-doctor/dashboard"
+  element={
+    < DutyDoctorDashboard/>
+  }
+/>
+
+<Route
+    path="/duty-doctor/assessment/:bookingId"
+    element={
+        <DutyDoctorAssessment />
+    }
+/>
 
 
 
