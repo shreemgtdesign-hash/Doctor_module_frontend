@@ -2,6 +2,15 @@ import {
     FaLeaf,
 } from "react-icons/fa";
 
+import {
+    useDispatch,
+    useSelector,
+} from "react-redux";
+
+import {
+    loadTherapiesPerformed,
+} from "../../../redux/therapist/therapistThunk";
+
 import DashboardCard
     from "../../../components/Dashboard/DashboardCard";
 
@@ -11,13 +20,14 @@ import DashboardDropdown
 import StatsCard
     from "../../../components/Dashboard/StatsCard";
 
-import { useSelector } from "react-redux";
-
 
 const TherapiesPerformed = ({
     period = "week",
     setPeriod,
 }) => {
+
+    const dispatch = useDispatch();
+
 
     const therapies = useSelector(
         (state) =>
@@ -29,11 +39,32 @@ const TherapiesPerformed = ({
         therapies?.categories || [];
 
 
+    // ==========================================
+    // PERIOD CHANGE
+    // ==========================================
+
+    const handlePeriodChange = (newPeriod) => {
+
+        // Update parent state
+        if (setPeriod) {
+            setPeriod(newPeriod);
+        }
+
+        // Fetch new data
+        dispatch(
+            loadTherapiesPerformed(newPeriod)
+        );
+
+    };
+
+
     return (
 
         <DashboardCard className="px-5 pt-5 pb-3">
 
-            {/* Header */}
+            {/* =================================
+                HEADER
+            ================================= */}
 
             <div className="flex items-center justify-between">
 
@@ -44,19 +75,33 @@ const TherapiesPerformed = ({
 
                 <DashboardDropdown
                     value={period}
+
                     options={[
+                        {
+                            label: "Today",
+                            value: "today",
+                        },
                         {
                             label: "This Week",
                             value: "week",
                         },
+                        {
+                            label: "This Month",
+                            value: "month",
+                        },
                     ]}
-                    onChange={setPeriod}
+
+                    onChange={
+                        handlePeriodChange
+                    }
                 />
 
             </div>
 
 
-            {/* Main */}
+            {/* =================================
+                MAIN TOTAL
+            ================================= */}
 
             <div className="mt-3 flex items-center justify-between">
 
@@ -65,6 +110,7 @@ const TherapiesPerformed = ({
                     <h1 className="text-[28px] font-bold leading-none text-[#4B2E2A]">
                         {therapies?.total ?? 0}
                     </h1>
+
 
                     <p className="mt-1 text-[12px] text-[#7D726B]">
                         Total Therapies
@@ -88,33 +134,46 @@ const TherapiesPerformed = ({
             <div className="my-3 border-t border-[#EFE4DC]" />
 
 
-            {/* Categories */}
+            {/* =================================
+                CATEGORIES
+            ================================= */}
 
-            <div
-                className={`grid gap-2 ${
-                    categories.length <= 5
-                        ? "grid-cols-5"
-                        : "grid-cols-3"
-                }`}
-            >
+            {categories.length > 0 && (
 
-                {categories.map(
-                    (item, index) => (
+                <div
+                    className={`grid gap-2 ${
+                        categories.length <= 5
+                            ? "grid-cols-5"
+                            : "grid-cols-3"
+                    }`}
+                >
 
-                        <StatsCard
-                            key={`${item.category}-${index}`}
-                            title={item.category}
-                            value={item.count}
-                            border={
-                                index !==
-                                categories.length - 1
-                            }
-                        />
+                    {categories.map(
+                        (item, index) => (
 
-                    )
-                )}
+                            <StatsCard
+                                key={`${item.category}-${index}`}
 
-            </div>
+                                title={
+                                    item.category
+                                }
+
+                                value={
+                                    item.count
+                                }
+
+                                border={
+                                    index !==
+                                    categories.length - 1
+                                }
+                            />
+
+                        )
+                    )}
+
+                </div>
+
+            )}
 
         </DashboardCard>
 

@@ -5,7 +5,8 @@ import {
     fetchTherapiesPerformedDashboard,
     fetchTherapistAilmentsDashboard,
     fetchTherapistPatientsDashboard,
-    fetchTherapistSalesDashboard,
+    fetchTherapistScheduleOverview,
+   
 } from "../../services/therapistDashboardService";
 import { fetchTherapistAppointments, markTherapistAppointmentsComplete } from "../../services/therapistAppointmentsService";
 
@@ -48,11 +49,24 @@ export const loadTherapiesPerformed =
 
         "therapistDashboard/loadTherapiesPerformed",
 
-        async (_, { rejectWithValue }) => {
+        async (
+            period = "week",
+            { rejectWithValue }
+        ) => {
 
             try {
 
-                return await fetchTherapiesPerformedDashboard();
+                const response =
+                    await fetchTherapiesPerformedDashboard(
+                        period
+                    );
+
+                console.log(
+                    "THERAPIES PERFORMED PAYLOAD:",
+                    response
+                );
+
+                return response;
 
             } catch (error) {
 
@@ -126,33 +140,6 @@ export const loadTherapistPatients =
     );
 
 
-// ==========================================
-// SALES
-// ==========================================
-
-export const loadTherapistSales =
-    createAsyncThunk(
-
-        "therapistDashboard/loadSales",
-
-        async (_, { rejectWithValue }) => {
-
-            try {
-
-                return await fetchTherapistSalesDashboard();
-
-            } catch (error) {
-
-                return rejectWithValue(
-                    error.response?.data ||
-                    error.message
-                );
-
-            }
-
-        }
-
-    );
 
     export const loadTherapistAppointments =
     createAsyncThunk(
@@ -183,7 +170,46 @@ export const loadTherapistSales =
 
         }
     );
+// ==========================================
+// SCHEDULE OVERVIEW
+// ==========================================
 
+export const loadTherapistScheduleOverview =
+    createAsyncThunk(
+
+        "therapist/loadScheduleOverview",
+
+        async (
+            period = "today",
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                const response =
+                    await fetchTherapistScheduleOverview(
+                        period
+                    );
+
+                console.log(
+                    "THERAPIST SCHEDULE OVERVIEW:",
+                    response
+                );
+
+                return response;
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+
+            }
+
+        }
+
+    );
 export const completeTherapistAppointments =
     createAsyncThunk(
 

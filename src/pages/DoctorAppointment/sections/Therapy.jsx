@@ -73,7 +73,13 @@ const Therapy = ({
   // ==========================================
   // REDUX
   // ==========================================
-
+  const therapyCategories = [
+    "Treatments",
+    "Rejuvenation",
+    "Anorectal care",
+    "Panchakarma",
+    "Pain care",
+  ];
   const {
     therapy,
     therapySearch,
@@ -96,11 +102,18 @@ const Therapy = ({
 
   useEffect(() => {
 
-    setEditableTherapies(
-      therapy?.items || []
-    );
+  const items = (therapy?.items || []).map(
+    (item) => ({
+      ...item,
 
-  }, [therapy?.items]);
+      category:
+        item.category || "Treatments",
+    })
+  );
+
+  setEditableTherapies(items);
+
+}, [therapy?.items]);
 
 
   // ==========================================
@@ -220,6 +233,7 @@ const Therapy = ({
         notes: "",
         no_of_days:
           Number(noOfDays),
+        category: selectedTherapy.category || "Treatments",
 
       };
 
@@ -366,6 +380,9 @@ const Therapy = ({
                   item.days_count ||
                   0
                 ),
+
+              category:
+                item.category || "Treatments",
 
             }
 
@@ -1011,6 +1028,49 @@ const Therapy = ({
                           item.treatment_name
                         }
                       </h3>
+
+                      {/* NAME + CATEGORY */}
+
+                      <div className="flex items-center justify-between gap-4">
+
+                                 
+                                 <select
+                                   value={item.category || "Treatments"}
+                                   onChange={(e) =>
+                                     updateTherapy(
+                                       index,
+                                       "category",
+                                                                      e.target.value
+                                     )
+                                   }
+                                   className="
+                                     h-[36px]
+                                     w-[175px]
+                                     rounded-xl
+                                     border
+                                     border-[#E8D9CF]
+                                     bg-white
+                                     px-4
+                                     pr-8
+                                     text-[14px]
+                                     font-semibold
+                                     text-[#4D2E23]
+                                     outline-none
+                                     cursor-pointer
+                                     focus:border-[#8A563B]
+                                   "
+                                                                >
+                                   {therapyCategories.map((category) => (
+                                     <option
+                                       key={category}
+                                       value={category}
+                                     >
+                                       {category}
+                                     </option>
+                                   ))}
+                                 </select>
+
+                               </div>
 
 
                       {/* DESCRIPTION */}

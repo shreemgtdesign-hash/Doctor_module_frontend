@@ -102,3 +102,10 @@ export const getMedicalCampList = (params = {}) =>
         "/frontoffice/medicalcamp/register-patient",
         data
     );
+export const createDirectWalkInPatient = (data) =>
+  api.post("/frontoffice/patients/walk-in", data);
+
+export const getDoctorTimeSlots = (doctorId, date) =>
+  api.get(`/frontoffice/doctors/${doctorId}/slots`, {
+    params: { date },
+  });

@@ -2,7 +2,8 @@ import {
     getTherapiesPerformed,
     getTherapistAilments,
     getTherapistPatients,
-    getTherapistSales,
+    getTherapistScheduleOverview,
+    
 } from "../api/therapistDashboardApi";
 
 
@@ -51,14 +52,28 @@ export const fetchTherapistDashboard = async () => {
 // INDIVIDUAL APIs
 // ==========================================
 
-export const fetchTherapiesPerformedDashboard =
-    async () => {
+export const fetchTherapiesPerformedDashboard = async (
+    period = "week"
+) => {
 
-        const response =
-            await getTherapiesPerformed();
+    const response = await api.get(
+        `/therapist/dashboard/therapies-performed?period=${period}`
+    );
 
-        return response.data.data;
+    console.log(
+        "THERAPIES PERFORMED API:",
+        response.data
+    );
+
+    // Return only the actual dashboard data
+    return response.data?.data || {
+        total: 0,
+        growth_percentage: "0%",
+        comparison_label: "",
+        breakdown: {},
+        categories: [],
     };
+};
 
 
 export const fetchTherapistAilmentsDashboard =
@@ -80,12 +95,28 @@ export const fetchTherapistPatientsDashboard =
         return response.data.data;
     };
 
+export const fetchTherapistScheduleOverview = async (
+    period = "today"
+) => {
 
-export const fetchTherapistSalesDashboard =
-    async () => {
+    const response =
+        await getTherapistScheduleOverview(period);
 
-        const response =
-            await getTherapistSales();
+    return {
+        period: response.data.period,
 
-        return response.data.data;
+        data: {
+            total_patients:
+                response.data.data?.total_patients ?? 0,
+
+            men:
+                response.data.data?.men ?? 0,
+
+            women:
+                response.data.data?.women ?? 0,
+
+            children:
+                response.data.data?.children ?? 0,
+        },
     };
+};

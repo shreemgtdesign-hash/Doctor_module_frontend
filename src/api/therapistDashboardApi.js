@@ -4,9 +4,11 @@ import api from "./axios";
 // THERAPIES PERFORMED
 // ==========================================
 
-export const getTherapiesPerformed = () =>
+export const getTherapiesPerformed = (
+    period = "week"
+) =>
     api.get(
-        "/therapist/dashboard/therapies-performed"
+        `/therapist/dashboard/therapies-performed?period=${period}`
     );
 
 
@@ -14,9 +16,11 @@ export const getTherapiesPerformed = () =>
 // AILMENTS ADDRESSED
 // ==========================================
 
-export const getTherapistAilments = () =>
+export const getTherapistAilments = (
+    period = "week"
+) =>
     api.get(
-        "/therapist/dashboard/ailments-addressed"
+        `/therapist/dashboard/ailments-addressed?period=${period}`
     );
 
 
@@ -28,13 +32,9 @@ export const getTherapistPatients = () =>
     api.get(
         "/therapist/dashboard/patients-tended"
     );
-
-
-// ==========================================
-// SALES
-// ==========================================
-
-export const getTherapistSales = () =>
-    api.get(
-        "/therapist/dashboard/sales"
+export const getTherapistScheduleOverview = (period = "today") => {
+    return api.get(
+        `/therapist/dashboard/patients-tended?period=${period}`
     );
+};
+

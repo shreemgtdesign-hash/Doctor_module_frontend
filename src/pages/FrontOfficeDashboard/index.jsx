@@ -1,13 +1,13 @@
 import {
   useEffect,
-  
+
 } from "react";
 
 import {
   useDispatch,
   useSelector,
 } from "react-redux";
-
+import { useNavigate } from "react-router-dom";
 import DashboardLayout
   from "../../components/Layout/DashboardLayout";
 
@@ -44,6 +44,7 @@ import PendingActions
 const FrontOfficeDashboard = () => {
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const {
     loading,
@@ -176,18 +177,21 @@ const FrontOfficeDashboard = () => {
 
             <button
               type="button"
+              onClick={() =>
+                navigate("/frontoffice/direct-walkin")
+              }
               className="
-                mt-5
-                w-full
-                rounded-xl
-                bg-[#8A4F32]
-                py-3
-                text-[14px]
-                font-semibold
-                text-white
-                transition
-                hover:bg-[#6A3F2D]
-              "
+    mt-5
+    w-full
+    rounded-xl
+    bg-[#8A4F32]
+    py-3
+    text-[14px]
+    font-semibold
+    text-white
+    transition
+    hover:bg-[#6A3F2D]
+  "
             >
               + Add Patient
             </button>

@@ -15,6 +15,8 @@ import {
     fetchMedicalCampList,
     fetchMedicalCampDetails,
     fetchRegisterMedicalCampPatient,
+    fetchDoctorTimeSlots,
+    fetchCreateDirectWalkInPatient,
 } from "../../services/frontOfficeAppointmentService";
 
 
@@ -454,3 +456,29 @@ export const registerFrontOfficeMedicalCampPatient =
         }
 
     );
+
+export const createFrontOfficeDirectWalkInPatient = createAsyncThunk(
+  "frontOffice/createDirectWalkInPatient",
+  async (patientData, { rejectWithValue }) => {
+    try {
+      return await fetchCreateDirectWalkInPatient(patientData);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || error.message
+      );
+    }
+  }
+);
+
+export const loadFrontOfficeDoctorTimeSlots = createAsyncThunk(
+  "frontOffice/loadDoctorTimeSlots",
+  async ({ doctorId, date }, { rejectWithValue }) => {
+    try {
+      return await fetchDoctorTimeSlots(doctorId, date);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || error.message
+      );
+    }
+  }
+);

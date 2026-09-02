@@ -10,11 +10,25 @@ import {
 import DashboardLayout
     from "../../components/Layout/DashboardLayout";
 
-import { getTherapistDashboard } from "../../redux/therapist/therapistThunk";
-import TherapiesPerformed from "./components/TherapistPerformed";
-import AilmentsAddressed from "./components/AilmentsAddressed";
-import PatientsTended from "./components/PatientsTended";
-import Sales from "./components/Sales";
+import {
+    getTherapistDashboard,
+    loadTherapiesPerformed,
+    loadTherapistAilments,
+    loadTherapistPatients,
+    loadTherapistScheduleOverview,
+} from "../../redux/therapist/therapistThunk";
+
+import TherapiesPerformed
+    from "./components/TherapistPerformed";
+
+import AilmentsAddressed
+    from "./components/AilmentsAddressed";
+
+import PatientsTended
+    from "./components/PatientsTended";
+
+import ScheduleOverview
+    from "./components/ScheduleOverview";
 
 
 const TherapistDashboard = () => {
@@ -26,6 +40,10 @@ const TherapistDashboard = () => {
         useState("week");
 
 
+    // ==========================================
+    // INITIAL DASHBOARD LOAD
+    // ==========================================
+
     useEffect(() => {
 
         dispatch(
@@ -33,6 +51,34 @@ const TherapistDashboard = () => {
         );
 
     }, [dispatch]);
+
+
+    // ==========================================
+    // PERIOD BASED DATA
+    // ==========================================
+
+    useEffect(() => {
+
+        dispatch(
+            loadTherapiesPerformed(period)
+        );
+
+        dispatch(
+            loadTherapistAilments(period)
+        );
+
+        dispatch(
+            loadTherapistPatients(period)
+        );
+
+        dispatch(
+            loadTherapistScheduleOverview(period)
+        );
+
+    }, [
+        dispatch,
+        period,
+    ]);
 
 
     return (
@@ -45,9 +91,9 @@ const TherapistDashboard = () => {
                 p-5
             ">
 
-                {/* ============================= */}
-                {/* TOP */}
-                {/* ============================= */}
+                {/* =================================
+                    TOP
+                ================================= */}
 
                 <TherapiesPerformed
                     period={period}
@@ -55,9 +101,9 @@ const TherapistDashboard = () => {
                 />
 
 
-                {/* ============================= */}
-                {/* MAIN GRID */}
-                {/* ============================= */}
+                {/* =================================
+                    MAIN GRID
+                ================================= */}
 
                 <div className="
                     mt-5
@@ -66,7 +112,9 @@ const TherapistDashboard = () => {
                     gap-5
                 ">
 
-                    {/* LEFT */}
+                    {/* =================================
+                        LEFT
+                    ================================= */}
 
                     <AilmentsAddressed
                         period={period}
@@ -74,7 +122,9 @@ const TherapistDashboard = () => {
                     />
 
 
-                    {/* RIGHT */}
+                    {/* =================================
+                        RIGHT
+                    ================================= */}
 
                     <div className="space-y-5">
 
@@ -83,7 +133,8 @@ const TherapistDashboard = () => {
                             setPeriod={setPeriod}
                         />
 
-                        <Sales
+
+                        <ScheduleOverview
                             period={period}
                             setPeriod={setPeriod}
                         />

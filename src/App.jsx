@@ -26,6 +26,7 @@ import MedicalCampDetails from "./pages/FrontOfficeAppointment/components/Medica
 import MedicineDispensedTable from "./pages/Pharmacist/PharmacistDashboard/components/MedicineDespensedTable";
 import DutyDoctorDashboard from "./pages/DutyDoctor/DutyDoctorDashboard";
 import DutyDoctorAssessment from "./pages/DutyDoctor/DutyDoctorAssessment";
+import DirectWalkIn from "./pages/FrontOfficeAppointment/components/DirectWalkIn";
 
 function App() {
     return (
@@ -203,7 +204,10 @@ function App() {
     }
 />
 
-
+<Route
+  path="/frontoffice/direct-walkin"
+  element={<DirectWalkIn />}
+/>
 
 
         </Routes>

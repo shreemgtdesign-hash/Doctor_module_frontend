@@ -11,7 +11,9 @@ import {
     getPackages,
     getDoctorList,
     getMedicalCampList,
-    registerMedicalCampPatient
+    registerMedicalCampPatient,
+    createDirectWalkInPatient,
+    getDoctorTimeSlots
 
 } from "../api/frontOfficeAppoinntmentApi";
 import { getMedicalCampDetails } from "../api/frontOfficeDashboardApi";
@@ -198,3 +200,9 @@ export const fetchRegisterMedicalCampPatient = async (
 
     return response.data;
 };
+
+export const fetchCreateDirectWalkInPatient = (data) =>
+  createDirectWalkInPatient(data);
+
+export const fetchDoctorTimeSlots = (doctorId, date) =>
+  getDoctorTimeSlots(doctorId, date);

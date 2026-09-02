@@ -924,11 +924,6 @@ const Prescription = ({
                                         In Stock
                                     </div>
 
-                                    <h2 className="mt-3 text-[24px] font-bold text-[#4D2E23]">
-                                        ₹{Number(
-                                            medicine.price
-                                        ).toFixed(2)}
-                                    </h2>
 
                                 </div>
 

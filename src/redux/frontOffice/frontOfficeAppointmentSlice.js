@@ -15,6 +15,8 @@ import {
     loadMedicalCampList,
     loadMedicalCampDetails,
     registerFrontOfficeMedicalCampPatient,
+    loadFrontOfficeDoctorTimeSlots,
+    createFrontOfficeDirectWalkInPatient,
 } from "./frontOfficeAppointmentThunk";
 
 const initialState = {
@@ -26,7 +28,16 @@ const initialState = {
     appointmentSuccess: false,
     appointmentMessage: "",
     appointmentError: null,
+    walkInCreating: false,
+    walkInSuccess: false,
+    walkInMessage: "",
+    walkInData: null,
+    walkInError: null,
 
+    doctorSlots: [],
+    doctorSlotsLoading: false,
+    doctorSlotsError: null,
+    selectedDoctorSlot: null,
     // ==========================================
     // DOCTORS
     // ==========================================
@@ -370,7 +381,83 @@ const frontOfficeAppointmentSlice = createSlice({
         // ==========================================
         // ADD DOCTOR SCHEDULE
         // ==========================================
+        // =====================================================
+        // CREATE DIRECT WALK-IN PATIENT
+        // =====================================================
 
+        builder
+            .addCase(
+                createFrontOfficeDirectWalkInPatient.pending,
+                (state) => {
+                    state.walkInCreating = true;
+                    state.walkInSuccess = false;
+                    state.walkInMessage = "";
+                    state.walkInData = null;
+                    state.walkInError = null;
+                }
+            )
+            .addCase(
+                createFrontOfficeDirectWalkInPatient.fulfilled,
+                (state, action) => {
+                    state.walkInCreating = false;
+                    state.walkInSuccess = true;
+
+                    state.walkInMessage =
+                        action.payload?.message ||
+                        "Direct walk-in patient appointment created successfully!";
+
+                    state.walkInData =
+                        action.payload?.data || null;
+                }
+            )
+            .addCase(
+                createFrontOfficeDirectWalkInPatient.rejected,
+                (state, action) => {
+                    state.walkInCreating = false;
+                    state.walkInSuccess = false;
+
+                    state.walkInError =
+                        action.payload || "Failed to create walk-in appointment.";
+                }
+            )
+
+
+        // =====================================================
+        // DOCTOR TIME SLOTS
+        // =====================================================
+
+        builder
+            .addCase(
+                loadFrontOfficeDoctorTimeSlots.pending,
+                (state) => {
+                    state.doctorSlotsLoading = true;
+                    state.doctorSlotsError = null;
+                    state.doctorSlots = [];
+                    state.selectedDoctorSlot = null;
+                }
+            )
+            .addCase(
+                loadFrontOfficeDoctorTimeSlots.fulfilled,
+                (state, action) => {
+                    state.doctorSlotsLoading = false;
+
+                    state.doctorSlots =
+                        action.payload?.slots ||
+                        action.payload?.data?.slots ||
+                        [];
+                }
+            )
+            .addCase(
+                loadFrontOfficeDoctorTimeSlots.rejected,
+                (state, action) => {
+                    state.doctorSlotsLoading = false;
+
+                    state.doctorSlotsError =
+                        action.payload || "Failed to load doctor slots.";
+
+                    state.doctorSlots = [];
+                }
+            );
         builder
 
             .addCase(
@@ -729,71 +816,71 @@ const frontOfficeAppointmentSlice = createSlice({
                 }
             )
 
-            // ==========================================
-// REGISTER MEDICAL CAMP PATIENT
-// ==========================================
+        // ==========================================
+        // REGISTER MEDICAL CAMP PATIENT
+        // ==========================================
 
-builder
+        builder
 
-    .addCase(
-        registerFrontOfficeMedicalCampPatient.pending,
-        (state) => {
+            .addCase(
+                registerFrontOfficeMedicalCampPatient.pending,
+                (state) => {
 
-            state.medicalCampRegistering = true;
+                    state.medicalCampRegistering = true;
 
-            state.medicalCampRegisterSuccess = false;
+                    state.medicalCampRegisterSuccess = false;
 
-            state.medicalCampRegisterMessage = "";
+                    state.medicalCampRegisterMessage = "";
 
-            state.medicalCampRegisterError = null;
+                    state.medicalCampRegisterError = null;
 
-            state.loading = true;
+                    state.loading = true;
 
-            state.error = null;
-        }
-    )
+                    state.error = null;
+                }
+            )
 
-    .addCase(
-        registerFrontOfficeMedicalCampPatient.fulfilled,
-        (state, action) => {
+            .addCase(
+                registerFrontOfficeMedicalCampPatient.fulfilled,
+                (state, action) => {
 
-            state.medicalCampRegistering = false;
+                    state.medicalCampRegistering = false;
 
-            state.loading = false;
+                    state.loading = false;
 
-            state.medicalCampRegisterSuccess = true;
+                    state.medicalCampRegisterSuccess = true;
 
-            state.medicalCampRegisterMessage =
-                action.payload?.message ||
-                "Patient registered for medical camp successfully.";
+                    state.medicalCampRegisterMessage =
+                        action.payload?.message ||
+                        "Patient registered for medical camp successfully.";
 
-            state.medicalCampRegisterError = null;
+                    state.medicalCampRegisterError = null;
 
-            state.success = true;
+                    state.success = true;
 
-            state.message =
-                state.medicalCampRegisterMessage;
-        }
-    )
+                    state.message =
+                        state.medicalCampRegisterMessage;
+                }
+            )
 
-    .addCase(
-        registerFrontOfficeMedicalCampPatient.rejected,
-        (state, action) => {
+            .addCase(
+                registerFrontOfficeMedicalCampPatient.rejected,
+                (state, action) => {
 
-            state.medicalCampRegistering = false;
+                    state.medicalCampRegistering = false;
 
-            state.loading = false;
+                    state.loading = false;
 
-            state.medicalCampRegisterSuccess = false;
+                    state.medicalCampRegisterSuccess = false;
 
-            state.medicalCampRegisterError =
-                action.payload ||
-                "Failed to register patient for medical camp.";
+                    state.medicalCampRegisterError =
+                        action.payload ||
+                        "Failed to register patient for medical camp.";
 
-            state.error =
-                state.medicalCampRegisterError;
-        }
-    )
+                    state.error =
+                        state.medicalCampRegisterError;
+                }
+            )
 
 
             .addCase(
@@ -868,7 +955,37 @@ export const selectMedicalCampRegisterMessage =
 export const selectMedicalCampRegisterError =
     (state) =>
         state.frontOfficeAppointment?.medicalCampRegisterError || null;
+export const selectWalkInCreating =
+  (state) =>
+    state.frontOfficeAppointment?.walkInCreating || false;
 
+export const selectWalkInSuccess =
+  (state) =>
+    state.frontOfficeAppointment?.walkInSuccess || false;
+
+export const selectWalkInMessage =
+  (state) =>
+    state.frontOfficeAppointment?.walkInMessage || "";
+
+export const selectWalkInData =
+  (state) =>
+    state.frontOfficeAppointment?.walkInData || null;
+
+export const selectWalkInError =
+  (state) =>
+    state.frontOfficeAppointment?.walkInError || null;
+
+export const selectDoctorTimeSlots =
+  (state) =>
+    state.frontOfficeAppointment?.doctorSlots || [];
+
+export const selectDoctorSlotsLoading =
+  (state) =>
+    state.frontOfficeAppointment?.doctorSlotsLoading || false;
+
+export const selectDoctorSlotsError =
+  (state) =>
+    state.frontOfficeAppointment?.doctorSlotsError || null;
 // ==========================================
 // REDUCER
 // ==========================================
