@@ -13,7 +13,10 @@ import {
     getMedicalCampList,
     registerMedicalCampPatient,
     createDirectWalkInPatient,
-    getDoctorTimeSlots
+    getDoctorTimeSlots,
+    createDirectWalkInMedicinePurchase,
+    getFrontOfficeTherapies,
+    createDirectWalkInTherapyBooking
 
 } from "../api/frontOfficeAppoinntmentApi";
 import { getMedicalCampDetails } from "../api/frontOfficeDashboardApi";
@@ -201,8 +204,36 @@ export const fetchRegisterMedicalCampPatient = async (
     return response.data;
 };
 
-export const fetchCreateDirectWalkInPatient = (data) =>
-  createDirectWalkInPatient(data);
+export const fetchCreateDirectWalkInPatient = async (data) => {
+    const response =
+        await createDirectWalkInPatient(data);
+
+    return response.data;
+};
+
+export const fetchCreateDirectWalkInMedicinePurchase = async (
+    data
+) => {
+    const response =
+        await createDirectWalkInMedicinePurchase(data);
+
+    return response.data;
+};
+
+export const fetchCreateDirectWalkInTherapyBooking = async (
+    data
+) => {
+    const response =
+        await createDirectWalkInTherapyBooking(data);
+
+    return response.data;
+};
+
+export const fetchFrontOfficeTherapies = async () => {
+    const response = await getFrontOfficeTherapies();
+
+    return response.data;
+};
 
 export const fetchDoctorTimeSlots = (doctorId, date) =>
   getDoctorTimeSlots(doctorId, date);

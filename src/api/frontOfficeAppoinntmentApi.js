@@ -97,15 +97,31 @@ export const getMedicalCampList = (params = {}) =>
             params,
         }
     );
-    export const registerMedicalCampPatient = (data) =>
+export const registerMedicalCampPatient = (data) =>
     api.post(
         "/frontoffice/medicalcamp/register-patient",
         data
     );
 export const createDirectWalkInPatient = (data) =>
-  api.post("/frontoffice/patients/walk-in", data);
+    api.post("/frontoffice/patients/walk-in/appointment", data);
 
+export const createDirectWalkInMedicinePurchase = (data) => {
+  return api.post(
+    "/frontoffice/patients/walk-in/medicine",
+    data
+  );
+};
+
+export const createDirectWalkInTherapyBooking = (data) => {
+  return api.post(
+    "/frontoffice/patients/walk-in/therapy",
+    data
+  );
+};
+export const getFrontOfficeTherapies = () => {
+  return api.get("/frontoffice/therapies");
+};
 export const getDoctorTimeSlots = (doctorId, date) =>
-  api.get(`/frontoffice/doctors/${doctorId}/slots`, {
-    params: { date },
-  });
+    api.get(`/frontoffice/doctors/${doctorId}/slots`, {
+        params: { date },
+    });

@@ -102,18 +102,18 @@ const Therapy = ({
 
   useEffect(() => {
 
-  const items = (therapy?.items || []).map(
-    (item) => ({
-      ...item,
+    const items = (therapy?.items || []).map(
+      (item) => ({
+        ...item,
 
-      category:
-        item.category || "Treatments",
-    })
-  );
+        category:
+          item.category || "Treatments",
+      })
+    );
 
-  setEditableTherapies(items);
+    setEditableTherapies(items);
 
-}, [therapy?.items]);
+  }, [therapy?.items]);
 
 
   // ==========================================
@@ -603,7 +603,7 @@ const Therapy = ({
             className="
               ml-5
               flex-1
-              text-[22px]
+              text-[20px]
               outline-none
               placeholder:text-[#8D8D8D]
             "
@@ -1018,7 +1018,7 @@ const Therapy = ({
 
 
                       {/* NAME */}
-
+                   <div className="flex w-full justify-between items-center gap-4">
                       <h3 className="
                         text-[20px]
                         font-bold
@@ -1029,29 +1029,24 @@ const Therapy = ({
                         }
                       </h3>
 
-                      {/* NAME + CATEGORY */}
-
-                      <div className="flex items-center justify-between gap-4">
-
-                                 
-                                 <select
-                                   value={item.category || "Treatments"}
-                                   onChange={(e) =>
-                                     updateTherapy(
-                                       index,
-                                       "category",
-                                                                      e.target.value
-                                     )
-                                   }
-                                   className="
+                      <select
+                        value={item.category || "Treatments"}
+                        onChange={(e) =>
+                          updateTherapy(
+                            index,
+                            "category",
+                            e.target.value
+                          )
+                        }
+                        className=" ml-[400px]
                                      h-[36px]
-                                     w-[175px]
+                                     w-[160px]
                                      rounded-xl
                                      border
                                      border-[#E8D9CF]
                                      bg-white
                                      px-4
-                                     pr-8
+                                     
                                      text-[14px]
                                      font-semibold
                                      text-[#4D2E23]
@@ -1059,18 +1054,22 @@ const Therapy = ({
                                      cursor-pointer
                                      focus:border-[#8A563B]
                                    "
-                                                                >
-                                   {therapyCategories.map((category) => (
-                                     <option
-                                       key={category}
-                                       value={category}
-                                     >
-                                       {category}
-                                     </option>
-                                   ))}
-                                 </select>
+                      >
+                        {therapyCategories.map((category) => (
+                          <option
+                            key={category}
+                            value={category}
+                          >
+                            {category}
+                          </option>
+                        ))}
+                      </select>
+</div>
 
-                               </div>
+
+
+
+
 
 
                       {/* DESCRIPTION */}
@@ -1381,7 +1380,7 @@ const Therapy = ({
         ">
 
           <h2 className="
-            text-[30px]
+            text-[24px]
             font-bold
             text-[#4D2E23]
           ">
@@ -1390,7 +1389,7 @@ const Therapy = ({
 
 
           <h2 className="
-            text-[28px]
+            text-[20px]
             font-bold
             text-[#4D2E23]
           ">
@@ -1443,7 +1442,7 @@ const Therapy = ({
             border
             border-[#E3D2C7]
             bg-[#FFFDFB]
-            text-[22px]
+            text-[20px]
             font-semibold
             text-[#4D2E23]
             transition
@@ -1454,7 +1453,7 @@ const Therapy = ({
         >
 
           <HiOutlineArrowLeft
-            size={28}
+            size={24}
           />
 
           Back
@@ -1482,7 +1481,7 @@ const Therapy = ({
             gap-4
             rounded-[24px]
             bg-[#8A563B]
-            text-[22px]
+            text-[20px]
             font-semibold
             text-white
             transition
@@ -1493,7 +1492,7 @@ const Therapy = ({
         >
 
           <HiOutlineArrowRightOnRectangle
-            size={28}
+            size={24}
           />
 
           {saving

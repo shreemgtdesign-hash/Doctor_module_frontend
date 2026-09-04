@@ -17,6 +17,9 @@ import {
     registerFrontOfficeMedicalCampPatient,
     loadFrontOfficeDoctorTimeSlots,
     createFrontOfficeDirectWalkInPatient,
+    createFrontOfficeDirectWalkInMedicinePurchase,
+    createFrontOfficeDirectWalkInTherapyBooking,
+    loadFrontOfficeTherapies,
 } from "./frontOfficeAppointmentThunk";
 
 const initialState = {
@@ -76,6 +79,33 @@ const initialState = {
 
     addingSchedule: false,
     deletingSchedule: false,
+    // ==========================================
+    // MEDICINE PURCHASE
+    // ==========================================
+
+    medicinePurchaseCreating: false,
+    medicinePurchaseSuccess: false,
+    medicinePurchaseMessage: "",
+    medicinePurchaseData: null,
+    medicinePurchaseError: null,
+
+    // ==========================================
+    // THERAPY BOOKING
+    // ==========================================
+
+    therapyBookingCreating: false,
+    therapyBookingSuccess: false,
+    therapyBookingMessage: "",
+    therapyBookingData: null,
+    therapyBookingError: null,
+
+    // ==========================================
+    // THERAPIES
+    // ==========================================
+
+    therapies: [],
+    therapiesLoading: false,
+    therapiesError: null,
 
     // ==========================================
     // DELETE
@@ -881,6 +911,48 @@ const frontOfficeAppointmentSlice = createSlice({
                         state.medicalCampRegisterError;
                 }
             )
+        // =====================================================
+        // CREATE DIRECT WALK-IN MEDICINE PURCHASE
+        // =====================================================
+
+        builder
+            .addCase(
+                createFrontOfficeDirectWalkInMedicinePurchase.pending,
+                (state) => {
+                    state.medicinePurchaseCreating = true;
+                    state.medicinePurchaseSuccess = false;
+                    state.medicinePurchaseMessage = "";
+                    state.medicinePurchaseData = null;
+                    state.medicinePurchaseError = null;
+                }
+            )
+
+            .addCase(
+                createFrontOfficeDirectWalkInMedicinePurchase.fulfilled,
+                (state, action) => {
+                    state.medicinePurchaseCreating = false;
+                    state.medicinePurchaseSuccess = true;
+
+                    state.medicinePurchaseMessage =
+                        action.payload?.message ||
+                        "Medicine purchase created successfully!";
+
+                    state.medicinePurchaseData =
+                        action.payload?.data || null;
+                }
+            )
+
+            .addCase(
+                createFrontOfficeDirectWalkInMedicinePurchase.rejected,
+                (state, action) => {
+                    state.medicinePurchaseCreating = false;
+                    state.medicinePurchaseSuccess = false;
+
+                    state.medicinePurchaseError =
+                        action.payload ||
+                        "Failed to create medicine purchase.";
+                }
+            )
 
 
             .addCase(
@@ -895,7 +967,84 @@ const frontOfficeAppointmentSlice = createSlice({
                         action.payload ||
                         "Failed to delete doctor.";
                 }
-            );
+            )
+            // =====================================================
+// CREATE DIRECT WALK-IN THERAPY BOOKING
+// =====================================================
+
+builder
+    .addCase(
+        createFrontOfficeDirectWalkInTherapyBooking.pending,
+        (state) => {
+            state.therapyBookingCreating = true;
+            state.therapyBookingSuccess = false;
+            state.therapyBookingMessage = "";
+            state.therapyBookingData = null;
+            state.therapyBookingError = null;
+        }
+    )
+
+    .addCase(
+        createFrontOfficeDirectWalkInTherapyBooking.fulfilled,
+        (state, action) => {
+            state.therapyBookingCreating = false;
+            state.therapyBookingSuccess = true;
+
+            state.therapyBookingMessage =
+                action.payload?.message ||
+                "Therapy booking created successfully!";
+
+            state.therapyBookingData =
+                action.payload?.data || null;
+        }
+    )
+
+    .addCase(
+        createFrontOfficeDirectWalkInTherapyBooking.rejected,
+        (state, action) => {
+            state.therapyBookingCreating = false;
+            state.therapyBookingSuccess = false;
+
+            state.therapyBookingError =
+                action.payload ||
+                "Failed to create therapy booking.";
+        }
+    )
+    // =====================================================
+// LOAD THERAPIES
+// =====================================================
+
+builder
+    .addCase(
+        loadFrontOfficeTherapies.pending,
+        (state) => {
+            state.therapiesLoading = true;
+            state.therapiesError = null;
+        }
+    )
+
+    .addCase(
+        loadFrontOfficeTherapies.fulfilled,
+        (state, action) => {
+            state.therapiesLoading = false;
+
+            state.therapies =
+                action.payload?.data || [];
+        }
+    )
+
+    .addCase(
+        loadFrontOfficeTherapies.rejected,
+        (state, action) => {
+            state.therapiesLoading = false;
+
+            state.therapiesError =
+                action.payload ||
+                "Failed to load therapies.";
+
+            state.therapies = [];
+        }
+    );
     },
 });
 
@@ -956,38 +1105,102 @@ export const selectMedicalCampRegisterError =
     (state) =>
         state.frontOfficeAppointment?.medicalCampRegisterError || null;
 export const selectWalkInCreating =
-  (state) =>
-    state.frontOfficeAppointment?.walkInCreating || false;
+    (state) =>
+        state.frontOfficeAppointment?.walkInCreating || false;
 
 export const selectWalkInSuccess =
-  (state) =>
-    state.frontOfficeAppointment?.walkInSuccess || false;
+    (state) =>
+        state.frontOfficeAppointment?.walkInSuccess || false;
 
 export const selectWalkInMessage =
-  (state) =>
-    state.frontOfficeAppointment?.walkInMessage || "";
+    (state) =>
+        state.frontOfficeAppointment?.walkInMessage || "";
 
 export const selectWalkInData =
-  (state) =>
-    state.frontOfficeAppointment?.walkInData || null;
+    (state) =>
+        state.frontOfficeAppointment?.walkInData || null;
 
 export const selectWalkInError =
-  (state) =>
-    state.frontOfficeAppointment?.walkInError || null;
+    (state) =>
+        state.frontOfficeAppointment?.walkInError || null;
 
 export const selectDoctorTimeSlots =
-  (state) =>
-    state.frontOfficeAppointment?.doctorSlots || [];
+    (state) =>
+        state.frontOfficeAppointment?.doctorSlots || [];
 
 export const selectDoctorSlotsLoading =
-  (state) =>
-    state.frontOfficeAppointment?.doctorSlotsLoading || false;
+    (state) =>
+        state.frontOfficeAppointment?.doctorSlotsLoading || false;
 
 export const selectDoctorSlotsError =
-  (state) =>
-    state.frontOfficeAppointment?.doctorSlotsError || null;
+    (state) =>
+        state.frontOfficeAppointment?.doctorSlotsError || null;
 // ==========================================
 // REDUCER
 // ==========================================
+// ==========================================
+// MEDICINE PURCHASE SELECTORS
+// ==========================================
 
+export const selectMedicinePurchaseCreating =
+    (state) =>
+        state.frontOfficeAppointment?.medicinePurchaseCreating || false;
+
+export const selectMedicinePurchaseSuccess =
+    (state) =>
+        state.frontOfficeAppointment?.medicinePurchaseSuccess || false;
+
+export const selectMedicinePurchaseMessage =
+    (state) =>
+        state.frontOfficeAppointment?.medicinePurchaseMessage || "";
+
+export const selectMedicinePurchaseData =
+    (state) =>
+        state.frontOfficeAppointment?.medicinePurchaseData || null;
+
+export const selectMedicinePurchaseError =
+    (state) =>
+        state.frontOfficeAppointment?.medicinePurchaseError || null;
+
+
+// ==========================================
+// THERAPY BOOKING SELECTORS
+// ==========================================
+
+export const selectTherapyBookingCreating =
+    (state) =>
+        state.frontOfficeAppointment?.therapyBookingCreating || false;
+
+export const selectTherapyBookingSuccess =
+    (state) =>
+        state.frontOfficeAppointment?.therapyBookingSuccess || false;
+
+export const selectTherapyBookingMessage =
+    (state) =>
+        state.frontOfficeAppointment?.therapyBookingMessage || "";
+
+export const selectTherapyBookingData =
+    (state) =>
+        state.frontOfficeAppointment?.therapyBookingData || null;
+
+export const selectTherapyBookingError =
+    (state) =>
+        state.frontOfficeAppointment?.therapyBookingError || null;
+
+
+// ==========================================
+// THERAPY LIST SELECTORS
+// ==========================================
+
+export const selectFrontOfficeTherapies =
+    (state) =>
+        state.frontOfficeAppointment?.therapies || [];
+
+export const selectFrontOfficeTherapiesLoading =
+    (state) =>
+        state.frontOfficeAppointment?.therapiesLoading || false;
+
+export const selectFrontOfficeTherapiesError =
+    (state) =>
+        state.frontOfficeAppointment?.therapiesError || null;
 export default frontOfficeAppointmentSlice.reducer;

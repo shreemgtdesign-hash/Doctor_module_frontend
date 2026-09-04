@@ -21,12 +21,13 @@ import PrescriptionTable
 
 import DashboardLayout
     from "../../../components/Layout/DashboardLayout";
+import WalkInMedicinePurchase from "./components/WalkInMedicinePurchase";
 
 
 const PharmacistAppointments = () => {
 
     const dispatch = useDispatch();
-
+    
     const {
         patients,
         selectedPatient,
@@ -35,6 +36,9 @@ const PharmacistAppointments = () => {
     } = useSelector(
         (state) => state.pharmacist
     );
+    const isWalkInPatient =
+        selectedPatient &&
+        !selectedPatient.consultation_id;
 
 
     // ==========================================
@@ -308,18 +312,21 @@ const PharmacistAppointments = () => {
                                         scrollbar-track-transparent
                                     "
                                 >
+                                    {isWalkInPatient ? (
 
-                                    <PrescriptionTable
-                                        patient={
-                                            selectedPatient
-                                        }
-                                        items={
-                                            prescription?.items || []
-                                        }
-                                        loading={
-                                            prescriptionLoading
-                                        }
-                                    />
+                                        <WalkInMedicinePurchase
+                                            patient={selectedPatient}
+                                        />
+
+                                    ) : (
+
+                                        <PrescriptionTable
+                                            patient={selectedPatient}
+                                            items={prescription?.items || []}
+                                            loading={prescriptionLoading}
+                                        />
+
+                                    )}
 
                                 </div>
 

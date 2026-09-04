@@ -8,6 +8,7 @@ import pharmacistReducer from "../redux/pharmacist/pharmacistSlice";
 import therapistReducer from "../redux/therapist/therapistSlice";
 import frontOfficeDashboardReducer from "../redux/frontOffice/frontOfficeDashboardSlice";
 import frontOfficeAppointmentReducer from "../redux/frontOffice/frontOfficeAppointmentSlice";
+import frontOfficePatientReducer from "../redux/frontOffice/frontOfficePatientSlice";
 import dutyDoctorReducer
     from "../redux/dutyDoctor/dutyDoctorSlice";
 export const store = configureStore({
@@ -20,6 +21,7 @@ export const store = configureStore({
     therapist: therapistReducer,
     frontOfficeDashboard: frontOfficeDashboardReducer,
     frontOfficeAppointment: frontOfficeAppointmentReducer,
+    frontOfficePatient: frontOfficePatientReducer,
     dutyDoctor:dutyDoctorReducer
   },
 });

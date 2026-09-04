@@ -4,6 +4,8 @@ import {
 
 import {
     loadDutyDoctorDashboard,
+    loadScheduleOverview,
+    loadPatientsTended,
     loadDutyDoctorPatientQueue,
     loadPatientAssessment,
     submitDutyDoctorPainAssessment,
@@ -355,7 +357,90 @@ const dutyDoctorSlice = createSlice({
                         false;
 
                 }
-            );
+            )
+
+            // ==================================
+            // SCHEDULE OVERVIEW
+            // ==================================
+
+            .addCase(
+                loadScheduleOverview.pending,
+                (state) => {
+
+                    state.error = null;
+
+                }
+            )
+
+            .addCase(
+                loadScheduleOverview.fulfilled,
+                (
+                    state,
+                    action
+                ) => {
+
+                    state.scheduleOverview =
+                        action.payload.data ||
+                        action.payload;
+
+                }
+            )
+
+            .addCase(
+                loadScheduleOverview.rejected,
+                (
+                    state,
+                    action
+                ) => {
+
+                    state.error =
+                        action.payload ||
+                        "Failed to load schedule overview";
+
+                }
+            )
+
+
+            // ==================================
+            // PATIENTS TENDED TO
+            // ==================================
+
+            .addCase(
+                loadPatientsTended.pending,
+                (state) => {
+
+                    state.error = null;
+
+                }
+            )
+
+            .addCase(
+                loadPatientsTended.fulfilled,
+                (
+                    state,
+                    action
+                ) => {
+
+                    state.patientsTended =
+                        action.payload.data ||
+                        action.payload;
+
+                }
+            )
+
+            .addCase(
+                loadPatientsTended.rejected,
+                (
+                    state,
+                    action
+                ) => {
+
+                    state.error =
+                        action.payload ||
+                        "Failed to load patients tended";
+
+                }
+            )
 
     },
 

@@ -28,7 +28,6 @@ const PharmacistDashboard = () => {
 
     }, [dispatch]);
 
-
     return (
 
         <DashboardLayout role="pharmacist">

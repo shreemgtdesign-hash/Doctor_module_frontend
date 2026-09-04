@@ -8,7 +8,7 @@ import {
     fetchTherapistScheduleOverview,
    
 } from "../../services/therapistDashboardService";
-import { fetchTherapistAppointments, markTherapistAppointmentsComplete } from "../../services/therapistAppointmentsService";
+import { fetchTherapistAppointments, markTherapistAppointmentsComplete, updateTherapistAppointmentsStatus } from "../../services/therapistAppointmentsService";
 
 
 // ==========================================
@@ -229,6 +229,43 @@ export const completeTherapistAppointments =
                 return await markTherapistAppointmentsComplete({
                     bookingIds,
                     notes,
+                    status,
+                });
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+
+            }
+
+        }
+
+    );
+
+    // ==========================================
+// UPDATE APPOINTMENT STATUS
+// ==========================================
+
+export const updateTherapistAppointmentStatusThunk =
+    createAsyncThunk(
+
+        "therapist/updateAppointmentStatus",
+
+        async (
+            {
+                bookingIds,
+                status,
+            },
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await updateTherapistAppointmentsStatus({
+                    bookingIds,
                     status,
                 });
 

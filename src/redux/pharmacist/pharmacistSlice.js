@@ -11,6 +11,7 @@ import {
     dispenseSingleItem,
     dispenseBulk,
     loadMedicinesDispensedTable,
+    searchMedicines,
 } from "./pharmacistThunk";
 
 
@@ -21,13 +22,25 @@ const initialState = {
     error: null,
 
     pharmacist: null,
+        // Walk-in medicine purchases
+    walkInMedicines: {},
 
+    // ==========================================
     // Dashboard
+    // ==========================================
+
     medicinesDispensed: {
         total: 0,
         breakdown: [],
         period: "",
     },
+
+    medicineSearch: {
+        data: [],
+        loading: false,
+        error: null,
+    },
+
     medicinesDispensedTable: {
         data: [],
         count: 0,
@@ -54,17 +67,30 @@ const initialState = {
         trend: [],
     },
 
+
+    // ==========================================
     // Patients
+    // ==========================================
+
     patients: [],
 
     selectedPatient: null,
 
+
+    // ==========================================
     // Prescription
+    // ==========================================
+
     prescription: {
         items: [],
     },
 
     prescriptionLoading: false,
+
+
+    // ==========================================
+    // Dispensing
+    // ==========================================
 
     dispensing: false,
 
@@ -79,6 +105,43 @@ const pharmacistSlice = createSlice({
 
     reducers: {
 
+
+
+                setWalkInMedicines: (
+            state,
+            action
+        ) => {
+
+            const {
+                orderId,
+                medicines,
+            } = action.payload;
+
+            if (!orderId) {
+                return;
+            }
+
+            state.walkInMedicines[orderId] =
+                medicines || [];
+        },
+
+
+        clearWalkInMedicines: (
+            state,
+            action
+        ) => {
+
+            const orderId =
+                action.payload;
+
+            if (!orderId) {
+                return;
+            }
+
+            delete state.walkInMedicines[
+                orderId
+            ];
+        },
         setSelectedPharmacistPatient: (
             state,
             action
@@ -87,12 +150,12 @@ const pharmacistSlice = createSlice({
             state.selectedPatient =
                 action.payload;
 
-            // Clear old patient's prescription
             state.prescription = {
                 items: [],
             };
 
         },
+
 
         clearSelectedPharmacistPatient: (
             state
@@ -106,8 +169,13 @@ const pharmacistSlice = createSlice({
 
         },
 
-        clearPharmacistError: (state) => {
+
+        clearPharmacistError: (
+            state
+        ) => {
+
             state.error = null;
+
         },
 
     },
@@ -124,8 +192,10 @@ const pharmacistSlice = createSlice({
             .addCase(
                 loginPharmacist.pending,
                 (state) => {
+
                     state.loading = true;
                     state.error = null;
+
                 }
             )
 
@@ -136,7 +206,8 @@ const pharmacistSlice = createSlice({
                     state.loading = false;
 
                     state.pharmacist =
-                        action.payload?.data || null;
+                        action.payload?.data ||
+                        null;
 
                 }
             )
@@ -163,7 +234,9 @@ const pharmacistSlice = createSlice({
             .addCase(
                 loadMedicinesDispensed.pending,
                 (state) => {
+
                     state.loading = true;
+
                 }
             )
 
@@ -187,6 +260,7 @@ const pharmacistSlice = createSlice({
                 (state, action) => {
 
                     state.loading = false;
+
                     state.error =
                         action.payload;
 
@@ -309,8 +383,6 @@ const pharmacistSlice = createSlice({
                     state.prescriptionLoading =
                         true;
 
-                    // VERY IMPORTANT:
-                    // remove previous patient's data
                     state.prescription = {
                         items: [],
                     };
@@ -345,6 +417,52 @@ const pharmacistSlice = createSlice({
                     };
 
                     state.error =
+                        action.payload;
+
+                }
+            );
+
+
+        // =====================================
+        // MEDICINE SEARCH
+        // =====================================
+
+        builder
+
+            .addCase(
+                searchMedicines.pending,
+                (state) => {
+
+                    state.medicineSearch.loading =
+                        true;
+
+                    state.medicineSearch.error =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                searchMedicines.fulfilled,
+                (state, action) => {
+
+                    state.medicineSearch.loading =
+                        false;
+
+                    state.medicineSearch.data =
+                        action.payload || [];
+
+                }
+            )
+
+            .addCase(
+                searchMedicines.rejected,
+                (state, action) => {
+
+                    state.medicineSearch.loading =
+                        false;
+
+                    state.medicineSearch.error =
                         action.payload;
 
                 }
@@ -389,9 +507,6 @@ const pharmacistSlice = createSlice({
 
 
         // =====================================
-        // BULK DISPENSE
-        // =====================================
-        // =====================================
         // MEDICINES DISPENSED TABLE
         // =====================================
 
@@ -434,6 +549,12 @@ const pharmacistSlice = createSlice({
 
                 }
             );
+
+
+        // =====================================
+        // BULK DISPENSE
+        // =====================================
+
         builder
 
             .addCase(
@@ -475,6 +596,8 @@ export const {
     setSelectedPharmacistPatient,
     clearSelectedPharmacistPatient,
     clearPharmacistError,
+    setWalkInMedicines,
+    clearWalkInMedicines,
 } = pharmacistSlice.actions;
 
 

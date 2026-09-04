@@ -8,6 +8,7 @@ import {
     loadTherapistAppointments,
     completeTherapistAppointments,
     loadTherapistScheduleOverview,
+    updateTherapistAppointmentStatusThunk,
 } from "./therapistThunk";
 
 
@@ -80,6 +81,8 @@ const initialState = {
     appointments: [],
 
     completingAppointments: false,
+    updatingAppointmentStatus: false,
+    appointmentStatusError: null,
 
     count: 0,
 
@@ -437,7 +440,31 @@ const therapistDashboardSlice =
                 // =================================
                 // COMPLETE APPOINTMENT - ERROR
                 // =================================
+                .addCase(
+    updateTherapistAppointmentStatusThunk.pending,
+    (state) => {
+        state.updatingAppointmentStatus = true;
+        state.appointmentStatusError = null;
+    }
+)
 
+.addCase(
+    updateTherapistAppointmentStatusThunk.fulfilled,
+    (state) => {
+        state.updatingAppointmentStatus = false;
+    }
+)
+
+.addCase(
+    updateTherapistAppointmentStatusThunk.rejected,
+    (state, action) => {
+        state.updatingAppointmentStatus = false;
+
+        state.appointmentStatusError =
+            action.payload ||
+            "Failed to update appointment status.";
+    }
+)
                 .addCase(
                     completeTherapistAppointments.rejected,
                     (

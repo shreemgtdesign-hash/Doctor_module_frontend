@@ -161,7 +161,7 @@ const frontOfficeMenu = [
     {
         name: "Patients",
         icon: FaUserFriends,
-        path: "/frontoffice/patients",
+        path: "/frontoffice/patients-table",
     },
     {
         name: "Doctor Master",

@@ -67,3 +67,15 @@ export const dispensePrescriptionBulk = (payload) =>
         "/pharmacist/prescriptions/dispense-bulk",
         payload
     );
+
+
+    // ==========================================
+// Medicine Search
+// ==========================================
+
+export const searchPharmacistMedicines = (search) =>
+    api.get("/pharmacist/medicines", {
+        params: {
+            search,
+        },
+    });

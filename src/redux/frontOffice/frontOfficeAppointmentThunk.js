@@ -17,6 +17,9 @@ import {
     fetchRegisterMedicalCampPatient,
     fetchDoctorTimeSlots,
     fetchCreateDirectWalkInPatient,
+    fetchCreateDirectWalkInMedicinePurchase,
+    fetchCreateDirectWalkInTherapyBooking,
+    fetchFrontOfficeTherapies,
 } from "../../services/frontOfficeAppointmentService";
 
 
@@ -458,27 +461,85 @@ export const registerFrontOfficeMedicalCampPatient =
     );
 
 export const createFrontOfficeDirectWalkInPatient = createAsyncThunk(
-  "frontOffice/createDirectWalkInPatient",
-  async (patientData, { rejectWithValue }) => {
-    try {
-      return await fetchCreateDirectWalkInPatient(patientData);
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data || error.message
-      );
+    "frontOffice/createDirectWalkInPatient",
+    async (patientData, { rejectWithValue }) => {
+        try {
+            return await fetchCreateDirectWalkInPatient(patientData);
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || error.message
+            );
+        }
     }
-  }
 );
 
 export const loadFrontOfficeDoctorTimeSlots = createAsyncThunk(
-  "frontOffice/loadDoctorTimeSlots",
-  async ({ doctorId, date }, { rejectWithValue }) => {
-    try {
-      return await fetchDoctorTimeSlots(doctorId, date);
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data || error.message
-      );
+    "frontOffice/loadDoctorTimeSlots",
+    async ({ doctorId, date }, { rejectWithValue }) => {
+        try {
+            return await fetchDoctorTimeSlots(doctorId, date);
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data || error.message
+            );
+        }
     }
-  }
 );
+
+export const createFrontOfficeDirectWalkInMedicinePurchase =
+    createAsyncThunk(
+        "frontOffice/createDirectWalkInMedicinePurchase",
+
+        async (
+            purchaseData,
+            { rejectWithValue }
+        ) => {
+            try {
+                return await fetchCreateDirectWalkInMedicinePurchase(
+                    purchaseData
+                );
+            } catch (error) {
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+            }
+        }
+    );
+
+export const createFrontOfficeDirectWalkInTherapyBooking =
+    createAsyncThunk(
+        "frontOffice/createDirectWalkInTherapyBooking",
+
+        async (
+            therapyData,
+            { rejectWithValue }
+        ) => {
+            try {
+                return await fetchCreateDirectWalkInTherapyBooking(
+                    therapyData
+                );
+            } catch (error) {
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+            }
+        }
+    );
+
+    export const loadFrontOfficeTherapies =
+    createAsyncThunk(
+        "frontOffice/loadTherapies",
+
+        async (_, { rejectWithValue }) => {
+            try {
+                return await fetchFrontOfficeTherapies();
+            } catch (error) {
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+            }
+        }
+    );

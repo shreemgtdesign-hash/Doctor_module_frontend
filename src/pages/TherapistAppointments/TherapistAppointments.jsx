@@ -17,12 +17,13 @@ import {
     HiOutlineArrowLeft,
     HiOutlineCalendar,
     HiOutlinePencil,
-    
+
 } from "react-icons/hi2";
 
 import {
     loadTherapistAppointments,
     completeTherapistAppointments,
+    updateTherapistAppointmentStatusThunk,
 } from "../../redux/therapist/therapistThunk";
 
 
@@ -43,6 +44,7 @@ const TherapistAppointments = () => {
         loading,
         error,
         completingAppointments,
+        updatingAppointmentStatus,
     } = useSelector(
         (state) => state.therapist
     );
@@ -52,16 +54,29 @@ const TherapistAppointments = () => {
     // CHECKBOX STATE
     // ==========================================
 
-    const [
-        selectedAppointments,
-        setSelectedAppointments,
-    ] = useState({});
 
 
     // ==========================================
     // NOTES STATE
     // ==========================================
+useEffect(() => {
+    const notesMap = {};
 
+    appointments.forEach((appointment) => {
+        const bookingId =
+            appointment.booking_id ||
+            appointment.id;
+
+        if (!bookingId) {
+            return;
+        }
+
+        notesMap[bookingId] =
+            appointment.notes || "";
+    });
+
+    setAppointmentNotes(notesMap);
+}, [appointments]);
     const [
         appointmentNotes,
         setAppointmentNotes,
@@ -110,7 +125,7 @@ const TherapistAppointments = () => {
         return (
             appointment.is_completed === true ||
             appointment.status?.toLowerCase() ===
-                "completed"
+            "completed"
         );
 
     };
@@ -120,52 +135,6 @@ const TherapistAppointments = () => {
     // INITIALIZE STATES
     // ==========================================
 
-    useEffect(() => {
-
-        const statusMap = {};
-
-        const notesMap = {};
-
-
-        appointments.forEach(
-            (appointment) => {
-
-                const bookingId =
-                    appointment.booking_id ||
-                    appointment.id;
-
-
-                if (!bookingId) {
-                    return;
-                }
-
-
-                // Checkbox
-
-                statusMap[bookingId] =
-                    isCompleted(
-                        appointment
-                    );
-
-
-                // Existing notes from API
-
-                notesMap[bookingId] =
-                    appointment.notes || "";
-
-            }
-        );
-
-
-        setSelectedAppointments(
-            statusMap
-        );
-
-        setAppointmentNotes(
-            notesMap
-        );
-
-    }, [appointments]);
 
 
     // ==========================================
@@ -321,19 +290,11 @@ const TherapistAppointments = () => {
 
         const notes =
             appointmentNotes[
-                bookingId
+            bookingId
             ] || "";
 
 
-        const currentStatus =
-            appointment.status ||
-            (
-                selectedAppointments[
-                    bookingId
-                ]
-                    ? "completed"
-                    : "booked"
-            );
+      
 
 
         try {
@@ -347,8 +308,7 @@ const TherapistAppointments = () => {
 
                     notes,
 
-                    status:
-                        currentStatus,
+
 
                 })
             ).unwrap();
@@ -382,127 +342,60 @@ const TherapistAppointments = () => {
     // HANDLE STATUS CHANGE
     // ==========================================
 
-    const handleStatusChange = async (
+    // ==========================================
+    // HANDLE STATUS CHANGE
+    // ==========================================
+
+    // ==========================================
+    // MARK APPOINTMENT AS COMPLETED
+    // ==========================================
+
+    const handleCompleteAppointment = async (
         appointment
     ) => {
-
         const bookingId =
-            getBookingId(
-                appointment
-            );
-
+            getBookingId(appointment);
 
         if (!bookingId) {
-
             console.error(
                 "Booking ID not found:",
                 appointment
             );
 
             return;
-
         }
 
+        // Already completed
+        if (isCompleted(appointment)) {
+            return;
+        }
 
-        const previousValue =
-            selectedAppointments[
+        try {
+            await dispatch(
+                updateTherapistAppointmentStatusThunk({
+                    bookingIds: [
+                        bookingId,
+                    ],
+                    status: "completed",
+                })
+            ).unwrap();
+
+            console.log(
+                "Appointment marked as completed:",
                 bookingId
-            ] || false;
+            );
 
+            // Reload latest appointment data
+            await dispatch(
+                loadTherapistAppointments()
+            ).unwrap();
 
-        const newValue =
-            !previousValue;
-
-
-        // ======================================
-        // UPDATE UI IMMEDIATELY
-        // ======================================
-
-        setSelectedAppointments(
-            (prev) => ({
-
-                ...prev,
-
-                [bookingId]:
-                    newValue,
-
-            })
-        );
-
-
-        // ======================================
-        // CHECKING
-        // ======================================
-
-        if (newValue) {
-
-            try {
-
-                const notes =
-                    appointmentNotes[
-                        bookingId
-                    ] ||
-                    appointment.notes ||
-                    "";
-
-
-                await dispatch(
-                    completeTherapistAppointments({
-
-                        bookingIds: [
-                            bookingId,
-                        ],
-
-                        notes,
-
-                        status:
-                            "completed",
-
-                    })
-                ).unwrap();
-
-
-                console.log(
-                    "Appointment completed:",
-                    bookingId
-                );
-
-
-                // Update local appointment data
-                // without changing other rows
-
-                dispatch(
-                    loadTherapistAppointments()
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Failed to complete appointment:",
-                    error
-                );
-
-
-                // ==================================
-                // ROLLBACK ONLY THIS CHECKBOX
-                // ==================================
-
-                setSelectedAppointments(
-                    (prev) => ({
-
-                        ...prev,
-
-                        [bookingId]:
-                            previousValue,
-
-                    })
-                );
-
-            }
-
+        } catch (error) {
+            console.error(
+                "Failed to complete appointment:",
+                error
+            );
         }
-
     };
 
 
@@ -510,7 +403,7 @@ const TherapistAppointments = () => {
     // FORMAT PRICE
     // ==========================================
 
-  
+
 
 
     // ==========================================
@@ -668,7 +561,7 @@ const TherapistAppointments = () => {
                     {typeof error === "string"
                         ? error
                         : error?.message ||
-                          "Failed to load appointments"}
+                        "Failed to load appointments"}
 
                 </div>
 
@@ -909,15 +802,12 @@ const TherapistAppointments = () => {
                                         );
 
 
-                                    const isChecked =
-                                        selectedAppointments[
-                                            bookingId
-                                        ] || false;
+
 
 
                                     const note =
                                         appointmentNotes[
-                                            bookingId
+                                        bookingId
                                         ] || "";
 
 
@@ -941,10 +831,9 @@ const TherapistAppointments = () => {
                                                 last:border-b-0
                                                 transition
                                                 hover:bg-[#FFFCF9]
-                                                ${
-                                                    isEditing
-                                                        ? "bg-[#FFF5EA]"
-                                                        : ""
+                                                ${isEditing
+                                                    ? "bg-[#FFF5EA]"
+                                                    : ""
                                                 }
                                             `}
                                         >
@@ -1282,7 +1171,7 @@ const TherapistAppointments = () => {
                                                                 )
                                                             }
                                                             disabled={
-                                                                completingAppointments
+                                                                updatingAppointmentStatus
                                                             }
                                                             className="
                                                                 ml-2
@@ -1346,7 +1235,11 @@ const TherapistAppointments = () => {
                                                 </div>
 
                                             </div>
+                                         
 
+                                            {/* ================================= */}
+                                            {/* STATUS */}
+                                            {/* ================================= */}
 
                                             {/* ================================= */}
                                             {/* STATUS */}
@@ -1354,76 +1247,64 @@ const TherapistAppointments = () => {
 
                                             <div
                                                 className="
-                                                    flex
-                                                    items-center
-                                                    justify-center
-                                                    px-3
-                                                    py-5
-                                                "
+                                                 flex
+                                                 items-center
+                                                 justify-center
+                                                 px-3
+                                                 py-5
+                                             "
                                             >
-
-                                                <button
-                                                    type="button"
-                                                    role="checkbox"
-                                                    aria-checked={
-                                                        isChecked
-                                                    }
-                                                    disabled={
-                                                        completingAppointments
-                                                    }
-                                                    onClick={() =>
-                                                        handleStatusChange(
-                                                            appointment
-                                                        )
-                                                    }
-                                                    className={`
-                                                        flex
-                                                        h-[23px]
-                                                        w-[23px]
-                                                        flex-shrink-0
-                                                        items-center
-                                                        justify-center
-                                                        rounded-[4px]
-                                                        border-[2px]
-                                                        transition
-                                                        ${
-                                                            isChecked
-                                                                ? "border-[#4D2E23] bg-[#4D2E23]"
-                                                                : "border-[#4D2E23] bg-white"
+                                                {isCompleted(appointment) ? (
+                                                    <button
+                                                        type="button"
+                                                        disabled
+                                                        className="
+                                                         rounded-full
+                                                         border
+                                                         border-[#E7DBD3]
+                                                         bg-[#FFF9F3]
+                                                         px-6
+                                                         py-3
+                                                         text-[15px]
+                                                         font-semibold
+                                                         text-[#4D2E23]
+                                                         opacity-70
+                                                         cursor-default
+                                                     "
+                                                    >
+                                                        Done
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        disabled={updatingAppointmentStatus}
+                                                        onClick={() =>
+                                                            handleCompleteAppointment(
+                                                                appointment
+                                                            )
                                                         }
-                                                        ${
-                                                            completingAppointments
-                                                                ? "cursor-not-allowed opacity-50"
-                                                                : "cursor-pointer"
-                                                        }
-                                                    `}
-                                                >
-
-                                                    {isChecked && (
-
-                                                        <svg
-                                                            viewBox="0 0 20 20"
-                                                            fill="none"
-                                                            className="
-                                                                h-[16px]
-                                                                w-[16px]
-                                                            "
-                                                        >
-
-                                                            <path
-                                                                d="M4 10.5L8 14.5L16 6"
-                                                                stroke="white"
-                                                                strokeWidth="2.5"
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                            />
-
-                                                        </svg>
-
-                                                    )}
-
-                                                </button>
-
+                                                        className="
+                                                         rounded-full
+                                                         border
+                                                         border-[#E7DBD3]
+                                                         bg-white
+                                                         px-6
+                                                         py-3
+                                                         text-[15px]
+                                                         font-semibold
+                                                         text-[#4D2E23]
+                                                         transition
+                                                         hover:bg-[#FFF9F3]
+                                                         hover:border-[#DCC8B8]
+                                                         disabled:cursor-not-allowed
+                                                         disabled:opacity-50
+                                                     "
+                                                    >
+                                                        {updatingAppointmentStatus
+                                                            ? "..."
+                                                            : "Done"}
+                                                    </button>
+                                                )}
                                             </div>
 
                                         </div>

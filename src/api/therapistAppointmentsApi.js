@@ -7,13 +7,25 @@ export const getTherapistAppointments = () => {
 export const completeTherapistAppointments = (
     bookingIds,
     notes,
-    status = "completed"
+    
 ) =>
     api.put(
-        "/therapist/appointments/complete",
+        "/therapist/appointments/notes",
         {
             booking_ids: bookingIds,
             notes,
+           
+        }
+    );
+
+    export const updateTherapistAppointmentStatus = (
+    bookingIds,
+    status
+) =>
+    api.post(
+        "/therapist/appointments/status",
+        {
+            booking_ids: bookingIds,
             status,
         }
     );

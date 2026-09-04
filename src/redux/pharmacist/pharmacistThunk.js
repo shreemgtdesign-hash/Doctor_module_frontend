@@ -11,6 +11,7 @@ import {
     dispensePrescriptionItem,
     dispensePrescriptionBulk,
     getMedicinesDispensedTable,
+    searchPharmacistMedicines,
 } from "../../api/pharmacistApi";
 
 
@@ -308,3 +309,25 @@ export const loadMedicinesDispensedTable =
 
         }
     );
+
+    // ==========================================
+// Medicine Search
+// ==========================================
+
+export const searchMedicines = createAsyncThunk(
+    "pharmacist/searchMedicines",
+
+    async (search, { rejectWithValue }) => {
+        try {
+            const response =
+                await searchPharmacistMedicines(search);
+
+            return response.data.data || [];
+        } catch (error) {
+            return rejectWithValue(
+                error.response?.data ||
+                "Failed to search medicines"
+            );
+        }
+    }
+);

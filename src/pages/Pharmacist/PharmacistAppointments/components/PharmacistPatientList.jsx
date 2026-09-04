@@ -112,14 +112,16 @@ const PharmacistPatientList = ({
 
                             <PharmacistPatientCard
                                 key={
-                                    patient.consultation_id
+                                    patient.id
                                 }
+
                                 patient={patient}
+
                                 selected={
-                                    selectedPatient
-                                        ?.consultation_id ===
-                                    patient.consultation_id
+                                    selectedPatient?.id ===
+                                    patient.id
                                 }
+
                                 onClick={() =>
                                     onSelectPatient(
                                         patient

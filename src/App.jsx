@@ -27,6 +27,9 @@ import MedicineDispensedTable from "./pages/Pharmacist/PharmacistDashboard/compo
 import DutyDoctorDashboard from "./pages/DutyDoctor/DutyDoctorDashboard";
 import DutyDoctorAssessment from "./pages/DutyDoctor/DutyDoctorAssessment";
 import DirectWalkIn from "./pages/FrontOfficeAppointment/components/DirectWalkIn";
+import FrontofficePatientTable from "./pages/FrontOfficePatient/components/FrontofficePatientTable";
+import ViewPatientProfile from "./pages/FrontOfficePatient/components/ViewPatientProfile";
+import EditPatient from "./pages/FrontOfficePatient/components/EditPatient";
 
 function App() {
     return (
@@ -207,6 +210,20 @@ function App() {
 <Route
   path="/frontoffice/direct-walkin"
   element={<DirectWalkIn />}
+/>
+
+<Route
+  path="/frontoffice/patients-table"
+  element={<FrontofficePatientTable />}
+/>
+<Route
+  path="/frontoffice/patient/view/:id"
+  element={<ViewPatientProfile />}
+/>
+
+<Route
+  path="/frontoffice/patient/edit/:id"
+  element={<EditPatient />}
 />
 
 

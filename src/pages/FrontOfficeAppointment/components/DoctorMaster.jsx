@@ -411,9 +411,6 @@ const DoctorMaster = () => {
   };
 
 
-  // ==========================================
-  // VIEW PROFILE
-  // ==========================================
 
   const handleViewProfile = (
     doctor
