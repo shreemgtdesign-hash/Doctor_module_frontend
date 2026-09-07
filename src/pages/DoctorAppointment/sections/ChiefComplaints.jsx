@@ -43,6 +43,8 @@ const symptoms = [
 ];
 
 const ChiefComplaints = ({
+  onContinue,
+  onBack,
   appointmentId,
   setActiveSection,
   consultationTimerStarted,
@@ -208,7 +210,7 @@ const ChiefComplaints = ({
     const allergiesChanged =
       JSON.stringify(currentAllergies) !==
       JSON.stringify(savedAllergies);
-
+     
     return (
       symptomsChanged ||
       notesChanged ||
@@ -388,6 +390,10 @@ const ChiefComplaints = ({
     if (!success) return;
 
     setShowUnsavedModal(false);
+    if (onBack) {
+    onBack();
+    return;
+  }
 
     setActiveSection("overview");
   };
@@ -409,9 +415,13 @@ const ChiefComplaints = ({
     if (!success) {
       return;
     }
+    if (onContinue) {
+    onContinue();
+    return;
+  }
 
     // Move to Diagnosis after successful save
-    setActiveSection("diagnosis");
+    setActiveSection("history");
   };
 
   // =========================================================

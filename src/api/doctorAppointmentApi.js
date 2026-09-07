@@ -266,6 +266,53 @@ export const getPatientConsultationReport = (
   consultationId
 ) => {
   return api.get(
-    `/visits/patient/consultation/${consultationId}/history`
+    `/visits/patient/consultation/${consultationId}/report`
   );
+};
+
+
+export const getPatientReports = ({
+    search = "",
+    patientId = "",
+} = {}) => {
+
+    const params = {};
+
+    if (search) {
+        params.search = search;
+    }
+
+    if (patientId) {
+        params.patient_id = patientId;
+    }
+
+    return api.get("/reports", {
+        params,
+    });
+};
+
+
+// ========================================
+// GET SINGLE REPORT
+// ========================================
+
+export const getReportById = (reportId) => {
+
+    return api.get(
+        `/reports/${reportId}`
+    );
+};
+
+
+// ========================================
+// MARK REPORT AS REVIEWED
+// ========================================
+
+export const markReportReviewed = (
+    reportId
+) => {
+
+    return api.put(
+        `/reports/${reportId}/reviewed`
+    );
 };

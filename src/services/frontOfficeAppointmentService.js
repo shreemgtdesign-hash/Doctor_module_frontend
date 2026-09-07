@@ -16,7 +16,8 @@ import {
     getDoctorTimeSlots,
     createDirectWalkInMedicinePurchase,
     getFrontOfficeTherapies,
-    createDirectWalkInTherapyBooking
+    createDirectWalkInTherapyBooking,
+    getAppointmentConfirmation
 
 } from "../api/frontOfficeAppoinntmentApi";
 import { getMedicalCampDetails } from "../api/frontOfficeDashboardApi";
@@ -237,3 +238,19 @@ export const fetchFrontOfficeTherapies = async () => {
 
 export const fetchDoctorTimeSlots = (doctorId, date) =>
   getDoctorTimeSlots(doctorId, date);
+
+// ==========================================
+// GET APPOINTMENT CONFIRMATION
+// ==========================================
+
+export const fetchAppointmentConfirmation = async (
+    doctorId
+) => {
+
+    const response =
+        await getAppointmentConfirmation(
+            doctorId
+        );
+
+    return response.data;
+};

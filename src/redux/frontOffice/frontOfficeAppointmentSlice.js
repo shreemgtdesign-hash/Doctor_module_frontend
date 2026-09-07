@@ -20,6 +20,8 @@ import {
     createFrontOfficeDirectWalkInMedicinePurchase,
     createFrontOfficeDirectWalkInTherapyBooking,
     loadFrontOfficeTherapies,
+    loadAppointmentConfirmationList,
+    loadFrontOfficeAppointmentConfirmation,
 } from "./frontOfficeAppointmentThunk";
 
 const initialState = {
@@ -36,7 +38,21 @@ const initialState = {
     walkInMessage: "",
     walkInData: null,
     walkInError: null,
+    // ==========================================
+    // APPOINTMENT CONFIRMATION LIST
+    // ==========================================
 
+    appointmentConfirmationList: [],
+    appointmentConfirmationListLoading: false,
+    appointmentConfirmationListError: null,
+
+    // ==========================================
+    // APPOINTMENT CONFIRMATION DETAILS
+    // ==========================================
+
+    confirmation: null,
+    confirmationLoading: false,
+    confirmationError: null,
     doctorSlots: [],
     doctorSlotsLoading: false,
     doctorSlotsError: null,
@@ -175,52 +191,175 @@ const frontOfficeAppointmentSlice = createSlice({
 
         builder
 
-            .addCase(
-                confirmFrontOfficeAppointment.pending,
-                (state) => {
-                    state.confirmingAppointment = true;
-                    state.appointmentSuccess = false;
-                    state.appointmentMessage = "";
-                    state.appointmentError = null;
+            // ==========================================
+// CONFIRM / LOAD APPOINTMENT CONFIRMATION
+// ==========================================
 
-                    state.loading = true;
-                    state.error = null;
-                }
-            )
+builder
 
-            .addCase(
-                confirmFrontOfficeAppointment.fulfilled,
-                (state, action) => {
-                    state.confirmingAppointment = false;
-                    state.loading = false;
+    .addCase(
+        confirmFrontOfficeAppointment.pending,
+        (state, action) => {
 
-                    state.appointmentSuccess = true;
+            const isConfirming =
+                Boolean(
+                    action.meta?.arg?.appointment_id
+                );
 
-                    state.appointmentMessage =
-                        action.payload?.message ||
-                        "Appointment confirmed successfully.";
+            if (isConfirming) {
 
-                    state.message =
-                        state.appointmentMessage;
-                }
-            )
+                state.confirmingAppointment = true;
+                state.appointmentSuccess = false;
+                state.appointmentMessage = "";
+                state.appointmentError = null;
 
-            .addCase(
-                confirmFrontOfficeAppointment.rejected,
-                (state, action) => {
-                    state.confirmingAppointment = false;
-                    state.loading = false;
+            } else {
 
-                    state.appointmentSuccess = false;
+                state.confirmationLoading = true;
+                state.confirmationError = null;
 
-                    state.appointmentError =
-                        action.payload ||
-                        "Failed to confirm appointment.";
+            }
 
-                    state.error =
-                        state.appointmentError;
-                }
-            );
+            state.loading = true;
+            state.error = null;
+        }
+    )
+
+    .addCase(
+        confirmFrontOfficeAppointment.fulfilled,
+        (state, action) => {
+
+            const isConfirming =
+                Boolean(
+                    action.meta?.arg?.appointment_id
+                );
+
+            state.loading = false;
+
+            // ======================================
+            // LOAD CONFIRMATION DETAILS
+            // ======================================
+
+            if (!isConfirming) {
+
+                state.confirmationLoading = false;
+
+                state.confirmation =
+                    action.payload?.data ||
+                    action.payload ||
+                    null;
+
+                state.confirmationError = null;
+
+                return;
+            }
+
+            // ======================================
+            // ACTUAL APPOINTMENT CONFIRMATION
+            // ======================================
+
+            state.confirmingAppointment = false;
+
+            state.appointmentSuccess = true;
+
+            state.appointmentMessage =
+                action.payload?.message ||
+                "Appointment confirmed successfully.";
+
+            state.appointmentError = null;
+
+            state.message =
+                state.appointmentMessage;
+        }
+    )
+
+    .addCase(
+        confirmFrontOfficeAppointment.rejected,
+        (state, action) => {
+
+            const isConfirming =
+                Boolean(
+                    action.meta?.arg?.appointment_id
+                );
+
+            state.loading = false;
+
+            if (isConfirming) {
+
+                state.confirmingAppointment = false;
+
+                state.appointmentSuccess = false;
+
+                state.appointmentError =
+                    action.payload ||
+                    "Failed to confirm appointment.";
+
+                state.error =
+                    state.appointmentError;
+
+            } else {
+
+                state.confirmationLoading = false;
+
+                state.confirmationError =
+                    action.payload ||
+                    "Failed to load appointment confirmation.";
+
+                state.error =
+                    state.confirmationError;
+            }
+        }
+    );
+
+    // ==========================================
+// APPOINTMENT CONFIRMATION LIST
+// ==========================================
+
+builder
+
+    .addCase(
+        loadAppointmentConfirmationList.pending,
+        (state) => {
+
+            state.appointmentConfirmationListLoading =
+                true;
+
+            state.appointmentConfirmationListError =
+                null;
+        }
+    )
+
+    .addCase(
+        loadAppointmentConfirmationList.fulfilled,
+        (state, action) => {
+
+            state.appointmentConfirmationListLoading =
+                false;
+
+            state.appointmentConfirmationList =
+                action.payload?.data ||
+                [];
+
+            state.appointmentConfirmationListError =
+                null;
+        }
+    )
+
+    .addCase(
+        loadAppointmentConfirmationList.rejected,
+        (state, action) => {
+
+            state.appointmentConfirmationListLoading =
+                false;
+
+            state.appointmentConfirmationListError =
+                action.payload ||
+                "Failed to load appointment confirmations.";
+
+            state.appointmentConfirmationList =
+                [];
+        }
+    );
 
         // ==========================================
         // CREATE DOCTOR
@@ -911,6 +1050,51 @@ const frontOfficeAppointmentSlice = createSlice({
                         state.medicalCampRegisterError;
                 }
             )
+
+            // ==========================================
+// LOAD APPOINTMENT CONFIRMATION
+// ==========================================
+
+builder
+
+    .addCase(
+        loadFrontOfficeAppointmentConfirmation.pending,
+        (state) => {
+
+            state.confirmationLoading = true;
+            state.confirmationError = null;
+            state.confirmation = null;
+
+        }
+    )
+
+    .addCase(
+        loadFrontOfficeAppointmentConfirmation.fulfilled,
+        (state, action) => {
+
+            state.confirmationLoading = false;
+            state.confirmationError = null;
+
+            state.confirmation =
+                action.payload?.data ||
+                null;
+
+        }
+    )
+
+    .addCase(
+        loadFrontOfficeAppointmentConfirmation.rejected,
+        (state, action) => {
+
+            state.confirmationLoading = false;
+
+            state.confirmationError =
+                action.payload?.message ||
+                action.payload ||
+                "Failed to load appointment confirmation.";
+
+        }
+    );
         // =====================================================
         // CREATE DIRECT WALK-IN MEDICINE PURCHASE
         // =====================================================
@@ -968,83 +1152,83 @@ const frontOfficeAppointmentSlice = createSlice({
                         "Failed to delete doctor.";
                 }
             )
-            // =====================================================
-// CREATE DIRECT WALK-IN THERAPY BOOKING
-// =====================================================
+        // =====================================================
+        // CREATE DIRECT WALK-IN THERAPY BOOKING
+        // =====================================================
 
-builder
-    .addCase(
-        createFrontOfficeDirectWalkInTherapyBooking.pending,
-        (state) => {
-            state.therapyBookingCreating = true;
-            state.therapyBookingSuccess = false;
-            state.therapyBookingMessage = "";
-            state.therapyBookingData = null;
-            state.therapyBookingError = null;
-        }
-    )
+        builder
+            .addCase(
+                createFrontOfficeDirectWalkInTherapyBooking.pending,
+                (state) => {
+                    state.therapyBookingCreating = true;
+                    state.therapyBookingSuccess = false;
+                    state.therapyBookingMessage = "";
+                    state.therapyBookingData = null;
+                    state.therapyBookingError = null;
+                }
+            )
 
-    .addCase(
-        createFrontOfficeDirectWalkInTherapyBooking.fulfilled,
-        (state, action) => {
-            state.therapyBookingCreating = false;
-            state.therapyBookingSuccess = true;
+            .addCase(
+                createFrontOfficeDirectWalkInTherapyBooking.fulfilled,
+                (state, action) => {
+                    state.therapyBookingCreating = false;
+                    state.therapyBookingSuccess = true;
 
-            state.therapyBookingMessage =
-                action.payload?.message ||
-                "Therapy booking created successfully!";
+                    state.therapyBookingMessage =
+                        action.payload?.message ||
+                        "Therapy booking created successfully!";
 
-            state.therapyBookingData =
-                action.payload?.data || null;
-        }
-    )
+                    state.therapyBookingData =
+                        action.payload?.data || null;
+                }
+            )
 
-    .addCase(
-        createFrontOfficeDirectWalkInTherapyBooking.rejected,
-        (state, action) => {
-            state.therapyBookingCreating = false;
-            state.therapyBookingSuccess = false;
+            .addCase(
+                createFrontOfficeDirectWalkInTherapyBooking.rejected,
+                (state, action) => {
+                    state.therapyBookingCreating = false;
+                    state.therapyBookingSuccess = false;
 
-            state.therapyBookingError =
-                action.payload ||
-                "Failed to create therapy booking.";
-        }
-    )
-    // =====================================================
-// LOAD THERAPIES
-// =====================================================
+                    state.therapyBookingError =
+                        action.payload ||
+                        "Failed to create therapy booking.";
+                }
+            )
+        // =====================================================
+        // LOAD THERAPIES
+        // =====================================================
 
-builder
-    .addCase(
-        loadFrontOfficeTherapies.pending,
-        (state) => {
-            state.therapiesLoading = true;
-            state.therapiesError = null;
-        }
-    )
+        builder
+            .addCase(
+                loadFrontOfficeTherapies.pending,
+                (state) => {
+                    state.therapiesLoading = true;
+                    state.therapiesError = null;
+                }
+            )
 
-    .addCase(
-        loadFrontOfficeTherapies.fulfilled,
-        (state, action) => {
-            state.therapiesLoading = false;
+            .addCase(
+                loadFrontOfficeTherapies.fulfilled,
+                (state, action) => {
+                    state.therapiesLoading = false;
 
-            state.therapies =
-                action.payload?.data || [];
-        }
-    )
+                    state.therapies =
+                        action.payload?.data || [];
+                }
+            )
 
-    .addCase(
-        loadFrontOfficeTherapies.rejected,
-        (state, action) => {
-            state.therapiesLoading = false;
+            .addCase(
+                loadFrontOfficeTherapies.rejected,
+                (state, action) => {
+                    state.therapiesLoading = false;
 
-            state.therapiesError =
-                action.payload ||
-                "Failed to load therapies.";
+                    state.therapiesError =
+                        action.payload ||
+                        "Failed to load therapies.";
 
-            state.therapies = [];
-        }
-    );
+                    state.therapies = [];
+                }
+            );
     },
 });
 
@@ -1203,4 +1387,54 @@ export const selectFrontOfficeTherapiesLoading =
 export const selectFrontOfficeTherapiesError =
     (state) =>
         state.frontOfficeAppointment?.therapiesError || null;
+
+
+    export const selectAppointmentConfirmationList =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.appointmentConfirmationList || [];
+
+export const selectAppointmentConfirmationListLoading =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.appointmentConfirmationListLoading || false;
+
+export const selectAppointmentConfirmationListError =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.appointmentConfirmationListError || null;
+
+export const selectAppointmentConfirmation =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.confirmation || null;
+
+export const selectAppointmentConfirmationLoading =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.confirmationLoading || false;
+
+export const selectAppointmentConfirmationError =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.confirmationError || null;
+
+// ==========================================
+// APPOINTMENT CONFIRMATION SELECTORS
+// ==========================================
+
+export const selectFrontOfficeAppointmentConfirmation =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.confirmation || null;
+
+export const selectFrontOfficeAppointmentConfirmationLoading =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.confirmationLoading || false;
+
+export const selectFrontOfficeAppointmentConfirmationError =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.confirmationError || null;
 export default frontOfficeAppointmentSlice.reducer;

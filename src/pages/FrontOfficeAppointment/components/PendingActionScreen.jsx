@@ -15,7 +15,7 @@ import DashboardCard
   from "../../../components/Dashboard/DashboardCard";
 
 
-const PendingActions = () => {
+const PendingActionScreen = () => {
 
   const navigate = useNavigate();
 
@@ -36,7 +36,7 @@ const PendingActions = () => {
 
       onClick: () => {
         navigate(
-          "/frontoffice/pending-actions/appointment-confirmations"
+          "/frontoffice/appointment-confirmation/doctorId"
         );
       },
     },
@@ -106,14 +106,7 @@ const PendingActions = () => {
 
   return (
 
-    <DashboardCard
-      className="
-        px-5
-        pt-5
-        pb-4
-      "
-      onClick={() => navigate("/frontoffice/pending-actions-screen")}
-    >
+  <>
 
       <div
         className="
@@ -223,10 +216,10 @@ const PendingActions = () => {
 
       </div>
 
-    </DashboardCard>
+   </>
 
   );
 };
 
 
-export default PendingActions;
+export default PendingActionScreen;

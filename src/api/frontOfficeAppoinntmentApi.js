@@ -125,3 +125,26 @@ export const getDoctorTimeSlots = (doctorId, date) =>
     api.get(`/frontoffice/doctors/${doctorId}/slots`, {
         params: { date },
     });
+
+    // ==========================================
+// APPOINTMENT CONFIRMATION LIST
+// ==========================================
+
+export const getAppointmentConfirmationList = () =>
+    api.get(
+        "/frontoffice/appointments/confirmation-list"
+    );
+
+    // ==========================================
+// APPOINTMENT CONFIRMATION OVERVIEW
+// ==========================================
+
+export const getAppointmentConfirmation = (doctorId) =>
+    api.get(
+        "/frontoffice/appointments/confirmation",
+        {
+            params: {
+                doctor_id: doctorId,
+            },
+        }
+    );

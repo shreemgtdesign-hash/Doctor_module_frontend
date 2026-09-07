@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ChevronDown, ChevronRight, Clock3, CalendarDays } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 
 import {
   loadFrontOfficeDoctors,
@@ -24,19 +24,20 @@ import {
 
   selectFrontOfficeTherapies,
   selectFrontOfficeTherapiesLoading,
- 
+
 } from "../../../redux/frontOffice/frontOfficeAppointmentSlice";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 
 const DirectWalkIn = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const therapies = useSelector(
-  selectFrontOfficeTherapies
-);
+    selectFrontOfficeTherapies
+  );
 
-const therapiesLoading = useSelector(
-  selectFrontOfficeTherapiesLoading
-);
+  const therapiesLoading = useSelector(
+    selectFrontOfficeTherapiesLoading
+  );
   const doctors = useSelector(selectFrontOfficeDoctors);
   const doctorSlots = useSelector(selectDoctorTimeSlots);
   const slotsLoading = useSelector(selectDoctorSlotsLoading);
@@ -144,12 +145,16 @@ const therapiesLoading = useSelector(
         ayurvedic_body_type: "",
         doctor_id: "",
         slot_time: "",
-        patient_slot_time:"",
+        patient_slot_time: "",
         reason_for_visit: "",
         patient_reason_for_visit: "",
 
         comments: "",
+
+
       }));
+
+      navigate("/frontoffice/dashboard");
     }
   }, [walkInSuccess]);
 
@@ -337,7 +342,20 @@ const therapiesLoading = useSelector(
 
   return (
     <DashboardLayout role="frontoffice">
-      <div className="min-h-full bg-white text-[#4B2418]">
+      <div
+        className="
+    mx-3
+    my-3
+    min-h-[calc(100vh-24px)]
+    overflow-hidden
+    rounded-2xl
+    border
+    border-[#E8D9CF]
+    bg-white
+    text-[#4B2418]
+    shadow-[0_2px_10px_rgba(96,51,37,0.04)]
+  "
+      >
 
         {/* ========================================= */}
         {/* HEADER */}
@@ -432,7 +450,7 @@ const therapiesLoading = useSelector(
         {formType === "appointment" && (
           <form onSubmit={handleSubmitAppointment}>
 
-            <div className="px-4">
+            <div className="px-6">
 
               {/* Patient details */}
 
@@ -804,7 +822,20 @@ const therapiesLoading = useSelector(
             {/* FOOTER */}
             {/* ========================================= */}
 
-            <div className="sticky bottom-0 flex justify-end gap-4 border-t border-[#EEE3DC] bg-white px-4 py-4">
+            <div
+              className="
+    sticky
+    bottom-0
+    flex
+    justify-end
+    gap-4
+    border-t
+    border-[#E8D9CF]
+    bg-white
+    px-6
+    py-4
+  "
+            >
 
               <button
                 type="button"
@@ -841,28 +872,28 @@ const therapiesLoading = useSelector(
             form={form}
             handleChange={handleChange}
             handleGender={handleGender}
-             handleSubmitMedicinePurchase={
-      handleSubmitMedicinePurchase
-    } />
+            handleSubmitMedicinePurchase={
+              handleSubmitMedicinePurchase
+            } />
         )}
 
         {/* ========================================= */}
-{/* THERAPY BOOKING */}
-{/* ========================================= */}
+        {/* THERAPY BOOKING */}
+        {/* ========================================= */}
 
-{formType === "therapy" && (
-  <TherapyBookingForm
-    form={form}
-    handleChange={handleChange}
-    handleGender={handleGender}
-    handleSubmitTherapyBooking={
-      handleSubmitTherapyBooking
-    }
-    therapies={therapies}
-    therapiesLoading={therapiesLoading}
- 
-  />
-)}
+        {formType === "therapy" && (
+          <TherapyBookingForm
+            form={form}
+            handleChange={handleChange}
+            handleGender={handleGender}
+            handleSubmitTherapyBooking={
+              handleSubmitTherapyBooking
+            }
+            therapies={therapies}
+            therapiesLoading={therapiesLoading}
+
+          />
+        )}
 
       </div>
     </DashboardLayout>
@@ -1005,7 +1036,7 @@ const MedicinePurchaseForm = ({
 }) => {
   return (
     <form onSubmit={handleSubmitMedicinePurchase}>
-      <div className="px-4">
+      <div className="px-6">
 
         {/* ========================================= */}
         {/* PATIENT DETAILS */}
@@ -1059,10 +1090,9 @@ const MedicinePurchaseForm = ({
                     border
                     px-4
                     text-[11px]
-                    ${
-                      form.gender === "Female"
-                        ? "border-[#603325] bg-[#FFF9F5] font-medium"
-                        : "border-[#E8D9CF] bg-white"
+                    ${form.gender === "Female"
+                      ? "border-[#603325] bg-[#FFF9F5] font-medium"
+                      : "border-[#E8D9CF] bg-white"
                     }
                   `}
                 >
@@ -1080,10 +1110,9 @@ const MedicinePurchaseForm = ({
                     border
                     px-5
                     text-[11px]
-                    ${
-                      form.gender === "Male"
-                        ? "border-[#603325] bg-[#FFF9F5] font-medium"
-                        : "border-[#E8D9CF] bg-white"
+                    ${form.gender === "Male"
+                      ? "border-[#603325] bg-[#FFF9F5] font-medium"
+                      : "border-[#E8D9CF] bg-white"
                     }
                   `}
                 >
@@ -1119,7 +1148,7 @@ const MedicinePurchaseForm = ({
 
             {/* Patient ID */}
 
-           
+
 
             {/* Address */}
 
@@ -1231,7 +1260,7 @@ const MedicinePurchaseForm = ({
             {typeof medicinePurchaseError === "string"
               ? medicinePurchaseError
               : medicinePurchaseError?.message ||
-                "Failed to create medicine purchase."}
+              "Failed to create medicine purchase."}
           </div>
         )}
 
@@ -1346,7 +1375,7 @@ const TherapyBookingForm = ({
 }) => {
   return (
     <form onSubmit={handleSubmitTherapyBooking}>
-      <div className="px-4">
+      <div className="px-6">
 
         {/* ========================================= */}
         {/* PATIENT DETAILS */}
@@ -1400,10 +1429,9 @@ const TherapyBookingForm = ({
                     border
                     px-4
                     text-[11px]
-                    ${
-                      form.gender === "Female"
-                        ? "border-[#603325] bg-[#FFF9F5] font-medium"
-                        : "border-[#E8D9CF] bg-white"
+                    ${form.gender === "Female"
+                      ? "border-[#603325] bg-[#FFF9F5] font-medium"
+                      : "border-[#E8D9CF] bg-white"
                     }
                   `}
                 >
@@ -1421,10 +1449,9 @@ const TherapyBookingForm = ({
                     border
                     px-5
                     text-[11px]
-                    ${
-                      form.gender === "Male"
-                        ? "border-[#603325] bg-[#FFF9F5] font-medium"
-                        : "border-[#E8D9CF] bg-white"
+                    ${form.gender === "Male"
+                      ? "border-[#603325] bg-[#FFF9F5] font-medium"
+                      : "border-[#E8D9CF] bg-white"
                     }
                   `}
                 >
@@ -1460,7 +1487,7 @@ const TherapyBookingForm = ({
 
             {/* Patient ID */}
 
-          
+
 
             {/* Address */}
 
@@ -1760,7 +1787,7 @@ const TherapyBookingForm = ({
             {typeof therapyBookingError === "string"
               ? therapyBookingError
               : therapyBookingError?.message ||
-                "Failed to create therapy booking."}
+              "Failed to create therapy booking."}
           </div>
         )}
 

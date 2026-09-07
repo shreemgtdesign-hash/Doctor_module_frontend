@@ -182,145 +182,145 @@ const Prescription = ({
         dispatch
     ]);
     useEffect(() => {
-    if (!prescription) return;
+        if (!prescription) return;
 
-    const items = Array.isArray(prescription)
-        ? prescription
-        : Array.isArray(prescription?.data)
-            ? prescription.data
-            : Array.isArray(prescription?.items)
-                ? prescription.items
-                : [];
+        const items = Array.isArray(prescription)
+            ? prescription
+            : Array.isArray(prescription?.data)
+                ? prescription.data
+                : Array.isArray(prescription?.items)
+                    ? prescription.items
+                    : [];
 
-    if (items.length === 0) {
-        setEditableMedicines([]);
-        setBackupMedicines([]);
-        setHasExistingPrescription(false);
-        return;
-    }
+        if (items.length === 0) {
+            setEditableMedicines([]);
+            setBackupMedicines([]);
+            setHasExistingPrescription(false);
+            return;
+        }
 
-    const cloned = items.map((item) => {
-        const dosageParts = parseDosage(item.dosage);
+        const cloned = items.map((item) => {
+            const dosageParts = parseDosage(item.dosage);
 
-        const morning =
-            Number(
-                item.morning ??
-                dosageParts.morning
-            ) || 0;
+            const morning =
+                Number(
+                    item.morning ??
+                    dosageParts.morning
+                ) || 0;
 
-        const afternoon =
-            Number(
-                item.afternoon ??
-                dosageParts.afternoon
-            ) || 0;
+            const afternoon =
+                Number(
+                    item.afternoon ??
+                    dosageParts.afternoon
+                ) || 0;
 
-        const evening =
-            Number(
-                item.evening ??
-                dosageParts.evening
-            ) || 0;
+            const evening =
+                Number(
+                    item.evening ??
+                    dosageParts.evening
+                ) || 0;
 
-        const night =
-            Number(
-                item.night ??
-                dosageParts.night
-            ) || 0;
+            const night =
+                Number(
+                    item.night ??
+                    dosageParts.night
+                ) || 0;
 
-        return {
-            ...item,
+            return {
+                ...item,
 
-            id: item.id,
+                id: item.id,
 
-            product_id:
-                item.product_id,
+                product_id:
+                    item.product_id,
 
-            medicine_name:
-                item.medicine_name,
+                medicine_name:
+                    item.medicine_name,
 
-            category:
-                item.category,
+                category:
+                    item.category,
 
-            price:
-                Number(item.price) || 0,
+                price:
+                    Number(item.price) || 0,
 
-            image_url:
-                item.image_url,
+                image_url:
+                    item.image_url,
 
-            morning,
-            afternoon,
-            evening,
-            night,
+                morning,
+                afternoon,
+                evening,
+                night,
 
-            dosage:
-                `${morning} - ${afternoon} - ${evening} - ${night}`,
+                dosage:
+                    `${morning} - ${afternoon} - ${evening} - ${night}`,
 
-            food:
-                item.food || "Before Food",
+                food:
+                    item.food || "Before Food",
 
-            duration:
-                item.duration || "30 Days",
+                duration:
+                    item.duration || "30 Days",
 
-            quantity:
-                Number(item.quantity) || 1,
+                quantity:
+                    Number(item.quantity) || 1,
 
-            frequency:
-                item.frequency ?? null,
+                frequency:
+                    item.frequency ?? null,
 
-            
-        };
-    });
 
-    setEditableMedicines(
-        JSON.parse(JSON.stringify(cloned))
-    );
+            };
+        });
 
-    setBackupMedicines(
-        JSON.parse(JSON.stringify(cloned))
-    );
-
-    setDeletedMedicines([]);
-
-    setHasExistingPrescription(
-        cloned.length > 0
-    );
-
-    setSpecialInstructions(
-        prescription?.special_instructions ||
-        prescription?.specialInstructions ||
-        items[0]?.special_instructions ||
-        ""
-    );
-
-    setReviewDate(
-        prescription?.review_date ||
-        prescription?.reviewDate ||
-        items[0]?.review_date ||
-        ""
-    );
-
-    // Prescription API allergies
-    const prescriptionAllergies =
-        items.find(
-            (item) =>
-                Array.isArray(item.patient_allergies) &&
-                item.patient_allergies.length > 0
-        )?.patient_allergies || [];
-
-    // Only use prescription allergies if
-    // Chief Complaints allergies are not available.
-    if (
-        !chiefComplaints?.allergies?.length &&
-        !chiefComplaints?.allergies_conditions?.length
-    ) {
-        setPatientAllergies(
-            prescriptionAllergies
+        setEditableMedicines(
+            JSON.parse(JSON.stringify(cloned))
         );
-    }
 
-}, [
-    prescription,
-    chiefComplaints
-]);
+        setBackupMedicines(
+            JSON.parse(JSON.stringify(cloned))
+        );
+
+        setDeletedMedicines([]);
+
+        setHasExistingPrescription(
+            cloned.length > 0
+        );
+
+        setSpecialInstructions(
+            prescription?.special_instructions ||
+            prescription?.specialInstructions ||
+            items[0]?.special_instructions ||
+            ""
+        );
+
+        setReviewDate(
+            prescription?.review_date ||
+            prescription?.reviewDate ||
+            items[0]?.review_date ||
+            ""
+        );
+
+        // Prescription API allergies
+        const prescriptionAllergies =
+            items.find(
+                (item) =>
+                    Array.isArray(item.patient_allergies) &&
+                    item.patient_allergies.length > 0
+            )?.patient_allergies || [];
+
+        // Only use prescription allergies if
+        // Chief Complaints allergies are not available.
+        if (
+            !chiefComplaints?.allergies?.length &&
+            !chiefComplaints?.allergies_conditions?.length
+        ) {
+            setPatientAllergies(
+                prescriptionAllergies
+            );
+        }
+
+    }, [
+        prescription,
+        chiefComplaints
+    ]);
     useEffect(() => {
 
         const savedChiefComplaintAllergies =
@@ -374,7 +374,7 @@ const Prescription = ({
         appointment,
         dispatch,
     ]);
- 
+
 
 
 
@@ -659,7 +659,8 @@ const Prescription = ({
 
             {/* Header */}
 
-            <div>
+            <div className="flex items-center justify-between">
+                <div>
 
                 <h2 className="text-[30px] font-bold text-[#4D2E23]">
                     Prescription
@@ -668,13 +669,15 @@ const Prescription = ({
                 <p className="mt-1 text-[17px] text-[#786A61]">
                     Add and manage prescriptions
                 </p>
- {consultationTimerStarted && (
-    <ConsultationTimer
-      timeLeft={
-        consultationTimeLeft
-      }
-    />
-  )}
+                </div>
+
+                {consultationTimerStarted && (
+                    <ConsultationTimer
+                        timeLeft={
+                            consultationTimeLeft
+                        }
+                    />
+                )}
             </div>
 
             {/* Search */}
@@ -1041,15 +1044,17 @@ const Prescription = ({
             justify-center
             bg-black/40
             backdrop-blur-sm
+            p-4
         "
                                 >
 
                                     <div
                                         className="
-                w-[520px]
-                rounded-[32px]
+                w-full
+                max-w-[620px]
+                rounded-[28px]
                 bg-white
-                p-8
+                p-7
                 shadow-2xl
             "
                                     >
@@ -1058,312 +1063,337 @@ const Prescription = ({
                                         {/* HEADER */}
                                         {/* ================================= */}
 
-                                        <h2 className="
-                text-[28px]
-                font-bold
-                text-[#4D2E23]
-            ">
+                                        <h2
+                                            className="
+                    text-[26px]
+                    font-bold
+                    text-[#4D2E23]
+                "
+                                        >
                                             Dosage
                                         </h2>
 
-                                        <p className="
-                mt-2
-                text-[#85766D]
-            ">
+                                        <p
+                                            className="
+                    mt-1
+                    text-[14px]
+                    text-[#85766D]
+                "
+                                        >
                                             Select dosage for each session
                                         </p>
 
 
                                         {/* ================================= */}
-                                        {/* MORNING */}
+                                        {/* DOSAGE GRID */}
                                         {/* ================================= */}
 
-                                        <div className="mt-8">
+                                        <div
+                                            className="
+                    mt-7
+                    grid
+                    grid-cols-2
+                    gap-x-8
+                    gap-y-6
+                "
+                                        >
 
-                                            <p className="
-                    mb-3
-                    font-semibold
-                    text-[#4D2E23]
-                ">
-                                                Morning
-                                            </p>
+                                            {/* ================================= */}
+                                            {/* MORNING */}
+                                            {/* ================================= */}
 
-                                            <div className="
-                    flex
-                    gap-3
-                ">
+                                            <div>
 
-                                                {[0, 1, 2].map(
-                                                    (value) => (
+                                                <p
+                                                    className="
+                            mb-3
+                            font-semibold
+                            text-[#4D2E23]
+                        "
+                                                >
+                                                    Morning
+                                                </p>
 
-                                                        <button
-                                                            key={value}
-                                                            type="button"
+                                                <div
+                                                    className="
+                            flex
+                            gap-2
+                        "
+                                                >
 
-                                                            onClick={() =>
-                                                                updateMedicine(
-                                                                    index,
-                                                                    "morning",
-                                                                    value
-                                                                )
-                                                            }
+                                                    {[0, 1, 2].map(
+                                                        (value) => (
 
-                                                            className={`
-                                    flex
-                                    h-12
-                                    w-12
-                                    items-center
-                                    justify-center
-                                    rounded-xl
-                                    border
-                                    font-semibold
-                                    transition
-
-                                    ${Number(
-                                                                medicine.morning
-                                                            ) === value
-
-                                                                    ? `
-                                                border-[#8A563B]
-                                                bg-[#8A563B]
-                                                text-white
-                                            `
-
-                                                                    : `
-                                                border-[#DDD]
-                                                bg-white
-                                                text-[#4D2E23]
-                                            `
+                                                            <button
+                                                                key={value}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    updateMedicine(
+                                                                        index,
+                                                                        "morning",
+                                                                        value
+                                                                    )
                                                                 }
-                                `}
-                                                        >
-                                                            {value}
-                                                        </button>
+                                                                className={`
+                                        flex
+                                        h-11
+                                        w-11
+                                        items-center
+                                        justify-center
+                                        rounded-xl
+                                        border
+                                        font-semibold
+                                        transition
 
-                                                    )
-                                                )}
+                                        ${Number(
+                                                                    medicine.morning
+                                                                ) === value
+                                                                        ? `
+                                                    border-[#8A563B]
+                                                    bg-[#8A563B]
+                                                    text-white
+                                                `
+                                                                        : `
+                                                    border-[#DDD]
+                                                    bg-white
+                                                    text-[#4D2E23]
+                                                    hover:border-[#8A563B]
+                                                `
+                                                                    }
+                                    `}
+                                                            >
+                                                                {value}
+                                                            </button>
+
+                                                        )
+                                                    )}
+
+                                                </div>
 
                                             </div>
 
-                                        </div>
 
+                                            {/* ================================= */}
+                                            {/* AFTERNOON */}
+                                            {/* ================================= */}
 
-                                        {/* ================================= */}
-                                        {/* AFTERNOON */}
-                                        {/* ================================= */}
+                                            <div>
 
-                                        <div className="mt-6">
+                                                <p
+                                                    className="
+                            mb-3
+                            font-semibold
+                            text-[#4D2E23]
+                        "
+                                                >
+                                                    Afternoon
+                                                </p>
 
-                                            <p className="
-                    mb-3
-                    font-semibold
-                    text-[#4D2E23]
-                ">
-                                                Afternoon
-                                            </p>
+                                                <div
+                                                    className="
+                            flex
+                            gap-2
+                        "
+                                                >
 
-                                            <div className="
-                    flex
-                    gap-3
-                ">
+                                                    {[0, 1, 2].map(
+                                                        (value) => (
 
-                                                {[0, 1, 2].map(
-                                                    (value) => (
-
-                                                        <button
-                                                            key={value}
-                                                            type="button"
-
-                                                            onClick={() =>
-                                                                updateMedicine(
-                                                                    index,
-                                                                    "afternoon",
-                                                                    value
-                                                                )
-                                                            }
-
-                                                            className={`
-                                    flex
-                                    h-12
-                                    w-12
-                                    items-center
-                                    justify-center
-                                    rounded-xl
-                                    border
-                                    font-semibold
-                                    transition
-
-                                    ${Number(
-                                                                medicine.afternoon
-                                                            ) === value
-
-                                                                    ? `
-                                                border-[#8A563B]
-                                                bg-[#8A563B]
-                                                text-white
-                                            `
-
-                                                                    : `
-                                                border-[#DDD]
-                                                bg-white
-                                                text-[#4D2E23]
-                                            `
+                                                            <button
+                                                                key={value}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    updateMedicine(
+                                                                        index,
+                                                                        "afternoon",
+                                                                        value
+                                                                    )
                                                                 }
-                                `}
-                                                        >
-                                                            {value}
-                                                        </button>
+                                                                className={`
+                                        flex
+                                        h-11
+                                        w-11
+                                        items-center
+                                        justify-center
+                                        rounded-xl
+                                        border
+                                        font-semibold
+                                        transition
 
-                                                    )
-                                                )}
+                                        ${Number(
+                                                                    medicine.afternoon
+                                                                ) === value
+                                                                        ? `
+                                                    border-[#8A563B]
+                                                    bg-[#8A563B]
+                                                    text-white
+                                                `
+                                                                        : `
+                                                    border-[#DDD]
+                                                    bg-white
+                                                    text-[#4D2E23]
+                                                    hover:border-[#8A563B]
+                                                `
+                                                                    }
+                                    `}
+                                                            >
+                                                                {value}
+                                                            </button>
+
+                                                        )
+                                                    )}
+
+                                                </div>
 
                                             </div>
 
-                                        </div>
 
+                                            {/* ================================= */}
+                                            {/* EVENING */}
+                                            {/* ================================= */}
 
-                                        {/* ================================= */}
-                                        {/* EVENING */}
-                                        {/* ================================= */}
+                                            <div>
 
-                                        <div className="mt-6">
+                                                <p
+                                                    className="
+                            mb-3
+                            font-semibold
+                            text-[#4D2E23]
+                        "
+                                                >
+                                                    Evening
+                                                </p>
 
-                                            <p className="
-                    mb-3
-                    font-semibold
-                    text-[#4D2E23]
-                ">
-                                                Evening
-                                            </p>
+                                                <div
+                                                    className="
+                            flex
+                            gap-2
+                        "
+                                                >
 
-                                            <div className="
-                    flex
-                    gap-3
-                ">
+                                                    {[0, 1, 2].map(
+                                                        (value) => (
 
-                                                {[0, 1, 2].map(
-                                                    (value) => (
-
-                                                        <button
-                                                            key={value}
-                                                            type="button"
-
-                                                            onClick={() =>
-                                                                updateMedicine(
-                                                                    index,
-                                                                    "evening",
-                                                                    value
-                                                                )
-                                                            }
-
-                                                            className={`
-                                    flex
-                                    h-12
-                                    w-12
-                                    items-center
-                                    justify-center
-                                    rounded-xl
-                                    border
-                                    font-semibold
-                                    transition
-
-                                    ${Number(
-                                                                medicine.evening
-                                                            ) === value
-
-                                                                    ? `
-                                                border-[#8A563B]
-                                                bg-[#8A563B]
-                                                text-white
-                                            `
-
-                                                                    : `
-                                                border-[#DDD]
-                                                bg-white
-                                                text-[#4D2E23]
-                                            `
+                                                            <button
+                                                                key={value}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    updateMedicine(
+                                                                        index,
+                                                                        "evening",
+                                                                        value
+                                                                    )
                                                                 }
-                                `}
-                                                        >
-                                                            {value}
-                                                        </button>
+                                                                className={`
+                                        flex
+                                        h-11
+                                        w-11
+                                        items-center
+                                        justify-center
+                                        rounded-xl
+                                        border
+                                        font-semibold
+                                        transition
 
-                                                    )
-                                                )}
+                                        ${Number(
+                                                                    medicine.evening
+                                                                ) === value
+                                                                        ? `
+                                                    border-[#8A563B]
+                                                    bg-[#8A563B]
+                                                    text-white
+                                                `
+                                                                        : `
+                                                    border-[#DDD]
+                                                    bg-white
+                                                    text-[#4D2E23]
+                                                    hover:border-[#8A563B]
+                                                `
+                                                                    }
+                                    `}
+                                                            >
+                                                                {value}
+                                                            </button>
+
+                                                        )
+                                                    )}
+
+                                                </div>
 
                                             </div>
 
-                                        </div>
 
+                                            {/* ================================= */}
+                                            {/* NIGHT */}
+                                            {/* ================================= */}
 
-                                        {/* ================================= */}
-                                        {/* NIGHT */}
-                                        {/* ================================= */}
+                                            <div>
 
-                                        <div className="mt-6">
+                                                <p
+                                                    className="
+                            mb-3
+                            font-semibold
+                            text-[#4D2E23]
+                        "
+                                                >
+                                                    Night
+                                                </p>
 
-                                            <p className="
-                    mb-3
-                    font-semibold
-                    text-[#4D2E23]
-                ">
-                                                Night
-                                            </p>
+                                                <div
+                                                    className="
+                            flex
+                            gap-2
+                        "
+                                                >
 
-                                            <div className="
-                    flex
-                    gap-3
-                ">
+                                                    {[0, 1, 2].map(
+                                                        (value) => (
 
-                                                {[0, 1, 2].map(
-                                                    (value) => (
-
-                                                        <button
-                                                            key={value}
-                                                            type="button"
-
-                                                            onClick={() =>
-                                                                updateMedicine(
-                                                                    index,
-                                                                    "night",
-                                                                    value
-                                                                )
-                                                            }
-
-                                                            className={`
-                                    flex
-                                    h-12
-                                    w-12
-                                    items-center
-                                    justify-center
-                                    rounded-xl
-                                    border
-                                    font-semibold
-                                    transition
-
-                                    ${Number(
-                                                                medicine.night
-                                                            ) === value
-
-                                                                    ? `
-                                                border-[#8A563B]
-                                                bg-[#8A563B]
-                                                text-white
-                                            `
-
-                                                                    : `
-                                                border-[#DDD]
-                                                bg-white
-                                                text-[#4D2E23]
-                                            `
+                                                            <button
+                                                                key={value}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    updateMedicine(
+                                                                        index,
+                                                                        "night",
+                                                                        value
+                                                                    )
                                                                 }
-                                `}
-                                                        >
-                                                            {value}
-                                                        </button>
+                                                                className={`
+                                        flex
+                                        h-11
+                                        w-11
+                                        items-center
+                                        justify-center
+                                        rounded-xl
+                                        border
+                                        font-semibold
+                                        transition
 
-                                                    )
-                                                )}
+                                        ${Number(
+                                                                    medicine.night
+                                                                ) === value
+                                                                        ? `
+                                                    border-[#8A563B]
+                                                    bg-[#8A563B]
+                                                    text-white
+                                                `
+                                                                        : `
+                                                    border-[#DDD]
+                                                    bg-white
+                                                    text-[#4D2E23]
+                                                    hover:border-[#8A563B]
+                                                `
+                                                                    }
+                                    `}
+                                                            >
+                                                                {value}
+                                                            </button>
+
+                                                        )
+                                                    )}
+
+                                                </div>
 
                                             </div>
 
@@ -1374,20 +1404,24 @@ const Prescription = ({
                                         {/* FOOD */}
                                         {/* ================================= */}
 
-                                        <div className="mt-8">
+                                        <div className="mt-7">
 
-                                            <p className="
-                    mb-3
-                    font-semibold
-                    text-[#4D2E23]
-                ">
+                                            <p
+                                                className="
+                        mb-3
+                        font-semibold
+                        text-[#4D2E23]
+                    "
+                                            >
                                                 Food
                                             </p>
 
-                                            <div className="
-                    flex
-                    gap-3
-                ">
+                                            <div
+                                                className="
+                        flex
+                        gap-3
+                    "
+                                            >
 
                                                 {[
                                                     "Before Food",
@@ -1398,7 +1432,6 @@ const Prescription = ({
                                                         <button
                                                             key={food}
                                                             type="button"
-
                                                             onClick={() =>
                                                                 updateMedicine(
                                                                     index,
@@ -1406,26 +1439,25 @@ const Prescription = ({
                                                                     food
                                                                 )
                                                             }
-
                                                             className={`
                                     rounded-full
                                     border
                                     px-5
                                     py-2
+                                    text-sm
                                     transition
 
                                     ${medicine.food === food
-
                                                                     ? `
                                                 border-[#8A563B]
                                                 bg-[#8A563B]
                                                 text-white
                                             `
-
                                                                     : `
                                                 border-[#DDD]
                                                 bg-white
                                                 text-[#4D2E23]
+                                                hover:border-[#8A563B]
                                             `
                                                                 }
                                 `}
@@ -1447,7 +1479,6 @@ const Prescription = ({
 
                                         <button
                                             type="button"
-
                                             onClick={() => {
 
                                                 const dosage =
@@ -1462,81 +1493,23 @@ const Prescription = ({
                                                     dosage
                                                 );
 
-                                                setDosagePopup(
-                                                    null
-                                                );
+                                                setDosagePopup(null);
 
                                             }}
-
                                             className="
-                    mt-10
-                    h-14
+                    mt-8
+                    h-13
                     w-full
                     rounded-xl
                     bg-[#8A563B]
+                    py-3.5
                     font-semibold
                     text-white
+                    transition
                     hover:bg-[#74452E]
                 "
                                         >
                                             Save
-                                        </button>
-
-                                    </div>
-
-                                </div>
-
-                            )}
-
-                            {durationPopup === index && (
-
-                                <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-
-                                    <div className="w-[460px] rounded-[32px] bg-white p-8 shadow-2xl">
-
-                                        <h2 className="text-[28px] font-bold text-[#4D2E23]">
-                                            Duration
-                                        </h2>
-
-                                        <p className="mt-2 text-[#85766D]">
-                                            Select treatment duration
-                                        </p>
-
-                                        <div className="mt-8 grid grid-cols-2 gap-3">
-
-                                            {durationOptions.map((item) => (
-
-                                                <button
-                                                    key={item}
-                                                    onClick={() =>
-                                                        updateMedicine(index, "duration", item)
-                                                    }
-                                                    className={`rounded-xl border p-4 font-medium transition
-
-                                         ${medicine.duration === item
-                                                            ?
-                                                            "bg-[#8A563B] border-[#8A563B] text-white"
-                                                            :
-                                                            "border-[#DDD]"
-                                                        }`}
-
-                                                >
-
-                                                    {item}
-
-                                                </button>
-
-                                            ))}
-
-                                        </div>
-
-                                        <button
-                                            onClick={() => setDurationPopup(null)}
-                                            className="mt-10 h-14 w-full rounded-xl bg-[#8A563B] text-white font-semibold hover:bg-[#74452E]"
-                                        >
-
-                                            Save
-
                                         </button>
 
                                     </div>

@@ -25,6 +25,9 @@ import {
     finishConsultationThunk,
     loadPatientHistory,
     loadPatientConsultationReport,
+    markReportReviewedThunk,
+    loadReportById,
+    loadPatientReports,
 } from "./consultationThunk";
 import { searchDiagnosisCategoriesThunk } from "../appointment/appointmentThunk";
 
@@ -83,6 +86,23 @@ const initialState = {
     consultationReport: null,
     consultationReportLoading: false,
     consultationReportError: null,
+    // ========================================
+    // PATIENT REPORTS
+    // ========================================
+
+    patientReports: [],
+    patientReportsCount: 0,
+    patientReportsLoading: false,
+    patientReportsError: null,
+
+    selectedReport: null,
+    selectedReportLoading: false,
+    selectedReportError: null,
+
+    reportReviewLoading: false,
+    reportReviewSuccess: false,
+    reportReviewMessage: "",
+    reportReviewError: null,
 };
 
 const consultationSlice = createSlice({
@@ -91,6 +111,25 @@ const consultationSlice = createSlice({
     initialState,
 
     reducers: {
+
+        clearSelectedReport: (state) => {
+
+            state.selectedReport = null;
+
+            state.selectedReportLoading = false;
+
+            state.selectedReportError = null;
+        },
+
+
+        clearReportMessage: (state) => {
+
+            state.reportReviewSuccess = false;
+
+            state.reportReviewMessage = "";
+
+            state.reportReviewError = null;
+        },
         setSelectedPatient: (state, action) => {
             state.selectedPatient = action.payload;
         },
@@ -533,6 +572,166 @@ const consultationSlice = createSlice({
                 }
             )
 
+            // ========================================
+            // PATIENT REPORTS
+            // ========================================
+
+            .addCase(
+                loadPatientReports.pending,
+                (state) => {
+
+                    state.patientReportsLoading = true;
+
+                    state.patientReportsError = null;
+                }
+            )
+
+            .addCase(
+                loadPatientReports.fulfilled,
+                (state, action) => {
+
+                    state.patientReportsLoading = false;
+
+                    const response =
+                        action.payload || {};
+
+                    state.patientReports =
+                        response.data || [];
+
+                    state.patientReportsCount =
+                        response.count ??
+                        state.patientReports.length;
+                }
+            )
+
+            .addCase(
+                loadPatientReports.rejected,
+                (state, action) => {
+
+                    state.patientReportsLoading = false;
+
+                    state.patientReportsError =
+                        action.payload;
+                }
+            )
+
+
+            // ========================================
+            // SINGLE REPORT
+            // ========================================
+
+            .addCase(
+                loadReportById.pending,
+                (state) => {
+
+                    state.selectedReportLoading = true;
+
+                    state.selectedReportError = null;
+                }
+            )
+
+            .addCase(
+                loadReportById.fulfilled,
+                (state, action) => {
+
+                    state.selectedReportLoading = false;
+
+                    state.selectedReport =
+                        action.payload;
+                }
+            )
+
+            .addCase(
+                loadReportById.rejected,
+                (state, action) => {
+
+                    state.selectedReportLoading = false;
+
+                    state.selectedReportError =
+                        action.payload;
+                }
+            )
+
+
+            // ========================================
+            // MARK REPORT REVIEWED
+            // ========================================
+
+            .addCase(
+                markReportReviewedThunk.pending,
+                (state) => {
+
+                    state.reportReviewLoading = true;
+
+                    state.reportReviewSuccess = false;
+
+                    state.reportReviewMessage = "";
+
+                    state.reportReviewError = null;
+                }
+            )
+
+            .addCase(
+                markReportReviewedThunk.fulfilled,
+                (state, action) => {
+
+                    state.reportReviewLoading = false;
+
+                    state.reportReviewSuccess = true;
+
+                    state.reportReviewMessage =
+                        action.payload?.message ||
+                        "Report marked as reviewed";
+
+
+                    const updatedReport =
+                        action.payload?.data;
+
+
+                    // Update selected report
+                    if (
+                        state.selectedReport &&
+                        updatedReport
+                    ) {
+
+                        state.selectedReport = {
+                            ...state.selectedReport,
+                            ...updatedReport,
+                        };
+                    }
+
+
+                    // Update report in list
+                    if (updatedReport?.id) {
+
+                        state.patientReports =
+                            state.patientReports.map(
+                                (report) =>
+                                    report.id ===
+                                        updatedReport.id
+                                        ? {
+                                            ...report,
+                                            ...updatedReport,
+                                        }
+                                        : report
+                            );
+                    }
+                }
+            )
+
+            .addCase(
+                markReportReviewedThunk.rejected,
+                (state, action) => {
+
+                    state.reportReviewLoading = false;
+
+                    state.reportReviewSuccess = false;
+
+                    state.reportReviewError =
+                        action.payload;
+                }
+            )
+
             .addCase(
                 saveTherapyThunk.fulfilled,
                 (state) => {
@@ -549,11 +748,81 @@ const consultationSlice = createSlice({
 
     },
 });
+// ========================================
+// REPORT SELECTORS
+// ========================================
 
+export const selectPatientReports =
+    (state) =>
+        state.consultation?.patientReports ||
+        [];
+
+
+export const selectPatientReportsCount =
+    (state) =>
+        state.consultation?.patientReportsCount ||
+        0;
+
+
+export const selectPatientReportsLoading =
+    (state) =>
+        state.consultation?.patientReportsLoading ||
+        false;
+
+
+export const selectPatientReportsError =
+    (state) =>
+        state.consultation?.patientReportsError ||
+        null;
+
+
+export const selectSelectedReport =
+    (state) =>
+        state.consultation?.selectedReport ||
+        null;
+
+
+export const selectSelectedReportLoading =
+    (state) =>
+        state.consultation?.selectedReportLoading ||
+        false;
+
+
+export const selectSelectedReportError =
+    (state) =>
+        state.consultation?.selectedReportError ||
+        null;
+
+
+export const selectReportReviewLoading =
+    (state) =>
+        state.consultation?.reportReviewLoading ||
+        false;
+
+
+export const selectReportReviewSuccess =
+    (state) =>
+        state.consultation?.reportReviewSuccess ||
+        false;
+
+
+export const selectReportReviewMessage =
+    (state) =>
+        state.consultation?.reportReviewMessage ||
+        "";
+
+
+export const selectReportReviewError =
+    (state) =>
+        state.consultation?.reportReviewError ||
+        null;
 export const {
     setSelectedPatient,
     clearSelectedPatient,
     setActiveFilter,
+
+    clearSelectedReport,
+    clearReportMessage,
 
 } = consultationSlice.actions;
 

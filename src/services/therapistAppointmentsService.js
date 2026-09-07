@@ -1,3 +1,4 @@
+import { getAppointmentConfirmationList } from "../api/frontOfficeAppoinntmentApi";
 import {
     completeTherapistAppointments,
     getTherapistAppointments,
@@ -46,3 +47,15 @@ export const markTherapistAppointmentsComplete =
 
         return response.data;
     };
+
+    // ==========================================
+// APPOINTMENT CONFIRMATION LIST
+// ==========================================
+
+export const fetchAppointmentConfirmationList = async () => {
+
+    const response =
+        await getAppointmentConfirmationList();
+
+    return response.data;
+};

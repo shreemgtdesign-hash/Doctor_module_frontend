@@ -20,7 +20,9 @@ import {
     fetchCreateDirectWalkInMedicinePurchase,
     fetchCreateDirectWalkInTherapyBooking,
     fetchFrontOfficeTherapies,
+    fetchAppointmentConfirmation,
 } from "../../services/frontOfficeAppointmentService";
+import { fetchAppointmentConfirmationList } from "../../services/therapistAppointmentsService";
 
 
 // ==========================================
@@ -541,5 +543,64 @@ export const createFrontOfficeDirectWalkInTherapyBooking =
                     error.message
                 );
             }
+        }
+
+
+    );
+
+    // ==========================================
+// APPOINTMENT CONFIRMATION LIST
+// ==========================================
+
+export const loadAppointmentConfirmationList =
+    createAsyncThunk(
+        "frontOfficeAppointment/loadAppointmentConfirmationList",
+        async (_, { rejectWithValue }) => {
+
+            try {
+
+                return await fetchAppointmentConfirmationList();
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+
+            }
+
+        }
+    );
+
+
+// ==========================================
+// LOAD APPOINTMENT CONFIRMATION
+// ==========================================
+
+export const loadFrontOfficeAppointmentConfirmation =
+    createAsyncThunk(
+        "frontOfficeAppointment/loadAppointmentConfirmation",
+
+        async (
+            doctorId,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchAppointmentConfirmation(
+                    doctorId
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+
+            }
+
         }
     );

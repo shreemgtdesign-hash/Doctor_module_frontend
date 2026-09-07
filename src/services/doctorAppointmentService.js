@@ -31,6 +31,9 @@ import {
   finishConsultation,
   getPatientHistory,
   getPatientConsultationReport,
+  markReportReviewed,
+  getReportById,
+  getPatientReports,
 
 
 
@@ -465,4 +468,49 @@ export const fetchPatientConsultationReport = async (
     );
 
   return response.data.data;
+};
+
+
+export const fetchPatientReports = async ({
+    search = "",
+    patientId = "",
+} = {}) => {
+
+    const response =
+        await getPatientReports({
+            search,
+            patientId,
+        });
+
+    return response.data;
+};
+
+
+// ========================================
+// GET SINGLE REPORT
+// ========================================
+
+export const fetchReportById = async (
+    reportId
+) => {
+
+    const response =
+        await getReportById(reportId);
+
+    return response.data.data;
+};
+
+
+// ========================================
+// MARK REPORT REVIEWED
+// ========================================
+
+export const reviewPatientReport = async (
+    reportId
+) => {
+
+    const response =
+        await markReportReviewed(reportId);
+
+    return response.data;
 };

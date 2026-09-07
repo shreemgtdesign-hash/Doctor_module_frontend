@@ -128,135 +128,137 @@ const PainAssessmentForm = ({
         assessment?.patient_info;
 
 
-    const beforeForm =
-        assessment
-            ?.before_treatment_form;
 
 
-    const afterForm =
-        assessment
-            ?.after_treatment_form;
 
+    const isPost = type === "post";
 
-    const isPost =
-        type === "post";
+const [selectedLocations, setSelectedLocations] = useState([]);
+const [painLocation, setPainLocation] = useState("");
+const [characterOfPain, setCharacterOfPain] = useState([]);
+const [typeOfPain, setTypeOfPain] = useState([]);
+const [frequencyOfPain, setFrequencyOfPain] = useState([]);
+const [onsetOfPain, setOnsetOfPain] = useState([]);
+const [relievesPain, setRelievesPain] = useState([]);
+const [painScore, setPainScore] = useState("");
+const [planOfAddressingPain, setPlanOfAddressingPain] = useState([]);
+const [effectsOfPain, setEffectsOfPain] = useState([]);
+const [painDetailsBefore, setPainDetailsBefore] = useState("");
+const [painDetailsAfter, setPainDetailsAfter] = useState("");
+const [otherComments, setOtherComments] = useState("");
 
+useEffect(() => {
+    if (!assessment) return;
 
-    /**
-     * ==========================================
-     * FORM STATE
-     * ==========================================
-     */
+    const before = assessment?.before_treatment_form;
+    const after = assessment?.after_treatment_form;
 
-    const [
-        selectedLocations,
-        setSelectedLocations,
-    ] = useState(
-        beforeForm?.location_of_pain || []
-    );
+    if (type === "post") {
+        // ============================
+        // POST FORM
+        // ============================
 
+        setSelectedLocations([]);
+        setPainLocation("");
+        setCharacterOfPain([]);
+        setTypeOfPain([]);
+        setFrequencyOfPain([]);
+        setOnsetOfPain([]);
+        setRelievesPain([]);
+        setPlanOfAddressingPain([]);
+        setEffectsOfPain([]);
 
-    const [
-        painLocation,
-        setPainLocation,
-    ] = useState(
-        beforeForm?.pain_location || ""
-    );
+        setPainScore(
+            after?.pain_score ??
+            ""
+        );
 
+        setPainDetailsBefore(
+            before?.pain_details_before ??
+            ""
+        );
 
-    const [
-        characterOfPain,
-        setCharacterOfPain,
-    ] = useState(
-        beforeForm?.character_of_pain || []
-    );
+        setPainDetailsAfter(
+            after?.pain_details_after ??
+            ""
+        );
 
+        setOtherComments(
+            after?.other_comments ??
+            ""
+        );
 
-    const [
-        typeOfPain,
-        setTypeOfPain,
-    ] = useState(
-        beforeForm?.type_of_pain || []
-    );
+    } else {
+        // ============================
+        // PRE FORM
+        // ============================
 
+        setSelectedLocations(
+            before?.location_of_pain ??
+            []
+        );
 
-    const [
-        frequencyOfPain,
-        setFrequencyOfPain,
-    ] = useState(
-        beforeForm?.frequency_of_pain || []
-    );
+        setPainLocation(
+            before?.pain_location ??
+            ""
+        );
 
+        setCharacterOfPain(
+            before?.character_of_pain ??
+            []
+        );
 
-    const [
-        onsetOfPain,
-        setOnsetOfPain,
-    ] = useState(
-        beforeForm?.onset_of_pain || []
-    );
+        setTypeOfPain(
+            before?.type_of_pain ??
+            []
+        );
 
+        setFrequencyOfPain(
+            before?.frequency_of_pain ??
+            []
+        );
 
-    const [
-        relievesPain,
-        setRelievesPain,
-    ] = useState(
-        beforeForm?.relieves_pain || []
-    );
+        setOnsetOfPain(
+            before?.onset_of_pain ??
+            []
+        );
 
+        setRelievesPain(
+            before?.relieves_pain ??
+            []
+        );
 
-    const [
-        painScore,
-        setPainScore,
-    ] = useState(
-        beforeForm?.pain_score ?? ""
-    );
+        setPainScore(
+            before?.pain_score ??
+            ""
+        );
 
+        setPlanOfAddressingPain(
+            before?.plan_of_addressing_pain ??
+            []
+        );
 
-    const [
-        planOfAddressingPain,
-        setPlanOfAddressingPain,
-    ] = useState(
-        beforeForm
-            ?.plan_of_addressing_pain || []
-    );
+        setEffectsOfPain(
+            before?.effects_of_pain ??
+            []
+        );
 
+        setPainDetailsBefore(
+            before?.pain_details_before ??
+            ""
+        );
 
-    const [
-        effectsOfPain,
-        setEffectsOfPain,
-    ] = useState(
-        beforeForm?.effects_of_pain || []
-    );
+        setPainDetailsAfter(
+            before?.pain_details_after ??
+            ""
+        );
 
-
-    const [
-        painDetailsBefore,
-        setPainDetailsBefore,
-    ] = useState(
-        beforeForm?.pain_details_before ||
-        ""
-    );
-
-
-    const [
-        painDetailsAfter,
-        setPainDetailsAfter,
-    ] = useState(
-        afterForm?.pain_details_after ||
-        ""
-    );
-
-
-    const [
-        otherComments,
-        setOtherComments,
-    ] = useState(
-        isPost
-            ? afterForm?.other_comments || ""
-            : beforeForm?.other_comments || ""
-    );
-
-
+        setOtherComments(
+            before?.other_comments ??
+            ""
+        );
+    }
+}, [assessment, type]);
     /**
      * ==========================================
      * POST FORM
@@ -273,21 +275,7 @@ const PainAssessmentForm = ({
      * ==========================================
      */
 
-    useEffect(() => {
-
-        if (!isPost) return;
-
-        if (!beforeForm) return;
-
-        setPainDetailsBefore(
-            beforeForm.pain_details_before ||
-            ""
-        );
-
-    }, [
-        isPost,
-        beforeForm,
-    ]);
+   
 
 
     /**
@@ -480,7 +468,7 @@ const PainAssessmentForm = ({
                     painDetailsBefore,
 
                 pain_details_after:
-                    null,
+                    painDetailsAfter,
 
                 other_comments:
                     otherComments,
@@ -773,6 +761,9 @@ const PainAssessmentForm = ({
 
                 <>
 
+
+
+
                     <div className="mt-5">
 
                         <PainBodySelector
@@ -956,8 +947,13 @@ const PainAssessmentForm = ({
 
                         <TextAreaField
                             label="Pain Details After"
-                            value=""
-                            disabled
+                            value={
+                                painDetailsAfter
+                            }
+                            onChange={
+                                setPainDetailsAfter
+                            }
+                           
                             placeholder="Enter pain details"
                         />
 

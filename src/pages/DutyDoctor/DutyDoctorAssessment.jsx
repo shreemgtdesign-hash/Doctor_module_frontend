@@ -16,32 +16,44 @@ import {
 import {
     loadPatientAssessment,
 } from "../../redux/dutyDoctor/dutyDoctorThunk";
-import PainAssessmentForm from "./components/PainAssessmentForm";
 
+import PainAssessmentForm
+    from "./components/PainAssessmentForm";
 
 
 const DutyDoctorAssessment = () => {
 
-    const dispatch =
-        useDispatch();
+    const dispatch = useDispatch();
 
-    const navigate =
-        useNavigate();
+    const navigate = useNavigate();
 
     const {
         bookingId,
     } = useParams();
 
+    const [searchParams] =
+        useSearchParams();
 
-    const [
-        searchParams,
-    ] = useSearchParams();
 
+    /*
+     * ==========================================
+     * GET ASSESSMENT TYPE
+     * ==========================================
+     */
+
+    const requestedType =
+        searchParams.get("type");
+
+
+    /*
+     * Only "post" should be POST.
+     * Everything else defaults to PRE.
+     */
 
     const type =
-        searchParams.get(
-            "type"
-        ) || "pre";
+        requestedType === "post"
+            ? "post"
+            : "pre";
 
 
     const {
@@ -54,9 +66,9 @@ const DutyDoctorAssessment = () => {
     );
 
 
-    /**
+    /*
      * ==========================================
-     * LOAD PATIENT DETAILS
+     * LOAD PATIENT ASSESSMENT
      * ==========================================
      */
 
@@ -72,7 +84,6 @@ const DutyDoctorAssessment = () => {
 
         }
 
-
         dispatch(
             loadPatientAssessment(
                 bookingId
@@ -86,7 +97,7 @@ const DutyDoctorAssessment = () => {
     ]);
 
 
-    /**
+    /*
      * ==========================================
      * LOADING
      * ==========================================
@@ -95,26 +106,24 @@ const DutyDoctorAssessment = () => {
     if (loadingAssessment) {
 
         return (
-
-            <div className="
-                flex
-                min-h-screen
-                items-center
-                justify-center
-                bg-[#F8F6F3]
-                text-[#4D2E23]
-            ">
-
+            <div
+                className="
+                    flex
+                    min-h-screen
+                    items-center
+                    justify-center
+                    bg-[#F8F6F3]
+                    text-[#4D2E23]
+                "
+            >
                 Loading patient assessment...
-
             </div>
-
         );
 
     }
 
 
-    /**
+    /*
      * ==========================================
      * ERROR
      * ==========================================
@@ -123,24 +132,27 @@ const DutyDoctorAssessment = () => {
     if (assessmentError) {
 
         return (
+            <div
+                className="
+                    flex
+                    min-h-screen
+                    flex-col
+                    items-center
+                    justify-center
+                    gap-4
+                    bg-[#F8F6F3]
+                "
+            >
 
-            <div className="
-                flex
-                min-h-screen
-                flex-col
-                items-center
-                justify-center
-                gap-4
-                bg-[#F8F6F3]
-            ">
-
-                <div className="
-                    rounded-xl
-                    bg-red-50
-                    px-6
-                    py-4
-                    text-red-600
-                ">
+                <div
+                    className="
+                        rounded-xl
+                        bg-red-50
+                        px-6
+                        py-4
+                        text-red-600
+                    "
+                >
                     {assessmentError}
                 </div>
 
@@ -164,30 +176,32 @@ const DutyDoctorAssessment = () => {
                 </button>
 
             </div>
-
         );
 
     }
 
 
     if (!assessment) {
-
         return null;
-
     }
 
 
+    /*
+     * ==========================================
+     * IMPORTANT
+     * ==========================================
+     *
+     * The key forces a completely fresh
+     * PainAssessmentForm when switching
+     * PRE → POST.
+     */
+
     return (
-
         <PainAssessmentForm
-            assessment={
-                assessment
-            }
-            type={
-                type
-            }
+            key={`${bookingId}-${type}`}
+            assessment={assessment}
+            type={type}
         />
-
     );
 
 };

@@ -251,7 +251,7 @@ const DutyDoctorDashboard = () => {
                 : "pre";
 
         navigate(
-            `/duty-doctor/assessment/${bookingId}`,
+            `/duty-doctor/assessment/${bookingId}?type=${assessmentType}`,
             {
                 state: {
                     bookingId,
@@ -1047,21 +1047,21 @@ const DutyDoctorDashboard = () => {
                                                             handleStartAssessment(patient)
                                                         }
                                                         className="
-        min-w-[125px]
-        rounded-full
-        border
-        border-[#E7D5C4]
-        bg-[#FFFDFB]
-        px-4
-        py-2.5
-        text-[14px]
-        font-semibold
-        text-[#4D2E23]
-        shadow-[0_1px_3px_rgba(80,50,35,0.08)]
-        transition
-        hover:bg-[#FFF6ED]
-        active:scale-[0.98]
-    "
+                                                                    min-w-[125px]
+                                                                    rounded-full
+                                                                    border
+                                                                    border-[#E7D5C4]
+                                                                    bg-[#FFFDFB]
+                                                                    px-4
+                                                                    py-2.5
+                                                                    text-[14px]
+                                                                    font-semibold
+                                                                    text-[#4D2E23]
+                                                                    shadow-[0_1px_3px_rgba(80,50,35,0.08)]
+                                                                    transition
+                                                                    hover:bg-[#FFF6ED]
+                                                                    active:scale-[0.98]
+                                                                "
                                                     >
                                                         {
                                                             getQueueButtonLabel(

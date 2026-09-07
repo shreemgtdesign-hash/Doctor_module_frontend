@@ -14,6 +14,9 @@ import {
   completeConsultation,
   fetchPatientHistory,
   fetchPatientConsultationReport,
+  fetchReportById,
+  fetchPatientReports,
+  reviewPatientReport,
 } from "../../services/doctorAppointmentService";
 
 export const loadAppointments = createAsyncThunk(
@@ -520,6 +523,103 @@ export const loadPatientConsultationReport =
           consultationId
         );
       } catch (error) {
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+      }
+    }
+  );
+
+
+  // ==========================================
+// LOAD PATIENT REPORTS
+// ==========================================
+
+export const loadPatientReports =
+  createAsyncThunk(
+
+    "consultation/loadPatientReports",
+
+    async (
+      {
+        search = "",
+        patientId = "",
+      } = {},
+      { rejectWithValue }
+    ) => {
+
+      try {
+
+        return await fetchPatientReports({
+          search,
+          patientId,
+        });
+
+      } catch (error) {
+
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+      }
+    }
+  );
+
+
+// ==========================================
+// LOAD SINGLE PATIENT REPORT
+// ==========================================
+
+export const loadReportById =
+  createAsyncThunk(
+
+    "consultation/loadReportById",
+
+    async (
+      reportId,
+      { rejectWithValue }
+    ) => {
+
+      try {
+
+        return await fetchReportById(
+          reportId
+        );
+
+      } catch (error) {
+
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+      }
+    }
+  );
+
+
+// ==========================================
+// MARK PATIENT REPORT REVIEWED
+// ==========================================
+
+export const markReportReviewedThunk =
+  createAsyncThunk(
+
+    "consultation/markReportReviewed",
+
+    async (
+      reportId,
+      { rejectWithValue }
+    ) => {
+
+      try {
+
+        return await reviewPatientReport(
+          reportId
+        );
+
+      } catch (error) {
+
         return rejectWithValue(
           error.response?.data ||
           error.message

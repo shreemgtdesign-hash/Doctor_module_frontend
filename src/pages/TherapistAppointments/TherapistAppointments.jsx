@@ -17,7 +17,6 @@ import {
     HiOutlineArrowLeft,
     HiOutlineCalendar,
     HiOutlinePencil,
-
 } from "react-icons/hi2";
 
 import {
@@ -55,10 +54,15 @@ const TherapistAppointments = () => {
     // ==========================================
 
 
-
     // ==========================================
     // NOTES STATE
     // ==========================================
+
+    const [
+        appointmentNotes,
+        setAppointmentNotes,
+    ] = useState({});
+
 useEffect(() => {
     const notesMap = {};
 
@@ -72,15 +76,13 @@ useEffect(() => {
         }
 
         notesMap[bookingId] =
-            appointment.notes || "";
+            appointment.therapy_notes ||
+            appointment.notes ||
+            "";
     });
 
     setAppointmentNotes(notesMap);
 }, [appointments]);
-    const [
-        appointmentNotes,
-        setAppointmentNotes,
-    ] = useState({});
 
 
     // ==========================================
@@ -129,12 +131,6 @@ useEffect(() => {
         );
 
     };
-
-
-    // ==========================================
-    // INITIALIZE STATES
-    // ==========================================
-
 
 
     // ==========================================
@@ -249,7 +245,7 @@ useEffect(() => {
                 ...prev,
 
                 [bookingId]:
-                    appointment.notes || "",
+                    appointment.therapy_notes || "",
 
             })
         );
@@ -290,11 +286,8 @@ useEffect(() => {
 
         const notes =
             appointmentNotes[
-            bookingId
+                bookingId
             ] || "";
-
-
-      
 
 
         try {
@@ -307,8 +300,6 @@ useEffect(() => {
                     ],
 
                     notes,
-
-
 
                 })
             ).unwrap();
@@ -342,9 +333,11 @@ useEffect(() => {
     // HANDLE STATUS CHANGE
     // ==========================================
 
+
     // ==========================================
     // HANDLE STATUS CHANGE
     // ==========================================
+
 
     // ==========================================
     // MARK APPOINTMENT AS COMPLETED
@@ -353,10 +346,15 @@ useEffect(() => {
     const handleCompleteAppointment = async (
         appointment
     ) => {
+
         const bookingId =
-            getBookingId(appointment);
+            getBookingId(
+                appointment
+            );
+
 
         if (!bookingId) {
+
             console.error(
                 "Booking ID not found:",
                 appointment
@@ -365,45 +363,57 @@ useEffect(() => {
             return;
         }
 
+
         // Already completed
+
         if (isCompleted(appointment)) {
             return;
         }
 
+
         try {
+
             await dispatch(
                 updateTherapistAppointmentStatusThunk({
+
                     bookingIds: [
                         bookingId,
                     ],
+
                     status: "completed",
+
                 })
             ).unwrap();
+
 
             console.log(
                 "Appointment marked as completed:",
                 bookingId
             );
 
+
             // Reload latest appointment data
+
             await dispatch(
                 loadTherapistAppointments()
             ).unwrap();
 
+
         } catch (error) {
+
             console.error(
                 "Failed to complete appointment:",
                 error
             );
+
         }
+
     };
 
 
     // ==========================================
     // FORMAT PRICE
     // ==========================================
-
-
 
 
     // ==========================================
@@ -584,12 +594,12 @@ useEffect(() => {
             >
 
                 {/* ================================= */}
-                {/* FIXED TABLE WIDTH
-                ================================== */}
+                {/* FIXED TABLE WIDTH */}
+                {/* ================================= */}
 
                 <div
                     className="
-                        min-w-[1400px]
+                        min-w-[1410px]
                     "
                 >
 
@@ -600,7 +610,7 @@ useEffect(() => {
                     <div
                         className="
                             grid
-                            grid-cols-[210px_160px_125px_160px_160px_70px_245px_75px]
+                            grid-cols-[210px_160px_125px_160px_160px_70px_205px_245px_110px]
                             border-b
                             border-[#EFE2D7]
                             bg-[#FFF9F3]
@@ -711,7 +721,7 @@ useEffect(() => {
                         </div>
 
 
-                        {/* NOTES */}
+                        {/* DOCTOR NOTES */}
 
                         <div
                             className="
@@ -724,7 +734,24 @@ useEffect(() => {
                                 text-[#4D2E23]
                             "
                         >
-                            Notes
+                            Doctor Notes
+                        </div>
+
+
+                        {/* THERAPIST NOTES */}
+
+                        <div
+                            className="
+                                border-r
+                                border-[#EFE2D7]
+                                px-5
+                                py-5
+                                text-[15px]
+                                font-semibold
+                                text-[#4D2E23]
+                            "
+                        >
+                            Therapist Notes
                         </div>
 
 
@@ -802,12 +829,9 @@ useEffect(() => {
                                         );
 
 
-
-
-
                                     const note =
                                         appointmentNotes[
-                                        bookingId
+                                            bookingId
                                         ] || "";
 
 
@@ -825,15 +849,16 @@ useEffect(() => {
                                             }
                                             className={`
                                                 grid
-                                                grid-cols-[210px_160px_125px_160px_160px_70px_245px_75px]
+                                                grid-cols-[210px_160px_125px_160px_160px_70px_205px_245px_110px]
                                                 border-b
                                                 border-[#EFE2D7]
                                                 last:border-b-0
                                                 transition
                                                 hover:bg-[#FFFCF9]
-                                                ${isEditing
-                                                    ? "bg-[#FFF5EA]"
-                                                    : ""
+                                                ${
+                                                    isEditing
+                                                        ? "bg-[#FFF5EA]"
+                                                        : ""
                                                 }
                                             `}
                                         >
@@ -1064,7 +1089,60 @@ useEffect(() => {
 
 
                                             {/* ================================= */}
-                                            {/* NOTES */}
+                                            {/* DOCTOR NOTES */}
+                                            {/* ================================= */}
+
+                                            <div
+                                                className="
+                                                    flex
+                                                    min-w-0
+                                                    items-center
+                                                    border-r
+                                                    border-[#EFE2D7]
+                                                    px-3
+                                                    py-4
+                                                "
+                                            >
+
+                                                <div
+                                                    className="
+                                                        flex
+                                                        min-h-[50px]
+                                                        w-full
+                                                        min-w-0
+                                                        items-center
+                                                        rounded-full
+                                                        border
+                                                        border-[#E7D6C5]
+                                                        bg-white
+                                                        px-4
+                                                    "
+                                                >
+
+                                                    <p
+                                                        className="
+                                                            min-w-0
+                                                            flex-1
+                                                            text-[14px]
+                                                            text-[#3F332E]
+                                                            line-clamp-2
+                                                        "
+                                                        title={
+                                                            appointment.doctor_prescription_therpay_notes ||
+                                                            ""
+                                                        }
+                                                    >
+                                                        {appointment.doctor_prescription_therpay_notes ||
+                                                            "No notes."}
+                                                    </p>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            {/* ================================= */}
+                                            {/* THERAPIST NOTES */}
                                             {/* ================================= */}
 
                                             <div
@@ -1128,6 +1206,7 @@ useEffect(() => {
                                                                 );
 
                                                             }
+
 
                                                             if (
                                                                 event.key ===
@@ -1235,11 +1314,7 @@ useEffect(() => {
                                                 </div>
 
                                             </div>
-                                         
 
-                                            {/* ================================= */}
-                                            {/* STATUS */}
-                                            {/* ================================= */}
 
                                             {/* ================================= */}
                                             {/* STATUS */}
@@ -1247,64 +1322,74 @@ useEffect(() => {
 
                                             <div
                                                 className="
-                                                 flex
-                                                 items-center
-                                                 justify-center
-                                                 px-3
-                                                 py-5
-                                             "
+                                                    flex
+                                                    items-center
+                                                    justify-center
+                                                    px-3
+                                                    py-5
+                                                "
                                             >
-                                                {isCompleted(appointment) ? (
+
+                                                {isCompleted(
+                                                    appointment
+                                                ) ? (
+
                                                     <button
                                                         type="button"
                                                         disabled
                                                         className="
-                                                         rounded-full
-                                                         border
-                                                         border-[#E7DBD3]
-                                                         bg-[#FFF9F3]
-                                                         px-6
-                                                         py-3
-                                                         text-[15px]
-                                                         font-semibold
-                                                         text-[#4D2E23]
-                                                         opacity-70
-                                                         cursor-default
-                                                     "
+                                                            rounded-full
+                                                            border
+                                                            border-[#E7DBD3]
+                                                            bg-[#FFF9F3]
+                                                            px-6
+                                                            py-3
+                                                            text-[15px]
+                                                            font-semibold
+                                                            text-[#4D2E23]
+                                                            opacity-70
+                                                            cursor-default
+                                                        "
                                                     >
                                                         Done
                                                     </button>
+
                                                 ) : (
+
                                                     <button
                                                         type="button"
-                                                        disabled={updatingAppointmentStatus}
+                                                        disabled={
+                                                            updatingAppointmentStatus
+                                                        }
                                                         onClick={() =>
                                                             handleCompleteAppointment(
                                                                 appointment
                                                             )
                                                         }
                                                         className="
-                                                         rounded-full
-                                                         border
-                                                         border-[#E7DBD3]
-                                                         bg-white
-                                                         px-6
-                                                         py-3
-                                                         text-[15px]
-                                                         font-semibold
-                                                         text-[#4D2E23]
-                                                         transition
-                                                         hover:bg-[#FFF9F3]
-                                                         hover:border-[#DCC8B8]
-                                                         disabled:cursor-not-allowed
-                                                         disabled:opacity-50
-                                                     "
+                                                            rounded-full
+                                                            border
+                                                            border-[#E7DBD3]
+                                                            bg-white
+                                                            px-6
+                                                            py-3
+                                                            text-[15px]
+                                                            font-semibold
+                                                            text-[#4D2E23]
+                                                            transition
+                                                            hover:bg-[#FFF9F3]
+                                                            hover:border-[#DCC8B8]
+                                                            disabled:cursor-not-allowed
+                                                            disabled:opacity-50
+                                                        "
                                                     >
                                                         {updatingAppointmentStatus
                                                             ? "..."
                                                             : "Done"}
                                                     </button>
+
                                                 )}
+
                                             </div>
 
                                         </div>

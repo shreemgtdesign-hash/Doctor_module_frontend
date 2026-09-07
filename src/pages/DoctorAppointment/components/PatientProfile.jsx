@@ -24,83 +24,7 @@ import ViewReport from "../sections/ViewReport";
 // CONSULTATION TIMER
 // ==========================================
 
-const ConsultationTimer = ({
-  timeLeft = 0,
-}) => {
 
-  const minutes = Math.floor(
-    timeLeft / 60
-  );
-
-  const seconds =
-    timeLeft % 60;
-
-  const formattedTime =
-    `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-
-  const progress =
-    Math.max(
-      0,
-      Math.min(
-        100,
-        (timeLeft / (15 * 60)) * 100
-      )
-    );
-
-  return (
-    <div className="relative w-[92px] h-[52px]">
-
-      {/* Timer background */}
-      <div
-        className="
-          absolute
-          inset-0
-          rounded-[17px]
-          border-[6px]
-          border-[#F0F1F1]
-          bg-white
-        "
-      />
-
-      {/* Timer progress */}
-      <div
-        className="
-          absolute
-          left-[6px]
-          top-0
-          h-[5px]
-          rounded-full
-          bg-[#A65E10]
-          transition-all
-          duration-1000
-        "
-        style={{
-          width: `calc(${progress}% - 12px)`,
-          maxWidth: "calc(100% - 12px)",
-        }}
-      />
-
-      {/* Timer value */}
-      <div
-        className="
-          relative
-          z-10
-          flex
-          h-full
-          w-full
-          items-center
-          justify-center
-          text-[20px]
-          font-semibold
-          text-[#59352C]
-        "
-      >
-        {formattedTime}
-      </div>
-
-    </div>
-  );
-};
 const PatientProfile = forwardRef(
   (
     {
@@ -669,20 +593,10 @@ const PatientProfile = forwardRef(
             "complaints" && (
 
               <ChiefComplaints
-                appointmentId={
-                  selectedPatient?.id
-                }
-                consultationTimeLeft={
-                  consultationTimeLeft
-                }
-
-                consultationTimerStarted={
-                  consultationTimerStarted
-                }
-
-                setActiveSection={
-                  setActiveSection
-                }
+                appointmentId={selectedPatient?.id}
+                consultationTimeLeft={consultationTimeLeft}
+                consultationTimerStarted={consultationTimerStarted}
+                setActiveSection={setActiveSection}
 
                 onBack={() =>
                   goToSection(
@@ -693,7 +607,7 @@ const PatientProfile = forwardRef(
 
                 onContinue={() =>
                   goToSection(
-                    "diagnosis",
+                    "history",
                     "section"
                   )
                 }
@@ -726,8 +640,14 @@ const PatientProfile = forwardRef(
 
                 onBack={() =>
                   goToSection(
-                    "overview",
-                    "profile"
+                    "complaints",
+                    "section"
+                  )
+                }
+                onContinue={() =>
+                  goToSection(
+                    "reports",
+                    "section"
                   )
                 }
               />
@@ -760,7 +680,7 @@ const PatientProfile = forwardRef(
 
                 onBack={() =>
                   goToSection(
-                    "overview",
+                    "reports",
                     "profile"
                   )
                 }
@@ -870,7 +790,7 @@ const PatientProfile = forwardRef(
 
                 onContinue={() =>
                   goToSection(
-                    "reports",
+                    "overview",
                     "section"
                   )
                 }
@@ -899,6 +819,19 @@ const PatientProfile = forwardRef(
                 }
                 appointment={
                   selectedPatient
+                }
+                 onBack={() =>
+                  goToSection(
+                    "history",
+                    "section"
+                  )
+                }
+
+                onContinue={() =>
+                  goToSection(
+                    "diagnosis",
+                    "section"
+                  )
                 }
               />
 
