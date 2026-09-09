@@ -17,7 +17,7 @@ import {
 } from "../../redux/frontOffice/frontOfficeDashboardThunk";
 
 import AppointmentsCompleted
-  from "./components/AppointmentsCompleted";
+  from "./components/UpcomingAppointments";
 
 import Insurance
   from "./components/Insurance";

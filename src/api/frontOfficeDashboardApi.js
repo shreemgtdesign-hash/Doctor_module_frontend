@@ -5,12 +5,18 @@ import api from "./axios";
 // ==========================================
 
 // Appointments Completed
-export const getAppointmentsCompleted = (period = "week") =>
+
+export const getFrontOfficeUpcomingAppointments = (
+  period = "week"
+) =>
   api.get(
-    `/frontoffice/dashboard/appointments-completed?period=${period}`
+    "/frontoffice/dashboard/upcoming-appointments",
+    {
+      params: {
+        period,
+      },
+    }
   );
-
-
 // Insurance
 export const getFrontOfficeInsurance = () =>
   api.get(

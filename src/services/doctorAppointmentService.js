@@ -79,11 +79,18 @@ export const fetchPatientProfile = async (
 };
 
 export const fetchPatientWellness = async (
-  patientId
+  patientId,
+  params = {}
 ) => {
-  const response = await getPatientWellness(patientId);
+
+  const response =
+    await getPatientWellness(
+      patientId,
+      params
+    );
 
   return response.data.data;
+
 };
 
 export const fetchPatientDetails = async (

@@ -1,5 +1,5 @@
 import {
-  getAppointmentsCompleted,
+
   getFrontOfficeInsurance,
   getFrontOfficePackages,
   getFrontOfficeMedicalCamp,
@@ -7,6 +7,7 @@ import {
   getFrontOfficeBillingDetails,
   getFrontOfficeRecentTransactions,
   getFrontOfficePendingActions,
+  getFrontOfficeUpcomingAppointments,
 } from "../api/frontOfficeDashboardApi";
 
 
@@ -14,15 +15,7 @@ import {
 // APPOINTMENTS COMPLETED
 // ==========================================
 
-export const fetchAppointmentsCompleted = async (
-  period = "week"
-) => {
 
-  const response =
-    await getAppointmentsCompleted(period);
-
-  return response.data;
-};
 
 
 // ==========================================
@@ -119,7 +112,16 @@ export const fetchFrontOfficePendingActions =
 
     return response.data.data;
   };
+export const fetchFrontOfficeUpcomingAppointments =
+  async (period = "week") => {
 
+    const response =
+      await getFrontOfficeUpcomingAppointments(
+        period
+      );
+
+    return response.data;
+  };
 
 // ==========================================
 // COMPLETE DASHBOARD
@@ -139,21 +141,20 @@ export const fetchFrontOfficeDashboard =
       pendingActions,
     ] = await Promise.all([
 
-      fetchAppointmentsCompleted(period),
+      fetchFrontOfficeUpcomingAppointments(period),
+      fetchFrontOfficeInsurance(period),
 
-      fetchFrontOfficeInsurance(),
+      fetchFrontOfficePackages(period),
 
-      fetchFrontOfficePackages(),
+      fetchFrontOfficeMedicalCamp(period),
 
-      fetchFrontOfficeMedicalCamp(),
+      fetchFrontOfficeReferrals(period),
 
-      fetchFrontOfficeReferrals(),
+      fetchFrontOfficeBillingDetails(period),
 
-      fetchFrontOfficeBillingDetails(),
+      fetchFrontOfficeRecentTransactions(period),
 
-      fetchFrontOfficeRecentTransactions(),
-
-      fetchFrontOfficePendingActions(),
+      fetchFrontOfficePendingActions(period),
 
     ]);
 

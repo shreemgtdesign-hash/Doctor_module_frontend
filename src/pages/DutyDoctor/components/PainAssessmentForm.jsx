@@ -157,41 +157,9 @@ useEffect(() => {
         // ============================
         // POST FORM
         // ============================
-
-        setSelectedLocations([]);
-        setPainLocation("");
-        setCharacterOfPain([]);
-        setTypeOfPain([]);
-        setFrequencyOfPain([]);
-        setOnsetOfPain([]);
-        setRelievesPain([]);
-        setPlanOfAddressingPain([]);
-        setEffectsOfPain([]);
-
-        setPainScore(
-            after?.pain_score ??
-            ""
-        );
-
-        setPainDetailsBefore(
-            before?.pain_details_before ??
-            ""
-        );
-
-        setPainDetailsAfter(
-            after?.pain_details_after ??
-            ""
-        );
-
-        setOtherComments(
-            after?.other_comments ??
-            ""
-        );
-
-    } else {
-        // ============================
-        // PRE FORM
-        // ============================
+        // Keep the complete assessment UI visible and
+        // repopulate the PRE-treatment values so they
+        // remain available while recording POST values.
 
         setSelectedLocations(
             before?.location_of_pain ??
@@ -228,11 +196,6 @@ useEffect(() => {
             []
         );
 
-        setPainScore(
-            before?.pain_score ??
-            ""
-        );
-
         setPlanOfAddressingPain(
             before?.plan_of_addressing_pain ??
             []
@@ -243,10 +206,85 @@ useEffect(() => {
             []
         );
 
+        setPainScore(
+            after?.pain_score ??
+            ""
+        );
+
         setPainDetailsBefore(
             before?.pain_details_before ??
             ""
         );
+
+        setPainDetailsAfter(
+            after?.pain_details_after ??
+            ""
+        );
+
+        setOtherComments(
+            after?.other_comments ??
+            ""
+        );
+
+    } else {
+        // ============================
+        // PRE FORM
+        // ============================
+
+        setSelectedLocations(
+            before?.location_of_pain ??
+            []
+    );
+
+        setPainLocation(
+            before?.pain_location ??
+            ""
+        );
+
+        setCharacterOfPain(
+            before?.character_of_pain ??
+            []
+    );
+
+        setTypeOfPain(
+            before?.type_of_pain ??
+            []
+        );
+
+        setFrequencyOfPain(
+            before?.frequency_of_pain ??
+            []
+    );
+
+        setOnsetOfPain(
+            before?.onset_of_pain ??
+            []
+    );
+
+        setRelievesPain(
+            before?.relieves_pain ??
+            []
+    );
+
+        setPainScore(
+            before?.pain_score ??
+            ""
+    );
+
+        setPlanOfAddressingPain(
+            before?.plan_of_addressing_pain ??
+            []
+    );
+
+        setEffectsOfPain(
+            before?.effects_of_pain ??
+            []
+    );
+
+        setPainDetailsBefore(
+            before?.pain_details_before ??
+        ""
+    );
 
         setPainDetailsAfter(
             before?.pain_details_after ??
@@ -714,6 +752,12 @@ useEffect(() => {
                             patient.therapy_name
                         }
                     />
+                    <ReadOnlyField
+                        label="Category"
+                        value={
+                            patient.category
+                        }
+                    />
 
                 </div>
 
@@ -721,259 +765,219 @@ useEffect(() => {
 
 
             {/* ================================= */}
-            {/* POST FORM */}
+            {/* ASSESSMENT FORM */}
             {/* ================================= */}
 
-            {isPost ? (
+            <>
 
-                <PostAssessmentFields
-                    painScore={
-                        painScore
+
+                <div className="mt-5">
+
+                    <PainBodySelector
+                        value={
+                            selectedLocations
+                        }
+                        onChange={
+                            setSelectedLocations
+                        }
+                    />
+
+                </div>
+
+
+                <FormInput
+                    label="Pain Location"
+                    value={
+                        painLocation
                     }
-                    setPainScore={
-                        setPainScore
+                    onChange={
+                        setPainLocation
                     }
-                    painDetailsBefore={
-                        painDetailsBefore
+                    placeholder="Enter Pain Location"
+                />
+
+
+                <CheckboxSection
+                    title="Character of Pain"
+                    options={
+                        CHARACTER_OPTIONS
                     }
-                    setPainDetailsBefore={
-                        setPainDetailsBefore
+                    value={
+                        characterOfPain
                     }
-                    painDetailsAfter={
-                        painDetailsAfter
-                    }
-                    setPainDetailsAfter={
-                        setPainDetailsAfter
-                    }
-                    otherComments={
-                        otherComments
-                    }
-                    setOtherComments={
-                        setOtherComments
+                    onChange={(value) =>
+                        toggleArrayValue(
+                            value,
+                            characterOfPain,
+                            setCharacterOfPain
+                        )
                     }
                 />
 
-            ) : (
 
-                /* ================================= */
-                /* PRE FORM */
-                /* ================================= */
-
-                <>
-
-
-
-
-                    <div className="mt-5">
-
-                        <PainBodySelector
-                            value={
-                                selectedLocations
-                            }
-                            onChange={
-                                setSelectedLocations
-                            }
-                        />
-
-                    </div>
+                <CheckboxSection
+                    title="Type of Pain"
+                    options={
+                        TYPE_OPTIONS
+                    }
+                    value={
+                        typeOfPain
+                    }
+                    onChange={(value) =>
+                        toggleArrayValue(
+                            value,
+                            typeOfPain,
+                            setTypeOfPain
+                        )
+                    }
+                />
 
 
-                    <FormInput
-                        label="Pain Location"
-                        value={
-                            painLocation
-                        }
-                        onChange={
-                            setPainLocation
-                        }
-                        placeholder="Enter Pain Location"
-                    />
+                <CheckboxSection
+                    title="Frequency of Pain"
+                    options={
+                        FREQUENCY_OPTIONS
+                    }
+                    value={
+                        frequencyOfPain
+                    }
+                    onChange={(value) =>
+                        toggleArrayValue(
+                            value,
+                            frequencyOfPain,
+                            setFrequencyOfPain
+                        )
+                    }
+                />
 
 
-                    <CheckboxSection
-                        title="Character of Pain"
-                        options={
-                            CHARACTER_OPTIONS
-                        }
-                        value={
-                            characterOfPain
-                        }
-                        onChange={(value) =>
-                            toggleArrayValue(
-                                value,
-                                characterOfPain,
-                                setCharacterOfPain
-                            )
-                        }
-                    />
+                <CheckboxSection
+                    title="Onset of Pain"
+                    options={
+                        ONSET_OPTIONS
+                    }
+                    value={
+                        onsetOfPain
+                    }
+                    onChange={(value) =>
+                        toggleArrayValue(
+                            value,
+                            onsetOfPain,
+                            setOnsetOfPain
+                        )
+                    }
+                />
 
 
-                    <CheckboxSection
-                        title="Type of Pain"
-                        options={
-                            TYPE_OPTIONS
-                        }
-                        value={
-                            typeOfPain
-                        }
-                        onChange={(value) =>
-                            toggleArrayValue(
-                                value,
-                                typeOfPain,
-                                setTypeOfPain
-                            )
-                        }
-                    />
+                <CheckboxSection
+                    title="What Relieves the Pain"
+                    options={
+                        RELIEVES_OPTIONS
+                    }
+                    value={
+                        relievesPain
+                    }
+                    onChange={(value) =>
+                        toggleArrayValue(
+                            value,
+                            relievesPain,
+                            setRelievesPain
+                        )
+                    }
+                />
 
 
-                    <CheckboxSection
-                        title="Frequency of Pain"
-                        options={
-                            FREQUENCY_OPTIONS
-                        }
-                        value={
-                            frequencyOfPain
-                        }
-                        onChange={(value) =>
-                            toggleArrayValue(
-                                value,
-                                frequencyOfPain,
-                                setFrequencyOfPain
-                            )
-                        }
-                    />
+                <PainScore
+                    value={
+                        painScore
+                    }
+                    onChange={
+                        setPainScore
+                    }
+                />
 
 
-                    <CheckboxSection
-                        title="Onset of Pain"
-                        options={
-                            ONSET_OPTIONS
-                        }
-                        value={
-                            onsetOfPain
-                        }
-                        onChange={(value) =>
-                            toggleArrayValue(
-                                value,
-                                onsetOfPain,
-                                setOnsetOfPain
-                            )
-                        }
-                    />
+                <CheckboxSection
+                    title="Plan of Addressing Pain"
+                    options={
+                        PLAN_OPTIONS
+                    }
+                    value={
+                        planOfAddressingPain
+                    }
+                    onChange={(value) =>
+                        toggleArrayValue(
+                            value,
+                            planOfAddressingPain,
+                            setPlanOfAddressingPain
+                        )
+                    }
+                />
 
 
-                    <CheckboxSection
-                        title="What Relieves the Pain"
-                        options={
-                            RELIEVES_OPTIONS
-                        }
-                        value={
-                            relievesPain
-                        }
-                        onChange={(value) =>
-                            toggleArrayValue(
-                                value,
-                                relievesPain,
-                                setRelievesPain
-                            )
-                        }
-                    />
+                <CheckboxSection
+                    title="Effects of Pain"
+                    options={
+                        EFFECT_OPTIONS
+                    }
+                    value={
+                        effectsOfPain
+                    }
+                    onChange={(value) =>
+                        toggleArrayValue(
+                            value,
+                            effectsOfPain,
+                            setEffectsOfPain
+                        )
+                    }
+                />
 
 
-                    <PainScore
-                        value={
-                            painScore
-                        }
-                        onChange={
-                            setPainScore
-                        }
-                    />
-
-
-                    <CheckboxSection
-                        title="Plan of Addressing Pain"
-                        options={
-                            PLAN_OPTIONS
-                        }
-                        value={
-                            planOfAddressingPain
-                        }
-                        onChange={(value) =>
-                            toggleArrayValue(
-                                value,
-                                planOfAddressingPain,
-                                setPlanOfAddressingPain
-                            )
-                        }
-                    />
-
-
-                    <CheckboxSection
-                        title="Effects of Pain"
-                        options={
-                            EFFECT_OPTIONS
-                        }
-                        value={
-                            effectsOfPain
-                        }
-                        onChange={(value) =>
-                            toggleArrayValue(
-                                value,
-                                effectsOfPain,
-                                setEffectsOfPain
-                            )
-                        }
-                    />
-
-
-                    <div className="
-                        mt-5
-                        grid
-                        grid-cols-1
-                        gap-5
-                        md:grid-cols-2
-                    ">
-
-                        <TextAreaField
-                            label="Pain Details Before"
-                            value={
-                                painDetailsBefore
-                            }
-                            onChange={
-                                setPainDetailsBefore
-                            }
-                            placeholder="Enter comments"
-                        />
-
-                        <TextAreaField
-                            label="Pain Details After"
-                            value={
-                                painDetailsAfter
-                            }
-                            onChange={
-                                setPainDetailsAfter
-                            }
-                           
-                            placeholder="Enter pain details"
-                        />
-
-                    </div>
-
+                <div className="
+                    mt-5
+                    grid
+                    grid-cols-1
+                    gap-5
+                    md:grid-cols-2
+                ">
 
                     <TextAreaField
-                        label="Other Comments"
+                        label="Pain Details Before"
                         value={
-                            otherComments
+                            painDetailsBefore
                         }
                         onChange={
-                            setOtherComments
+                            setPainDetailsBefore
                         }
                         placeholder="Enter comments"
                     />
 
-                </>
+                    <TextAreaField
+                        label="Pain Details After"
+                        value={
+                            painDetailsAfter
+                        }
+                        onChange={
+                            setPainDetailsAfter
+                        }
+                        placeholder="Enter pain details"
+                    />
 
-            )}
+                </div>
+
+
+                <TextAreaField
+                    label="Other Comments"
+                    value={
+                        otherComments
+                    }
+                    onChange={
+                        setOtherComments
+                    }
+                    placeholder="Enter comments"
+                />
+
+            </>
 
 
             {/* ================================= */}

@@ -5,6 +5,7 @@ import {
 import {
     loadDutyDoctorDashboard,
     loadScheduleOverview,
+    loadPainAssessmentsCompleted,
     loadPatientsTended,
     loadDutyDoctorPatientQueue,
     loadPatientAssessment,
@@ -188,6 +189,78 @@ const dutyDoctorSlice = createSlice({
                     state.error =
                         action.payload ||
                         "Failed to load dashboard";
+
+                }
+            )
+
+            // ==================================
+            // PAIN ASSESSMENTS COMPLETED
+            // ==================================
+
+            .addCase(
+                loadPainAssessmentsCompleted.pending,
+                (state) => {
+
+                    state.error = null;
+
+                }
+            )
+
+
+            .addCase(
+                loadPainAssessmentsCompleted.fulfilled,
+                (
+                    state,
+                    action
+                ) => {
+
+                    /*
+                     * API response:
+                     *
+                     * {
+                     *   success: true,
+                     *   period: "month",
+                     *   data: {
+                     *       total_completed: 2,
+                     *       growth_percentage: "+100.0%",
+                     *       comparison_label: "Compared to last month",
+                     *       breakdown_by_category: {},
+                     *       category_list: [],
+                     *       treatment_list: []
+                     *   }
+                     * }
+                     *
+                     * Store ONLY the `data` object
+                     * inside painAssessments.
+                     */
+
+                    state.painAssessments =
+                        action.payload?.data ||
+                        action.payload ||
+                        {
+                            total_completed: 0,
+                            growth_percentage: "+0.0%",
+                            comparison_label:
+                                "Compared to last week",
+                            breakdown_by_category: {},
+                            category_list: [],
+                            treatment_list: [],
+                        };
+
+                }
+            )
+
+
+            .addCase(
+                loadPainAssessmentsCompleted.rejected,
+                (
+                    state,
+                    action
+                ) => {
+
+                    state.error =
+                        action.payload ||
+                        "Failed to load completed pain assessments";
 
                 }
             )

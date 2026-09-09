@@ -48,6 +48,11 @@ const DutyDoctorDashboard = () => {
         (state) =>
             state.dutyDoctor
     );
+// ==========================================
+// PAIN ASSESSMENT DATA
+// ==========================================
+
+const painAssessmentData = painAssessments || {};
 
 
     // ==========================================
@@ -131,22 +136,20 @@ const DutyDoctorDashboard = () => {
 
     const categories = useMemo(() => {
 
-        if (
-            painAssessments?.category_list &&
-            painAssessments.category_list.length
-        ) {
+    if (
+        painAssessmentData?.category_list &&
+        painAssessmentData.category_list.length
+    ) {
 
-            return painAssessments
-                .category_list
-                .slice(0, 5);
+        return painAssessmentData.category_list.slice(0, 5);
 
-        }
+    }
 
-        return [];
+    return [];
 
-    }, [
-        painAssessments,
-    ]);
+}, [
+    painAssessmentData,
+]);
 
 
     // ==========================================
@@ -348,7 +351,7 @@ const DutyDoctorDashboard = () => {
                             ">
 
                                     {
-                                        painAssessments
+                                        painAssessmentData
                                             ?.total_completed ??
                                         0
                                     }
@@ -1102,7 +1105,7 @@ const DutyDoctorDashboard = () => {
 const PeriodDropdown = ({
     value,
     onChange,
-    label,
+    
 }) => {
 
     return (

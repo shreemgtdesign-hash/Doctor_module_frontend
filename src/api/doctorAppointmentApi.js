@@ -94,9 +94,23 @@ export const getPatientProfile = (patientId) =>
   api.get(`/onboarding/profile/${patientId}`);
 
 // Patient Wellness
-export const getPatientWellness = (patientId) =>
-  api.get(`/wellness/patient/${patientId}`);
+// ========================================
+// Patient Wellness / Vitals
+// ========================================
 
+export const getPatientWellness = (
+  patientId,
+  params = {}
+) => {
+
+  return api.get(
+    `/wellness/patient/${patientId}`,
+    {
+      params,
+    }
+  );
+
+};
 // Diagnosis
 
 export const getDiagnosis = (appointmentId) => {

@@ -11,9 +11,6 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import DashboardCard
-  from "../../../components/Dashboard/DashboardCard";
-
 
 const PendingActionScreen = () => {
 
@@ -32,19 +29,22 @@ const PendingActionScreen = () => {
     {
       label: "Appointment Confirmation",
       value:
-        pending?.appointment_confirmation ?? 0,
+        pending?.appointment_confirmation ??
+        0,
 
       onClick: () => {
         navigate(
-          "/frontoffice/appointment-confirmation/doctorId"
+          "/frontoffice/pending-actions/appointment-confirmations"
         );
       },
     },
 
+
     {
       label: "Appointment Reminders",
       value:
-        pending?.appointment_reminders ?? 0,
+        pending?.appointment_reminders ??
+        0,
 
       onClick: () => {
         navigate(
@@ -53,10 +53,12 @@ const PendingActionScreen = () => {
       },
     },
 
+
     {
       label: "Prescriptions",
       value:
-        pending?.prescriptions ?? 0,
+        pending?.prescriptions ??
+        0,
 
       onClick: () => {
         navigate(
@@ -65,10 +67,12 @@ const PendingActionScreen = () => {
       },
     },
 
+
     {
       label: "Home Service Confirmation",
       value:
-        pending?.home_service_confirmation ?? 0,
+        pending?.home_service_confirmation ??
+        0,
 
       onClick: () => {
         navigate(
@@ -77,10 +81,12 @@ const PendingActionScreen = () => {
       },
     },
 
+
     {
       label: "Therapy Confirmation",
       value:
-        pending?.therapy_confirmation ?? 0,
+        pending?.therapy_confirmation ??
+        0,
 
       onClick: () => {
         navigate(
@@ -89,10 +95,12 @@ const PendingActionScreen = () => {
       },
     },
 
+
     {
       label: "Therapy Reminders",
       value:
-        pending?.therapy_reminders ?? 0,
+        pending?.therapy_reminders ??
+        0,
 
       onClick: () => {
         navigate(
@@ -106,13 +114,31 @@ const PendingActionScreen = () => {
 
   return (
 
-  <>
+    <div
+      className="
+        w-full
+        rounded-[15px]
+        border
+        border-[#E8DDD6]
+        bg-white
+        px-5
+        pt-5
+        pb-1
+      "
+    >
+
+      {/* ================================= */}
+      {/* HEADER */}
+      {/* ================================= */}
 
       <div
         className="
           flex
           items-center
           justify-between
+          border-b
+          border-[#EEE4DD]
+          pb-5
         "
       >
 
@@ -126,8 +152,12 @@ const PendingActionScreen = () => {
           Pending Actions
         </h2>
 
+
         <button
           type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+          }}
           className="
             flex
             items-center
@@ -148,14 +178,20 @@ const PendingActionScreen = () => {
 
           Today
 
-          <span>⌄</span>
+          <span>
+            ⌄
+          </span>
 
         </button>
 
       </div>
 
 
-      <div className="mt-4">
+      {/* ================================= */}
+      {/* ACTION LIST */}
+      {/* ================================= */}
+
+      <div className="mt-0">
 
         {actions.map(
           (action) => (
@@ -163,7 +199,13 @@ const PendingActionScreen = () => {
             <button
               key={action.label}
               type="button"
-              onClick={action.onClick}
+              onClick={(event) => {
+
+                event.stopPropagation();
+
+                action.onClick();
+
+              }}
               className="
                 flex
                 w-full
@@ -177,6 +219,8 @@ const PendingActionScreen = () => {
               "
             >
 
+              {/* LABEL */}
+
               <span
                 className="
                   flex-1
@@ -187,6 +231,9 @@ const PendingActionScreen = () => {
               >
                 {action.label}
               </span>
+
+
+              {/* COUNT */}
 
               <span
                 className="
@@ -204,9 +251,14 @@ const PendingActionScreen = () => {
                 {action.value}
               </span>
 
+
+              {/* ARROW */}
+
               <HiOutlineChevronRight
                 size={17}
-                className="text-[#4B2E2A]"
+                className="
+                  text-[#4B2E2A]
+                "
               />
 
             </button>
@@ -216,7 +268,7 @@ const PendingActionScreen = () => {
 
       </div>
 
-   </>
+    </div>
 
   );
 };

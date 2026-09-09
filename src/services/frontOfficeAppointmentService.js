@@ -17,7 +17,10 @@ import {
     createDirectWalkInMedicinePurchase,
     getFrontOfficeTherapies,
     createDirectWalkInTherapyBooking,
-    getAppointmentConfirmation
+    getAppointmentConfirmation,
+    getFrontOfficeUpcomingAppointmentDetails,
+    updateFrontOfficeUpcomingAppointmentDetails,
+    getFrontOfficeUpcomingAppointments
 
 } from "../api/frontOfficeAppoinntmentApi";
 import { getMedicalCampDetails } from "../api/frontOfficeDashboardApi";
@@ -254,3 +257,57 @@ export const fetchAppointmentConfirmation = async (
 
     return response.data;
 };
+
+export const fetchFrontOfficeUpcomingAppointmentDetails =
+  async (appointmentId) => {
+
+    const response =
+      await getFrontOfficeUpcomingAppointmentDetails(
+        appointmentId
+      );
+
+    return response.data;
+  };
+
+
+// ==========================================
+// UPDATE APPOINTMENT DETAILS
+// ==========================================
+
+export const saveFrontOfficeUpcomingAppointmentDetails =
+  async (
+    appointmentId,
+    payload
+  ) => {
+
+    const response =
+      await updateFrontOfficeUpcomingAppointmentDetails(
+        appointmentId,
+        payload
+      );
+
+    return response.data;
+  };
+
+
+
+  // ==========================================
+// UPCOMING APPOINTMENTS LIST
+// ==========================================
+
+export const fetchFrontOfficeUpcomingAppointments =
+    async (
+        period = "week",
+        page = 1,
+        limit = 12
+    ) => {
+
+        const response =
+            await getFrontOfficeUpcomingAppointments(
+                period,
+                page,
+                limit
+            );
+
+        return response.data;
+    };

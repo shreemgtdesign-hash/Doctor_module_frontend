@@ -171,7 +171,7 @@ const frontOfficeMenu = [
     {
         name: "Pending Actions",
         icon: FaClipboardCheck,
-        path: "/frontoffice/pending-actions",
+        path: "/frontoffice/pending-actions-screen",
     },
     {
         name: "Therapies",

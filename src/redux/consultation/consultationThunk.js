@@ -17,6 +17,7 @@ import {
   fetchReportById,
   fetchPatientReports,
   reviewPatientReport,
+  fetchPatientWellness,
 } from "../../services/doctorAppointmentService";
 
 export const loadAppointments = createAsyncThunk(
@@ -626,4 +627,56 @@ export const markReportReviewedThunk =
         );
       }
     }
+  );
+
+  // ==========================================
+// LOAD PATIENT WELLNESS / VITALS
+// ==========================================
+
+export const loadPatientWellness =
+  createAsyncThunk(
+
+    "consultation/loadPatientWellness",
+
+    async (
+      {
+        patientId,
+        period,
+        date,
+      },
+      { rejectWithValue }
+    ) => {
+
+      try {
+
+        const params = {};
+
+        if (date) {
+
+          params.date = date;
+
+        } else {
+
+          params.period =
+            period || "today";
+
+        }
+
+
+        return await fetchPatientWellness(
+          patientId,
+          params
+        );
+
+      } catch (error) {
+
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+
+      }
+
+    }
+
   );

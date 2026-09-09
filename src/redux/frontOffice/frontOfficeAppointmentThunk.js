@@ -21,6 +21,9 @@ import {
     fetchCreateDirectWalkInTherapyBooking,
     fetchFrontOfficeTherapies,
     fetchAppointmentConfirmation,
+    saveFrontOfficeUpcomingAppointmentDetails,
+    fetchFrontOfficeUpcomingAppointmentDetails,
+    fetchFrontOfficeUpcomingAppointments,
 } from "../../services/frontOfficeAppointmentService";
 import { fetchAppointmentConfirmationList } from "../../services/therapistAppointmentsService";
 
@@ -603,4 +606,111 @@ export const loadFrontOfficeAppointmentConfirmation =
             }
 
         }
+    );
+
+
+    export const loadFrontOfficeUpcomingAppointmentDetails =
+  createAsyncThunk(
+
+    "frontOfficeUpcomingAppointment/loadDetails",
+
+    async (
+      appointmentId,
+      { rejectWithValue }
+    ) => {
+
+      try {
+
+        return await fetchFrontOfficeUpcomingAppointmentDetails(
+          appointmentId
+        );
+
+      } catch (error) {
+
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+
+      }
+
+    }
+
+  );
+
+
+// ==========================================
+// SAVE APPOINTMENT DETAILS
+// ==========================================
+
+export const saveFrontOfficeUpcomingAppointmentDetailsThunk =
+  createAsyncThunk(
+
+    "frontOfficeUpcomingAppointment/saveDetails",
+
+    async (
+      {
+        appointmentId,
+        payload,
+      },
+      { rejectWithValue }
+    ) => {
+
+      try {
+
+        return await saveFrontOfficeUpcomingAppointmentDetails(
+          appointmentId,
+          payload
+        );
+
+      } catch (error) {
+
+        return rejectWithValue(
+          error.response?.data ||
+          error.message
+        );
+
+      }
+
+    }
+
+  );
+
+  // ==========================================
+// LOAD UPCOMING APPOINTMENTS LIST
+// ==========================================
+
+export const loadFrontOfficeUpcomingAppointments =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/loadUpcomingAppointments",
+
+        async (
+            {
+                period = "week",
+                page = 1,
+                limit = 12,
+            } = {},
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchFrontOfficeUpcomingAppointments(
+                    period,
+                    page,
+                    limit
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+
+            }
+
+        }
+
     );

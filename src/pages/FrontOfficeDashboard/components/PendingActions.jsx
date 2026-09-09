@@ -1,231 +1,271 @@
 import {
-  HiOutlineCalendarDays,
-  HiOutlineChevronRight,
+    HiOutlineCalendarDays,
+    HiOutlineChevronRight,
 } from "react-icons/hi2";
 
 import {
-  useSelector,
+    useSelector,
 } from "react-redux";
 
 import {
-  useNavigate,
+    useNavigate,
 } from "react-router-dom";
 
 import DashboardCard
-  from "../../../components/Dashboard/DashboardCard";
+    from "../../../components/Dashboard/DashboardCard";
 
 
 const PendingActions = () => {
 
-  const navigate = useNavigate();
-
-  const pending =
-    useSelector(
-      (state) =>
-        state.frontOfficeDashboard
-          .pendingActions
-    );
+    const navigate = useNavigate();
 
 
-  const actions = [
-
-    {
-      label: "Appointment Confirmation",
-      value:
-        pending?.appointment_confirmation ?? 0,
-
-      onClick: () => {
-        navigate(
-          "/frontoffice/pending-actions/appointment-confirmations"
+    const pending =
+        useSelector(
+            (state) =>
+                state.frontOfficeDashboard
+                    .pendingActions
         );
-      },
-    },
-
-    {
-      label: "Appointment Reminders",
-      value:
-        pending?.appointment_reminders ?? 0,
-
-      onClick: () => {
-        navigate(
-          "/frontoffice/appointments/reminders"
-        );
-      },
-    },
-
-    {
-      label: "Prescriptions",
-      value:
-        pending?.prescriptions ?? 0,
-
-      onClick: () => {
-        navigate(
-          "/frontoffice/prescriptions"
-        );
-      },
-    },
-
-    {
-      label: "Home Service Confirmation",
-      value:
-        pending?.home_service_confirmation ?? 0,
-
-      onClick: () => {
-        navigate(
-          "/frontoffice/home-services/confirmation"
-        );
-      },
-    },
-
-    {
-      label: "Therapy Confirmation",
-      value:
-        pending?.therapy_confirmation ?? 0,
-
-      onClick: () => {
-        navigate(
-          "/frontoffice/therapies/confirmation"
-        );
-      },
-    },
-
-    {
-      label: "Therapy Reminders",
-      value:
-        pending?.therapy_reminders ?? 0,
-
-      onClick: () => {
-        navigate(
-          "/frontoffice/therapies/reminders"
-        );
-      },
-    },
-
-  ];
 
 
-  return (
+    const actions = [
 
-    <DashboardCard
-      className="
-        px-5
-        pt-5
-        pb-4
-      "
-      onClick={() => navigate("/frontoffice/pending-actions-screen")}
-    >
+        {
+            label: "Appointment Confirmation",
 
-      <div
-        className="
-          flex
-          items-center
-          justify-between
-        "
-      >
+            value:
+                pending?.appointment_confirmation ??
+                0,
 
-        <h2
-          className="
-            text-[17px]
-            font-semibold
-            text-[#4B2E2A]
-          "
-        >
-          Pending Actions
-        </h2>
+            onClick: () => {
+                navigate(
+                    "/frontoffice/pending-actions/appointment-confirmations"
+                );
+            },
+        },
 
-        <button
-          type="button"
-          className="
-            flex
-            items-center
-            gap-2
-            rounded-lg
-            border
-            border-[#E7DBD3]
-            px-3
-            py-2
-            text-[12px]
-            text-[#4B2E2A]
-          "
+
+        {
+            label: "Appointment Reminders",
+
+            value:
+                pending?.appointment_reminders ??
+                0,
+
+            onClick: () => {
+                navigate(
+                    "/frontoffice/appointments/reminders"
+                );
+            },
+        },
+
+
+        {
+            label: "Prescriptions",
+
+            value:
+                pending?.prescriptions ??
+                0,
+
+            onClick: () => {
+                navigate(
+                    "/frontoffice/prescriptions"
+                );
+            },
+        },
+
+
+        {
+            label: "Home Service Confirmation",
+
+            value:
+                pending?.home_service_confirmation ??
+                0,
+
+            onClick: () => {
+                navigate(
+                    "/frontoffice/home-services/confirmation"
+                );
+            },
+        },
+
+
+        {
+            label: "Therapy Confirmation",
+
+            value:
+                pending?.therapy_confirmation ??
+                0,
+
+            onClick: () => {
+                navigate(
+                    "/frontoffice/therapies/confirmation"
+                );
+            },
+        },
+
+
+        {
+            label: "Therapy Reminders",
+
+            value:
+                pending?.therapy_reminders ??
+                0,
+
+            onClick: () => {
+                navigate(
+                    "/frontoffice/therapies/reminders"
+                );
+            },
+        },
+
+    ];
+
+
+    return (
+
+        <DashboardCard
+            className="
+                px-5
+                pt-5
+                pb-4
+            "
         >
 
-          <HiOutlineCalendarDays
-            size={14}
-          />
+            {/* ================================= */}
+            {/* HEADER */}
+            {/* ================================= */}
 
-          Today
-
-          <span>⌄</span>
-
-        </button>
-
-      </div>
-
-
-      <div className="mt-4">
-
-        {actions.map(
-          (action) => (
-
-            <button
-              key={action.label}
-              type="button"
-              onClick={action.onClick}
-              className="
-                flex
-                w-full
-                items-center
-                gap-3
-                border-b
-                border-[#EFE4DC]
-                py-4
-                text-left
-                last:border-b-0
-              "
+            <div
+                className="
+                    flex
+                    items-center
+                    justify-between
+                "
             >
 
-              <span
-                className="
-                  flex-1
-                  text-[13px]
-                  font-medium
-                  text-[#4B2E2A]
-                "
-              >
-                {action.label}
-              </span>
+                <h2
+                    className="
+                        text-[17px]
+                        font-semibold
+                        text-[#4B2E2A]
+                    "
+                >
+                    Pending Actions
+                </h2>
 
-              <span
-                className="
-                  min-w-[45px]
-                  rounded-lg
-                  bg-[#FFF0E4]
-                  px-3
-                  py-1
-                  text-center
-                  text-[11px]
-                  font-semibold
-                  text-[#8A4F32]
-                "
-              >
-                {action.value}
-              </span>
 
-              <HiOutlineChevronRight
-                size={17}
-                className="text-[#4B2E2A]"
-              />
+                <button
+                    type="button"
+                    onClick={(event) => {
+                        event.stopPropagation();
+                    }}
+                    className="
+                        flex
+                        items-center
+                        gap-2
+                        rounded-lg
+                        border
+                        border-[#E7DBD3]
+                        px-3
+                        py-2
+                        text-[12px]
+                        text-[#4B2E2A]
+                    "
+                >
 
-            </button>
+                    <HiOutlineCalendarDays
+                        size={14}
+                    />
 
-          )
-        )}
+                    Today
 
-      </div>
+                    <span>⌄</span>
 
-    </DashboardCard>
+                </button>
 
-  );
+            </div>
+
+
+            {/* ================================= */}
+            {/* ACTION LIST */}
+            {/* ================================= */}
+
+            <div className="mt-4">
+
+                {actions.map(
+                    (action) => (
+
+                        <button
+                            key={action.label}
+                            type="button"
+                            onClick={(event) => {
+
+                                event.stopPropagation();
+
+                                action.onClick();
+
+                            }}
+                            className="
+                                flex
+                                w-full
+                                items-center
+                                gap-3
+                                border-b
+                                border-[#EFE4DC]
+                                py-4
+                                text-left
+                                last:border-b-0
+                            "
+                        >
+
+                            <span
+                                className="
+                                    flex-1
+                                    text-[13px]
+                                    font-medium
+                                    text-[#4B2E2A]
+                                "
+                            >
+                                {action.label}
+                            </span>
+
+
+                            <span
+                                className="
+                                    min-w-[45px]
+                                    rounded-lg
+                                    bg-[#FFF0E4]
+                                    px-3
+                                    py-1
+                                    text-center
+                                    text-[11px]
+                                    font-semibold
+                                    text-[#8A4F32]
+                                "
+                            >
+                                {action.value}
+                            </span>
+
+
+                            <HiOutlineChevronRight
+                                size={17}
+                                className="
+                                    text-[#4B2E2A]
+                                "
+                            />
+
+                        </button>
+
+                    )
+                )}
+
+            </div>
+
+        </DashboardCard>
+
+    );
+
 };
 
 

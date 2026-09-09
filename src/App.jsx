@@ -33,6 +33,8 @@ import EditPatient from "./pages/FrontOfficePatient/components/EditPatient";
 import PendingActions from "./pages/FrontOfficeAppointment/components/PendingActionScreen";
 import PendingActionScreen from "./pages/FrontOfficeAppointment/components/PendingActionScreen";
 import AppointmentConfirmationList from "./pages/FrontOfficeAppointment/components/AppointmentConfirmationList";
+import UpcomingAppointmentsList from "./pages/FrontOfficeDashboard/components/UpcomingAppointmentList";
+import PatientAppointmentDetails from "./pages/FrontOfficeAppointment/components/PatientAppointmentdetails";
 
 function App() {
   return (
@@ -159,7 +161,7 @@ function App() {
         element={<FrontOfficeAppointments />}
       />
       <Route
-        path="/frontoffice/appointment-confirmation/:doctorId"
+        path="/frontoffice/pending-actions/appointment-confirmation/:doctorId"
         element={
           <AppointmentConfirmation />
         }
@@ -241,9 +243,22 @@ function App() {
       />
 
       <Route
-        path="/frontoffice/appointment-confirmation/:doctorId"
+        path="/frontoffice/pending-actions/appointment-confirmation/:doctorId"
         element={
           <AppointmentConfirmation />
+        }
+      />
+
+      <Route
+        path="/frontoffice/upcoming-appointments"
+        element={
+          <UpcomingAppointmentsList />
+        }
+      />
+      <Route
+        path="/frontoffice/upcoming-appointments/:appointmentId"
+        element={
+          <PatientAppointmentDetails />
         }
       />
 

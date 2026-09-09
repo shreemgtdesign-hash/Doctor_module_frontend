@@ -50,7 +50,7 @@ const AppointmentConfirmationList = () => {
             selectAppointmentConfirmationListError
         );
 
-
+  
     useEffect(() => {
 
         dispatch(
@@ -58,6 +58,14 @@ const AppointmentConfirmationList = () => {
         );
 
     }, [dispatch]);
+
+    useEffect(() => {
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "auto",
+    });
+}, []);
 
 
 
@@ -455,7 +463,7 @@ const AppointmentConfirmationList = () => {
                                                 type="button"
                                                 onClick={() =>
                                                     navigate(
-                                                        `/frontoffice/appointment-confirmation/${doctor.doctor_id}`
+                                                        `/frontoffice/pending-actions/appointment-confirmation/${doctor.doctor_id}`
                                                     )
                                                 }
                                                 className="

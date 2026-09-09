@@ -28,6 +28,7 @@ import {
     markReportReviewedThunk,
     loadReportById,
     loadPatientReports,
+    loadPatientWellness,
 } from "./consultationThunk";
 import { searchDiagnosisCategoriesThunk } from "../appointment/appointmentThunk";
 
@@ -38,6 +39,7 @@ const initialState = {
         tags: [],
         notes: "",
     },
+
     diagnosis: {
         diagnosis: "",
         category: "",
@@ -729,6 +731,45 @@ const consultationSlice = createSlice({
 
                     state.reportReviewError =
                         action.payload;
+                }
+            )
+            // ========================================
+            // PATIENT WELLNESS / VITALS
+            // ========================================
+
+            .addCase(
+                loadPatientWellness.pending,
+                (state) => {
+
+                    state.loading = true;
+                    state.error = null;
+
+                }
+            )
+
+            .addCase(
+                loadPatientWellness.fulfilled,
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.patientWellness =
+                        action.payload;
+
+                    state.error = null;
+
+                }
+            )
+
+            .addCase(
+                loadPatientWellness.rejected,
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.error =
+                        action.payload;
+
                 }
             )
 

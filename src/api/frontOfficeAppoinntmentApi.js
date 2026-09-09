@@ -148,3 +148,41 @@ export const getAppointmentConfirmation = (doctorId) =>
             },
         }
     );
+
+    export const getFrontOfficeUpcomingAppointments = (
+    period = "week",
+    page = 1,
+    limit = 12
+) =>
+    api.get(
+        "/frontoffice/upcoming-appointments",
+        {
+            params: {
+                period,
+                page,
+                limit,
+            },
+        }
+    );
+
+
+export const getFrontOfficeUpcomingAppointmentDetails = (
+  appointmentId
+) =>
+  api.get(
+    `/frontoffice/upcoming-appointments/${appointmentId}`
+  );
+
+
+// ==========================================
+// UPDATE UPCOMING APPOINTMENT DETAILS
+// ==========================================
+
+export const updateFrontOfficeUpcomingAppointmentDetails = (
+  appointmentId,
+  payload
+) =>
+  api.put(
+    `/frontoffice/upcoming-appointments/${appointmentId}`,
+    payload
+  );

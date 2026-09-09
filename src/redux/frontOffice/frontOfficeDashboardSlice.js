@@ -59,13 +59,21 @@ const frontOfficeDashboardSlice =
       ) => {
 
         state.appointments = null;
+
         state.insurance = null;
+
         state.packages = null;
+
         state.medicalCamp = null;
+
         state.referrals = null;
+
         state.billing = null;
+
         state.transactions = [];
+
         state.pendingActions = null;
+
         state.error = null;
 
       },
@@ -100,29 +108,37 @@ const frontOfficeDashboardSlice =
             state.loading = false;
 
             const data =
-              action.payload;
+              action.payload || {};
+
 
             state.appointments =
               data.appointments;
 
+
             state.insurance =
               data.insurance;
+
 
             state.packages =
               data.packages;
 
+
             state.medicalCamp =
               data.medicalCamp;
+
 
             state.referrals =
               data.referrals;
 
+
             state.billing =
               data.billing;
+
 
             state.transactions =
               data.transactions?.data ||
               [];
+
 
             state.pendingActions =
               data.pendingActions;
@@ -148,7 +164,7 @@ const frontOfficeDashboardSlice =
 
 
       // ======================================
-      // APPOINTMENTS PERIOD CHANGE
+      // UPCOMING APPOINTMENTS PERIOD CHANGE
       // ======================================
 
       builder
@@ -158,6 +174,7 @@ const frontOfficeDashboardSlice =
           (state) => {
 
             state.loading = true;
+            state.error = null;
 
           }
         )
@@ -188,7 +205,7 @@ const frontOfficeDashboardSlice =
 
             state.error =
               action.payload ||
-              "Failed to load appointments.";
+              "Failed to load upcoming appointments.";
 
           }
         );

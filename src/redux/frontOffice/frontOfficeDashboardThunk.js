@@ -2,7 +2,8 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 
 import {
   fetchFrontOfficeDashboard,
-  fetchAppointmentsCompleted,
+  
+  fetchFrontOfficeUpcomingAppointments,
 } from "../../services/frontOfficeDashboardService";
 
 
@@ -44,19 +45,21 @@ export const loadFrontOfficeDashboard =
 // LOAD APPOINTMENTS BY PERIOD
 // ==========================================
 
-export const loadFrontOfficeAppointments =
+
+
+  export const loadFrontOfficeAppointments =
   createAsyncThunk(
 
     "frontOffice/loadAppointments",
 
     async (
-      { period = "week" },
+      { period = "week" } = {},
       { rejectWithValue }
     ) => {
 
       try {
 
-        return await fetchAppointmentsCompleted(
+        return await fetchFrontOfficeUpcomingAppointments(
           period
         );
 
