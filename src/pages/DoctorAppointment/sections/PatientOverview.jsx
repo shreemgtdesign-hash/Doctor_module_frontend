@@ -9,7 +9,7 @@ import {
 } from "react-redux";
 
 import {
-  HiChevronDown,
+
   HiChevronRight,
   HiOutlineCalendarDays,
 } from "react-icons/hi2";
@@ -1020,54 +1020,9 @@ const PatientOverview = ({
         )}
 
 
-      {/* ==========================================
-          ADDITIONAL NOTES
-      ========================================== */}
-
-      <div
-        className="
-          mt-3
-        "
-      >
-
-        <h3
-          className="
-            mb-2
-            text-[15px]
-            font-semibold
-            text-[#59352C]
-          "
-        >
-          Additional Notes
-        </h3>
 
 
-        <textarea
-          placeholder="Enter Notes"
-          className="
-            h-[64px]
-            w-full
-            resize-none
-            rounded-2xl
-            border
-            border-[#EBDDD2]
-            bg-white
-            px-4
-            py-3
-            text-[13px]
-            text-[#59352C]
-            outline-none
-            placeholder:text-[#9A8B83]
-            focus:border-[#8A563B]
-          "
-        />
-
-      </div>
-
-
-      {/* ==========================================
-          CONSULTATION GRID
-      ========================================== */}
+      
 
       <ConsultationGrid
         activeSection={
@@ -1079,9 +1034,7 @@ const PatientOverview = ({
       />
 
 
-      {/* ==========================================
-          FINISH CONSULTATION
-      ========================================== */}
+      
 
       <FinishButton
         appointmentId={

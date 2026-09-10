@@ -39,6 +39,8 @@ import RecentTransactions
 
 import PendingActions
   from "./components/PendingActions";
+import { registerFCMDevice } from "../../firebase/registerFCMDevice";
+import useFCMNotifications from "../../firebase/useFCMNotifications";
 
 
 const FrontOfficeDashboard = () => {
@@ -56,6 +58,15 @@ const FrontOfficeDashboard = () => {
         state.frontOfficeDashboard
     );
 
+    useEffect(() => {
+
+  registerFCMDevice(
+    "front_office"
+  );
+
+}, []);
+
+ useFCMNotifications();
 
   const handlePeriodChange = (
     newPeriod
