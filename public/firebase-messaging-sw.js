@@ -1,185 +1,214 @@
-/* ========================================
-   FIREBASE MESSAGING SERVICE WORKER
-======================================== */
+// ======================================================
+// Firebase Messaging Service Worker
+// public/firebase-messaging-sw.js
+// ======================================================
+
+
+// ======================================================
+// FIREBASE SDK
+// ======================================================
 
 importScripts(
-  "https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"
+    "https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"
 );
 
 importScripts(
-  "https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"
+    "https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"
 );
 
 
-// ========================================
+// ======================================================
 // FIREBASE CONFIG
-// ========================================
+// ======================================================
 
 firebase.initializeApp({
-
-  apiKey:
-    "YOUR_ACTUAL_FIREBASE_API_KEY",
-
-  authDomain:
-    "YOUR_ACTUAL_FIREBASE_AUTH_DOMAIN",
-
-  projectId:
-    "YOUR_ACTUAL_FIREBASE_PROJECT_ID",
-
-  storageBucket:
-    "YOUR_ACTUAL_FIREBASE_STORAGE_BUCKET",
-
-  messagingSenderId:
-    "YOUR_ACTUAL_FIREBASE_MESSAGING_SENDER_ID",
-
-  appId:
-    "YOUR_ACTUAL_FIREBASE_APP_ID",
-
+    apiKey: "AIzaSyAXZUNfcdWhKpUOsaMVIV4GLb3xJLzib8",
+    authDomain: "sadop-ayurveda-hospital.firebaseapp.com",
+    projectId: "sadop-ayurveda-hospital",
+    storageBucket: "sadop-ayurveda-hospital.firebasestorage.app",
+    messagingSenderId: "515672104681",
+    appId: "1:515672104681:web:d5a50d56a4d2442b01da78",
+    measurementId: "G-RDNRM72EH3",
 });
 
 
-const messaging =
-  firebase.messaging();
+// ======================================================
+// FIREBASE MESSAGING
+// ======================================================
+
+const messaging = firebase.messaging();
 
 
-// ========================================
+// ======================================================
 // BACKGROUND MESSAGE
-// ========================================
+// ======================================================
 
-messaging.onBackgroundMessage(
-  (payload) => {
+messaging.onBackgroundMessage((payload) => {
 
     console.log(
-      "Background FCM message:",
-      payload
+        "[firebase-messaging-sw.js] Background message received:",
+        payload
     );
 
 
-    const notificationTitle =
-      payload.notification?.title ||
-      payload.data?.title ||
-      "New Notification";
+    // ----------------------------------------------
+    // GET TITLE
+    // ----------------------------------------------
 
+    const notificationTitle =
+        payload?.notification?.title ||
+        payload?.data?.title ||
+        "New Notification";
+
+
+    // ----------------------------------------------
+    // GET BODY
+    // ----------------------------------------------
 
     const notificationBody =
-      payload.notification?.body ||
-      payload.data?.body ||
-      "You have a new notification.";
+        payload?.notification?.body ||
+        payload?.data?.body ||
+        "You have a new notification.";
 
+
+    // ----------------------------------------------
+    // GET APPOINTMENT ID
+    // ----------------------------------------------
 
     const appointmentId =
-      payload.data?.appointment_id ||
-      "";
+        payload?.data?.appointment_id ||
+        payload?.data?.appointmentId ||
+        "";
 
+
+    // ----------------------------------------------
+    // NOTIFICATION OPTIONS
+    // ----------------------------------------------
 
     const notificationOptions = {
 
-      body:
-        notificationBody,
+        body: notificationBody,
 
-      /*
-       * Use an existing image from your public
-       * folder if you have one.
-       *
-       * Otherwise remove icon and badge.
-       */
+        data: {
+            appointment_id: appointmentId,
 
-      data: {
+            type:
+                payload?.data?.type || "",
 
-        appointment_id:
-          appointmentId,
-
-        type:
-          payload.data?.type ||
-          "",
-
-      },
+            url:
+                "/frontoffice/upcoming-appointments",
+        },
 
     };
 
 
-    self.registration.showNotification(
-      notificationTitle,
-      notificationOptions
+    // ----------------------------------------------
+    // SHOW NOTIFICATION
+    // ----------------------------------------------
+
+    return self.registration.showNotification(
+        notificationTitle,
+        notificationOptions
     );
 
-  }
-);
+});
 
 
-// ========================================
+// ======================================================
 // NOTIFICATION CLICK
-// ========================================
+// ======================================================
 
 self.addEventListener(
-  "notificationclick",
-  (event) => {
+    "notificationclick",
+    (event) => {
 
-    event.notification.close();
-
-
-    const appointmentId =
-      event.notification
-        ?.data
-        ?.appointment_id;
+        console.log(
+            "[firebase-messaging-sw.js] Notification clicked"
+        );
 
 
-    let targetUrl =
-      "/frontoffice/upcoming-appointments";
+        event.notification.close();
 
 
-    if (
-      appointmentId
-    ) {
-
-      targetUrl =
-        `/frontoffice/upcoming-appointments/${appointmentId}`;
-
-    }
+        const appointmentId =
+            event.notification?.data?.appointment_id;
 
 
-    event.waitUntil(
+        // ------------------------------------------
+        // DEFAULT URL
+        // ------------------------------------------
 
-      clients.matchAll({
-        type: "window",
-        includeUncontrolled: true,
-      }).then(
-        (clientList) => {
-
-          for (
-            const client
-            of clientList
-          ) {
-
-            if (
-              "focus" in client
-            ) {
-
-              client.navigate(
-                targetUrl
-              );
-
-              return client.focus();
-
-            }
-
-          }
+        let targetUrl =
+            "/frontoffice/upcoming-appointments";
 
 
-          if (
-            clients.openWindow
-          ) {
+        // ------------------------------------------
+        // APPOINTMENT URL
+        // ------------------------------------------
 
-            return clients.openWindow(
-              targetUrl
-            );
+        if (appointmentId) {
 
-          }
+            targetUrl =
+                `/frontoffice/upcoming-appointments/${appointmentId}`;
 
         }
-      )
 
-    );
 
-  }
+        // ------------------------------------------
+        // FOCUS EXISTING TAB
+        // ------------------------------------------
+
+        event.waitUntil(
+
+            clients
+                .matchAll({
+                    type: "window",
+                    includeUncontrolled: true,
+                })
+
+                .then((clientList) => {
+
+                    for (
+                        const client
+                        of clientList
+                    ) {
+
+                        if (
+                            "focus"
+                            in client
+                        ) {
+
+                            client.navigate(
+                                targetUrl
+                            );
+
+                            return client.focus();
+
+                        }
+
+                    }
+
+
+                    // ----------------------------------
+                    // OPEN NEW TAB
+                    // ----------------------------------
+
+                    if (
+                        clients.openWindow
+                    ) {
+
+                        return clients.openWindow(
+                            targetUrl
+                        );
+
+                    }
+
+
+                    return undefined;
+
+                })
+
+        );
+
+    }
 );

@@ -3,7 +3,6 @@ import {
     getTherapistAilments,
     getTherapistPatients,
     getTherapistScheduleOverview,
-    
 } from "../api/therapistDashboardApi";
 
 
@@ -17,7 +16,6 @@ export const fetchTherapistDashboard = async () => {
         therapies,
         ailments,
         patients,
-        sales,
     ] = await Promise.all([
 
         getTherapiesPerformed(),
@@ -25,8 +23,6 @@ export const fetchTherapistDashboard = async () => {
         getTherapistAilments(),
 
         getTherapistPatients(),
-
-        getTherapistSales(),
 
     ]);
 
@@ -41,50 +37,67 @@ export const fetchTherapistDashboard = async () => {
         patients:
             patients.data.data,
 
-        sales:
-            sales.data.data,
-
     };
+
 };
 
 
 // ==========================================
-// INDIVIDUAL APIs
+// THERAPIES PERFORMED
 // ==========================================
 
-export const fetchTherapiesPerformedDashboard = async (
-    period = "week"
-) => {
-
-    const response = await api.get(
-        `/therapist/dashboard/therapies-performed?period=${period}`
-    );
-
-    console.log(
-        "THERAPIES PERFORMED API:",
-        response.data
-    );
-
-    // Return only the actual dashboard data
-    return response.data?.data || {
-        total: 0,
-        growth_percentage: "0%",
-        comparison_label: "",
-        breakdown: {},
-        categories: [],
-    };
-};
-
-
-export const fetchTherapistAilmentsDashboard =
-    async () => {
+export const fetchTherapiesPerformedDashboard =
+    async (
+        period = "week"
+    ) => {
 
         const response =
-            await getTherapistAilments();
+            await getTherapiesPerformed(
+                period
+            );
 
-        return response.data.data;
+        console.log(
+            "THERAPIES PERFORMED API:",
+            response.data
+        );
+
+        return (
+            response.data?.data || {
+                total: 0,
+                growth_percentage: "0%",
+                comparison_label: "",
+                breakdown: {},
+                categories: [],
+            }
+        );
+
     };
 
+
+// ==========================================
+// AILMENTS
+// ==========================================
+
+export const fetchTherapistAilmentsDashboard =
+    async (
+        period = "week"
+    ) => {
+
+        const response =
+            await getTherapistAilments(
+                period
+            );
+
+        return (
+            response.data?.data || []
+        );
+
+    };
+
+
+// ==========================================
+// PATIENTS
+// ==========================================
 
 export const fetchTherapistPatientsDashboard =
     async () => {
@@ -92,31 +105,55 @@ export const fetchTherapistPatientsDashboard =
         const response =
             await getTherapistPatients();
 
-        return response.data.data;
+        return (
+            response.data?.data || {}
+        );
+
     };
 
-export const fetchTherapistScheduleOverview = async (
-    period = "today"
-) => {
 
-    const response =
-        await getTherapistScheduleOverview(period);
+// ==========================================
+// SCHEDULE OVERVIEW
+// ==========================================
 
-    return {
-        period: response.data.period,
+export const fetchTherapistScheduleOverview =
+    async (
+        period = "today"
+    ) => {
 
-        data: {
+        const response =
+            await getTherapistScheduleOverview(
+                period
+            );
+
+        console.log(
+            "THERAPIST SCHEDULE OVERVIEW:",
+            response.data
+        );
+
+
+        const data =
+            response.data?.data || {};
+
+
+        return {
+
+            period:
+                response.data?.period ||
+                period,
+
             total_patients:
-                response.data.data?.total_patients ?? 0,
+                data?.total_patients ?? 0,
 
             men:
-                response.data.data?.men ?? 0,
+                data?.men ?? 0,
 
             women:
-                response.data.data?.women ?? 0,
+                data?.women ?? 0,
 
             children:
-                response.data.data?.children ?? 0,
-        },
+                data?.children ?? 0,
+
+        };
+
     };
-};

@@ -30,10 +30,13 @@ const ScheduleOverview = ({
     // REDUX STATE
     // =========================================
 
-    const scheduleOverview = useSelector(
-        (state) =>
-            state.therapist.scheduleOverview
-    );
+    const scheduleOverview =
+        useSelector(
+            (state) =>
+                state.therapist
+                    ?.scheduleOverview
+        );
+
 
 
     // =========================================
@@ -42,23 +45,44 @@ const ScheduleOverview = ({
 
     useEffect(() => {
 
+        console.log(
+            "Schedule Overview Period:",
+            period
+        );
+
+
         dispatch(
             loadTherapistScheduleOverview(
                 period
             )
         );
 
-    }, [dispatch, period]);
+    }, [
+        dispatch,
+        period,
+    ]);
 
 
     // =========================================
     // PERIOD CHANGE
     // =========================================
 
-    const handlePeriodChange = (value) => {
+    const handlePeriodChange = (
+        value
+    ) => {
+
+        console.log(
+            "Schedule Overview Changed:",
+            value
+        );
+
 
         if (setPeriod) {
-            setPeriod(value);
+
+            setPeriod(
+                value
+            );
+
         }
 
     };
@@ -66,21 +90,41 @@ const ScheduleOverview = ({
 
     return (
 
-        <DashboardCard className="px-5 pt-5 pb-5">
+        <DashboardCard
+            className="
+                px-5
+                pt-5
+                pb-5
+            "
+        >
 
             {/* =====================================
                 HEADER
             ====================================== */}
 
-            <div className="flex items-center justify-between">
+            <div
+                className="
+                    flex
+                    items-center
+                    justify-between
+                "
+            >
 
-                <h2 className="text-[18px] font-semibold text-[#4B2E2A]">
+                <h2
+                    className="
+                        text-[18px]
+                        font-semibold
+                        text-[#4B2E2A]
+                    "
+                >
                     Schedule Overview
                 </h2>
 
 
                 <DashboardDropdown
-                    value={period}
+                    value={
+                        period
+                    }
                     options={[
                         {
                             label: "Today",
@@ -95,7 +139,9 @@ const ScheduleOverview = ({
                             value: "month",
                         },
                     ]}
-                    onChange={handlePeriodChange}
+                    onChange={
+                        handlePeriodChange
+                    }
                 />
 
             </div>
@@ -105,13 +151,34 @@ const ScheduleOverview = ({
                 TOTAL APPOINTMENTS
             ====================================== */}
 
-            <div className="mt-5">
+            <div
+                className="
+                    mt-5
+                "
+            >
 
-                <h1 className="text-[32px] font-bold text-[#4B2E2A]">
-                    {scheduleOverview?.total_patients ?? 0}
+                <h1
+                    className="
+                        text-[32px]
+                        font-bold
+                        text-[#4B2E2A]
+                    "
+                >
+                    {
+                        scheduleOverview
+                            ?.total_patients ??
+                        0
+                    }
                 </h1>
 
-                <p className="mt-1 text-[13px] text-[#7D726B]">
+
+                <p
+                    className="
+                        mt-1
+                        text-[13px]
+                        text-[#7D726B]
+                    "
+                >
                     Total Appointments
                 </p>
 
@@ -122,25 +189,60 @@ const ScheduleOverview = ({
                 DIVIDER
             ====================================== */}
 
-            <div className="my-4 border-t border-[#EFE4DC]" />
+            <div
+                className="
+                    my-4
+                    border-t
+                    border-[#EFE4DC]
+                "
+            />
 
 
             {/* =====================================
                 GENDER BREAKDOWN
             ====================================== */}
 
-            <div className="grid grid-cols-3">
+            <div
+                className="
+                    grid
+                    grid-cols-3
+                "
+            >
 
                 {/* MEN */}
 
-                <div className="text-center border-r border-[#EFE4DC]">
+                <div
+                    className="
+                        border-r
+                        border-[#EFE4DC]
+                        text-center
+                    "
+                >
 
-                    <p className="text-[16px] font-semibold text-[#4D2E23]">
+                    <p
+                        className="
+                            text-[16px]
+                            font-semibold
+                            text-[#4D2E23]
+                        "
+                    >
                         Men
                     </p>
 
-                    <p className="mt-1 text-[20px] font-bold text-[#4D2E23]">
-                        {scheduleOverview?.men ?? 0}
+
+                    <p
+                        className="
+                            mt-1
+                            text-[20px]
+                            font-bold
+                            text-[#4D2E23]
+                        "
+                    >
+                        {
+                            scheduleOverview
+                                ?.men ??
+                            0
+                        }
                     </p>
 
                 </div>
@@ -148,14 +250,38 @@ const ScheduleOverview = ({
 
                 {/* WOMEN */}
 
-                <div className="text-center border-r border-[#EFE4DC]">
+                <div
+                    className="
+                        border-r
+                        border-[#EFE4DC]
+                        text-center
+                    "
+                >
 
-                    <p className="text-[16px] font-semibold text-[#4D2E23]">
+                    <p
+                        className="
+                            text-[16px]
+                            font-semibold
+                            text-[#4D2E23]
+                        "
+                    >
                         Women
                     </p>
 
-                    <p className="mt-1 text-[20px] font-bold text-[#4D2E23]">
-                        {scheduleOverview?.women ?? 0}
+
+                    <p
+                        className="
+                            mt-1
+                            text-[20px]
+                            font-bold
+                            text-[#4D2E23]
+                        "
+                    >
+                        {
+                            scheduleOverview
+                                ?.women ??
+                            0
+                        }
                     </p>
 
                 </div>
@@ -163,14 +289,36 @@ const ScheduleOverview = ({
 
                 {/* CHILDREN */}
 
-                <div className="text-center">
+                <div
+                    className="
+                        text-center
+                    "
+                >
 
-                    <p className="text-[16px] font-semibold text-[#4D2E23]">
+                    <p
+                        className="
+                            text-[16px]
+                            font-semibold
+                            text-[#4D2E23]
+                        "
+                    >
                         Children
                     </p>
 
-                    <p className="mt-1 text-[20px] font-bold text-[#4D2E23]">
-                        {scheduleOverview?.children ?? 0}
+
+                    <p
+                        className="
+                            mt-1
+                            text-[20px]
+                            font-bold
+                            text-[#4D2E23]
+                        "
+                    >
+                        {
+                            scheduleOverview
+                                ?.children ??
+                            0
+                        }
                     </p>
 
                 </div>

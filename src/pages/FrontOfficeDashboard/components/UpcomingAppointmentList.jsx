@@ -18,8 +18,8 @@ import {
     HiChevronLeft,
     HiChevronRight,
     HiOutlinePlus,
+    HiOutlineCheck,
 } from "react-icons/hi2";
-
 
 import {
     loadFrontOfficeUpcomingAppointments,
@@ -295,20 +295,26 @@ const UpcomingAppointmentsList = () => {
                         "
                     >
 
+                        {/* BACK BUTTON */}
+
                         <button
                             type="button"
                             onClick={() =>
                                 navigate(-1)
                             }
                             className="
-                                text-[24px]
+                                text-[22px]
                                 leading-none
                                 text-[#4B2E2A]
+                                transition
+                                hover:text-[#8A4F32]
                             "
                         >
                             ←
                         </button>
 
+
+                        {/* TITLE */}
 
                         <h1
                             className="
@@ -317,11 +323,13 @@ const UpcomingAppointmentsList = () => {
                                 text-[#2F2926]
                             "
                         >
-                            Upcoming Appointments
+                            Appointments
                         </h1>
 
                     </div>
 
+
+                    {/* TOTAL CONSULTATIONS */}
 
                     <p
                         className="
@@ -371,6 +379,8 @@ const UpcomingAppointmentsList = () => {
                             text-[12px]
                             font-medium
                             text-[#4B2E2A]
+                            transition
+                            hover:bg-[#FFF9F4]
                         "
                     >
 
@@ -386,6 +396,8 @@ const UpcomingAppointmentsList = () => {
 
                     </button>
 
+
+                    {/* PERIOD MENU */}
 
                     {showPeriodMenu && (
 
@@ -475,7 +487,7 @@ const UpcomingAppointmentsList = () => {
                     {typeof error === "string"
                         ? error
                         : error?.message ||
-                          "Failed to load upcoming appointments."}
+                          "Failed to load appointments."}
                 </div>
 
             )}
@@ -495,6 +507,8 @@ const UpcomingAppointmentsList = () => {
                 "
             >
 
+                {/* SHOWING */}
+
                 <span
                     className="
                         text-[12px]
@@ -504,6 +518,8 @@ const UpcomingAppointmentsList = () => {
                     {getShowingText()}
                 </span>
 
+
+                {/* PREVIOUS */}
 
                 <button
                     type="button"
@@ -516,6 +532,9 @@ const UpcomingAppointmentsList = () => {
                     }
                     className="
                         text-[#4B2E2A]
+                        transition
+                        hover:text-[#8A4F32]
+                        disabled:cursor-not-allowed
                         disabled:opacity-30
                     "
                 >
@@ -524,6 +543,8 @@ const UpcomingAppointmentsList = () => {
                     />
                 </button>
 
+
+                {/* NEXT */}
 
                 <button
                     type="button"
@@ -536,6 +557,9 @@ const UpcomingAppointmentsList = () => {
                     }
                     className="
                         text-[#4B2E2A]
+                        transition
+                        hover:text-[#8A4F32]
+                        disabled:cursor-not-allowed
                         disabled:opacity-30
                     "
                 >
@@ -562,12 +586,14 @@ const UpcomingAppointmentsList = () => {
                 "
             >
 
+                {/* ================================== */}
                 {/* TABLE HEADER */}
+                {/* ================================== */}
 
                 <div
                     className="
                         grid
-                        grid-cols-[1.45fr_1.1fr_.8fr_.8fr_1.1fr_.7fr_1fr]
+                        grid-cols-[1.35fr_1.25fr_1.25fr_1.05fr_.7fr_.75fr_1fr]
                         border-b
                         border-[#E8DDD6]
                         bg-[#FFF9F4]
@@ -578,25 +604,31 @@ const UpcomingAppointmentsList = () => {
                         Patient Details
                     </TableHeader>
 
-                    <TableHeader>
-                        Date
-                    </TableHeader>
 
                     <TableHeader>
-                        Type
+                        Doctor
                     </TableHeader>
 
-                    <TableHeader>
-                        Time
-                    </TableHeader>
 
                     <TableHeader>
-                        Service
+                        Date and Time
                     </TableHeader>
+
+
+                    <TableHeader>
+                        Appointment Type
+                    </TableHeader>
+
 
                     <TableHeader>
                         Price
                     </TableHeader>
+
+
+                    <TableHeader>
+                        Status
+                    </TableHeader>
+
 
                     <TableHeader last>
                         Actions
@@ -605,9 +637,9 @@ const UpcomingAppointmentsList = () => {
                 </div>
 
 
-                {/* ================================= */}
+                {/* ================================== */}
                 {/* LOADING */}
-                {/* ================================= */}
+                {/* ================================== */}
 
                 {loading ? (
 
@@ -632,7 +664,7 @@ const UpcomingAppointmentsList = () => {
                             text-[#81756E]
                         "
                     >
-                        No upcoming appointments found.
+                        No appointments found.
                     </div>
 
                 ) : (
@@ -684,8 +716,8 @@ const TableHeader = ({
         <div
             className={`
                 px-4
-                py-4
-                text-[12px]
+                py-3
+                text-[11px]
                 font-medium
                 text-[#4B2E2A]
 
@@ -712,10 +744,12 @@ const AppointmentRow = ({
     onAddVitals,
 }) => {
 
+    // ==========================================
+    // PATIENT
+    // ==========================================
+
     const patientName =
         appointment?.patient_name ||
-        appointment?.full_name ||
-        appointment?.name ||
         "-";
 
 
@@ -725,35 +759,113 @@ const AppointmentRow = ({
         "-";
 
 
-    const date =
-        appointment?.formatted_date ||
+    // ==========================================
+    // DOCTOR
+    // ==========================================
+
+    const doctorName =
+        appointment?.doctor_name ||
+        "-";
+
+
+    // ==========================================
+    // DATE
+    // ==========================================
+
+    const appointmentDate =
         appointment?.date ||
         "-";
 
 
-    const time =
+    // ==========================================
+    // TIME
+    // ==========================================
+
+    const appointmentTime =
         appointment?.time ||
         appointment?.slot_time ||
         "-";
 
 
+    // ==========================================
+    // TYPE
+    // ==========================================
+
     const appointmentType =
-        appointment?.appointment_type ||
         appointment?.type ||
+        appointment?.medium ||
         "-";
 
 
-    const service =
-        appointment?.service_name ||
-        appointment?.therapy_name ||
-        appointment?.reason_for_visit ||
+    // ==========================================
+    // CATEGORY
+    // ==========================================
+
+    const appointmentCategory =
         appointment?.category ||
-        "-";
+        appointment?.booking_category ||
+        "";
 
+
+    // ==========================================
+    // PRICE
+    // ==========================================
 
     const price =
-        appointment?.price ??
-        appointment?.fee;
+        appointment?.price_display ||
+        (
+            appointment?.price !== undefined &&
+            appointment?.price !== null &&
+            appointment?.price !== ""
+                ? `₹${appointment.price}`
+                : "-"
+        );
+
+
+    // ==========================================
+    // STATUS
+    // ==========================================
+
+    const rawStatus =
+        String(
+            appointment?.status || ""
+        ).toLowerCase();
+
+
+    const isCompleted =
+        rawStatus === "completed" ||
+        appointment?.has_vitals === true ||
+        appointment?.vitals_status === "completed";
+
+
+    const statusLabel =
+        isCompleted
+            ? "Completed"
+            : rawStatus === "waiting" ||
+              rawStatus === "pending"
+                ? "Pending"
+                : appointment?.status
+                    ? capitalizeFirstLetter(
+                        appointment.status
+                    )
+                    : "Pending";
+
+
+    // ==========================================
+    // ACTION
+    // ==========================================
+
+    const isVitalsAdded =
+        appointment?.has_vitals === true ||
+        appointment?.vitals_status === "completed" ||
+        isCompleted;
+
+
+    const actionLabel =
+        isVitalsAdded
+            ? "Added Vitals"
+            : appointment?.action_label ||
+              "+ Add Vitals";
 
 
     return (
@@ -761,27 +873,29 @@ const AppointmentRow = ({
         <div
             className="
                 grid
-                grid-cols-[1.45fr_1.1fr_.8fr_.8fr_1.1fr_.7fr_1fr]
+                grid-cols-[1.35fr_1.25fr_1.25fr_1.05fr_.7fr_.75fr_1fr]
                 border-b
                 border-[#EEE4DD]
                 last:border-b-0
             "
         >
 
-            {/* PATIENT */}
+            {/* ================================= */}
+            {/* PATIENT DETAILS */}
+            {/* ================================= */}
 
             <div
                 className="
                     border-r
                     border-[#EEE4DD]
                     px-4
-                    py-4
+                    py-3
                 "
             >
 
                 <p
                     className="
-                        text-[13px]
+                        text-[11px]
                         font-semibold
                         text-[#4B2E2A]
                     "
@@ -793,7 +907,7 @@ const AppointmentRow = ({
                 <p
                     className="
                         mt-1
-                        text-[11px]
+                        text-[9px]
                         text-[#81756E]
                     "
                 >
@@ -803,7 +917,9 @@ const AppointmentRow = ({
             </div>
 
 
-            {/* DATE */}
+            {/* ================================= */}
+            {/* DOCTOR */}
+            {/* ================================= */}
 
             <div
                 className="
@@ -812,76 +928,110 @@ const AppointmentRow = ({
                     border-r
                     border-[#EEE4DD]
                     px-4
-                    py-4
-                    text-[12px]
-                    text-[#4B2E2A]
+                    py-3
                 "
             >
-                {date}
-            </div>
 
-
-            {/* TYPE */}
-
-            <div
-                className="
-                    flex
-                    items-center
-                    border-r
-                    border-[#EEE4DD]
-                    px-4
-                    py-4
-                    text-[12px]
-                    text-[#4B2E2A]
-                "
-            >
-                {appointmentType}
-            </div>
-
-
-            {/* TIME */}
-
-            <div
-                className="
-                    flex
-                    items-center
-                    border-r
-                    border-[#EEE4DD]
-                    px-4
-                    py-4
-                    text-[12px]
-                    text-[#4B2E2A]
-                "
-            >
-                {time}
-            </div>
-
-
-            {/* SERVICE */}
-
-            <div
-                className="
-                    flex
-                    items-center
-                    border-r
-                    border-[#EEE4DD]
-                    px-4
-                    py-4
-                    text-[12px]
-                    text-[#4B2E2A]
-                "
-            >
                 <span
                     className="
-                        line-clamp-2
+                        text-[11px]
+                        font-semibold
+                        text-[#4B2E2A]
                     "
                 >
-                    {service}
+                    {doctorName}
                 </span>
+
             </div>
 
 
+            {/* ================================= */}
+            {/* DATE AND TIME */}
+            {/* ================================= */}
+
+            <div
+                className="
+                    flex
+                    flex-col
+                    justify-center
+                    border-r
+                    border-[#EEE4DD]
+                    px-4
+                    py-3
+                "
+            >
+
+                <p
+                    className="
+                        text-[11px]
+                        font-semibold
+                        text-[#4B2E2A]
+                    "
+                >
+                    {appointmentDate}
+                </p>
+
+
+                <p
+                    className="
+                        mt-1
+                        text-[9px]
+                        text-[#81756E]
+                    "
+                >
+                    {appointmentTime}
+                </p>
+
+            </div>
+
+
+            {/* ================================= */}
+            {/* APPOINTMENT TYPE */}
+            {/* ================================= */}
+
+            <div
+                className="
+                    flex
+                    flex-col
+                    justify-center
+                    border-r
+                    border-[#EEE4DD]
+                    px-4
+                    py-3
+                "
+            >
+
+                <p
+                    className="
+                        text-[11px]
+                        font-semibold
+                        text-[#4B2E2A]
+                    "
+                >
+                    {appointmentType}
+                </p>
+
+
+                {appointmentCategory && (
+
+                    <p
+                        className="
+                            mt-1
+                            text-[9px]
+                            text-[#81756E]
+                        "
+                    >
+                        {appointmentCategory}
+                    </p>
+
+                )}
+
+            </div>
+
+
+            {/* ================================= */}
             {/* PRICE */}
+            {/* ================================= */}
 
             <div
                 className="
@@ -890,21 +1040,59 @@ const AppointmentRow = ({
                     border-r
                     border-[#EEE4DD]
                     px-4
-                    py-4
-                    text-[12px]
+                    py-3
+                    text-[11px]
                     font-semibold
                     text-[#4B2E2A]
                 "
             >
-                {price !== undefined &&
-                price !== null &&
-                price !== ""
-                    ? `₹${price}`
-                    : "-"}
+                {price}
             </div>
 
 
-            {/* ACTION */}
+            {/* ================================= */}
+            {/* STATUS */}
+            {/* ================================= */}
+
+            <div
+                className="
+                    flex
+                    items-center
+                    border-r
+                    border-[#EEE4DD]
+                    px-3
+                    py-3
+                "
+            >
+
+                <span
+                    className={`
+                        inline-flex
+                        items-center
+                        justify-center
+                        rounded-md
+                        px-2.5
+                        py-1
+                        text-[9px]
+                        font-medium
+                        whitespace-nowrap
+
+                        ${
+                            isCompleted
+                                ? "bg-[#E8F8EF] text-[#17824A]"
+                                : "bg-[#FFF3E5] text-[#8A5A2B]"
+                        }
+                    `}
+                >
+                    {statusLabel}
+                </span>
+
+            </div>
+
+
+            {/* ================================= */}
+            {/* ACTIONS */}
+            {/* ================================= */}
 
             <div
                 className="
@@ -912,7 +1100,7 @@ const AppointmentRow = ({
                     items-center
                     justify-center
                     px-3
-                    py-4
+                    py-3
                 "
             >
 
@@ -923,31 +1111,54 @@ const AppointmentRow = ({
                             appointment
                         )
                     }
-                    className="
+                    className={`
                         flex
                         items-center
+                        justify-center
                         gap-1.5
                         whitespace-nowrap
                         rounded-full
                         border
-                        border-[#E7DBD3]
-                        bg-white
-                        px-3.5
-                        py-2
-                        text-[11px]
+                        px-3
+                        py-1.5
+                        text-[9px]
                         font-medium
-                        text-[#4B2E2A]
                         transition
-                        hover:bg-[#FFF5ED]
-                    "
+
+                        ${
+                            isVitalsAdded
+                                ? `
+                                    border-[#E7DBD3]
+                                    bg-white
+                                    text-[#B7AAA3]
+                                    cursor-default
+                                `
+                                : `
+                                    border-[#E7DBD3]
+                                    bg-white
+                                    text-[#4B2E2A]
+                                    hover:bg-[#FFF5ED]
+                                `
+                        }
+                    `}
                 >
 
-                    <HiOutlinePlus
-                        size={14}
-                    />
+                    {isVitalsAdded ? (
 
-                    {appointment?.action_label ||
-                        "+ Add Vitals"}
+                        <HiOutlineCheck
+                            size={12}
+                        />
+
+                    ) : (
+
+                        <HiOutlinePlus
+                            size={12}
+                        />
+
+                    )}
+
+
+                    {actionLabel}
 
                 </button>
 
@@ -997,6 +1208,28 @@ const PeriodButton = ({
             {label}
         </button>
 
+    );
+};
+
+
+// ==========================================
+// CAPITALIZE FIRST LETTER
+// ==========================================
+
+const capitalizeFirstLetter = (
+    value
+) => {
+
+    if (!value) {
+        return "";
+    }
+
+    const text =
+        String(value);
+
+    return (
+        text.charAt(0).toUpperCase() +
+        text.slice(1)
     );
 };
 

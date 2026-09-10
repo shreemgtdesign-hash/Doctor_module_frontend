@@ -174,42 +174,6 @@ export const loadTherapistPatients =
 // SCHEDULE OVERVIEW
 // ==========================================
 
-export const loadTherapistScheduleOverview =
-    createAsyncThunk(
-
-        "therapist/loadScheduleOverview",
-
-        async (
-            period = "today",
-            { rejectWithValue }
-        ) => {
-
-            try {
-
-                const response =
-                    await fetchTherapistScheduleOverview(
-                        period
-                    );
-
-                console.log(
-                    "THERAPIST SCHEDULE OVERVIEW:",
-                    response
-                );
-
-                return response;
-
-            } catch (error) {
-
-                return rejectWithValue(
-                    error.response?.data ||
-                    error.message
-                );
-
-            }
-
-        }
-
-    );
 export const completeTherapistAppointments =
     createAsyncThunk(
 
@@ -280,4 +244,56 @@ export const updateTherapistAppointmentStatusThunk =
 
         }
 
+    );
+
+    export const loadTherapistScheduleOverview =
+    createAsyncThunk(
+        "therapist/loadScheduleOverview",
+
+        async (
+            period = "today",
+            {
+                rejectWithValue,
+            }
+        ) => {
+
+            try {
+
+                console.log(
+                    "LOADING SCHEDULE OVERVIEW:",
+                    period
+                );
+
+
+                const response =
+                    await fetchTherapistScheduleOverview(
+                        period
+                    );
+
+
+                console.log(
+                    "SCHEDULE OVERVIEW RESULT:",
+                    response
+                );
+
+
+                return response;
+
+            } catch (error) {
+
+                console.error(
+                    "SCHEDULE OVERVIEW ERROR:",
+                    error
+                );
+
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to load schedule overview."
+                );
+
+            }
+
+        }
     );

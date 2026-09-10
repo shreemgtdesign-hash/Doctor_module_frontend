@@ -32,9 +32,18 @@ export const getTherapistPatients = () =>
     api.get(
         "/therapist/dashboard/patients-tended"
     );
-export const getTherapistScheduleOverview = (period = "today") => {
+
+
+// ==========================================
+// SCHEDULE OVERVIEW
+// ==========================================
+
+export const getTherapistScheduleOverview = (
+    period = "today"
+) => {
+
     return api.get(
         `/therapist/dashboard/patients-tended?period=${period}`
     );
-};
 
+};

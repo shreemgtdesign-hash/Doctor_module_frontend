@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import DashboardLayout
   from "../../components/Layout/DashboardLayout";
-
+import { generateToken, messaging } from "../../firebase/firebase";
 import {
   loadFrontOfficeDashboard,
   loadFrontOfficeAppointments,
@@ -39,10 +39,8 @@ import RecentTransactions
 
 import PendingActions
   from "./components/PendingActions";
-import { registerFCMDevice } from "../../firebase/registerFCMDevice";
-import useFCMNotifications from "../../firebase/useFCMNotifications";
-
-
+import { onMessage } from "firebase/messaging";
+onMessage
 const FrontOfficeDashboard = () => {
 
   const dispatch = useDispatch();
@@ -59,14 +57,16 @@ const FrontOfficeDashboard = () => {
     );
 
     useEffect(() => {
+ generateToken()
+ onMessage(messaging,(payload)=>{
+  console.log("Message received. ", payload);
 
-  registerFCMDevice(
-    "front_office"
-  );
+ })
+ 
 
 }, []);
 
- useFCMNotifications();
+
 
   const handlePeriodChange = (
     newPeriod
