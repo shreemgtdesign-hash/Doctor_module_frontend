@@ -5,9 +5,9 @@ import DashboardLayout from "../../components/Layout/DashboardLayout";
 import ScheduleOverview from "./components/ScheduleOverview";
 import ConsultationHistory from "./components/ConsultationHistory";
 import AilmentsAddressed from "./components/AilmentsAddressed";
-import MedicinesPrescribed from "./components/medicinesPrescribed";
+import MedicinesPrescribed from "./components/MedicinesPrescribed";
 import BillingDetails from "./components/BillingDetails";
-import TherapiesPrescribed from "./components/therapiesPrescribed";
+import TherapiesPrescribed from "./components/TherapiesPrescribed";
 import Beauty from "./components/Beauty";
 import Wellness from "./components/Wellness";
 
