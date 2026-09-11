@@ -20,6 +20,7 @@ import {
     searchPrescriptionProductsThunk,
     savePrescriptionThunk,
     updatePrescriptionThunk,
+    loadDoctorsList,
 
 } from "../../../redux/consultation/consultationThunk";
 import ConsultationTimer from "../components/ConsultationTimer";
@@ -51,6 +52,7 @@ const Prescription = ({
         prescriptionSearch,
         chiefComplaints,
         loading,
+        doctorsList,
     } = useSelector(
         (state) => state.consultation
     );
@@ -379,6 +381,18 @@ const Prescription = ({
 
 
 
+    // ========================================
+    // LOAD DOCTORS FOR SELECT DOCTOR
+    // ========================================
+
+    useEffect(() => {
+        dispatch(loadDoctorsList());
+    }, [dispatch]);
+
+    // ========================================
+    // SEARCH MEDICINES
+    // ========================================
+
     useEffect(() => {
 
         if (search.trim().length < 2) {
@@ -441,7 +455,7 @@ const Prescription = ({
                 frequency: null,
 
                 duration: "30 Days",
-
+                doctor_name: "",
                 food: "Before Food",
             },
 
@@ -587,6 +601,9 @@ const Prescription = ({
 
                         quantity:
                             Number(item.quantity) || 1,
+
+                        doctor_name:
+                            item.doctor_name || "",
                     };
                 }),
             };
@@ -921,12 +938,62 @@ const Prescription = ({
 
                                 </div>
 
-                                <div className="text-right">
+                                <div className="flex flex-col items-end gap-3">
+
+                                    <select
+                                        value={medicine.doctor_name || ""}
+                                        onChange={(e) =>
+                                            updateMedicine(
+                                                index,
+                                                "doctor_name",
+                                                e.target.value
+                                            )
+                                        }
+                                        className="
+                                            h-[42px]
+                                            w-[190px]
+                                            rounded-xl
+                                            border
+                                            border-[#E7DBD3]
+                                            bg-white
+                                            px-4
+                                            text-[14px]
+                                            font-semibold
+                                            text-[#4D2E23]
+                                            outline-none
+                                            cursor-pointer
+                                            focus:border-[#8A563B]
+                                        "
+                                    >
+                                        <option value="">
+                                            Select Doctor
+                                        </option>
+
+                                        {(doctorsList || []).map((doctor) => {
+                                            const doctorId =
+                                                doctor.doctor_id ||
+                                                doctor.id;
+
+                                            const doctorName =
+                                                doctor.doctor_name ||
+                                                doctor.name ||
+                                                doctor.select_doctor ||
+                                                "";
+
+                                            return (
+                                                <option
+                                                    key={doctorId}
+                                                    value={doctorName}
+                                                >
+                                                    {doctorName}
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
 
                                     <div className="rounded-full bg-[#E8F8EA] px-4 py-1 text-xs font-medium text-[#2E7A46]">
                                         In Stock
                                     </div>
-
 
                                 </div>
 

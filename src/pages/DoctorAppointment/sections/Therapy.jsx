@@ -23,6 +23,7 @@ import {
   saveTherapyThunk,
   updateTherapyThunk,
   deleteTherapyThunk,
+  loadDoctorsList,
 } from "../../../redux/consultation/consultationThunk";
 import ConsultationTimer from "../components/ConsultationTimer";
 
@@ -83,6 +84,7 @@ const Therapy = ({
   const {
     therapy,
     therapySearch,
+    doctorsList,
   } = useSelector(
     (state) => state.consultation
   );
@@ -137,6 +139,14 @@ const Therapy = ({
 
 
   // ==========================================
+  // LOAD DOCTORS FOR SELECT DOCTOR
+  // GET /prescriptions/doctors
+  // ==========================================
+
+  useEffect(() => {
+    dispatch(loadDoctorsList());
+  }, [dispatch]);
+
   // SEARCH THERAPIES
   // ==========================================
 
@@ -212,78 +222,59 @@ const Therapy = ({
     }
 
     try {
-
-      const payload = {
-
-        treatment_id:
-          selectedTherapy.id,
-
-        booking_date:
-          new Date()
-            .toISOString()
-            .split("T")[0],
-
+      // Keep newly selected therapy locally first.
+      // Doctor is selected on the therapy card, then the
+      // actual POST /visits/{appointmentId}/therapies is
+      // triggered from Save & Continue with doctor_name.
+      const newTherapy = {
+        isNew: true,
+        treatment_id: selectedTherapy.id,
+        treatment_name:
+          selectedTherapy.name ||
+          selectedTherapy.treatment_name ||
+          "Therapy",
+        description:
+         
+          selectedTherapy.notes ||
+          "No description available",
+        image_url:
+          selectedTherapy.image_url || "",
+        amount: Number(
+          selectedTherapy.daycare_price || 0
+        ),
+        booking_date: new Date()
+          .toISOString()
+          .split("T")[0],
         slot_time: "15:30:00",
-
-        amount:
-          Number(
-            selectedTherapy.daycare_price
-          ),
-
         notes: "",
-        no_of_days:
-          Number(noOfDays),
-        category: selectedTherapy.category || "Treatments",
-
+        doctor_prescription_therpay_notes: "",
+        no_of_days: Number(noOfDays) || 0,
+        category:
+          selectedTherapy.category ||
+          "Treatments",
+        doctor_name: "",
       };
 
-
       console.log(
-        "Adding therapy:",
-        payload
+        "Adding therapy locally:",
+        newTherapy
       );
 
-
-      // --------------------------------------
-      // SAVE TO BACKEND
-      // --------------------------------------
-
-      await dispatch(
-        saveTherapyThunk({
-          appointmentId,
-          payload,
-        })
-      ).unwrap();
-
-
-      // --------------------------------------
-      // RELOAD THERAPIES
-      // --------------------------------------
-
-      await dispatch(
-        loadTherapies(
-          appointmentId
-        )
-      ).unwrap();
-
-
-      // --------------------------------------
-      // CLOSE SEARCH
-      // --------------------------------------
+      setEditableTherapies((prev) => [
+        ...prev,
+        newTherapy,
+      ]);
 
       setSearch("");
-
       setShowDropdown(false);
+      setNoOfDays("");
 
     } catch (error) {
-
       console.error(
         "Failed to add therapy:",
         error
       );
-
     }
-
   };
 
 
@@ -341,61 +332,99 @@ const Therapy = ({
 
       setSaving(true);
 
-
       // --------------------------------------
-      // UPDATE EACH THERAPY
+      // SAVE NEW + UPDATE EXISTING THERAPIES
       // --------------------------------------
 
-      for (
-        const item
-        of editableTherapies
-      ) {
+      for (const item of editableTherapies) {
 
-        await dispatch(
-          updateTherapyThunk({
+        if (item.isNew || !item.id) {
+          // --------------------------------------
+          // POST /visits/{appointmentId}/therapies
+          // --------------------------------------
 
-            therapyId:
-              item.id,
+          const payload = {
+            treatment_id:
+              item.treatment_id,
 
-            payload: {
+            booking_date:
+              item.booking_date
+                ?.split("T")[0],
 
-              booking_date:
-                item.booking_date
-                  ?.split("T")[0],
+            slot_time:
+              item.slot_time || "15:30:00",
 
-              slot_time:
-                item.slot_time,
+            doctor_prescription_therpay_notes:
+              item.doctor_prescription_therpay_notes ||
+              item.notes ||
+              "",
 
-              amount:
-                Number(
-                  item.amount
-                ),
+            no_of_days:
+              Number(item.no_of_days || 0),
 
-              notes:
-                item.notes || "",
+            category:
+              item.category || "Treatments",
 
-              no_of_days:
-                Number(
-                  item.no_of_days ||
-                  item.days_count ||
-                  0
-                ),
+            doctor_name:
+              item.doctor_name || "",
+          };
 
-              category:
-                item.category || "Treatments",
+          console.log(
+            "POST Add Therapy payload:",
+            payload
+          );
 
-            }
+          await dispatch(
+            saveTherapyThunk({
+              appointmentId,
+              payload,
+            })
+          ).unwrap();
 
+        } else {
+          // --------------------------------------
+          // PUT existing therapy
+          // --------------------------------------
 
+          await dispatch(
+            updateTherapyThunk({
+              therapyId:
+                item.id,
 
-          })
-        ).unwrap();
+              payload: {
+                booking_date:
+                  item.booking_date
+                    ?.split("T")[0],
 
+                slot_time:
+                  item.slot_time,
+
+                amount:
+                  Number(item.amount || 0),
+
+                notes:
+                  item.notes || "",
+
+                no_of_days:
+                  Number(
+                    item.no_of_days ||
+                    item.days_count ||
+                    0
+                  ),
+
+                category:
+                  item.category || "Treatments",
+
+                doctor_name:
+                  item.doctor_name || "",
+              },
+            })
+          ).unwrap();
+        }
       }
 
-
       // --------------------------------------
-      // RELOAD
+      // RELOAD FROM BACKEND
       // --------------------------------------
 
       await dispatch(
@@ -404,22 +433,10 @@ const Therapy = ({
         )
       ).unwrap();
 
-
-      // --------------------------------------
-      // EXIT EDIT MODE
-      // --------------------------------------
-
       setEditing(false);
 
-
-      // --------------------------------------
-      // GO TO NEXT SECTION
-      // --------------------------------------
-
       if (onContinue) {
-
         onContinue();
-
       }
 
     } catch (error) {
@@ -434,12 +451,11 @@ const Therapy = ({
       setSaving(false);
 
     }
-
   };
-
 
   // ==========================================
   // FORMAT DATE
+
   // ==========================================
 
   const formatDate = (
@@ -1029,41 +1045,92 @@ const Therapy = ({
                         }
                       </h3>
 
-                      <select
-                        value={item.category || "Treatments"}
-                        onChange={(e) =>
-                          updateTherapy(
-                            index,
-                            "category",
-                            e.target.value
-                          )
-                        }
-                        className=" ml-[400px]
-                                     h-[36px]
-                                     w-[160px]
-                                     rounded-xl
-                                     border
-                                     border-[#E8D9CF]
-                                     bg-white
-                                     px-4
-                                     
-                                     text-[14px]
-                                     font-semibold
-                                     text-[#4D2E23]
-                                     outline-none
-                                     cursor-pointer
-                                     focus:border-[#8A563B]
-                                   "
-                      >
-                        {therapyCategories.map((category) => (
-                          <option
-                            key={category}
-                            value={category}
-                          >
-                            {category}
-                          </option>
-                        ))}
-                      </select>
+                       <div className="flex items-center gap-3">
+                         <select
+                           value={item.doctor_name || ""}
+                           onChange={(e) =>
+                             updateTherapy(
+                               index,
+                               "doctor_name",
+                               e.target.value
+                             )
+                           }
+                           className="
+                             h-[36px]
+                             w-[180px]
+                             rounded-xl
+                             border
+                             border-[#E8D9CF]
+                             bg-white
+                             px-4
+                             text-[14px]
+                             font-semibold
+                             text-[#4D2E23]
+                             outline-none
+                             cursor-pointer
+                             focus:border-[#8A563B]
+                           "
+                         >
+                           <option value="">
+                             Select Doctor
+                           </option>
+
+                           {(doctorsList || []).map((doctor) => {
+                             const doctorId =
+                               doctor.doctor_id || doctor.id;
+
+                             const doctorName =
+                               doctor.doctor_name ||
+                               doctor.name ||
+                               doctor.select_doctor ||
+                               "";
+
+                             return (
+                               <option
+                                 key={doctorId}
+                                 value={doctorName}
+                               >
+                                 {doctorName}
+                               </option>
+                             );
+                           })}
+                         </select>
+
+                         <select
+                           value={item.category || "Treatments"}
+                           onChange={(e) =>
+                             updateTherapy(
+                               index,
+                               "category",
+                               e.target.value
+                             )
+                           }
+                           className="
+                             h-[36px]
+                             w-[160px]
+                             rounded-xl
+                             border
+                             border-[#E8D9CF]
+                             bg-white
+                             px-4
+                             text-[14px]
+                             font-semibold
+                             text-[#4D2E23]
+                             outline-none
+                             cursor-pointer
+                             focus:border-[#8A563B]
+                           "
+                         >
+                           {therapyCategories.map((category) => (
+                             <option
+                               key={category}
+                               value={category}
+                             >
+                               {category}
+                             </option>
+                           ))}
+                         </select>
+                       </div>
 </div>
 
 

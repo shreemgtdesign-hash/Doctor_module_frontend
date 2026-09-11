@@ -203,6 +203,8 @@ export const getDiagnosisCategories = () =>
 export const getDoctorsList = () =>
   api.get("/doctors"); // replace with your backend endpoint
 
+export const getDoctorsName = () =>
+  api.get("/prescriptions/doctors");
 // Add Associate Doctor
 export const addAssociateDoctor = (
   appointmentId,

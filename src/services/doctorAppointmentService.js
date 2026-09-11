@@ -34,6 +34,7 @@ import {
   markReportReviewed,
   getReportById,
   getPatientReports,
+  getDoctorsName,
 
 
 
@@ -520,4 +521,10 @@ export const reviewPatientReport = async (
         await markReportReviewed(reportId);
 
     return response.data;
+};
+
+
+export const fetchDoctorsName = async () => {
+  const response = await getDoctorsName();
+  return response.data.data;
 };
