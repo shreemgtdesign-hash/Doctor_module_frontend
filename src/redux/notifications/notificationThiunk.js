@@ -7,6 +7,7 @@ import {
   readNotification,
   readAllNotifications,
 } from "../../services/notificationService";
+import { registerFCMToken } from "../../api/notificationApi";
 
 
 // ======================================================
@@ -102,3 +103,24 @@ export const markAllNotificationsRead =
 
     }
   );
+
+  export const registerFrontOfficeFCMToken = createAsyncThunk(
+  "notifications/registerFrontOfficeFCMToken",
+
+  async (token, { rejectWithValue }) => {
+    try {
+      const response = await registerFCMToken({
+        device_token:token,
+      });
+
+      return response.data;
+
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data ||
+        error.message ||
+        "Failed to register FCM token."
+      );
+    }
+  }
+);

@@ -40,6 +40,7 @@ import RecentTransactions
 import PendingActions
   from "./components/PendingActions";
 import { onMessage } from "firebase/messaging";
+import { registerFrontOfficeFCMToken } from "../../redux/notifications/notificationThiunk";
 
 const FrontOfficeDashboard = () => {
 
@@ -70,10 +71,13 @@ const FrontOfficeDashboard = () => {
 
         const token = await generateToken();
 
-        console.log(
-          "FCM token generated:",
-          token
-        );
+        console.log("FCM token generated:", token);
+
+        if (token) {
+          await dispatch(
+            registerFrontOfficeFCMToken(token)
+          );
+        }
 
 
         // ==============================================
