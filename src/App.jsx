@@ -35,6 +35,8 @@ import PendingActionScreen from "./pages/FrontOfficeAppointment/components/Pendi
 import AppointmentConfirmationList from "./pages/FrontOfficeAppointment/components/AppointmentConfirmationList";
 import UpcomingAppointmentsList from "./pages/FrontOfficeDashboard/components/UpcomingAppointmentList";
 import PatientAppointmentDetails from "./pages/FrontOfficeAppointment/components/PatientAppointmentdetails";
+import TherapyConfirmation from "./pages/FrontOfficeAppointment/components/TherapyConfirmation";
+import HomevisitConfirmation from "./pages/FrontOfficeAppointment/components/HomevisitConfirmation";
 
 function App() {
   return (
@@ -259,6 +261,19 @@ function App() {
         path="/frontoffice/upcoming-appointments/:appointmentId"
         element={
           <PatientAppointmentDetails />
+        }
+      />
+      <Route
+        path="/frontoffice/pending-action/therapy-confirmations"
+        element={
+          <TherapyConfirmation />
+        }
+      />
+
+      <Route
+        path="/frontoffice/pending-action/homevisit-confirmations/:doctorId"
+        element={
+          <HomevisitConfirmation />
         }
       />
 

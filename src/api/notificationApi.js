@@ -28,3 +28,21 @@ export const getNotifications = () => {
   );
 
 };
+
+
+export const markNotificationAsRead = (notificationId) => {
+  return api.put(
+    `/notifications/${notificationId}/read`
+  );
+};
+
+
+// ======================================================
+// MARK ALL NOTIFICATIONS AS READ
+// ======================================================
+
+export const markAllNotificationsAsRead = () => {
+  return api.put(
+    "/notifications/read-all"
+  );
+};

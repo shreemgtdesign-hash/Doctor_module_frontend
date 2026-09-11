@@ -288,7 +288,7 @@ const UpcomingAppointments = ({
               text-[#4B2E2A]
             "
           >
-            Upcoming Appointments
+            Appointments
           </span>
 
 

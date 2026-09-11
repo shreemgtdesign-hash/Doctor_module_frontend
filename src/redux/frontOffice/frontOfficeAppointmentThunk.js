@@ -24,8 +24,14 @@ import {
     saveFrontOfficeUpcomingAppointmentDetails,
     fetchFrontOfficeUpcomingAppointmentDetails,
     fetchFrontOfficeUpcomingAppointments,
+    fetchUploadPatientReportFile,
+    fetchCreatePatientReport,
+    fetchConfirmAppointmentRoom,
+    fetchHomevisitAppointmentConfirmation,
+    fetchTherapyAppointmentConfirmation,
 } from "../../services/frontOfficeAppointmentService";
 import { fetchAppointmentConfirmationList } from "../../services/therapistAppointmentsService";
+import { fetchPatientReports } from "../../services/doctorAppointmentService";
 
 
 // ==========================================
@@ -533,7 +539,7 @@ export const createFrontOfficeDirectWalkInTherapyBooking =
         }
     );
 
-    export const loadFrontOfficeTherapies =
+export const loadFrontOfficeTherapies =
     createAsyncThunk(
         "frontOffice/loadTherapies",
 
@@ -551,7 +557,7 @@ export const createFrontOfficeDirectWalkInTherapyBooking =
 
     );
 
-    // ==========================================
+// ==========================================
 // APPOINTMENT CONFIRMATION LIST
 // ==========================================
 
@@ -609,34 +615,34 @@ export const loadFrontOfficeAppointmentConfirmation =
     );
 
 
-    export const loadFrontOfficeUpcomingAppointmentDetails =
-  createAsyncThunk(
+export const loadFrontOfficeUpcomingAppointmentDetails =
+    createAsyncThunk(
 
-    "frontOfficeUpcomingAppointment/loadDetails",
+        "frontOfficeUpcomingAppointment/loadDetails",
 
-    async (
-      appointmentId,
-      { rejectWithValue }
-    ) => {
+        async (
+            appointmentId,
+            { rejectWithValue }
+        ) => {
 
-      try {
+            try {
 
-        return await fetchFrontOfficeUpcomingAppointmentDetails(
-          appointmentId
-        );
+                return await fetchFrontOfficeUpcomingAppointmentDetails(
+                    appointmentId
+                );
 
-      } catch (error) {
+            } catch (error) {
 
-        return rejectWithValue(
-          error.response?.data ||
-          error.message
-        );
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
 
-      }
+            }
 
-    }
+        }
 
-  );
+    );
 
 
 // ==========================================
@@ -644,39 +650,39 @@ export const loadFrontOfficeAppointmentConfirmation =
 // ==========================================
 
 export const saveFrontOfficeUpcomingAppointmentDetailsThunk =
-  createAsyncThunk(
+    createAsyncThunk(
 
-    "frontOfficeUpcomingAppointment/saveDetails",
+        "frontOfficeUpcomingAppointment/saveDetails",
 
-    async (
-      {
-        appointmentId,
-        payload,
-      },
-      { rejectWithValue }
-    ) => {
+        async (
+            {
+                appointmentId,
+                payload,
+            },
+            { rejectWithValue }
+        ) => {
 
-      try {
+            try {
 
-        return await saveFrontOfficeUpcomingAppointmentDetails(
-          appointmentId,
-          payload
-        );
+                return await saveFrontOfficeUpcomingAppointmentDetails(
+                    appointmentId,
+                    payload
+                );
 
-      } catch (error) {
+            } catch (error) {
 
-        return rejectWithValue(
-          error.response?.data ||
-          error.message
-        );
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
 
-      }
+            }
 
-    }
+        }
 
-  );
+    );
 
-  // ==========================================
+// ==========================================
 // LOAD UPCOMING APPOINTMENTS LIST
 // ==========================================
 
@@ -713,4 +719,195 @@ export const loadFrontOfficeUpcomingAppointments =
 
         }
 
+    );
+
+
+
+// ==========================================
+// UPLOAD PATIENT REPORT FILE
+// ==========================================
+
+export const uploadFrontOfficePatientReportFile =
+    createAsyncThunk(
+        "frontOfficeAppointment/uploadPatientReportFile",
+
+        async (
+            formData,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchUploadPatientReportFile(
+                    formData
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+
+            }
+
+        }
+    );
+
+
+
+// ==========================================
+// CREATE PATIENT REPORT RECORD
+// ==========================================
+
+
+
+// ==========================================
+// GET PATIENT REPORTS
+// ==========================================
+
+export const loadFrontOfficePatientReports =
+    createAsyncThunk(
+        "frontOfficeAppointment/loadPatientReports",
+
+        async (
+            patientId,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchPatientReports(
+                    patientId
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+
+            }
+
+        }
+    );
+
+    export const createFrontOfficePatientReport =
+    createAsyncThunk(
+        "frontOfficeAppointment/createPatientReport",
+        async (
+            reportData,
+            { rejectWithValue }
+        ) => {
+            try {
+                return await fetchCreatePatientReport(
+                    reportData
+                );
+            } catch (error) {
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+            }
+        }
+    );
+
+
+
+    // ==========================================
+// CONFIRM APPOINTMENT WITH ROOM
+// ==========================================
+
+export const confirmFrontOfficeAppointmentRoom =
+    createAsyncThunk(
+        "frontOfficeAppointment/confirmAppointmentRoom",
+
+        async (
+            appointmentData,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchConfirmAppointmentRoom(
+                    appointmentData
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to confirm appointment with room."
+                );
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+// LOAD THERAPY CONFIRMATION
+// ==========================================
+
+export const loadFrontOfficeTherapyAppointmentConfirmation =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/loadTherapyAppointmentConfirmation",
+
+        async (
+            _,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchTherapyAppointmentConfirmation();
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to load therapy confirmation."
+                );
+
+            }
+
+        }
+    );
+
+    // ==========================================
+// LOAD HOME VISIT CONFIRMATION
+// ==========================================
+
+export const loadFrontOfficeHomevisitAppointmentConfirmation =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/loadHomevisitAppointmentConfirmation",
+
+        async (
+            doctorId,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchHomevisitAppointmentConfirmation(
+                    doctorId
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to load home visit confirmation."
+                );
+
+            }
+
+        }
     );

@@ -99,7 +99,7 @@ const PendingActions = () => {
 
             onClick: () => {
                 navigate(
-                    "/frontoffice/therapies/confirmation"
+                    "/frontoffice/pending-action/therapy-confirmations"
                 );
             },
         },

@@ -21,6 +21,9 @@ import {
 import {
     loadFrontOfficeUpcomingAppointmentDetails,
     saveFrontOfficeUpcomingAppointmentDetailsThunk,
+    uploadFrontOfficePatientReportFile,
+    createFrontOfficePatientReport,
+    
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 
 
@@ -88,6 +91,7 @@ const PatientAppointmentDetails = () => {
         temperature: "",
         body_toxicity: "",
         ayurvedic_body_type: "",
+        upload_reports: [],
 
     });
 
@@ -202,6 +206,10 @@ const PatientAppointmentDetails = () => {
                         apiVitals.ayurvedic_body_type ||
                         "",
 
+                    upload_reports:
+                        apiVitals.upload_reports ||
+                        [],
+
                 });
 
             } catch (loadError) {
@@ -274,12 +282,6 @@ const PatientAppointmentDetails = () => {
 
         try {
 
-            /*
-             * Only send VITALS.
-             *
-             * Patient information and appointment
-             * information are read-only.
-             */
 
             const payload = {
 
@@ -303,6 +305,8 @@ const PatientAppointmentDetails = () => {
 
                 ayurvedic_body_type:
                     form.ayurvedic_body_type,
+                upload_reports:
+                    form.upload_reports,
 
             };
 
@@ -378,6 +382,11 @@ const PatientAppointmentDetails = () => {
                     latestVitals.ayurvedic_body_type ||
                     "",
 
+                upload_reports:
+                    latestVitals.upload_reports ||
+                    form.upload_reports ||
+                    [],
+
             });
 
         } catch (saveError) {
@@ -400,6 +409,115 @@ const PatientAppointmentDetails = () => {
 
     };
 
+    // ==========================================
+    // REPORT UPLOAD
+    // ==========================================
+
+    const patientId =
+        appointmentDetails?.personal_information?.patient_id ||
+        "";
+
+    const handleReportFileChange = async (event) => {
+        const files = Array.from(event.target.files || []);
+
+        if (!files.length) return;
+
+        if (!patientId) {
+            setError(new Error("Patient ID is missing. Cannot save the report."));
+            event.target.value = "";
+            return;
+        }
+
+        try {
+            for (const file of files) {
+                const formData = new FormData();
+
+                formData.append("file", file);
+
+                if (patientId) {
+                    formData.append("patient_id", patientId);
+                }
+
+                // STEP 1: Upload the physical file and get file_id.
+                const uploadResult = await dispatch(
+                    uploadFrontOfficePatientReportFile(formData)
+                ).unwrap();
+
+                const uploadedFileId =
+                    uploadResult?.data?.file_id ||
+                    uploadResult?.file_id ||
+                    uploadResult?.data?.id ||
+                    uploadResult?.id ||
+                    null;
+
+                if (!uploadedFileId) {
+                    throw new Error(
+                        "File uploaded, but the upload API did not return a file_id."
+                    );
+                }
+
+                // STEP 2: Immediately create the actual patient report record.
+                // /reports is a separate API from the physical file upload API.
+                // The report is therefore saved here, immediately after upload.
+                const reportPayload = {
+                    patient_id: patientId,
+                    file_id: uploadedFileId,
+                    report_type: "Other",
+                    report_name: file.name,
+                    lab_name: "",
+                    report_date: new Date()
+                        .toISOString()
+                        .split("T")[0],
+                    findings: "",
+                };
+
+                const reportResult = await dispatch(
+                    createFrontOfficePatientReport(reportPayload)
+                ).unwrap();
+
+                const savedReport =
+                    reportResult?.data ||
+                    reportResult ||
+                    {};
+
+                // Keep the API-created report in the UI.
+                setForm((previous) => ({
+                    ...previous,
+                    upload_reports: [
+                        ...(previous.upload_reports || []),
+                        {
+                            ...savedReport,
+                            file,
+                            file_id: uploadedFileId,
+                            name:
+                                savedReport?.report_name ||
+                                file.name,
+                            file_url:
+                                savedReport?.file_url ||
+                                uploadResult?.data?.file_url ||
+                                uploadResult?.file_url ||
+                                "",
+                        },
+                    ],
+                }));
+            }
+
+            // Refresh the persistent report list from GET /reports so the UI
+            // reflects what is actually saved in the backend.
+
+
+            setSuccessMessage(
+                files.length === 1
+                    ? "Report saved successfully."
+                    : `${files.length} reports saved successfully.`
+            );
+        } catch (uploadError) {
+            console.error("Failed to upload report:", uploadError);
+            setError(uploadError);
+        } finally {
+            event.target.value = "";
+        }
+    };
 
     // ==========================================
     // LOADING
@@ -448,8 +566,8 @@ const PatientAppointmentDetails = () => {
             typeof error === "string"
                 ? error
                 : error?.message ||
-                  error?.error ||
-                  "Failed to load appointment details.";
+                error?.error ||
+                "Failed to load appointment details.";
 
 
         return (
@@ -734,7 +852,7 @@ const PatientAppointmentDetails = () => {
                     />
 
                     {saving ||
-                    savingVitals
+                        savingVitals
                         ? "Saving..."
                         : "Save Changes"}
 
@@ -969,6 +1087,104 @@ const PatientAppointmentDetails = () => {
                             },
                         ]}
                     />
+                    <div>
+                        <label
+                            className="
+                                mb-2
+                                block
+                                text-[12px]
+                                font-medium
+                                text-[#4B2E2A]
+                            "
+                        >
+                            Upload Reports
+                        </label>
+
+                        <label
+                            className="
+                                flex
+                                h-11
+                                w-full
+                                cursor-pointer
+                                items-center
+                                justify-center
+                                gap-2
+                                rounded-lg
+                                border
+                                border-dashed
+                                border-[#DCCBC0]
+                                bg-[#FDFBF9]
+                                px-3
+                                text-[12px]
+                                font-medium
+                                text-[#6F4A3A]
+                                transition
+                                hover:border-[#B99B88]
+                                hover:bg-[#FFF9F5]
+                            "
+                        >
+                            <HiOutlineCloudArrowUp
+                                size={17}
+                                className="shrink-0"
+                            />
+
+                            <span className="truncate">
+                                {form.upload_reports?.length
+                                    ? `${form.upload_reports.length} report(s) uploaded`
+                                    : "Upload Reports"}
+                            </span>
+
+                            <input
+                                type="file"
+                                multiple
+                                accept=".pdf,.jpg,.jpeg,.png,.webp"
+                                className="hidden"
+                                onChange={handleReportFileChange}
+                            />
+                        </label>
+
+                        <p
+                            className="
+                                mt-1.5
+                                text-[11px]
+                                text-[#91847D]
+                            "
+                        >
+                            Upload reports related to this appointment.
+                        </p>
+
+                        {form.upload_reports?.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                                {form.upload_reports.map((report, index) => (
+                                    <div
+                                        key={`${report.name}-${index}`}
+                                        className="
+                                            flex
+                                            items-center
+                                            justify-between
+                                            rounded-md
+                                            border
+                                            border-[#E7DBD3]
+                                            bg-white
+                                            px-2.5
+                                            py-1.5
+                                        "
+                                    >
+                                        <span
+                                            className="
+                                                min-w-0
+                                                truncate
+                                                text-[11px]
+                                                text-[#4B2E2A]
+                                            "
+                                        >
+                                            {report.name}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
 
                 </div>
 
@@ -1047,7 +1263,7 @@ const PatientAppointmentDetails = () => {
                         label="Fee"
                         value={
                             appointmentPrice !== undefined &&
-                            appointmentPrice !== null
+                                appointmentPrice !== null
                                 ? `₹${appointmentPrice}`
                                 : "-"
                         }

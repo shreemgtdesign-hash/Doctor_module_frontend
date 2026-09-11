@@ -19,9 +19,35 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // ==========================================
+    // FORM DATA / FILE UPLOAD
+    // ==========================================
+
+    if (config.data instanceof FormData) {
+      // Remove JSON content type.
+      // Browser will automatically create:
+      // multipart/form-data; boundary=....
+      delete config.headers["Content-Type"];
+      delete config.headers["content-type"];
+
+      console.log("📎 FORM DATA REQUEST");
+    } else {
+      config.headers["Content-Type"] = "application/json";
+    }
+
     console.log(
       "AUTH HEADER:",
       config.headers.Authorization
+    );
+
+    console.log(
+      "IS FORMDATA:",
+      config.data instanceof FormData
+    );
+
+    console.log(
+      "CONTENT TYPE:",
+      config.headers["Content-Type"]
     );
 
     return config;

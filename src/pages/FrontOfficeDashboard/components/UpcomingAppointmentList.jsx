@@ -17,7 +17,7 @@ import {
     HiChevronDown,
     HiChevronLeft,
     HiChevronRight,
-    HiOutlinePlus,
+  
     HiOutlineCheck,
 } from "react-icons/hi2";
 
@@ -833,22 +833,13 @@ const AppointmentRow = ({
 
 
     const isCompleted =
-        rawStatus === "completed" ||
+     
         appointment?.has_vitals === true ||
         appointment?.vitals_status === "completed";
 
 
     const statusLabel =
-        isCompleted
-            ? "Completed"
-            : rawStatus === "waiting" ||
-              rawStatus === "pending"
-                ? "Pending"
-                : appointment?.status
-                    ? capitalizeFirstLetter(
-                        appointment.status
-                    )
-                    : "Pending";
+       appointment?.status
 
 
     // ==========================================
@@ -857,8 +848,7 @@ const AppointmentRow = ({
 
     const isVitalsAdded =
         appointment?.has_vitals === true ||
-        appointment?.vitals_status === "completed" ||
-        isCompleted;
+        appointment?.vitals_status === "completed"
 
 
     const actionLabel =
@@ -1143,19 +1133,13 @@ const AppointmentRow = ({
                     `}
                 >
 
-                    {isVitalsAdded ? (
+                    {isVitalsAdded ?? (
 
                         <HiOutlineCheck
                             size={12}
                         />
 
-                    ) : (
-
-                        <HiOutlinePlus
-                            size={12}
-                        />
-
-                    )}
+                    ) }
 
 
                     {actionLabel}

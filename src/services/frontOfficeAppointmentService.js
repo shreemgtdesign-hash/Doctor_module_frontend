@@ -20,7 +20,13 @@ import {
     getAppointmentConfirmation,
     getFrontOfficeUpcomingAppointmentDetails,
     updateFrontOfficeUpcomingAppointmentDetails,
-    getFrontOfficeUpcomingAppointments
+    getFrontOfficeUpcomingAppointments,
+    getPatientReports,
+    uploadPatientReportFile,
+    createPatientReport,
+    confirmAppointmentRoom,
+    getHomevisitAppointmentConfirmation,
+    getTherapyAppointmentConfirmation
 
 } from "../api/frontOfficeAppoinntmentApi";
 import { getMedicalCampDetails } from "../api/frontOfficeDashboardApi";
@@ -38,6 +44,13 @@ export const fetchConfirmAppointmentSlot = async (data) => {
     return response.data;
 };
 
+export const fetchConfirmAppointmentRoom = async (data) => {
+
+    const response =
+        await confirmAppointmentRoom(data);
+
+    return response.data;
+};
 
 // ==========================================
 // CREATE DOCTOR
@@ -307,6 +320,87 @@ export const fetchFrontOfficeUpcomingAppointments =
                 period,
                 page,
                 limit
+            );
+
+        return response.data;
+    };
+
+
+
+
+    // ==========================================
+// UPLOAD PATIENT REPORT FILE
+// ==========================================
+
+export const fetchUploadPatientReportFile = async (
+    formData
+) => {
+
+    const response =
+        await uploadPatientReportFile(
+            formData
+        );
+
+    return response.data;
+};
+
+
+// ==========================================
+// CREATE PATIENT REPORT
+// ==========================================
+
+export const fetchCreatePatientReport = async (
+    data
+) => {
+
+    const response =
+        await createPatientReport(
+            data
+        );
+
+    return response.data;
+};
+
+
+// ==========================================
+// GET PATIENT REPORTS
+// ==========================================
+
+export const fetchPatientReports = async (
+    patientId
+) => {
+
+    const response =
+        await getPatientReports(
+            patientId
+        );
+
+    return response.data;
+};
+
+
+export const fetchTherapyAppointmentConfirmation =
+    async () => {
+
+        const response =
+            await getTherapyAppointmentConfirmation();
+
+        return response.data;
+    };
+
+
+// ==========================================
+// GET HOME VISIT CONFIRMATION
+// ==========================================
+
+export const fetchHomevisitAppointmentConfirmation =
+    async (
+        doctorId
+    ) => {
+
+        const response =
+            await getHomevisitAppointmentConfirmation(
+                doctorId
             );
 
         return response.data;

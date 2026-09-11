@@ -148,6 +148,20 @@ export const getAppointmentConfirmation = (doctorId) =>
             },
         }
     );
+export const getTherapyAppointmentConfirmation  =()=>
+    api.get(
+        "/frontoffice/therapy/confirmation",);
+
+export const getHomevisitAppointmentConfirmation = (doctorId) =>
+    api.get(
+        "/frontoffice/homevisit/confirmation",
+        {
+            params: {
+                doctor_id: doctorId,
+            },
+        }
+    );
+
 
     export const getFrontOfficeUpcomingAppointments = (
     period = "week",
@@ -186,3 +200,52 @@ export const updateFrontOfficeUpcomingAppointmentDetails = (
     `/frontoffice/upcoming-appointments/${appointmentId}`,
     payload
   );
+
+
+  // ==========================================
+// PATIENT REPORT APIs
+// ==========================================
+
+// Upload Report File
+export const uploadPatientReportFile = (formData) =>
+    api.post(
+        "/reports/upload",
+        formData
+    );
+
+// Create Report Record
+export const createPatientReport = (data) =>
+    api.post(
+        "/reports",
+        data
+    );
+
+// Get Patient Reports
+export const getPatientReports = (patientId) =>
+    api.get(
+        "/reports",
+        {
+            params: {
+                patient_id: patientId,
+            },
+        }
+    );
+
+
+
+    // ==========================================
+// CREATE PATIENT REPORT
+// ==========================================
+
+export const fetchCreatePatientReport = (payload) => {
+    return api.post("/reports", payload);
+};
+
+
+
+// Confirm Appointment Slot + Room
+export const confirmAppointmentRoom = (data) =>
+    api.post(
+        "/frontoffice/appointments/confirmroom",
+        data
+    );

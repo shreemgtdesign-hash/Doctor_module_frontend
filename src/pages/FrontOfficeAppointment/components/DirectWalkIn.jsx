@@ -10,6 +10,9 @@ import {
   createFrontOfficeDirectWalkInMedicinePurchase,
   createFrontOfficeDirectWalkInTherapyBooking,
   loadFrontOfficeTherapies,
+  uploadFrontOfficePatientReportFile,
+  loadFrontOfficePatientReports,
+  createFrontOfficePatientReport
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 import {
   selectFrontOfficeDoctors,
@@ -18,6 +21,7 @@ import {
   selectWalkInCreating,
   selectWalkInSuccess,
   selectWalkInMessage,
+  selectWalkInData,
   selectWalkInError,
 
 
@@ -61,14 +65,11 @@ const DirectWalkIn = () => {
     reason_for_visit: "",
     referral_code: "",
     patient_code: "",
-
     address: "",
     country: "",
     city: "",
     postal_code: "",
-
     allergies: "",
-
     bp: "",
     sugar: "",
     pulse: "",
@@ -76,6 +77,7 @@ const DirectWalkIn = () => {
     temperature: "",
     body_toxicity: "",
     ayurvedic_body_type: "",
+    upload_reports: [],
     patient_reason_for_visit: "",
     doctor_id: "",
     appointment_type: "In-person",
@@ -143,6 +145,7 @@ const DirectWalkIn = () => {
         temperature: "",
         body_toxicity: "",
         ayurvedic_body_type: "",
+        upload_reports: [],
         doctor_id: "",
         slot_time: "",
         patient_slot_time: "",
@@ -154,7 +157,7 @@ const DirectWalkIn = () => {
 
       }));
 
-      navigate("/frontoffice/dashboard");
+     
     }
   }, [walkInSuccess]);
 
@@ -164,6 +167,104 @@ const DirectWalkIn = () => {
     setForm((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  // ==========================================
+  // UPLOAD PATIENT REPORT FILE
+  // ==========================================
+  // At this stage the patient may not exist yet.
+  // So:
+  // 1. Upload physical file
+  // 2. Get file_id
+  // 3. Store file_id in form.upload_reports
+  // 4. Create /reports record later after patient creation
+  // ==========================================
+
+  const handleReportFileChange = async (event) => {
+    const files = Array.from(event.target.files || []);
+
+    if (!files.length) {
+      return;
+    }
+
+    try {
+      for (const file of files) {
+        // ==========================================
+        // STEP 1: UPLOAD PHYSICAL FILE
+        // POST /reports/upload
+        // ==========================================
+
+        const formData = new FormData();
+
+        formData.append("file", file);
+
+        const uploadResult = await dispatch(
+          uploadFrontOfficePatientReportFile(formData)
+        ).unwrap();
+
+        const uploadedFileId =
+          uploadResult?.data?.file_id ||
+          uploadResult?.file_id ||
+          uploadResult?.data?.id ||
+          uploadResult?.id ||
+          uploadResult?.data?.data?.file_id ||
+          uploadResult?.data?.data?.id ||
+          null;
+
+        if (!uploadedFileId) {
+          throw new Error(
+            `File "${file.name}" was uploaded, but no file_id was returned.`
+          );
+        }
+
+        // ==========================================
+        // STEP 2: STORE FILE INFORMATION LOCALLY
+        // ==========================================
+
+        setForm((previous) => ({
+          ...previous,
+
+          upload_reports: [
+            ...(previous.upload_reports || []),
+
+            {
+              file_id: uploadedFileId,
+
+              name: file.name,
+
+              file_url:
+                uploadResult?.data?.file_url ||
+                uploadResult?.file_url ||
+                "",
+            },
+          ],
+        }));
+      }
+
+    } catch (error) {
+      console.error(
+        "Failed to upload report file:",
+        error
+      );
+
+      alert(
+        error?.message ||
+        "Failed to upload report file."
+      );
+
+    } finally {
+      // Allow selecting the same file again
+      event.target.value = "";
+    }
+  };
+
+  const removeReport = (fileId) => {
+    setForm((prev) => ({
+      ...prev,
+      upload_reports: (prev.upload_reports || []).filter(
+        (report) => report.file_id !== fileId
+      ),
     }));
   };
   const handleSubmitMedicinePurchase = async (e) => {
@@ -215,10 +316,7 @@ const DirectWalkIn = () => {
     e.preventDefault();
 
     const allergies = form.allergies
-      ? form.allergies
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean)
+      ? form.allergies.split(",").map((item) => item.trim()).filter(Boolean)
       : [];
 
     const payload = {
@@ -227,26 +325,21 @@ const DirectWalkIn = () => {
       gender: form.gender,
       mobile: form.mobile,
       email: form.email,
-
-      ...(form.referral_code && {
-        referral_code: form.referral_code,
-      }),
-
+      ...(form.referral_code && { referral_code: form.referral_code }),
       address: form.address,
       country: form.country,
       city: form.city,
       postal_code: form.postal_code,
-
       allergies,
-
       bp: form.bp,
       sugar: form.sugar,
       pulse: form.pulse,
       spo2: form.spo2,
       temperature: form.temperature,
+      upload_reports: form.upload_reports,
+
       body_toxicity: form.body_toxicity,
       ayurvedic_body_type: form.ayurvedic_body_type,
-
       doctor_id: form.doctor_id,
       appointment_type: form.appointment_type,
       appointment_date: form.appointment_date,
@@ -257,14 +350,121 @@ const DirectWalkIn = () => {
     };
 
     try {
-      await dispatch(
+      // 1. CREATE PATIENT / APPOINTMENT FIRST
+      const createdPatient = await dispatch(
         createFrontOfficeDirectWalkInPatient(payload)
       ).unwrap();
+
+      console.log("Direct walk-in create response:", createdPatient);
+
+      // 2. RESOLVE PATIENT ID FROM THE COMPLETE RESPONSE
+      const findPatientId = (value, parentKey = "") => {
+        if (!value || typeof value !== "object") return null;
+
+        if (Array.isArray(value)) {
+          for (const item of value) {
+            const found = findPatientId(item);
+            if (found) return found;
+          }
+          return null;
+        }
+
+        for (const key of ["patient_id", "patientId"]) {
+          if (value[key] !== undefined && value[key] !== null && value[key] !== "") {
+            return value[key];
+          }
+        }
+
+        if (["patient", "patient_data", "patientData"].includes(parentKey) && value.id) {
+          return value.id;
+        }
+
+        for (const [key, nested] of Object.entries(value)) {
+          if (nested && typeof nested === "object") {
+            const found = findPatientId(nested, key);
+            if (found) return found;
+          }
+        }
+
+        return null;
+      };
+
+      const patientId = findPatientId(createdPatient);
+
+      console.log("Resolved patient_id:", patientId);
+
+      if (!patientId) {
+        throw new Error(
+          "Patient was created, but the create-patient API response does not contain patient_id. Check the Network response for the create patient API."
+        );
+      }
+
+      // 3. CREATE REPORT RECORDS AFTER PATIENT EXISTS
+      const uploadedReports = Array.isArray(form.upload_reports)
+        ? form.upload_reports
+        : [];
+
+      console.log("Reports waiting for POST /reports:", uploadedReports);
+
+      for (const report of uploadedReports) {
+        if (!report?.file_id) {
+          console.warn("Skipping report without file_id:", report);
+          continue;
+        }
+
+        const reportPayload = {
+          patient_id: patientId,
+          file_id: report.file_id,
+          report_type: "Other",
+          report_name: report.name || report.report_name || "Patient Report",
+          lab_name: "",
+          report_date: new Date().toISOString().split("T")[0],
+          findings: "",
+        };
+
+        console.log("CALLING createFrontOfficePatientReport:", reportPayload);
+
+        const reportResult = await dispatch(
+          createFrontOfficePatientReport(reportPayload)
+        ).unwrap();
+
+        console.log("createFrontOfficePatientReport SUCCESS:", reportResult);
+      }
+
+      // 4. REFRESH SAVED REPORTS
+      if (uploadedReports.length > 0) {
+        try {
+          const reportsResponse = await dispatch(
+            loadFrontOfficePatientReports(patientId)
+          ).unwrap();
+
+          console.log("GET /reports response:", reportsResponse);
+
+          const savedReports =
+            reportsResponse?.data?.data ||
+            reportsResponse?.data ||
+            [];
+
+          if (Array.isArray(savedReports)) {
+            setForm((previous) => ({
+              ...previous,
+              upload_reports: savedReports.map((report) => ({
+                ...report,
+                file_id: report.file_id || report.id,
+                name: report.report_name || report.name || "Report",
+              })),
+            }));
+          }
+        } catch (refreshError) {
+          console.warn("Reports were created, but GET /reports failed:", refreshError);
+        }
+      }
+
+      console.log("Patient, appointment and reports saved successfully.");
     } catch (error) {
       console.error("Walk-in appointment error:", error);
     }
   };
-
   const selectedDoctor = doctors?.find(
     (doctor) => doctor.id === form.doctor_id
   );
@@ -627,7 +827,7 @@ const DirectWalkIn = () => {
 
                 </div>
 
-                <div className="mt-6 grid grid-cols-2 gap-7">
+                <div className="mt-6 grid grid-cols-3 gap-7">
 
                   <Field
                     label="Body Toxicity"
@@ -651,6 +851,13 @@ const DirectWalkIn = () => {
                       "Vata-Kapha",
                       "Tridosha",
                     ]}
+                  />
+
+                  <ReportUploadField
+
+                    reports={form.upload_reports}
+                    onChange={handleReportFileChange}
+                    onRemove={removeReport}
                   />
 
                 </div>
@@ -992,6 +1199,95 @@ const SelectField = ({
           className="pointer-events-none absolute right-3 top-3"
         />
       </div>
+    </div>
+  );
+};
+
+
+// =====================================================
+// REPORT UPLOAD FIELD
+// =====================================================
+
+const ReportUploadField = ({
+  reports = [],
+  onChange,
+  onRemove,
+}) => {
+  return (
+    <div>
+      <label className="mb-2 block text-[11px]">
+        Upload Reports
+      </label>
+
+      <label
+        className="
+          flex
+          h-[39px]
+          w-full
+          cursor-pointer
+          items-center
+          justify-between
+          rounded-lg
+          border
+          border-[#E8D9CF]
+          bg-white
+          px-3
+          text-[11px]
+          transition
+          hover:border-[#C9B2A4]
+        "
+      >
+        <span className="truncate text-gray-500">
+          {reports.length
+            ? `${reports.length} report${reports.length > 1 ? "s" : ""} uploaded`
+            : "Select report"}
+        </span>
+
+        <span className="shrink-0 rounded-md bg-[#FFF9F5] px-2 py-1 text-[10px] font-medium text-[#8A5038]">
+          Upload
+        </span>
+
+        <input
+          type="file"
+          multiple
+          accept=".pdf,.png,.jpg,.jpeg,.webp"
+          className="hidden"
+          onChange={onChange}
+        />
+      </label>
+
+      {reports.length > 0 && (
+        <div className="mt-2 space-y-1.5">
+          {reports.map((report) => (
+            <div
+              key={report.file_id}
+              className="
+                flex
+                items-center
+                justify-between
+                rounded-lg
+                border
+                border-[#F0E3D9]
+                bg-[#FFFCFA]
+                px-2.5
+                py-1.5
+              "
+            >
+              <span className="min-w-0 truncate text-[9px] text-[#6F625B]">
+                {report.name}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => onRemove(report.file_id)}
+                className="ml-2 shrink-0 text-[9px] font-medium text-red-500 hover:text-red-700"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

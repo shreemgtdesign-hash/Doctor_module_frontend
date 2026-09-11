@@ -23,6 +23,12 @@ import {
     loadAppointmentConfirmationList,
     loadFrontOfficeAppointmentConfirmation,
     loadFrontOfficeUpcomingAppointments,
+    loadFrontOfficePatientReports,
+    createFrontOfficePatientReport,
+    uploadFrontOfficePatientReportFile,
+    confirmFrontOfficeAppointmentRoom,
+    loadFrontOfficeHomevisitAppointmentConfirmation,
+    loadFrontOfficeTherapyAppointmentConfirmation,
 } from "./frontOfficeAppointmentThunk";
 
 const initialState = {
@@ -44,7 +50,41 @@ const initialState = {
     // ==========================================
     // UPCOMING APPOINTMENTS
     // ==========================================
+    // ==========================================
+// NORMAL APPOINTMENT CONFIRMATION
+// ==========================================
 
+confirmation: null,
+confirmationLoading: false,
+confirmationError: null,
+
+
+// ==========================================
+// THERAPY CONFIRMATION
+// ==========================================
+
+therapyConfirmation: null,
+therapyConfirmationLoading: false,
+therapyConfirmationError: null,
+
+
+// ==========================================
+// HOME VISIT CONFIRMATION
+// ==========================================
+
+homevisitConfirmation: null,
+homevisitConfirmationLoading: false,
+homevisitConfirmationError: null,
+
+
+// ==========================================
+// ROOM CONFIRMATION
+// ==========================================
+
+confirmingRoomAppointment: false,
+roomAppointmentSuccess: false,
+roomAppointmentMessage: "",
+roomAppointmentError: null,
     upcomingAppointments: [],
     upcomingAppointmentsLoading: false,
     upcomingAppointmentsError: null,
@@ -75,6 +115,30 @@ const initialState = {
     doctorSlotsLoading: false,
     doctorSlotsError: null,
     selectedDoctorSlot: null,
+    confirmingRoomAppointment: false,
+    roomAppointmentSuccess: false,
+    roomAppointmentMessage: "",
+    roomAppointmentError: null,
+
+
+    // ==========================================
+    // PATIENT REPORTS
+    // ==========================================
+
+    patientReports: [],
+
+    patientReportsLoading: false,
+    patientReportsError: null,
+
+    reportUploading: false,
+    reportUploadSuccess: false,
+    reportUploadData: null,
+    reportUploadError: null,
+
+    reportCreating: false,
+    reportCreateSuccess: false,
+    reportCreateData: null,
+    reportCreateError: null,
     // ==========================================
     // DOCTORS
     // ==========================================
@@ -1006,7 +1070,151 @@ const frontOfficeAppointmentSlice = createSlice({
         // ==========================================
         // REGISTER MEDICAL CAMP PATIENT
         // ==========================================
+        // ==========================================
+        // UPLOAD PATIENT REPORT FILE
+        // ==========================================
 
+        builder
+
+            .addCase(
+                uploadFrontOfficePatientReportFile.pending,
+                (state) => {
+
+                    state.reportUploading = true;
+                    state.reportUploadSuccess = false;
+                    state.reportUploadData = null;
+                    state.reportUploadError = null;
+
+                }
+            )
+
+            .addCase(
+                uploadFrontOfficePatientReportFile.fulfilled,
+                (state, action) => {
+
+                    state.reportUploading = false;
+                    state.reportUploadSuccess = true;
+
+                    state.reportUploadData =
+                        action.payload?.data ||
+                        action.payload ||
+                        null;
+
+                    state.reportUploadError = null;
+
+                }
+            )
+
+            .addCase(
+                uploadFrontOfficePatientReportFile.rejected,
+                (state, action) => {
+
+                    state.reportUploading = false;
+                    state.reportUploadSuccess = false;
+
+                    state.reportUploadError =
+                        action.payload ||
+                        "Failed to upload report.";
+
+                }
+            );
+
+
+        // ==========================================
+        // CREATE PATIENT REPORT RECORD
+        // ==========================================
+
+        builder
+
+            .addCase(
+                createFrontOfficePatientReport.pending,
+                (state) => {
+
+                    state.reportCreating = true;
+                    state.reportCreateSuccess = false;
+                    state.reportCreateData = null;
+                    state.reportCreateError = null;
+
+                }
+            )
+
+            .addCase(
+                createFrontOfficePatientReport.fulfilled,
+                (state, action) => {
+
+                    state.reportCreating = false;
+                    state.reportCreateSuccess = true;
+
+                    state.reportCreateData =
+                        action.payload?.data ||
+                        action.payload ||
+                        null;
+
+                    state.reportCreateError = null;
+
+                }
+            )
+
+            .addCase(
+                createFrontOfficePatientReport.rejected,
+                (state, action) => {
+
+                    state.reportCreating = false;
+                    state.reportCreateSuccess = false;
+
+                    state.reportCreateError =
+                        action.payload ||
+                        "Failed to create report.";
+
+                }
+            );
+
+
+        // ==========================================
+        // GET PATIENT REPORTS
+        // ==========================================
+
+        builder
+
+            .addCase(
+                loadFrontOfficePatientReports.pending,
+                (state) => {
+
+                    state.patientReportsLoading = true;
+                    state.patientReportsError = null;
+
+                }
+            )
+
+            .addCase(
+                loadFrontOfficePatientReports.fulfilled,
+                (state, action) => {
+
+                    state.patientReportsLoading = false;
+
+                    state.patientReports =
+                        action.payload?.data ||
+                        [];
+
+                    state.patientReportsError = null;
+
+                }
+            )
+
+            .addCase(
+                loadFrontOfficePatientReports.rejected,
+                (state, action) => {
+
+                    state.patientReportsLoading = false;
+
+                    state.patientReportsError =
+                        action.payload ||
+                        "Failed to load patient reports.";
+
+                    state.patientReports = [];
+
+                }
+            );
         builder
 
             .addCase(
@@ -1174,104 +1382,271 @@ const frontOfficeAppointmentSlice = createSlice({
         // CREATE DIRECT WALK-IN THERAPY BOOKING
         // =====================================================
         // ==========================================
-// UPCOMING APPOINTMENTS LIST
+        // UPCOMING APPOINTMENTS LIST
+        // ==========================================
+        // ==========================================
+// LOAD THERAPY CONFIRMATION
 // ==========================================
 
 builder
 
     .addCase(
-        loadFrontOfficeUpcomingAppointments.pending,
+        loadFrontOfficeTherapyAppointmentConfirmation.pending,
         (state) => {
 
-            state.upcomingAppointmentsLoading =
+            state.therapyConfirmationLoading =
                 true;
 
-            state.upcomingAppointmentsError =
+            state.therapyConfirmationError =
                 null;
 
         }
     )
 
-
     .addCase(
-        loadFrontOfficeUpcomingAppointments.fulfilled,
-        (
-            state,
-            action
-        ) => {
+        loadFrontOfficeTherapyAppointmentConfirmation.fulfilled,
+        (state, action) => {
 
-            state.upcomingAppointmentsLoading =
+            state.therapyConfirmationLoading =
                 false;
 
-            state.upcomingAppointmentsError =
+            state.therapyConfirmationError =
                 null;
 
-
-            const response =
-                action.payload || {};
-
-
-            state.upcomingAppointments =
-                response.data || [];
-
-
-            state.upcomingAppointmentsPeriod =
-                response.period ||
-                "week";
-
-
-            state.upcomingAppointmentsPage =
-                response.page ||
-                1;
-
-
-            state.upcomingAppointmentsLimit =
-                response.limit ||
-                12;
-
-
-            state.upcomingAppointmentsTotal =
-                response.total ||
-                0;
-
-
-            state.upcomingAppointmentsTotalConsultations =
-                response.total_consultations ||
-                0;
-
-
-            state.upcomingAppointmentsTotalPages =
-                response.total_pages ||
-                0;
-
-
-            state.upcomingAppointmentsShowing =
-                response.showing ||
-                "";
-
-        }
-    )
-
-
-    .addCase(
-        loadFrontOfficeUpcomingAppointments.rejected,
-        (
-            state,
-            action
-        ) => {
-
-            state.upcomingAppointmentsLoading =
-                false;
-
-            state.upcomingAppointmentsError =
+            state.therapyConfirmation =
+                action.payload?.data ||
                 action.payload ||
-                "Failed to load upcoming appointments.";
-
-            state.upcomingAppointments =
-                [];
+                null;
 
         }
     )
+
+    .addCase(
+        loadFrontOfficeTherapyAppointmentConfirmation.rejected,
+        (state, action) => {
+
+            state.therapyConfirmationLoading =
+                false;
+
+            state.therapyConfirmation =
+                null;
+
+            state.therapyConfirmationError =
+                action.payload?.message ||
+                action.payload ||
+                "Failed to load therapy confirmation.";
+
+        }
+    );
+
+
+// ==========================================
+// LOAD HOME VISIT CONFIRMATION
+// ==========================================
+
+builder
+
+    .addCase(
+        loadFrontOfficeHomevisitAppointmentConfirmation.pending,
+        (state) => {
+
+            state.homevisitConfirmationLoading =
+                true;
+
+            state.homevisitConfirmationError =
+                null;
+
+        }
+    )
+
+    .addCase(
+        loadFrontOfficeHomevisitAppointmentConfirmation.fulfilled,
+        (state, action) => {
+
+            state.homevisitConfirmationLoading =
+                false;
+
+            state.homevisitConfirmationError =
+                null;
+
+            state.homevisitConfirmation =
+                action.payload?.data ||
+                action.payload ||
+                null;
+
+        }
+    )
+
+    .addCase(
+        loadFrontOfficeHomevisitAppointmentConfirmation.rejected,
+        (state, action) => {
+
+            state.homevisitConfirmationLoading =
+                false;
+
+            state.homevisitConfirmation =
+                null;
+
+            state.homevisitConfirmationError =
+                action.payload?.message ||
+                action.payload ||
+                "Failed to load home visit confirmation.";
+
+        }
+    );
+        builder
+
+            .addCase(
+                loadFrontOfficeUpcomingAppointments.pending,
+                (state) => {
+
+                    state.upcomingAppointmentsLoading =
+                        true;
+
+                    state.upcomingAppointmentsError =
+                        null;
+
+                }
+            )
+
+
+            .addCase(
+                loadFrontOfficeUpcomingAppointments.fulfilled,
+                (
+                    state,
+                    action
+                ) => {
+
+                    state.upcomingAppointmentsLoading =
+                        false;
+
+                    state.upcomingAppointmentsError =
+                        null;
+
+
+                    const response =
+                        action.payload || {};
+
+
+                    state.upcomingAppointments =
+                        response.data || [];
+
+
+                    state.upcomingAppointmentsPeriod =
+                        response.period ||
+                        "week";
+
+
+                    state.upcomingAppointmentsPage =
+                        response.page ||
+                        1;
+
+
+                    state.upcomingAppointmentsLimit =
+                        response.limit ||
+                        12;
+
+
+                    state.upcomingAppointmentsTotal =
+                        response.total ||
+                        0;
+
+
+                    state.upcomingAppointmentsTotalConsultations =
+                        response.total_consultations ||
+                        0;
+
+
+                    state.upcomingAppointmentsTotalPages =
+                        response.total_pages ||
+                        0;
+
+
+                    state.upcomingAppointmentsShowing =
+                        response.showing ||
+                        "";
+
+                }
+            )
+
+
+            .addCase(
+                loadFrontOfficeUpcomingAppointments.rejected,
+                (
+                    state,
+                    action
+                ) => {
+
+                    state.upcomingAppointmentsLoading =
+                        false;
+
+                    state.upcomingAppointmentsError =
+                        action.payload ||
+                        "Failed to load upcoming appointments.";
+
+                    state.upcomingAppointments =
+                        [];
+
+                }
+            )
+
+        // ==========================================
+        // CONFIRM APPOINTMENT WITH ROOM
+        // ==========================================
+
+        builder
+
+            .addCase(
+                confirmFrontOfficeAppointmentRoom.pending,
+                (state) => {
+
+                    state.confirmingRoomAppointment = true;
+
+                    state.roomAppointmentSuccess = false;
+
+                    state.roomAppointmentMessage = "";
+
+                    state.roomAppointmentError = null;
+
+                    state.error = null;
+                }
+            )
+
+            .addCase(
+                confirmFrontOfficeAppointmentRoom.fulfilled,
+                (state, action) => {
+
+                    state.confirmingRoomAppointment = false;
+
+                    state.roomAppointmentSuccess = true;
+
+                    state.roomAppointmentMessage =
+                        action.payload?.message ||
+                        "Appointment confirmed successfully.";
+
+                    state.roomAppointmentError = null;
+
+                    state.message =
+                        state.roomAppointmentMessage;
+                }
+            )
+
+            .addCase(
+                confirmFrontOfficeAppointmentRoom.rejected,
+                (state, action) => {
+
+                    state.confirmingRoomAppointment = false;
+
+                    state.roomAppointmentSuccess = false;
+
+                    state.roomAppointmentError =
+                        action.payload ||
+                        "Failed to confirm appointment with room.";
+
+                    state.error =
+                        state.roomAppointmentError;
+                }
+            );
         builder
             .addCase(
                 createFrontOfficeDirectWalkInTherapyBooking.pending,
@@ -1539,11 +1914,6 @@ export const selectAppointmentConfirmationError =
 // APPOINTMENT CONFIRMATION SELECTORS
 // ==========================================
 
-export const selectFrontOfficeAppointmentConfirmation =
-    (state) =>
-        state.frontOfficeAppointment
-            ?.confirmation || null;
-
 export const selectFrontOfficeAppointmentConfirmationLoading =
     (state) =>
         state.frontOfficeAppointment
@@ -1604,4 +1974,104 @@ export const selectFrontOfficeUpcomingAppointmentsShowing =
     (state) =>
         state.frontOfficeAppointment
             ?.upcomingAppointmentsShowing || "";
+
+
+// ==========================================
+// PATIENT REPORT SELECTORS
+// ==========================================
+
+export const selectFrontOfficePatientReports =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.patientReports || [];
+
+
+export const selectFrontOfficePatientReportsLoading =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.patientReportsLoading || false;
+
+
+export const selectFrontOfficePatientReportsError =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.patientReportsError || null;
+
+
+export const selectFrontOfficeReportUploading =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.reportUploading || false;
+
+
+export const selectFrontOfficeReportUploadSuccess =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.reportUploadSuccess || false;
+
+
+export const selectFrontOfficeReportUploadData =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.reportUploadData || null;
+
+
+export const selectFrontOfficeReportUploadError =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.reportUploadError || null;
+
+// ==========================================
+// NORMAL APPOINTMENT CONFIRMATION
+// ==========================================
+
+export const selectFrontOfficeAppointmentConfirmation =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.confirmation || null;
+
+
+
+// ==========================================
+// THERAPY CONFIRMATION
+// ==========================================
+
+export const selectFrontOfficeTherapyConfirmation =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.therapyConfirmation || null;
+
+
+export const selectFrontOfficeTherapyConfirmationLoading =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.therapyConfirmationLoading || false;
+
+
+export const selectFrontOfficeTherapyConfirmationError =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.therapyConfirmationError || null;
+
+
+// ==========================================
+// HOME VISIT CONFIRMATION
+// ==========================================
+
+export const selectFrontOfficeHomevisitConfirmation =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.homevisitConfirmation || null;
+
+
+export const selectFrontOfficeHomevisitConfirmationLoading =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.homevisitConfirmationLoading || false;
+
+
+export const selectFrontOfficeHomevisitConfirmationError =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.homevisitConfirmationError || null;
 export default frontOfficeAppointmentSlice.reducer;

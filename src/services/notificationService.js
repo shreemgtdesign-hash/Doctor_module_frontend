@@ -1,6 +1,8 @@
 import {
   registerFCMToken,
   getNotifications,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
 } from "../api/notificationApi";
 
 
@@ -34,3 +36,30 @@ export const fetchNotifications =
     return response.data;
 
   };
+
+export const readNotification = async (
+  notificationId
+) => {
+
+  const response =
+    await markNotificationAsRead(
+      notificationId
+    );
+
+  return response.data;
+
+};
+
+
+// ======================================================
+// MARK ALL NOTIFICATIONS AS READ
+// ======================================================
+
+export const readAllNotifications = async () => {
+
+  const response =
+    await markAllNotificationsAsRead();
+
+  return response.data;
+
+};

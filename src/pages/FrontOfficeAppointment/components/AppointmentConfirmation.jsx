@@ -1,51 +1,23 @@
+import { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
-import {
-  useDispatch,
-  useSelector,
-} from "react-redux";
-
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-
-import {
-  HiOutlineExclamationCircle,
   HiOutlineCheckCircle,
   HiOutlineClock,
-  HiOutlineChevronUp,
-  HiOutlineChevronDown,
   HiOutlineArrowRight,
 } from "react-icons/hi2";
 
-import DashboardLayout
-  from "../../../components/Layout/DashboardLayout";
+import DashboardLayout from "../../../components/Layout/DashboardLayout";
 
 import {
   confirmFrontOfficeAppointment,
   loadFrontOfficeAppointmentConfirmation,
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 
-
 const AppointmentConfirmation = () => {
-
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
-
-  const {
-    doctorId,
-  } = useParams();
-
-
-  /*
-   * Appointment confirmation redux state
-   */
+  const { doctorId } = useParams();
 
   const {
     confirmation,
@@ -54,1982 +26,404 @@ const AppointmentConfirmation = () => {
     loading,
     error,
     message,
-  } =
-    useSelector(
-      (state) =>
-        state.frontOfficeAppointment
-    );
-
-
-  /*
-   * Currently selected slot
-   */
-
-  const [selectedSlot, setSelectedSlot] =
-    useState(null);
-
-
-  /*
-   * Currently selected patient/request
-   */
-
-  const [selectedRequest, setSelectedRequest] =
-    useState(null);
-
-
-  /*
-   * Expanded conflict slots
-   */
-
-  const [expandedSlots, setExpandedSlots] =
-    useState({});
-
-
-  /*
-   * Load appointment confirmation data
-   */
+  } = useSelector((state) => state.frontOfficeAppointment);
 
   useEffect(() => {
+    if (!doctorId) return;
 
-    if (!doctorId) {
-      return;
-    }
+    dispatch(loadFrontOfficeAppointmentConfirmation(doctorId));
+  }, [dispatch, doctorId]);
 
-    dispatch(
-      loadFrontOfficeAppointmentConfirmation(
-        doctorId
-      )
+  const doctor = confirmation?.doctor;
+
+  const schedule = useMemo(() => {
+    const slots =
+      confirmation?.schedule_overview?.schedule_slots || [];
+
+    // Conflicts are intentionally hidden from this screen.
+    return slots.filter(
+      (slot) => slot.status?.toLowerCase() !== "conflict"
     );
+  }, [confirmation]);
 
-  }, [
-    dispatch,
-    doctorId,
-  ]);
+  const patientCount = useMemo(() => {
+    return schedule.filter((slot) => slot.appointment_id).length;
+  }, [schedule]);
 
+  const getStatus = (slot) => {
+    const status = slot?.status?.toLowerCase();
 
-  /*
-   * API data
-   */
-
-  const doctor =
-    confirmation?.doctor;
-
-  const schedule =
-    confirmation?.schedule_overview
-      ?.schedule_slots || [];
-
-  const history =
-    confirmation?.patient_history_with_doctor ||
-    [];
-
-
-  /*
-   * Number of pending patients / requests
-   */
-
-  const pendingPatientCount =
-    useMemo(() => {
-
-      return schedule.reduce(
-        (total, slot) => {
-
-          if (
-            slot.status === "conflict"
-          ) {
-
-            return (
-              total +
-              (slot.requests?.length || 0)
-            );
-
-          }
-
-          return total;
-
-        },
-        0
-      );
-
-    }, [schedule]);
-
-
-  /*
-   * Toggle slot
-   */
-
-  const handleToggleSlot = (slot) => {
-
-    const isExpanded =
-      expandedSlots[slot.time];
-
-    setExpandedSlots((previous) => ({
-      ...previous,
-      [slot.time]: !isExpanded,
-    }));
-
-
-    /*
-     * Select every slot
-     */
-
-    setSelectedSlot(slot);
-
-
-    /*
-     * Conflict slot
-     */
-
-    if (
-      slot.status === "conflict" &&
-      slot.requests?.length > 0
-    ) {
-
-      setSelectedRequest(
-        slot.requests[0]
-      );
-
-      return;
+    if (status === "booked" || status === "confirmed") {
+      return "confirmed";
     }
 
-
-    /*
-     * Normal / booked slot
-     */
-
-    if (slot.appointment_id) {
-
-      setSelectedRequest({
-        appointment_id:
-          slot.appointment_id,
-
-        patient_id:
-          slot.patient_id,
-
-        patient_name:
-          slot.patient_name,
-
-        patient_code:
-          slot.patient_code,
-
-        requested_at:
-          slot.requested_at,
-
-        type:
-          slot.type,
-      });
-
-      return;
+    if (status === "waiting" || status === "pending") {
+      return "pending";
     }
 
-
-    /*
-     * No appointment attached
-     */
-
-    setSelectedRequest(null);
+    return status || "available";
   };
 
-
-  /*
-   * Select patient/request
-   */
-
-  const handleSelectRequest = (
-    request
-  ) => {
-
-    setSelectedRequest(request);
-
+  const getPatientName = (slot) => {
+    return slot.patient_name || slot.patient?.name || "Available";
   };
 
+  const getPatientCode = (slot) => {
+    return (
+      slot.patient_code ||
+      slot.patient?.patient_code ||
+      ""
+    );
+  };
 
-  /*
-   * Confirm appointment
-   */
+  const getSlotRange = (slot) => {
+    return (
+      slot.slot_range ||
+      slot.time_range ||
+      slot.formatted_time ||
+      slot.time ||
+      "--"
+    );
+  };
 
-  const handleConfirm = async () => {
-
-    if (
-      !selectedRequest ||
-      !selectedSlot
-    ) {
-      return;
-    }
-
+  const handleConfirm = async (slot) => {
+    if (!slot?.appointment_id || loading) return;
 
     try {
-
       await dispatch(
         confirmFrontOfficeAppointment({
           doctor_id: doctorId,
-
-          appointment_id:
-            selectedRequest.appointment_id,
+          appointment_id: slot.appointment_id,
         })
       ).unwrap();
-
-
-      /*
-       * Success
-       */
 
       navigate(
         "/frontoffice/pending-actions/appointment-confirmations"
       );
-
     } catch (err) {
-
       console.error(
         "Appointment confirmation failed:",
         err
       );
-
     }
-
   };
-
-
-  /*
-   * Status helpers
-   */
-
-  const getStatusLabel = (
-    status
-  ) => {
-
-    if (status === "booked") {
-      return "confirmed";
-    }
-
-    if (status === "waiting") {
-      return "Pending";
-    }
-
-    if (status === "conflict") {
-      return "Conflict";
-    }
-
-    return status || "default";
-
-  };
-
 
   return (
-
-    <DashboardLayout
-      role="frontoffice"
-    >
-
-      <div
-        className="
-          min-h-screen
-          bg-[#F7F7F7]
-          px-6
-          py-5
-        "
-      >
-
+    <DashboardLayout role="frontoffice">
+      <div className="min-h-screen bg-white px-6 py-5 text-[#4B2E2A]">
         {/* ========================================= */}
-        {/* SUCCESS MESSAGE */}
+        {/* BREADCRUMB */}
         {/* ========================================= */}
 
-        {message && (
-
-          <div
-            className="
-              mb-4
-              rounded-xl
-              border
-              border-green-200
-              bg-green-50
-              px-4
-              py-3
-              text-sm
-              text-green-700
-            "
+        <div className="mb-4 flex items-center gap-2 text-[14px]">
+          <button
+            type="button"
+            onClick={() =>
+              navigate(
+                "/frontoffice/pending-actions/appointment-confirmations"
+              )
+            }
+            className="font-medium text-[#2F2926] hover:text-[#8A4F32]"
           >
-            {message}
-          </div>
+            Pending Actions
+          </button>
 
-        )}
+          <span className="text-[#8A817B]">›</span>
 
+          <span className="font-medium text-[#2F2926]">
+            Appointment Confirmation
+          </span>
 
-        {/* ========================================= */}
-        {/* ERROR */}
-        {/* ========================================= */}
-
-        {error && (
-
-          <div
-            className="
-              mb-4
-              rounded-xl
-              border
-              border-red-200
-              bg-red-50
-              px-4
-              py-3
-              text-sm
-              text-red-600
-            "
-          >
-            {typeof error === "string"
-              ? error
-              : "Failed to load appointment confirmation."}
-          </div>
-
-        )}
-
-
-        {/* ========================================= */}
-        {/* PAGE HEADER */}
-        {/* ========================================= */}
-
-        <div
-          className="
-            mb-3
-            flex
-            items-center
-            justify-between
-          "
-        >
-
-          <div>
-
-            <h1
-              className="
-                text-[21px]
-                font-semibold
-                text-[#2F2926]
-              "
-            >
-              Appointment Confirmation
-            </h1>
-
-
-            <div
-              className="
-                mt-1
-                flex
-                items-center
-                gap-2
-                text-[13px]
-                text-[#634238]
-              "
-            >
-
-              <span
-                className="
-                  h-2
-                  w-2
-                  rounded-full
-                  bg-[#4B2E2A]
-                "
-              />
-
-              {pendingPatientCount} Patients
-
-            </div>
-
-          </div>
-
+          {doctor?.doctor_name && (
+            <>
+              <span className="text-[#8A817B]">›</span>
+              <span className="font-medium text-[#2F2926]">
+                {doctor.doctor_name}
+              </span>
+            </>
+          )}
         </div>
 
+        {/* ========================================= */}
+        {/* PAGE TITLE */}
+        {/* ========================================= */}
+
+        <div className="border-b border-[#E8DDD6] pb-4">
+          <h1 className="text-[21px] font-semibold text-[#2F2926]">
+            Appointment Confirmation
+          </h1>
+
+          <div className="mt-1 flex items-center gap-2 text-[13px] text-[#634238]">
+            <span className="h-2 w-2 rounded-full bg-[#4B2E2A]" />
+            {patientCount} Patients
+          </div>
+        </div>
 
         {/* ========================================= */}
         {/* DOCTOR INFORMATION */}
         {/* ========================================= */}
 
         {doctor && (
-
-          <div
-            className="
-              mb-5
-              flex
-              items-center
-              border-b
-              border-[#E8DDD6]
-              pb-4
-            "
-          >
-
+          <div className="flex items-center border-b border-[#E8DDD6] py-4">
             {/* Doctor */}
-
-            <div
-              className="
-                flex
-                min-w-[250px]
-                items-center
-                gap-3
-              "
-            >
-
-              <div
-                className="
-                  h-[58px]
-                  w-[58px]
-                  overflow-hidden
-                  rounded-full
-                  border
-                  border-[#E8DDD6]
-                  bg-[#FFF7F1]
-                "
-              >
-
+            <div className="flex min-w-[280px] items-center gap-3">
+              <div className="h-[58px] w-[58px] overflow-hidden rounded-full border border-[#E8DDD6] bg-[#FFF7F1]">
                 {doctor.profile_image ? (
-
                   <img
-                    src={
-                      doctor.profile_image
-                    }
-                    alt={
-                      doctor.doctor_name
-                    }
-                    className="
-                      h-full
-                      w-full
-                      object-cover
-                    "
+                    src={doctor.profile_image}
+                    alt={doctor.doctor_name || "Doctor"}
+                    className="h-full w-full object-cover"
                   />
-
                 ) : (
-
-                  <div
-                    className="
-                      flex
-                      h-full
-                      w-full
-                      items-center
-                      justify-center
-                      text-lg
-                      font-semibold
-                      text-[#8A4F32]
-                    "
-                  >
-                    D
+                  <div className="flex h-full w-full items-center justify-center text-lg font-semibold text-[#8A4F32]">
+                    {doctor.doctor_name?.charAt(0) || "D"}
                   </div>
-
                 )}
-
               </div>
 
-
               <div>
-
-                <h2
-                  className="
-                    text-[15px]
-                    font-semibold
-                    text-[#2F2926]
-                  "
-                >
+                <h2 className="text-[15px] font-semibold text-[#2F2926]">
                   {doctor.doctor_name}
                 </h2>
 
-
-                <p
-                  className="
-                    text-[12px]
-                    text-[#159A9C]
-                  "
-                >
+                <p className="text-[12px] text-[#159A9C]">
                   {doctor.specialization}
                 </p>
 
-
-                <p
-                  className="
-                    mt-1
-                    text-[11px]
-                    text-[#8A817B]
-                  "
-                >
+                <p className="mt-1 text-[11px] text-[#8A817B]">
                   🎓 {doctor.qualification}
+                  {doctor.experience
+                    ? ` • ${doctor.experience}`
+                    : ""}
                 </p>
-
               </div>
-
             </div>
 
-
-            {/* Consultation type */}
-
-            <div
-              className="
-                min-w-[190px]
-                border-l
-                border-[#E8DDD6]
-                px-5
-              "
-            >
-
-              <p
-                className="
-                  text-[11px]
-                  text-[#7D726B]
-                "
-              >
+            {/* Consultation Type */}
+            <div className="min-w-[220px] border-l border-[#E8DDD6] px-5">
+              <p className="text-[11px] text-[#7D726B]">
                 Consultation Type
               </p>
 
-              <p
-                className="
-                  mt-1
-                  text-[14px]
-                  font-semibold
-                  text-[#4B2E2A]
-                "
-              >
-                {doctor.consultation_type}
+              <p className="mt-1 text-[14px] font-semibold text-[#4B2E2A]">
+                {doctor.consultation_type || "--"}
               </p>
-
             </div>
 
-
             {/* Fees */}
-
-            <div
-              className="
-                min-w-[150px]
-                border-l
-                border-[#E8DDD6]
-                px-5
-              "
-            >
-
-              <p
-                className="
-                  text-[11px]
-                  text-[#7D726B]
-                "
-              >
+            <div className="min-w-[165px] border-l border-[#E8DDD6] px-5">
+              <p className="text-[11px] text-[#7D726B]">
                 Consultation Fees
               </p>
 
-              <p
-                className="
-                  mt-1
-                  text-[14px]
-                  font-semibold
-                  text-[#4B2E2A]
-                "
-              >
+              <p className="mt-1 text-[14px] font-semibold text-[#4B2E2A]">
                 {doctor.formatted_fees ||
-                  `₹${doctor.consultation_fees}`}
+                  (doctor.consultation_fees != null
+                    ? `₹${doctor.consultation_fees}`
+                    : "--")}
               </p>
-
             </div>
 
-
-            {/* Available slots */}
-
-            <div
-              className="
-                min-w-[130px]
-                border-l
-                border-[#E8DDD6]
-                px-5
-              "
-            >
-
-              <p
-                className="
-                  text-[11px]
-                  text-[#7D726B]
-                "
-              >
+            {/* Available Slots */}
+            <div className="min-w-[145px] border-l border-[#E8DDD6] px-5">
+              <p className="text-[11px] text-[#7D726B]">
                 Available Slots
               </p>
 
-              <p
-                className="
-                  mt-1
-                  text-[14px]
-                  font-semibold
-                  text-[#4B2E2A]
-                "
-              >
+              <p className="mt-1 text-[14px] font-semibold text-[#4B2E2A]">
                 {String(
-                  doctor.available_slots
+                  doctor.available_slots ?? schedule.length
                 ).padStart(2, "0")}
               </p>
-
             </div>
 
-
-            {/* Working hours */}
-
-            <div
-              className="
-                border-l
-                border-[#E8DDD6]
-                px-5
-              "
-            >
-
-              <p
-                className="
-                  text-[11px]
-                  text-[#7D726B]
-                "
-              >
+            {/* Working Hours */}
+            <div className="border-l border-[#E8DDD6] px-5">
+              <p className="text-[11px] text-[#7D726B]">
                 Working Hours
               </p>
 
-              <p
-                className="
-                  mt-1
-                  whitespace-nowrap
-                  text-[14px]
-                  font-semibold
-                  text-[#4B2E2A]
-                "
-              >
-                {doctor.working_hours}
+              <p className="mt-1 whitespace-nowrap text-[14px] font-semibold text-[#4B2E2A]">
+                {doctor.working_hours || "--"}
               </p>
-
             </div>
-
           </div>
-
         )}
 
+        {/* ========================================= */}
+        {/* SUCCESS */}
+        {/* ========================================= */}
+
+        {message && (
+          <div className="mt-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-[11px] text-green-700">
+            {message}
+          </div>
+        )}
 
         {/* ========================================= */}
-        {/* MAIN CONTENT */}
+        {/* ERROR */}
         {/* ========================================= */}
 
-        <div
-          className="
-            grid
-            grid-cols-[1.65fr_1fr]
-            gap-4
-          "
-        >
+        {(error || confirmationError) && (
+          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-[11px] text-red-600">
+            {typeof error === "string"
+              ? error
+              : error?.message ||
+                confirmationError?.message ||
+                (typeof confirmationError === "string"
+                  ? confirmationError
+                  : "Failed to load appointment confirmation.")}
+          </div>
+        )}
 
+        {/* ========================================= */}
+        {/* SCHEDULE */}
+        {/* ========================================= */}
 
-          {/* ======================================= */}
-          {/* LEFT - SCHEDULE */}
-          {/* ======================================= */}
-
-          <div
-            className="
-              overflow-hidden
-              rounded-[15px]
-              border
-              border-[#E8DDD6]
-              bg-white
-            "
-          >
-
-            {/* Header */}
-
-            <div
-              className="
-                grid
-                grid-cols-[108px_1fr]
-                border-b
-                border-[#E8DDD6]
-                bg-[#FFF9F4]
-                text-[11px]
-                font-medium
-                text-[#4B2E2A]
-              "
-            >
-
-              <div
-                className="
-                  px-5
-                  py-3
-                  text-center
-                "
-              >
-                Time
-              </div>
-
-
-              <div
-                className="
-                  border-l
-                  border-[#E8DDD6]
-                  px-5
-                  py-3
-                "
-              >
-                Schedule
-              </div>
-
+        <div className="mt-5 overflow-hidden rounded-[15px] border border-[#E8DDD6] bg-white">
+          {/* Header */}
+          <div className="grid grid-cols-[120px_1fr] border-b border-[#E8DDD6] bg-[#FFF9F4] text-[11px] font-medium text-[#4B2E2A]">
+            <div className="px-5 py-3 text-center">
+              Time
             </div>
 
-
-            {/* Schedule rows */}
-
-            <div>
-
-              {schedule.map(
-                (slot, index) => {
-
-                  const isConflict =
-                    slot.status ===
-                    "conflict";
-
-                  const isSelected =
-                    selectedSlot?.time ===
-                    slot.time;
-
-                  const isExpanded =
-                    expandedSlots[slot.time];
-
-
-                  return (
-
-                    <div
-                      key={
-                        slot.appointment_id ||
-                        `${slot.time}-${index}`
-                      }
-                      className="
-                        grid
-                        grid-cols-[108px_1fr]
-                        border-b
-                        border-[#EEE4DD]
-                        last:border-b-0
-                      "
-                    >
-
-                      {/* Time */}
-
-                      <div
-                        className="
-                          flex
-                          items-start
-                          justify-center
-                          px-3
-                          py-5
-                          text-[12px]
-                          font-medium
-                          text-[#4B2E2A]
-                        "
-                      >
-                        {slot.time}
-                      </div>
-
-
-                      {/* Schedule */}
-
-                      <div
-                        className="
-                          border-l
-                          border-[#EEE4DD]
-                          p-3
-                        "
-                      >
-
-                        {isConflict ? (
-
-                          <div
-                            className={`
-                              rounded-xl
-                              border
-                              border-dashed
-                              border-red-300
-                              bg-[#FFF9F8]
-                              p-3
-                              ${
-                                isSelected
-                                  ? "ring-1 ring-[#D9776A]"
-                                  : ""
-                              }
-                            `}
-                          >
-
-                            {/* Conflict header */}
-
-                            <div
-                              className="
-                                flex
-                                items-center
-                                justify-between
-                              "
-                            >
-
-                              <div>
-
-                                <p
-                                  className="
-                                    text-[12px]
-                                    font-medium
-                                    text-red-600
-                                  "
-                                >
-                                  {slot.time}
-                                  {" - "}
-                                  {slot.time}
-                                </p>
-
-
-                                <div
-                                  className="
-                                    mt-1
-                                    flex
-                                    items-center
-                                    gap-1
-                                    text-[11px]
-                                    text-red-600
-                                  "
-                                >
-
-                                  <HiOutlineExclamationCircle
-                                    size={14}
-                                  />
-
-                                  Multiple bookings
-                                  for this slot
-
-                                </div>
-
-                              </div>
-
-
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleToggleSlot(
-                                    slot
-                                  )
-                                }
-                                className="
-                                  flex
-                                  items-center
-                                  gap-1
-                                  text-[11px]
-                                  font-medium
-                                  text-[#4B2E2A]
-                                "
-                              >
-
-                                View Requests
-                                {" "}
-                                (
-                                {slot.requests?.length || 0}
-                                )
-
-                                {isExpanded ? (
-
-                                  <HiOutlineChevronUp
-                                    size={14}
-                                  />
-
-                                ) : (
-
-                                  <HiOutlineChevronDown
-                                    size={14}
-                                  />
-
-                                )}
-
-                              </button>
-
-                            </div>
-
-
-                            {/* Requests */}
-
-                            {isExpanded && (
-
-                              <div className="mt-3 space-y-2">
-
-                                {slot.requests?.length > 0 ? (
-
-                                  slot.requests.map(
-                                    (request) => (
-
-                                      <button
-                                        key={
-                                          request.appointment_id
-                                        }
-                                        type="button"
-                                        onClick={() => {
-
-                                          setSelectedSlot(
-                                            slot
-                                          );
-
-                                          handleSelectRequest(
-                                            request
-                                          );
-
-                                        }}
-                                        className={`
-                                          w-full
-                                          rounded-xl
-                                          border
-                                          p-3
-                                          text-left
-                                          transition
-                                          ${
-                                            selectedRequest?.appointment_id ===
-                                            request.appointment_id
-                                              ? "border-[#8A4F32] bg-[#FFF2E9]"
-                                              : "border-[#EBDDD5] bg-white"
-                                          }
-                                        `}
-                                      >
-
-                                        <div
-                                          className="
-                                            flex
-                                            items-center
-                                            justify-between
-                                          "
-                                        >
-
-                                          <div>
-
-                                            <p
-                                              className="
-                                                text-[12px]
-                                                font-medium
-                                                text-[#4B2E2A]
-                                              "
-                                            >
-                                              {request.patient_name}
-
-                                              {selectedRequest?.appointment_id ===
-                                                request.appointment_id && (
-
-                                                <span className="ml-1">
-                                                  (Selected)
-                                                </span>
-
-                                              )}
-
-                                            </p>
-
-
-                                            <p
-                                              className="
-                                                mt-1
-                                                text-[10px]
-                                                text-[#81756E]
-                                              "
-                                            >
-                                              Patient ID:{" "}
-                                              {request.patient_code}
-                                              {" | "}
-                                              Requested at{" "}
-                                              {request.requested_at}
-                                            </p>
-
-                                          </div>
-
-
-                                          <span
-                                            className="
-                                              text-[10px]
-                                              text-[#5D4A42]
-                                            "
-                                          >
-                                            {request.type}
-                                          </span>
-
-                                        </div>
-
-                                      </button>
-
-                                    )
-                                  )
-
-                                ) : (
-
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-
-                                      setSelectedSlot(
-                                        slot
-                                      );
-
-                                      if (
-                                        slot.appointment_id
-                                      ) {
-
-                                        setSelectedRequest({
-                                          appointment_id:
-                                            slot.appointment_id,
-
-                                          patient_id:
-                                            slot.patient_id,
-
-                                          patient_name:
-                                            slot.patient_name,
-
-                                          patient_code:
-                                            slot.patient_code,
-
-                                          requested_at:
-                                            slot.requested_at,
-
-                                          type:
-                                            slot.type,
-                                        });
-
-                                      } else {
-
-                                        setSelectedRequest(
-                                          null
-                                        );
-
-                                      }
-
-                                    }}
-                                    className={`
-                                      w-full
-                                      rounded-xl
-                                      border
-                                      p-3
-                                      text-left
-                                      transition
-                                      ${
-                                        selectedSlot?.time ===
-                                        slot.time
-                                          ? "border-[#8A4F32] bg-[#FFF2E9]"
-                                          : "border-[#EBDDD5] bg-white"
-                                      }
-                                    `}
-                                  >
-
-                                    <div
-                                      className="
-                                        flex
-                                        items-center
-                                        justify-between
-                                      "
-                                    >
-
-                                      <div>
-
-                                        <p
-                                          className="
-                                            text-[12px]
-                                            font-medium
-                                            text-[#4B2E2A]
-                                          "
-                                        >
-                                          {slot.patient_name ||
-                                            "Appointment"}
-                                        </p>
-
-
-                                        <p
-                                          className="
-                                            mt-1
-                                            text-[10px]
-                                            text-[#81756E]
-                                          "
-                                        >
-                                          {slot.patient_code
-                                            ? `Patient ID: ${slot.patient_code}`
-                                            : "Select this appointment"}
-                                        </p>
-
-                                      </div>
-
-
-                                      <span
-                                        className="
-                                          text-[10px]
-                                          text-[#5D4A42]
-                                        "
-                                      >
-                                        {slot.type ||
-                                          getStatusLabel(
-                                            slot.status
-                                          )}
-                                      </span>
-
-                                    </div>
-
-                                  </button>
-
-                                )}
-
-                              </div>
-
-                            )}
-
-                          </div>
-
-                        ) : (
-
-                          <button
-                            type="button"
-                            onClick={() => {
-
-                              setSelectedSlot(
-                                slot
-                              );
-
-                              if (
-                                slot.appointment_id
-                              ) {
-
-                                setSelectedRequest({
-                                  appointment_id:
-                                    slot.appointment_id,
-
-                                  patient_id:
-                                    slot.patient_id,
-
-                                  patient_name:
-                                    slot.patient_name,
-
-                                  patient_code:
-                                    slot.patient_code,
-
-                                  requested_at:
-                                    slot.requested_at,
-
-                                  type:
-                                    slot.type,
-                                });
-
-                              } else {
-
-                                setSelectedRequest(
-                                  null
-                                );
-
-                              }
-
-                            }}
-                            className={`
-                              w-full
-                              flex
-                              items-center
-                              justify-between
-                              rounded-xl
-                              border
-                              px-3
-                              py-2.5
-                              text-left
-                              transition
-                              ${
-                                slot.status ===
-                                "booked" || slot.status === "confirmed"
-
-                                  ? "border-green-200 bg-[#EEFFF1]"
-
-                                  : isSelected
-
-                                    ? "border-[#8A4F32] bg-[#FFF2E9]"
-
-                                    : "border-[#F1DDC9] bg-[#FFF8ED]"
-                              }
-                            `}
-                          >
-
-                            <div>
-
-                              <p
-                                className={`
-                                  text-[12px]
-                                  font-medium
-                                  ${
-                                    slot.status ===
-                                    "booked"
-
-                                      ? "text-[#1B5D2B]"
-
-                                      : isSelected
-
-                                        ? "text-[#8A4F32]"
-
-                                        : "text-[#684331]"
-                                  }
-                                `}
-                              >
-                                {slot.slot_range}
-                              </p>
-
-
-                              <p
-                                className="
-                                  mt-1
-                                  text-[11px]
-                                  text-[#4B2E2A]
-                                "
-                              >
-                                {slot.patient_name ||
-                                  "Available appointment"}
-
-                                {slot.type && (
-                                  <>
-                                    {" "}
-                                    ({slot.type})
-                                  </>
-                                )}
-                              </p>
-
-                            </div>
-
-
-                            <div
-                              className="
-                                flex
-                                items-center
-                                gap-1
-                                text-[10px]
-                              "
-                            >
-
-                              <span
-                                className={
-                                  slot.status ===
-                                  "booked"
-                                    ? "text-[#1B5D2B]"
-                                    : "text-[#5D4A42]"
-                                }
-                              >
-                                {getStatusLabel(
-                                  slot.status
-                                )}
-                              </span>
-
-
-                              {slot.status ===
-                              "booked" ? (
-
-                                <HiOutlineCheckCircle
-                                  size={15}
-                                  className="
-                                    text-green-700
-                                  "
-                                />
-
-                              ) : (
-
-                                <HiOutlineClock
-                                  size={15}
-                                  className="
-                                    text-[#8A4F32]
-                                  "
-                                />
-
-                              )}
-
-                            </div>
-
-                          </button>
-
-                        )}
-
-                      </div>
-
-                    </div>
-
-                  );
-
-                }
-              )}
-
+            <div className="border-l border-[#E8DDD6] px-5 py-3">
+              Schedule
             </div>
-
           </div>
 
+          {/* Loading */}
+          {confirmationLoading ? (
+            <div className="px-5 py-12 text-center text-[12px] text-[#8A817B]">
+              Loading schedule...
+            </div>
+          ) : schedule.length === 0 ? (
+            <div className="px-5 py-12 text-center text-[12px] text-[#8A817B]">
+              No appointments available.
+            </div>
+          ) : (
+            schedule.map((slot, index) => {
+              const status = getStatus(slot);
+              const confirmed = status === "confirmed";
+              const pending =
+                status === "pending" &&
+                Boolean(slot.appointment_id);
 
-          {/* ======================================= */}
-          {/* RIGHT SIDE */}
-          {/* ======================================= */}
+              return (
+                <div
+                  key={
+                    slot.appointment_id ||
+                    `${slot.time}-${index}`
+                  }
+                  className="grid min-h-[92px] grid-cols-[120px_1fr] border-b border-[#EEE4DD] last:border-b-0"
+                >
+                  {/* Time */}
+                  <div className="flex items-start justify-center px-3 py-7 text-[12px] font-medium text-[#4B2E2A]">
+                    {slot.time || "--"}
+                  </div>
 
-          <div
-            className="
-              space-y-4
-            "
-          >
-
-
-            {/* ===================================== */}
-            {/* SELECT PATIENT */}
-            {/* ===================================== */}
-
-            <div
-              className="
-                rounded-[15px]
-                border
-                border-[#E8DDD6]
-                bg-white
-                p-4
-              "
-            >
-
-              {selectedSlot ? (
-
-                <>
-
-                  {/* ================================= */}
-                  {/* CONFLICT ALERT */}
-                  {/* ================================= */}
-
-                  {selectedSlot.status ===
-                    "conflict" && (
-
+                  {/* Schedule */}
+                  <div className="border-l border-[#EEE4DD] p-3">
                     <div
-                      className="
-                        rounded-lg
-                        border
-                        border-red-100
-                        bg-[#FFF5F3]
-                        px-3
-                        py-3
-                        text-[11px]
-                        leading-4
-                        text-red-600
-                      "
+                      className={`
+                        flex min-h-[66px] items-center justify-between rounded-xl border px-3 py-2.5
+                        ${
+                          confirmed
+                            ? "border-green-200 bg-[#EEFFF1]"
+                            : pending
+                              ? "border-[#EBD5C4] bg-[#FFF8ED]"
+                              : "border-[#E8DDD6] bg-white"
+                        }
+                      `}
                     >
+                      <div>
+                        <p
+                          className={`
+                            text-[12px] font-medium
+                            ${
+                              confirmed
+                                ? "text-[#1B5D2B]"
+                                : pending
+                                  ? "text-[#8A4F32]"
+                                  : "text-[#4B2E2A]"
+                            }
+                          `}
+                        >
+                          {getSlotRange(slot)}
+                        </p>
 
-                      <div
-                        className="
-                          flex
-                          gap-2
-                        "
-                      >
+                        <p className="mt-1 text-[11px] text-[#4B2E2A]">
+                          {getPatientName(slot)}
 
-                        <HiOutlineExclamationCircle
-                          size={15}
-                          className="
-                            mt-[1px]
-                            shrink-0
-                          "
-                        />
+                          {slot.type && (
+                            <>
+                              {" "}
+                              ({slot.type})
+                            </>
+                          )}
+                        </p>
 
-                        <span>
-                          {selectedSlot.alert_message ||
-                            `This time slot has ${
-                              selectedSlot.requests?.length ||
-                              0
-                            } booking requests. Please select one patient to confirm the appointment.`}
-                        </span>
-
+                        {getPatientCode(slot) && (
+                          <p className="mt-0.5 text-[10px] text-[#81756E]">
+                            Patient ID: {getPatientCode(slot)}
+                          </p>
+                        )}
                       </div>
 
-                    </div>
-
-                  )}
-
-
-                  {/* Heading */}
-
-                  <h3
-                    className="
-                      mt-5
-                      border-b
-                      border-[#EEE4DD]
-                      pb-3
-                      text-[13px]
-                      font-medium
-                      text-[#4B2E2A]
-                    "
-                  >
-                    {selectedSlot.status ===
-                    "conflict"
-                      ? "Select Patient to Confirm"
-                      : "Selected Appointment"}
-                  </h3>
-
-
-                  {/* ===================================== */}
-                  {/* SELECTED APPOINTMENT / REQUEST */}
-                  {/* ===================================== */}
-
-                  <div>
-
-                    {selectedSlot.status ===
-                    "conflict" ? (
-
-                      /*
-                       * CONFLICT
-                       * SHOW ALL REQUESTS
-                       */
-
-                      selectedSlot.requests?.map(
-                        (request) => {
-
-                          const selected =
-                            selectedRequest?.appointment_id ===
-                            request.appointment_id;
-
-
-                          return (
-
-                            <button
-                              key={
-                                request.appointment_id
-                              }
-                              type="button"
-                              onClick={() => {
-
-                                setSelectedSlot(
-                                  selectedSlot
-                                );
-
-                                handleSelectRequest(
-                                  request
-                                );
-
-                              }}
-                              className="
-                                flex
-                                w-full
-                                items-center
-                                gap-3
-                                border-b
-                                border-[#EEE4DD]
-                                py-3
-                                text-left
-                              "
-                            >
-
-                              {/* Radio */}
-
-                              <span
-                                className="
-                                  flex
-                                  h-[19px]
-                                  w-[19px]
-                                  shrink-0
-                                  items-center
-                                  justify-center
-                                  rounded-full
-                                  border
-                                  border-[#4B2E2A]
-                                "
-                              >
-
-                                {selected && (
-
-                                  <span
-                                    className="
-                                      h-[9px]
-                                      w-[9px]
-                                      rounded-full
-                                      bg-[#4B2E2A]
-                                    "
-                                  />
-
-                                )}
-
-                              </span>
-
-
-                              {/* Patient */}
-
-                              <div
-                                className="
-                                  flex-1
-                                "
-                              >
-
-                                <p
-                                  className="
-                                    text-[12px]
-                                    font-medium
-                                    text-[#4B2E2A]
-                                  "
-                                >
-                                  {request.patient_name}
-                                </p>
-
-
-                                <p
-                                  className="
-                                    mt-1
-                                    text-[10px]
-                                    text-[#81756E]
-                                  "
-                                >
-                                  Patient ID:{" "}
-                                  {request.patient_code}
-                                </p>
-
-                              </div>
-
-
-                              {/* Requested */}
-
-                              {request.requested_at && (
-
-                                <span
-                                  className="
-                                    rounded-lg
-                                    border
-                                    border-green-200
-                                    bg-green-50
-                                    px-2
-                                    py-1
-                                    text-[9px]
-                                    text-green-700
-                                  "
-                                >
-                                  Requested at{" "}
-                                  {request.requested_at}
-                                </span>
-
-                              )}
-
-                            </button>
-
-                          );
-
-                        }
-
-                      )
-
-                    ) : (
-
-                      /*
-                       * NORMAL / BOOKED SLOT
-                       */
-
-                      selectedRequest ? (
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleSelectRequest(
-                              selectedRequest
-                            )
-                          }
-                          className="
-                            flex
-                            w-full
-                            items-center
-                            gap-3
-                            border-b
-                            border-[#EEE4DD]
-                            py-3
-                            text-left
-                          "
-                        >
-
-                          {/* Radio */}
-
-                          <span
-                            className={`
-                              flex
-                              h-[19px]
-                              w-[19px]
-                              shrink-0
-                              items-center
-                              justify-center
-                              rounded-full
-                              border
-                              ${
-                                selectedSlot.status ===
-                                "booked"
-                                  ? "border-green-700"
-                                  : "border-[#4B2E2A]"
-                              }
-                            `}
-                          >
-
-                            <span
-                              className={`
-                                h-[9px]
-                                w-[9px]
-                                rounded-full
-                                ${
-                                  selectedSlot.status ===
-                                  "booked"
-                                    ? "bg-green-700"
-                                    : "bg-[#4B2E2A]"
-                                }
-                              `}
-                            />
-
-                          </span>
-
-
-                          {/* Patient */}
-
-                          <div
-                            className="
-                              flex-1
-                            "
-                          >
-
-                            <p
-                              className={`
-                                text-[12px]
-                                font-medium
-                                ${
-                                  selectedSlot.status ===
-                                  "booked"
-                                    ? "text-[#1B5D2B]"
-                                    : "text-[#4B2E2A]"
-                                }
-                              `}
-                            >
-                              {selectedRequest.patient_name ||
-                                "Patient"}
-                            </p>
-
-
-                            <p
-                              className="
-                                mt-1
-                                text-[10px]
-                                text-[#81756E]
-                              "
-                            >
-                              Patient ID:{" "}
-                              {selectedRequest.patient_code ||
-                                selectedRequest.patient_id ||
-                                "-"}
-                            </p>
-
-                          </div>
-
-
-                          {/* Appointment type */}
-
-                          {selectedRequest.type && (
-
-                            <span
-                              className={`
-                                rounded-lg
-                                border
-                                px-2
-                                py-1
-                                text-[9px]
-                                ${
-                                  selectedSlot.status ===
-                                  "booked"
-                                    ? "border-green-200 bg-green-50 text-green-700"
-                                    : "border-[#EBDDD5] bg-[#FFF8ED] text-[#684331]"
-                                }
-                              `}
-                            >
-                              {selectedRequest.type}
+                      <div className="flex items-center gap-2">
+                        {confirmed ? (
+                          <>
+                            <span className="text-[10px] text-[#1B5D2B]">
+                              Confirmed
                             </span>
 
-                          )}
-
-                        </button>
-
-                      ) : (
-
-                        <div
-                          className="
-                            py-5
-                            text-center
-                            text-[11px]
-                            text-[#8A817B]
-                          "
-                        >
-                          No appointment is attached
-                          to this slot.
-                        </div>
-
-                      )
-
-                    )}
-
-                  </div>
-
-
-                  {/* ================================= */}
-                  {/* CONFIRM BUTTON */}
-                  {/* ================================= */}
-
-                  <button
-                    type="button"
-                    disabled={
-                      !selectedRequest ||
-                      loading
-                    }
-                    onClick={
-                      handleConfirm
-                    }
-                    className="
-                      mt-5
-                      flex
-                      w-full
-                      items-center
-                      justify-center
-                      gap-2
-                      rounded-xl
-                      bg-[#8A4F32]
-                      py-3
-                      text-[12px]
-                      font-semibold
-                      text-white
-                      transition
-                      hover:bg-[#6F3E29]
-                      disabled:cursor-not-allowed
-                      disabled:opacity-50
-                    "
-                  >
-
-                    {loading
-                      ? "Confirming..."
-                      : "Confirm Appointment"}
-
-                    <HiOutlineArrowRight
-                      size={16}
-                    />
-
-                  </button>
-
-
-                  {/* Notification text */}
-
-                  <div
-                    className="
-                      mt-3
-                      rounded-lg
-                      bg-[#FFF5E8]
-                      px-3
-                      py-3
-                      text-[10px]
-                      leading-4
-                      text-[#684331]
-                    "
-                  >
-                    Once confirmed, the patient will
-                    receive a notification with the
-                    appointment details.
-                  </div>
-
-                </>
-
-              ) : (
-
-                <div
-                  className="
-                    py-10
-                    text-center
-                    text-sm
-                    text-[#8A817B]
-                  "
-                >
-                  Select a conflict slot to view
-                  booking requests.
-                </div>
-
-              )}
-
-            </div>
-
-
-            {/* ===================================== */}
-            {/* APPOINTMENT HISTORY */}
-            {/* ===================================== */}
-
-            <div
-              className="
-                overflow-hidden
-                rounded-[15px]
-                border
-                border-[#E8DDD6]
-                bg-white
-              "
-            >
-
-              <div
-                className="
-                  border-b
-                  border-[#EEE4DD]
-                  px-4
-                  py-4
-                "
-              >
-
-                <h3
-                  className="
-                    text-[13px]
-                    font-semibold
-                    text-[#4B2E2A]
-                  "
-                >
-                  Appointment History with Doctor
-                </h3>
-
-              </div>
-
-
-              <div>
-
-                {history.length === 0 ? (
-
-                  <div
-                    className="
-                      px-4
-                      py-8
-                      text-center
-                      text-[11px]
-                      text-[#8A817B]
-                    "
-                  >
-                    No appointment history found.
-                  </div>
-
-                ) : (
-
-                  history
-                    .slice(0, 5)
-                    .map(
-                      (item) => (
-
-                        <div
-                          key={
-                            item.appointment_id
-                          }
-                          className="
-                            flex
-                            items-center
-                            justify-between
-                            border-b
-                            border-[#EEE4DD]
-                            px-4
-                            py-4
-                            last:border-b-0
-                          "
-                        >
-
-                          <div>
-
-                            <p
-                              className="
-                                text-[12px]
-                                font-medium
-                                text-[#4B2E2A]
-                              "
-                            >
-                              {item.patient_name}
-                            </p>
-
-
-                            <p
-                              className="
-                                mt-1
-                                text-[10px]
-                                text-[#81756E]
-                              "
-                            >
-                              (Patient ID:{" "}
-                              {item.patient_code})
-                            </p>
-
-                          </div>
-
-
-                          <div
-                            className="
-                              text-right
-                            "
+                            <HiOutlineCheckCircle
+                              size={16}
+                              className="text-green-700"
+                            />
+                          </>
+                        ) : pending ? (
+                          <button
+                            type="button"
+                            disabled={loading}
+                            onClick={() =>
+                              handleConfirm(slot)
+                            }
+                            className="flex items-center gap-1.5 rounded-lg bg-[#8A4F32] px-3 py-2 text-[10px] font-medium text-white transition hover:bg-[#6F3E29] disabled:cursor-not-allowed disabled:opacity-50"
                           >
+                            {loading
+                              ? "Confirming..."
+                              : "Confirm"}
 
-                            <p
-                              className="
-                                text-[10px]
-                                text-[#6D625C]
-                              "
-                            >
-                              {item.date}
-                            </p>
+                            {!loading && (
+                              <HiOutlineArrowRight
+                                size={13}
+                              />
+                            )}
+                          </button>
+                        ) : (
+                          <>
+                            <span className="text-[10px] text-[#8A4F32]">
+                              Available
+                            </span>
 
-
-                            <p
-                              className="
-                                mt-1
-                                text-[10px]
-                                text-[#6D625C]
-                              "
-                            >
-                              {item.time}
-                            </p>
-
-                          </div>
-
-                        </div>
-
-                      )
-                    )
-
-                )}
-
-              </div>
-
-
-              {history.length > 5 && (
-
-                <button
-                  type="button"
-                  className="
-                    w-full
-                    border-t
-                    border-[#EEE4DD]
-                    px-4
-                    py-4
-                    text-right
-                    text-[10px]
-                    font-medium
-                    text-[#4B2E2A]
-                  "
-                >
-                  View Details
-                  {" "}
-                  <HiOutlineArrowRight
-                    className="
-                      inline
-                    "
-                    size={13}
-                  />
-                </button>
-
-              )}
-
-            </div>
-
-          </div>
-
+                            <HiOutlineClock
+                              size={16}
+                              className="text-[#8A4F32]"
+                            />
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
-
-
-        {/* ========================================= */}
-        {/* LOADING */}
-        {/* ========================================= */}
-
-        {loading && (
-
-          <div
-            className="
-              fixed
-              bottom-5
-              right-5
-              rounded-xl
-              bg-[#6A3F2D]
-              px-5
-              py-3
-              text-sm
-              font-medium
-              text-white
-              shadow-lg
-            "
-          >
-            Loading...
-          </div>
-
-        )}
-
       </div>
-
     </DashboardLayout>
-
   );
-
 };
-
 
 export default AppointmentConfirmation;
