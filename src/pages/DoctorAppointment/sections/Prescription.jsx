@@ -1,4 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -56,7 +61,7 @@ const Prescription = ({
     } = useSelector(
         (state) => state.consultation
     );
-
+    const prescriptionConsultationRef = useRef(null);
     const [search, setSearch] = useState("");
 
     const [showSearch, setShowSearch] =
@@ -136,13 +141,84 @@ const Prescription = ({
 
     };
     useEffect(() => {
+    console.log(
+        "🔵 Prescription consultation changed:",
+        consultationId
+    );
+
+    // Mark the new consultation immediately.
+    // This prevents the old prescription from being
+    // processed for the new patient.
+    prescriptionConsultationRef.current = consultationId;
+
+    // ALWAYS clear previous patient UI first
+    setEditableMedicines([]);
+    setBackupMedicines([]);
+    setDeletedMedicines([]);
+
+    setHasExistingPrescription(false);
+
+    setSpecialInstructions("");
+    setReviewDate("");
+    setPatientAllergies([]);
+
+    setDosagePopup(null);
+    setDurationPopup(null);
+
+    setSearch("");
+    setShowSearch(false);
+
+    // No consultation
+    if (!consultationId) {
+        console.log("❌ No consultationId");
+        return;
+    }
+
+    console.log(
+        "🚀 GET prescription:",
+        consultationId
+    );
+
+    dispatch(
+        loadPrescription(consultationId)
+    );
+
+}, [
+    consultationId,
+    dispatch
+]);
+    useEffect(() => {
+
+    console.log(
+        "🟣 Prescription response changed:",
+        {
+            consultationId,
+            prescription,
+        }
+    );
+
+    // No consultation selected
+    if (!consultationId) {
+        setEditableMedicines([]);
+        setBackupMedicines([]);
+        setHasExistingPrescription(false);
+        setSpecialInstructions("");
+        setReviewDate("");
+        setPatientAllergies([]);
+
+        return;
+    }
+
+    // IMPORTANT:
+    // If this prescription doesn't exist yet,
+    // this patient has no prescription.
+    if (!prescription) {
 
         console.log(
-            "🔵 Prescription changed:",
+            "📭 No prescription for:",
             consultationId
         );
 
-        // ALWAYS clear previous patient UI first
         setEditableMedicines([]);
         setBackupMedicines([]);
         setDeletedMedicines([]);
@@ -153,176 +229,165 @@ const Prescription = ({
         setReviewDate("");
         setPatientAllergies([]);
 
-        setDosagePopup(null);
-        setDurationPopup(null);
+        return;
+    }
 
-        setSearch("");
-        setShowSearch(false);
+    const items = Array.isArray(prescription)
+        ? prescription
+        : Array.isArray(prescription?.data)
+            ? prescription.data
+            : Array.isArray(prescription?.items)
+                ? prescription.items
+                : [];
 
-        // Then check consultation
-        if (!consultationId) {
-
-            console.log(
-                "❌ No consultationId"
-            );
-
-            return;
-        }
+    // API returned no prescription items
+    if (items.length === 0) {
 
         console.log(
-            "🚀 GET prescription:",
+            "📭 Prescription is empty for:",
             consultationId
         );
 
-        dispatch(
-            loadPrescription(consultationId)
-
-        );
-
-    }, [
-        consultationId,
-        dispatch
-    ]);
-    useEffect(() => {
-        if (!prescription) return;
-
-        const items = Array.isArray(prescription)
-            ? prescription
-            : Array.isArray(prescription?.data)
-                ? prescription.data
-                : Array.isArray(prescription?.items)
-                    ? prescription.items
-                    : [];
-
-        if (items.length === 0) {
-            setEditableMedicines([]);
-            setBackupMedicines([]);
-            setHasExistingPrescription(false);
-            return;
-        }
-
-        const cloned = items.map((item) => {
-            const dosageParts = parseDosage(item.dosage);
-
-            const morning =
-                Number(
-                    item.morning ??
-                    dosageParts.morning
-                ) || 0;
-
-            const afternoon =
-                Number(
-                    item.afternoon ??
-                    dosageParts.afternoon
-                ) || 0;
-
-            const evening =
-                Number(
-                    item.evening ??
-                    dosageParts.evening
-                ) || 0;
-
-            const night =
-                Number(
-                    item.night ??
-                    dosageParts.night
-                ) || 0;
-
-            return {
-                ...item,
-
-                id: item.id,
-
-                product_id:
-                    item.product_id,
-
-                medicine_name:
-                    item.medicine_name,
-
-                category:
-                    item.category,
-
-                price:
-                    Number(item.price) || 0,
-
-                image_url:
-                    item.image_url,
-
-                morning,
-                afternoon,
-                evening,
-                night,
-
-                dosage:
-                    `${morning} - ${afternoon} - ${evening} - ${night}`,
-
-                food:
-                    item.food || "Before Food",
-
-                duration:
-                    item.duration || "30 Days",
-
-                quantity:
-                    Number(item.quantity) || 1,
-
-                frequency:
-                    item.frequency ?? null,
-
-
-            };
-        });
-
-        setEditableMedicines(
-            JSON.parse(JSON.stringify(cloned))
-        );
-
-        setBackupMedicines(
-            JSON.parse(JSON.stringify(cloned))
-        );
-
+        setEditableMedicines([]);
+        setBackupMedicines([]);
         setDeletedMedicines([]);
 
-        setHasExistingPrescription(
-            cloned.length > 0
+        setHasExistingPrescription(false);
+
+        setSpecialInstructions("");
+        setReviewDate("");
+
+        return;
+    }
+
+    const cloned = items.map((item) => {
+
+        const dosageParts =
+            parseDosage(item.dosage);
+
+        const morning =
+            Number(
+                item.morning ??
+                dosageParts.morning
+            ) || 0;
+
+        const afternoon =
+            Number(
+                item.afternoon ??
+                dosageParts.afternoon
+            ) || 0;
+
+        const evening =
+            Number(
+                item.evening ??
+                dosageParts.evening
+            ) || 0;
+
+        const night =
+            Number(
+                item.night ??
+                dosageParts.night
+            ) || 0;
+
+        return {
+            ...item,
+
+            id: item.id,
+
+            product_id:
+                item.product_id,
+
+            medicine_name:
+                item.medicine_name,
+
+            category:
+                item.category,
+
+            price:
+                Number(item.price) || 0,
+
+            image_url:
+                item.image_url,
+
+            morning,
+            afternoon,
+            evening,
+            night,
+
+            dosage:
+                `${morning} - ${afternoon} - ${evening} - ${night}`,
+
+            food:
+                item.food || "Before Food",
+
+            duration:
+                item.duration || "30 Days",
+
+            quantity:
+                Number(item.quantity) || 1,
+
+            frequency:
+                item.frequency ?? null,
+        };
+    });
+
+    console.log(
+        "✅ Setting prescription for:",
+        consultationId,
+        cloned
+    );
+
+    setEditableMedicines(
+        JSON.parse(JSON.stringify(cloned))
+    );
+
+    setBackupMedicines(
+        JSON.parse(JSON.stringify(cloned))
+    );
+
+    setDeletedMedicines([]);
+
+    setHasExistingPrescription(
+        cloned.length > 0
+    );
+
+    setSpecialInstructions(
+        prescription?.special_instructions ||
+        prescription?.specialInstructions ||
+        items[0]?.special_instructions ||
+        ""
+    );
+
+    setReviewDate(
+        prescription?.review_date ||
+        prescription?.reviewDate ||
+        items[0]?.review_date ||
+        ""
+    );
+
+    const prescriptionAllergies =
+        items.find(
+            (item) =>
+                Array.isArray(
+                    item.patient_allergies
+                ) &&
+                item.patient_allergies.length > 0
+        )?.patient_allergies || [];
+
+    if (
+        !chiefComplaints?.allergies?.length &&
+        !chiefComplaints?.allergies_conditions?.length
+    ) {
+        setPatientAllergies(
+            prescriptionAllergies
         );
+    }
 
-        setSpecialInstructions(
-            prescription?.special_instructions ||
-            prescription?.specialInstructions ||
-            items[0]?.special_instructions ||
-            ""
-        );
-
-        setReviewDate(
-            prescription?.review_date ||
-            prescription?.reviewDate ||
-            items[0]?.review_date ||
-            ""
-        );
-
-        // Prescription API allergies
-        const prescriptionAllergies =
-            items.find(
-                (item) =>
-                    Array.isArray(item.patient_allergies) &&
-                    item.patient_allergies.length > 0
-            )?.patient_allergies || [];
-
-        // Only use prescription allergies if
-        // Chief Complaints allergies are not available.
-        if (
-            !chiefComplaints?.allergies?.length &&
-            !chiefComplaints?.allergies_conditions?.length
-        ) {
-            setPatientAllergies(
-                prescriptionAllergies
-            );
-        }
-
-    }, [
-        prescription,
-        chiefComplaints
-    ]);
+}, [
+    prescription,
+    chiefComplaints,
+    consultationId
+]);
     useEffect(() => {
 
         const savedChiefComplaintAllergies =

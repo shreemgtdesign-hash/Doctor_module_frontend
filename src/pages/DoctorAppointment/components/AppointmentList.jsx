@@ -391,16 +391,16 @@ const AppointmentList = ({
 
     <div
       className="
-        flex
-        h-full
-        min-h-0
-        flex-col
-        rounded-[30px]
-        border
-        border-[#E7DBD3]
-        bg-white
-        p-6
-      "
+    flex
+    h-[720px]
+    min-h-0
+    flex-col
+    rounded-[30px]
+    border
+    border-[#E7DBD3]
+    bg-white
+    p-6
+  "
     >
 
       {/* ================================= */}
@@ -486,7 +486,7 @@ const AppointmentList = ({
         {/* ================================= */}
 
         {loading &&
-        appointments.length === 0 ? (
+          appointments.length === 0 ? (
 
           <div
             className="
@@ -553,23 +553,23 @@ const AppointmentList = ({
             {(search ||
               activeFilter) && (
 
-              <button
-                type="button"
-                onClick={
-                  clearSearchAndFilter
-                }
-                className="
+                <button
+                  type="button"
+                  onClick={
+                    clearSearchAndFilter
+                  }
+                  className="
                   mt-3
                   text-sm
                   font-semibold
                   text-[#8B573D]
                   hover:underline
                 "
-              >
-                Clear search and filters
-              </button>
+                >
+                  Clear search and filters
+                </button>
 
-            )}
+              )}
 
           </div>
 

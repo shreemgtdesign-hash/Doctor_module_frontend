@@ -252,8 +252,8 @@ const PatientOverview = ({
     currentVitals?.is_today
       ? "Today"
       : currentVitals?.formatted_date ||
-        currentVitals?.label ||
-        "View Past Vitals";
+      currentVitals?.label ||
+      "View Past Vitals";
 
 
   // ==========================================
@@ -446,10 +446,10 @@ const PatientOverview = ({
 
       <div
         className="
-          grid
-          grid-cols-4
-          gap-3
-        "
+    grid
+    grid-cols-4
+    gap-2
+  "
       >
 
         {/* ======================================
@@ -458,19 +458,19 @@ const PatientOverview = ({
 
         <div
           className="
-            row-span-2
-            flex
-            min-h-[216px]
-            flex-col
-            items-center
-            justify-between
-            rounded-2xl
-            border
-            border-[#EBDDD2]
-            bg-[#FFFBF7]
-            px-4
-            py-4
-          "
+    row-span-2
+    flex
+    min-h-[180px]
+    flex-col
+    items-center
+    justify-between
+    rounded-xl
+    border
+    border-[#EBDDD2]
+    bg-[#FFFBF7]
+    px-3
+    py-3
+  "
         >
 
           <div
@@ -480,13 +480,14 @@ const PatientOverview = ({
           >
 
             <p
-              className="
-                text-[15px]
-                font-semibold
-                leading-5
-                text-[#59352C]
-              "
-            >
+  className="
+    text-center
+    text-[13px]
+    font-semibold
+    leading-4
+    text-[#59352C]
+  "
+>
               Ayurvedic
               <br />
               Body Type
@@ -496,12 +497,12 @@ const PatientOverview = ({
 
 
           <p
-            className="
-              text-[17px]
-              font-semibold
-              text-[#59352C]
-            "
-          >
+  className="
+    text-[15px]
+    font-semibold
+    text-[#59352C]
+  "
+>
             {currentVitals?.body_type ||
               currentVitals?.ayurvedic_body_type ||
               patientWellness?.ayurvedic_body_type ||
@@ -521,8 +522,8 @@ const PatientOverview = ({
           >
 
             <svg
-              width="72"
-              height="55"
+              width="55"
+              height="42"
               viewBox="0 0 72 55"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -914,10 +915,9 @@ const PatientOverview = ({
                           text-[#59352C]
                           transition
                           hover:bg-[#FFF8F3]
-                          ${
-                            isSelected
-                              ? "bg-[#FFF4EC] font-semibold"
-                              : ""
+                          ${isSelected
+                            ? "bg-[#FFF4EC] font-semibold"
+                            : ""
                           }
                         `}
                       >
@@ -1022,7 +1022,7 @@ const PatientOverview = ({
 
 
 
-      
+
 
       <ConsultationGrid
         activeSection={
@@ -1034,7 +1034,7 @@ const PatientOverview = ({
       />
 
 
-      
+
 
       <FinishButton
         appointmentId={

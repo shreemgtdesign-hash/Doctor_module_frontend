@@ -765,6 +765,7 @@ const consultationSlice = createSlice({
                 loadPatientWellness.rejected,
                 (state, action) => {
 
+                    
                     state.loading = false;
 
                     state.error =

@@ -524,15 +524,17 @@ const PatientProfile = forwardRef(
       <div
         ref={ref}
         className="
-          h-full
-          min-h-[720px]
-          min-w-0
-          rounded-[30px]
-          border
-          border-[#E7DBD3]
-          bg-white
-          p-8
-        "
+    h-[720px]
+    min-h-0
+    min-w-0
+    overflow-y-auto
+    rounded-[30px]
+    border
+    border-[#E7DBD3]
+    bg-white
+    p-8
+    hide-scrollbar
+  "
       >
 
         {/* ================================= */}
@@ -820,7 +822,7 @@ const PatientProfile = forwardRef(
                 appointment={
                   selectedPatient
                 }
-                 onBack={() =>
+                onBack={() =>
                   goToSection(
                     "history",
                     "section"
