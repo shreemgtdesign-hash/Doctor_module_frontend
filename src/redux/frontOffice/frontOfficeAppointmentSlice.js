@@ -29,6 +29,7 @@ import {
     confirmFrontOfficeAppointmentRoom,
     loadFrontOfficeHomevisitAppointmentConfirmation,
     loadFrontOfficeTherapyAppointmentConfirmation,
+    loadHomevisitConfirmationList,
 } from "./frontOfficeAppointmentThunk";
 
 const initialState = {
@@ -51,40 +52,40 @@ const initialState = {
     // UPCOMING APPOINTMENTS
     // ==========================================
     // ==========================================
-// NORMAL APPOINTMENT CONFIRMATION
-// ==========================================
+    // NORMAL APPOINTMENT CONFIRMATION
+    // ==========================================
 
-confirmation: null,
-confirmationLoading: false,
-confirmationError: null,
-
-
-// ==========================================
-// THERAPY CONFIRMATION
-// ==========================================
-
-therapyConfirmation: null,
-therapyConfirmationLoading: false,
-therapyConfirmationError: null,
+    confirmation: null,
+    confirmationLoading: false,
+    confirmationError: null,
 
 
-// ==========================================
-// HOME VISIT CONFIRMATION
-// ==========================================
+    // ==========================================
+    // THERAPY CONFIRMATION
+    // ==========================================
 
-homevisitConfirmation: null,
-homevisitConfirmationLoading: false,
-homevisitConfirmationError: null,
+    therapyConfirmation: null,
+    therapyConfirmationLoading: false,
+    therapyConfirmationError: null,
 
 
-// ==========================================
-// ROOM CONFIRMATION
-// ==========================================
+    // ==========================================
+    // HOME VISIT CONFIRMATION
+    // ==========================================
 
-confirmingRoomAppointment: false,
-roomAppointmentSuccess: false,
-roomAppointmentMessage: "",
-roomAppointmentError: null,
+    homevisitConfirmation: null,
+    homevisitConfirmationLoading: false,
+    homevisitConfirmationError: null,
+
+
+    // ==========================================
+    // ROOM CONFIRMATION
+    // ==========================================
+
+    confirmingRoomAppointment: false,
+    roomAppointmentSuccess: false,
+    roomAppointmentMessage: "",
+    roomAppointmentError: null,
     upcomingAppointments: [],
     upcomingAppointmentsLoading: false,
     upcomingAppointmentsError: null,
@@ -107,7 +108,13 @@ roomAppointmentError: null,
     // ==========================================
     // APPOINTMENT CONFIRMATION DETAILS
     // ==========================================
+    // ==========================================
+    // HOME VISIT CONFIRMATION LIST
+    // ==========================================
 
+    homevisitConfirmationList: [],
+    homevisitConfirmationListLoading: false,
+    homevisitConfirmationListError: null,
     confirmation: null,
     confirmationLoading: false,
     confirmationError: null,
@@ -1385,115 +1392,169 @@ const frontOfficeAppointmentSlice = createSlice({
         // UPCOMING APPOINTMENTS LIST
         // ==========================================
         // ==========================================
-// LOAD THERAPY CONFIRMATION
+        // LOAD THERAPY CONFIRMATION
+        // ==========================================
+
+        builder
+
+            .addCase(
+                loadFrontOfficeTherapyAppointmentConfirmation.pending,
+                (state) => {
+
+                    state.therapyConfirmationLoading =
+                        true;
+
+                    state.therapyConfirmationError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                loadFrontOfficeTherapyAppointmentConfirmation.fulfilled,
+                (state, action) => {
+
+                    state.therapyConfirmationLoading =
+                        false;
+
+                    state.therapyConfirmationError =
+                        null;
+
+                    state.therapyConfirmation =
+                        action.payload?.data ||
+                        action.payload ||
+                        null;
+
+                }
+            )
+
+            .addCase(
+                loadFrontOfficeTherapyAppointmentConfirmation.rejected,
+                (state, action) => {
+
+                    state.therapyConfirmationLoading =
+                        false;
+
+                    state.therapyConfirmation =
+                        null;
+
+                    state.therapyConfirmationError =
+                        action.payload?.message ||
+                        action.payload ||
+                        "Failed to load therapy confirmation.";
+
+                }
+            );
+
+
+        // ==========================================
+        // LOAD HOME VISIT CONFIRMATION
+        // ==========================================
+        // ==========================================
+// HOME VISIT CONFIRMATION LIST
 // ==========================================
 
 builder
 
     .addCase(
-        loadFrontOfficeTherapyAppointmentConfirmation.pending,
+        loadHomevisitConfirmationList.pending,
         (state) => {
 
-            state.therapyConfirmationLoading =
+            state.homevisitConfirmationListLoading =
                 true;
 
-            state.therapyConfirmationError =
+            state.homevisitConfirmationListError =
                 null;
+
+            state.homevisitConfirmationList =
+                [];
 
         }
     )
 
     .addCase(
-        loadFrontOfficeTherapyAppointmentConfirmation.fulfilled,
+        loadHomevisitConfirmationList.fulfilled,
         (state, action) => {
 
-            state.therapyConfirmationLoading =
+            state.homevisitConfirmationListLoading =
                 false;
 
-            state.therapyConfirmationError =
+            state.homevisitConfirmationListError =
                 null;
 
-            state.therapyConfirmation =
+            state.homevisitConfirmationList =
                 action.payload?.data ||
-                action.payload ||
-                null;
+                [];
 
         }
     )
 
     .addCase(
-        loadFrontOfficeTherapyAppointmentConfirmation.rejected,
+        loadHomevisitConfirmationList.rejected,
         (state, action) => {
 
-            state.therapyConfirmationLoading =
+            state.homevisitConfirmationListLoading =
                 false;
 
-            state.therapyConfirmation =
-                null;
-
-            state.therapyConfirmationError =
-                action.payload?.message ||
+            state.homevisitConfirmationListError =
                 action.payload ||
-                "Failed to load therapy confirmation.";
+                "Failed to load home visit confirmation list.";
+
+            state.homevisitConfirmationList =
+                [];
 
         }
     );
+        builder
 
+            .addCase(
+                loadFrontOfficeHomevisitAppointmentConfirmation.pending,
+                (state) => {
 
-// ==========================================
-// LOAD HOME VISIT CONFIRMATION
-// ==========================================
+                    state.homevisitConfirmationLoading =
+                        true;
 
-builder
+                    state.homevisitConfirmationError =
+                        null;
 
-    .addCase(
-        loadFrontOfficeHomevisitAppointmentConfirmation.pending,
-        (state) => {
+                }
+            )
 
-            state.homevisitConfirmationLoading =
-                true;
+            .addCase(
+                loadFrontOfficeHomevisitAppointmentConfirmation.fulfilled,
+                (state, action) => {
 
-            state.homevisitConfirmationError =
-                null;
+                    state.homevisitConfirmationLoading =
+                        false;
 
-        }
-    )
+                    state.homevisitConfirmationError =
+                        null;
 
-    .addCase(
-        loadFrontOfficeHomevisitAppointmentConfirmation.fulfilled,
-        (state, action) => {
+                    state.homevisitConfirmation =
+                        action.payload?.data ||
+                        action.payload ||
+                        null;
 
-            state.homevisitConfirmationLoading =
-                false;
+                }
+            )
 
-            state.homevisitConfirmationError =
-                null;
+            .addCase(
+                loadFrontOfficeHomevisitAppointmentConfirmation.rejected,
+                (state, action) => {
 
-            state.homevisitConfirmation =
-                action.payload?.data ||
-                action.payload ||
-                null;
+                    state.homevisitConfirmationLoading =
+                        false;
 
-        }
-    )
+                    state.homevisitConfirmation =
+                        null;
 
-    .addCase(
-        loadFrontOfficeHomevisitAppointmentConfirmation.rejected,
-        (state, action) => {
+                    state.homevisitConfirmationError =
+                        action.payload?.message ||
+                        action.payload ||
+                        "Failed to load home visit confirmation.";
 
-            state.homevisitConfirmationLoading =
-                false;
-
-            state.homevisitConfirmation =
-                null;
-
-            state.homevisitConfirmationError =
-                action.payload?.message ||
-                action.payload ||
-                "Failed to load home visit confirmation.";
-
-        }
-    );
+                }
+            );
         builder
 
             .addCase(
@@ -2074,4 +2135,25 @@ export const selectFrontOfficeHomevisitConfirmationError =
     (state) =>
         state.frontOfficeAppointment
             ?.homevisitConfirmationError || null;
+
+// ==========================================
+// HOME VISIT CONFIRMATION LIST SELECTORS
+// ==========================================
+
+export const selectHomevisitConfirmationList =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.homevisitConfirmationList || [];
+
+
+export const selectHomevisitConfirmationListLoading =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.homevisitConfirmationListLoading || false;
+
+
+export const selectHomevisitConfirmationListError =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.homevisitConfirmationListError || null;
 export default frontOfficeAppointmentSlice.reducer;

@@ -29,6 +29,7 @@ import {
     fetchConfirmAppointmentRoom,
     fetchHomevisitAppointmentConfirmation,
     fetchTherapyAppointmentConfirmation,
+    fetchHomevisitConfirmationList,
 } from "../../services/frontOfficeAppointmentService";
 import { fetchAppointmentConfirmationList } from "../../services/therapistAppointmentsService";
 import { fetchPatientReports } from "../../services/doctorAppointmentService";
@@ -911,3 +912,36 @@ export const loadFrontOfficeHomevisitAppointmentConfirmation =
 
         }
     );
+
+// ==========================================
+// LOAD HOME VISIT CONFIRMATION LIST
+// ==========================================
+
+export const loadHomevisitConfirmationList =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/loadHomevisitConfirmationList",
+
+        async (
+            _,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchHomevisitConfirmationList();
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to load home visit confirmation list."
+                );
+
+            }
+
+        }
+
+    );
+

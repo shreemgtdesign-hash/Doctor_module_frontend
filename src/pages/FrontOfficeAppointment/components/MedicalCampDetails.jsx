@@ -407,51 +407,7 @@ const MedicalCampDetails = () => {
             TABS
         ===================================================== */}
 
-        <div className="mb-5 flex border-b border-[#eadfd7]">
-
-          <button
-            type="button"
-            onClick={() =>
-              setActiveTab("today")
-            }
-            className={`px-5 py-3 text-sm font-semibold transition ${activeTab === "today"
-              ? "border-b-2 border-[#6f3f2d] text-[#5e3528]"
-              : "text-[#b4a29b]"
-              }`}
-          >
-            Today
-          </button>
-
-
-          <button
-            type="button"
-            onClick={() =>
-              setActiveTab("upcoming")
-            }
-            className={`px-5 py-3 text-sm font-semibold transition ${activeTab === "upcoming"
-              ? "border-b-2 border-[#6f3f2d] text-[#5e3528]"
-              : "text-[#b4a29b]"
-              }`}
-          >
-            Upcoming Camps
-          </button>
-
-
-          <button
-            type="button"
-            onClick={() =>
-              setActiveTab("past")
-            }
-            className={`px-5 py-3 text-sm font-semibold transition ${activeTab === "past"
-              ? "border-b-2 border-[#6f3f2d] text-[#5e3528]"
-              : "text-[#b4a29b]"
-              }`}
-          >
-            Past Camps
-          </button>
-
-        </div>
-
+     
 
         {/* =====================================================
             CAMP SUMMARY

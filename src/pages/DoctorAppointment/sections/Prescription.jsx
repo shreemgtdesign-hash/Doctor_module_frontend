@@ -25,7 +25,7 @@ import {
     searchPrescriptionProductsThunk,
     savePrescriptionThunk,
     updatePrescriptionThunk,
-    loadDoctorsList,
+    loadAssociateDoctors,
 
 } from "../../../redux/consultation/consultationThunk";
 import ConsultationTimer from "../components/ConsultationTimer";
@@ -57,7 +57,7 @@ const Prescription = ({
         prescriptionSearch,
         chiefComplaints,
         loading,
-        doctorsList,
+        associateDoctors = [],
     } = useSelector(
         (state) => state.consultation
     );
@@ -450,9 +450,17 @@ const Prescription = ({
     // LOAD DOCTORS FOR SELECT DOCTOR
     // ========================================
 
-    useEffect(() => {
-        dispatch(loadDoctorsList());
-    }, [dispatch]);
+    // ========================================
+// LOAD ASSOCIATED DOCTORS FOR SELECT DOCTOR
+// ========================================
+
+useEffect(() => {
+    if (!appointment) return;
+
+    dispatch(
+        loadAssociateDoctors(appointment)
+    );
+}, [appointment, dispatch]);
 
     // ========================================
     // SEARCH MEDICINES
@@ -1034,7 +1042,7 @@ const Prescription = ({
                                             Select Doctor
                                         </option>
 
-                                        {(doctorsList || []).map((doctor) => {
+                                        {(associateDoctors || []).map((doctor) => {
                                             const doctorId =
                                                 doctor.doctor_id ||
                                                 doctor.id;

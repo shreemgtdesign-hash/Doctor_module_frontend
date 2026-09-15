@@ -84,7 +84,7 @@ const PendingActions = () => {
 
             onClick: () => {
                 navigate(
-                    "/frontoffice/home-services/confirmation"
+                   "/frontoffice/pending-actions/home-visit-confirmations"
                 );
             },
         },

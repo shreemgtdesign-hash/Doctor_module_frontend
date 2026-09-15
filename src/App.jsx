@@ -37,6 +37,8 @@ import UpcomingAppointmentsList from "./pages/FrontOfficeDashboard/components/Up
 import PatientAppointmentDetails from "./pages/FrontOfficeAppointment/components/PatientAppointmentdetails";
 import TherapyConfirmation from "./pages/FrontOfficeAppointment/components/TherapyConfirmation";
 import HomevisitConfirmation from "./pages/FrontOfficeAppointment/components/HomevisitConfirmation";
+import HomeVisitConfirmationList from "./pages/FrontOfficeAppointment/components/HomeVisitConfirmationList";
+import HomeVisitConfirmation from "./pages/FrontOfficeAppointment/components/HomevisitConfirmation";
 
 function App() {
   return (
@@ -276,6 +278,19 @@ function App() {
           <HomevisitConfirmation />
         }
       />
+      <Route
+    path="/frontoffice/pending-actions/home-visit-confirmations"
+    element={
+        <HomeVisitConfirmationList />
+    }
+/>
+
+<Route
+    path="/frontoffice/home-visit-confirmation/:doctorId"
+    element={
+        <HomeVisitConfirmation />
+    }
+/>
 
     </Routes>
   );

@@ -26,7 +26,8 @@ import {
     createPatientReport,
     confirmAppointmentRoom,
     getHomevisitAppointmentConfirmation,
-    getTherapyAppointmentConfirmation
+    getTherapyAppointmentConfirmation,
+    getHomevisitConfirmationList
 
 } from "../api/frontOfficeAppoinntmentApi";
 import { getMedicalCampDetails } from "../api/frontOfficeDashboardApi";
@@ -405,3 +406,16 @@ export const fetchHomevisitAppointmentConfirmation =
 
         return response.data;
     };
+
+
+// ==========================================
+// GET HOME VISIT CONFIRMATION LIST
+// ==========================================
+
+export const fetchHomevisitConfirmationList = async () => {
+
+    const response =
+        await getHomevisitConfirmationList();
+
+    return response.data;
+};

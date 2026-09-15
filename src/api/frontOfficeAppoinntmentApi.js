@@ -249,3 +249,8 @@ export const confirmAppointmentRoom = (data) =>
         "/frontoffice/appointments/confirmroom",
         data
     );
+
+export const getHomevisitConfirmationList = () =>
+    api.get(
+        "/frontoffice/homevisit/confirmation-list"
+    );

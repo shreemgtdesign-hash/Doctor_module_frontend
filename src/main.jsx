@@ -11,7 +11,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <App />
       <Toaster
-        position="top-right"
+        position="top-center"
+        containerStyle={{
+          top: 80,
+          left: "70%",
+          transform: "translateX(-50%)",
+          zIndex: 99999,
+        }}
         toastOptions={{
           duration: 5000,
         }}

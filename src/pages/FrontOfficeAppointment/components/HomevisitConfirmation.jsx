@@ -1,7 +1,6 @@
 import {
     useEffect,
     useMemo,
-    useState,
 } from "react";
 
 import {
@@ -10,94 +9,53 @@ import {
 } from "react-redux";
 
 import {
+    useNavigate,
     useParams,
 } from "react-router-dom";
 
 import {
     HiOutlineCheckCircle,
     HiOutlineClock,
-    HiOutlineChevronDown,
-    HiOutlineChevronUp,
-    HiOutlineExclamationCircle,
 } from "react-icons/hi2";
 
 import DashboardLayout
     from "../../../components/Layout/DashboardLayout";
 
 import {
-    confirmFrontOfficeAppointmentRoom,
+    loadFrontOfficeHomevisitAppointmentConfirmation,
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 
-// IMPORTANT:
-// Keep the existing Home Visit GET thunk that is
-// already present in your project here.
-//
-// Example:
-// import {
-//     loadHomeVisitConfirmation,
-// } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 
-
-const HomevisitConfirmation = () => {
+const HomeVisitConfirmation = () => {
 
     const dispatch = useDispatch();
+
+    const navigate = useNavigate();
 
     const {
         doctorId,
     } = useParams();
 
 
-    // ==========================================
-    // REDUX
-    // ==========================================
-
     const {
         homevisitConfirmation,
         homevisitConfirmationLoading,
         homevisitConfirmationError,
-
-
     } = useSelector(
         (state) =>
             state.frontOfficeAppointment
     );
 
 
-    // ==========================================
-    // LOCAL STATE
-    // ==========================================
-
-    const [
-        expandedSlots,
-        setExpandedSlots,
-    ] = useState({});
-
-
-    const [
-        selectedRequests,
-        setSelectedRequests,
-    ] = useState({});
-
-
-
-    // ==========================================
-    // LOAD HOME VISIT DATA
-    // ==========================================
-
     useEffect(() => {
 
-        /*
-         * Keep the Home Visit GET thunk
-         * that already exists in your project.
-         *
-         * Example:
-         *
-         * dispatch(
-         *     loadHomeVisitConfirmation(
-         *         doctorId
-         *     )
-         * );
-         */
+        if (!doctorId) return;
+
+        dispatch(
+            loadFrontOfficeHomevisitAppointmentConfirmation(
+                doctorId
+            )
+        );
 
     }, [
         dispatch,
@@ -105,183 +63,107 @@ const HomevisitConfirmation = () => {
     ]);
 
 
-    // ==========================================
-    // API DATA
-    // ==========================================
     const doctor =
-        homevisitConfirmation?.doctor || {};
+        homevisitConfirmation?.doctor;
 
-    const schedule =
-        homevisitConfirmation
-            ?.schedule_overview
-            ?.schedule_slots || [];
-    // ==========================================
-    // PATIENT COUNT
-    // ==========================================
+
+    const schedule = useMemo(() => {
+
+        const slots =
+            homevisitConfirmation
+                ?.schedule_overview
+                ?.schedule_slots || [];
+
+
+        return slots.filter(
+            (slot) =>
+                slot.status?.toLowerCase() !==
+                "conflict"
+        );
+
+    }, [
+        homevisitConfirmation,
+    ]);
+
 
     const patientCount =
-        useMemo(() => {
-
-            return schedule.reduce(
-                (total, slot) => {
-
-                    if (
-                        slot.status ===
-                        "conflict"
-                    ) {
-
-                        return (
-                            total +
-                            (
-                                slot.requests
-                                    ?.length || 0
-                            )
-                        );
-
-                    }
-
-                    if (
-                        slot.patient_id ||
-                        slot.patient_name
-                    ) {
-
-                        return total + 1;
-
-                    }
-
-                    return total;
-
-                },
-                0
-            );
-
-        }, [schedule]);
+        homevisitConfirmation
+            ?.schedule_overview
+            ?.total_patients_today ??
+        schedule.filter(
+            (slot) =>
+                slot.appointment_id
+        ).length;
 
 
-    // ==========================================
-    // TOGGLE SLOT
-    // ==========================================
-
-    const handleToggleSlot = (
-        index
-    ) => {
-
-        setExpandedSlots(
-            (previous) => ({
-                ...previous,
-
-                [index]:
-                    !previous[index],
-            })
-        );
-
-    };
-
-
-    // ==========================================
-    // SELECT REQUEST
-    // ==========================================
-
-    const handleSelectRequest = (
-        slot,
-        request
-    ) => {
-
-        setSelectedRequests(
-            (previous) => ({
-                ...previous,
-
-                [slot.time]:
-                    request,
-            })
-        );
-
-    };
-
-
-    // ==========================================
-    // ROOM CONFIRM
-    // ==========================================
-
-   
-
-
-    // ==========================================
-    // ROOM VALUE
-    // ==========================================
-
-    const getRoomValue = (
-        slot,
-        request
-    ) => {
-
-        const appointmentId =
-            request?.appointment_id ||
-            slot?.appointment_id ||
-            slot?.id;
-
+    const getPatientName = (slot) => {
 
         return (
-            selectedRooms[
-            appointmentId
-            ] ||
-            request?.room_no ||
-            slot?.room_no ||
+            slot.patient_name ||
+            slot.patient?.name ||
+            "Available"
+        );
+
+    };
+
+
+    const getPatientCode = (slot) => {
+
+        return (
+            slot.patient_code ||
+            slot.patient?.patient_code ||
             ""
         );
 
     };
 
 
-    // ==========================================
-    // ROOM SELECT
-    // ==========================================
-
-
-
-
-    // ==========================================
-    // LOADING
-    // ==========================================
-
-    if (
-    homevisitConfirmationLoading &&
-    !homevisitConfirmation
-) {
+    const getSlotRange = (slot) => {
 
         return (
-            <DashboardLayout
-                role="frontoffice"
-            >
-
-                <div
-                    className="
-                        flex
-                        min-h-screen
-                        items-center
-                        justify-center
-                        bg-[#F7F7F7]
-                    "
-                >
-
-                    <p
-                        className="
-                            text-[14px]
-                            text-[#6F625C]
-                        "
-                    >
-                        Loading home visit confirmation...
-                    </p>
-
-                </div>
-
-            </DashboardLayout>
+            slot.slot_range ||
+            slot.time_range ||
+            slot.formatted_time ||
+            slot.time ||
+            "--"
         );
 
-    }
+    };
+
+
+    const getStatus = (slot) => {
+
+        const status =
+            slot?.status?.toLowerCase();
+
+
+        if (
+            status === "booked" ||
+            status === "confirmed"
+        ) {
+            return "confirmed";
+        }
+
+
+        if (
+            status === "waiting" ||
+            status === "pending" ||
+            status === "pending_approval"
+        ) {
+            return "pending";
+        }
+
+
+        return (
+            status ||
+            "available"
+        );
+
+    };
 
 
     return (
+
         <DashboardLayout
             role="frontoffice"
         >
@@ -289,236 +171,450 @@ const HomevisitConfirmation = () => {
             <div
                 className="
                     min-h-screen
-                    bg-[#F7F7F7]
+                    bg-white
                     px-6
                     py-5
+                    text-[#4B2E2A]
                 "
             >
 
                 {/* ========================================= */}
-                {/* SUCCESS */}
+                {/* BREADCRUMB */}
                 {/* ========================================= */}
 
-             
+                <div
+                    className="
+                        mb-4
+                        flex
+                        items-center
+                        gap-2
+                        text-[14px]
+                    "
+                >
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            navigate(
+                                "/frontoffice/pending-actions/home-visit-confirmations"
+                            )
+                        }
+                        className="
+                            font-medium
+                            text-[#2F2926]
+                            hover:text-[#8A4F32]
+                        "
+                    >
+                        Pending Actions
+                    </button>
+
+
+                    <span
+                        className="
+                            text-[#8A817B]
+                        "
+                    >
+                        ›
+                    </span>
+
+
+                    <span
+                        className="
+                            font-medium
+                            text-[#2F2926]
+                        "
+                    >
+                        Home Visit Confirmation
+                    </span>
+
+
+                    {doctor?.doctor_name && (
+
+                        <>
+
+                            <span
+                                className="
+                                    text-[#8A817B]
+                                "
+                            >
+                                ›
+                            </span>
+
+
+                            <span
+                                className="
+                                    font-medium
+                                    text-[#2F2926]
+                                "
+                            >
+                                {
+                                    doctor.doctor_name
+                                }
+                            </span>
+
+                        </>
+
+                    )}
+
+                </div>
+
+
+                {/* ========================================= */}
+                {/* PAGE TITLE */}
+                {/* ========================================= */}
+
+                <div
+                    className="
+                        border-b
+                        border-[#E8DDD6]
+                        pb-4
+                    "
+                >
+
+                    <h1
+                        className="
+                            text-[21px]
+                            font-semibold
+                            text-[#2F2926]
+                        "
+                    >
+                        Home Visit Confirmation
+                    </h1>
+
+
+                    <div
+                        className="
+                            mt-1
+                            flex
+                            items-center
+                            gap-2
+                            text-[13px]
+                            text-[#634238]
+                        "
+                    >
+
+                        <span
+                            className="
+                                h-2
+                                w-2
+                                rounded-full
+                                bg-[#4B2E2A]
+                            "
+                        />
+
+                        {patientCount} Patients
+
+                    </div>
+
+                </div>
 
 
                 {/* ========================================= */}
                 {/* ERROR */}
                 {/* ========================================= */}
 
-               
+                {homevisitConfirmationError && (
 
-
-                {/* ========================================= */}
-                {/* HEADER */}
-                {/* ========================================= */}
-
-                <div
-                    className="
-                        mb-3
-                        flex
-                        items-center
-                        justify-between
-                    "
-                >
-
-                    <div>
-
-                        <div
-                            className="
-                                flex
-                                items-center
-                                gap-3
-                            "
-                        >
-
-                            <h1
-                                className="
-                                    text-[21px]
-                                    font-semibold
-                                    text-[#2F2926]
-                                "
-                            >
-                                Pending Actions
-                            </h1>
-
-                            <span
-                                className="
-                                    text-[22px]
-                                    text-[#8A817B]
-                                "
-                            >
-                                ›
-                            </span>
-
-                            <h2
-                                className="
-                                    text-[21px]
-                                    font-semibold
-                                    text-[#2F2926]
-                                "
-                            >
-                                Home Visit Confirmation
-                            </h2>
-
-                            <span
-                                className="
-                                    text-[22px]
-                                    text-[#8A817B]
-                                "
-                            >
-                                ›
-                            </span>
-
-                            <h2
-                                className="
-                                    text-[21px]
-                                    font-semibold
-                                    text-[#2F2926]
-                                "
-                            >
-                                {
-                                    doctor.doctor_name ||
-                                    doctor.name ||
-                                    "Doctor"
-                                }
-                            </h2>
-
-                        </div>
-
-
-                        <div
-                            className="
-                                mt-1
-                                flex
-                                items-center
-                                gap-2
-                                text-[13px]
-                                text-[#634238]
-                            "
-                        >
-
-                            <span
-                                className="
-                                    h-2
-                                    w-2
-                                    rounded-full
-                                    bg-[#4B2E2A]
-                                "
-                            />
-
-                            {patientCount} Patients
-
-                        </div>
-
+                    <div
+                        className="
+                            mt-4
+                            rounded-xl
+                            border
+                            border-red-200
+                            bg-red-50
+                            px-4
+                            py-3
+                            text-[11px]
+                            text-red-600
+                        "
+                    >
+                        {typeof homevisitConfirmationError === "string"
+                            ? homevisitConfirmationError
+                            : "Failed to load home visit confirmation."
+                        }
                     </div>
 
-                </div>
+                )}
 
 
                 {/* ========================================= */}
                 {/* DOCTOR INFORMATION */}
                 {/* ========================================= */}
 
-                <div
-                    className="
-                        mb-5
-                        grid
-                        grid-cols-[2.1fr_1.4fr_1.1fr_1fr_1.4fr]
-                        overflow-hidden
-                        rounded-2xl
-                        border
-                        border-[#E8D9CD]
-                        bg-white
-                    "
-                >
-
-                    {/* DOCTOR */}
+                {doctor && (
 
                     <div
                         className="
                             flex
                             items-center
-                            gap-4
-                            border-r
-                            border-[#EFE4DC]
-                            px-5
+                            border-b
+                            border-[#E8DDD6]
                             py-4
                         "
                     >
 
-                        {doctor.profile_image ? (
+                        {/* DOCTOR */}
 
-                            <img
-                                src={
-                                    doctor.profile_image
-                                }
-                                alt={
-                                    doctor.doctor_name ||
-                                    "Doctor"
-                                }
-                                className="
-                                    h-14
-                                    w-14
-                                    rounded-full
-                                    object-cover
-                                "
-                            />
-
-                        ) : (
+                        <div
+                            className="
+                                flex
+                                min-w-[280px]
+                                items-center
+                                gap-3
+                            "
+                        >
 
                             <div
                                 className="
-                                    h-14
-                                    w-14
+                                    h-[58px]
+                                    w-[58px]
+                                    overflow-hidden
                                     rounded-full
-                                    bg-[#EEE9E5]
+                                    border
+                                    border-[#E8DDD6]
+                                    bg-[#FFF7F1]
                                 "
-                            />
+                            >
 
-                        )}
+                                {doctor.profile_image ? (
+
+                                    <img
+                                        src={
+                                            doctor.profile_image
+                                        }
+                                        alt={
+                                            doctor.doctor_name ||
+                                            "Doctor"
+                                        }
+                                        className="
+                                            h-full
+                                            w-full
+                                            object-cover
+                                        "
+                                    />
+
+                                ) : (
+
+                                    <div
+                                        className="
+                                            flex
+                                            h-full
+                                            w-full
+                                            items-center
+                                            justify-center
+                                            text-lg
+                                            font-semibold
+                                            text-[#8A4F32]
+                                        "
+                                    >
+                                        {
+                                            doctor.doctor_name
+                                                ?.charAt(0)
+                                                ?.toUpperCase() ||
+                                            "D"
+                                        }
+                                    </div>
+
+                                )}
+
+                            </div>
 
 
-                        <div>
+                            <div>
+
+                                <h2
+                                    className="
+                                        text-[15px]
+                                        font-semibold
+                                        text-[#2F2926]
+                                    "
+                                >
+                                    {
+                                        doctor.doctor_name
+                                    }
+                                </h2>
+
+
+                                <p
+                                    className="
+                                        text-[12px]
+                                        text-[#159A9C]
+                                    "
+                                >
+                                    {
+                                        doctor.specialization
+                                    }
+                                </p>
+
+
+                                <p
+                                    className="
+                                        mt-1
+                                        text-[11px]
+                                        text-[#8A817B]
+                                    "
+                                >
+                                    🎓{" "}
+                                    {
+                                        doctor.qualification
+                                    }
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        {/* CONSULTATION TYPE */}
+
+                        <div
+                            className="
+                                min-w-[220px]
+                                border-l
+                                border-[#E8DDD6]
+                                px-5
+                            "
+                        >
 
                             <p
                                 className="
-                                    text-[16px]
+                                    text-[11px]
+                                    text-[#7D726B]
+                                "
+                            >
+                                Consultation Type
+                            </p>
+
+
+                            <p
+                                className="
+                                    mt-1
+                                    text-[14px]
                                     font-semibold
-                                    text-[#4D2E23]
+                                    text-[#4B2E2A]
                                 "
                             >
                                 {
-                                    doctor.doctor_name ||
-                                    doctor.name ||
-                                    "Doctor"
+                                    doctor.consultation_type ||
+                                    "--"
                                 }
                             </p>
+
+                        </div>
+
+
+                        {/* FEES */}
+
+                        <div
+                            className="
+                                min-w-[165px]
+                                border-l
+                                border-[#E8DDD6]
+                                px-5
+                            "
+                        >
+
+                            <p
+                                className="
+                                    text-[11px]
+                                    text-[#7D726B]
+                                "
+                            >
+                                Consultation Fees
+                            </p>
+
 
                             <p
                                 className="
                                     mt-1
-                                    text-[12px]
-                                    text-[#168276]
+                                    text-[14px]
+                                    font-semibold
+                                    text-[#4B2E2A]
                                 "
                             >
                                 {
-                                    doctor.specialization ||
-                                    "Panchakarma Specialist"
+                                    doctor.formatted_fees ||
+                                    (
+                                        doctor.consultation_fees != null
+                                            ? `₹${doctor.consultation_fees}`
+                                            : "--"
+                                    )
                                 }
                             </p>
+
+                        </div>
+
+
+                        {/* AVAILABLE SLOTS */}
+
+                        <div
+                            className="
+                                min-w-[145px]
+                                border-l
+                                border-[#E8DDD6]
+                                px-5
+                            "
+                        >
+
+                            <p
+                                className="
+                                    text-[11px]
+                                    text-[#7D726B]
+                                "
+                            >
+                                Available Slots
+                            </p>
+
 
                             <p
                                 className="
                                     mt-1
-                                    text-[12px]
-                                    text-[#77716D]
+                                    text-[14px]
+                                    font-semibold
+                                    text-[#4B2E2A]
                                 "
                             >
-                                🎓{" "}
+                                {String(
+                                    doctor.available_slots ??
+                                    schedule.length
+                                ).padStart(2, "0")}
+                            </p>
+
+                        </div>
+
+
+                        {/* WORKING HOURS */}
+
+                        <div
+                            className="
+                                border-l
+                                border-[#E8DDD6]
+                                px-5
+                            "
+                        >
+
+                            <p
+                                className="
+                                    text-[11px]
+                                    text-[#7D726B]
+                                "
+                            >
+                                Working Hours
+                            </p>
+
+
+                            <p
+                                className="
+                                    mt-1
+                                    whitespace-nowrap
+                                    text-[14px]
+                                    font-semibold
+                                    text-[#4B2E2A]
+                                "
+                            >
                                 {
-                                    doctor.qualification ||
-                                    "BAMS"
+                                    doctor.working_hours ||
+                                    "--"
                                 }
                             </p>
 
@@ -526,58 +622,7 @@ const HomevisitConfirmation = () => {
 
                     </div>
 
-
-                    {/* CONSULTATION TYPE */}
-
-                    <InfoBox
-                        title="Consultation Type"
-                        value={
-                            doctor.consultation_type ||
-                            "In-person and Video"
-                        }
-                    />
-
-
-                    {/* FEES */}
-
-                    <InfoBox
-                        title="Consultation Fees"
-                        value={
-                            doctor.formatted_fees ||
-                            (
-                                doctor.consultation_fees
-                                    ? `₹${Number(
-                                        doctor.consultation_fees
-                                    ).toLocaleString("en-IN")}`
-                                    : "₹1,000"
-                            )
-                        }
-                    />
-
-
-                    {/* AVAILABLE SLOTS */}
-
-                    <InfoBox
-                        title="Available Slots"
-                        value={
-                            doctor.available_slots ??
-                            schedule.length
-                        }
-                    />
-
-
-                    {/* WORKING HOURS */}
-
-                    <InfoBox
-                        title="Working Hours"
-                        value={
-                            doctor.working_hours ||
-                            "9:00 AM - 6:00 PM"
-                        }
-                        noBorder
-                    />
-
-                </div>
+                )}
 
 
                 {/* ========================================= */}
@@ -586,6 +631,7 @@ const HomevisitConfirmation = () => {
 
                 <div
                     className="
+                        mt-5
                         overflow-hidden
                         rounded-[15px]
                         border
@@ -599,34 +645,33 @@ const HomevisitConfirmation = () => {
                     <div
                         className="
                             grid
-                            grid-cols-[105px_1fr]
+                            grid-cols-[120px_1fr]
                             border-b
                             border-[#E8DDD6]
                             bg-[#FFF9F4]
+                            text-[11px]
+                            font-medium
+                            text-[#4B2E2A]
                         "
                     >
 
                         <div
                             className="
-                                border-r
-                                border-[#E8DDD6]
                                 px-5
-                                py-4
-                                text-[12px]
-                                font-medium
-                                text-[#4D2E23]
+                                py-3
+                                text-center
                             "
                         >
                             Time
                         </div>
 
+
                         <div
                             className="
+                                border-l
+                                border-[#E8DDD6]
                                 px-5
-                                py-4
-                                text-[12px]
-                                font-medium
-                                text-[#4D2E23]
+                                py-3
                             "
                         >
                             Schedule
@@ -635,18 +680,34 @@ const HomevisitConfirmation = () => {
                     </div>
 
 
-                    {schedule.length === 0 ? (
+                    {/* LOADING */}
+
+                    {homevisitConfirmationLoading ? (
 
                         <div
                             className="
-                                px-6
-                                py-16
+                                px-5
+                                py-12
                                 text-center
-                                text-sm
-                                text-[#8B7A70]
+                                text-[12px]
+                                text-[#8A817B]
                             "
                         >
-                            No home visit appointments found.
+                            Loading schedule...
+                        </div>
+
+                    ) : schedule.length === 0 ? (
+
+                        <div
+                            className="
+                                px-5
+                                py-12
+                                text-center
+                                text-[12px]
+                                text-[#8A817B]
+                            "
+                        >
+                            No appointments available.
                         </div>
 
                     ) : (
@@ -654,52 +715,32 @@ const HomevisitConfirmation = () => {
                         schedule.map(
                             (slot, index) => {
 
-                                const requests =
-                                    slot.requests ||
-                                    [];
+                                const status =
+                                    getStatus(slot);
 
+                                const confirmed =
+                                    status === "confirmed";
 
-                                const isConflict =
-                                    slot.status ===
-                                    "conflict";
-
-
-                                const selectedRequest =
-                                    selectedRequests[
-                                    slot.time
-                                    ] ||
-                                    requests[0] ||
-                                    slot;
-
-
-                                const roomValue =
-                                    getRoomValue(
-                                        slot,
-                                        selectedRequest
+                                const pending =
+                                    status === "pending" &&
+                                    Boolean(
+                                        slot.appointment_id
                                     );
 
 
-                                const isConfirmed =
-                                    Boolean(
-                                        roomValue
-                                    ) ||
-                                    slot.status ===
-                                    "confirmed" ||
-                                    slot.status ===
-                                    "booked";
-
-
                                 return (
+
                                     <div
                                         key={
-                                            slot.id ||
+                                            slot.appointment_id ||
                                             `${slot.time}-${index}`
                                         }
                                         className="
                                             grid
-                                            grid-cols-[105px_1fr]
+                                            min-h-[92px]
+                                            grid-cols-[120px_1fr]
                                             border-b
-                                            border-[#EFE4DC]
+                                            border-[#EEE4DD]
                                             last:border-b-0
                                         "
                                     >
@@ -711,17 +752,16 @@ const HomevisitConfirmation = () => {
                                                 flex
                                                 items-start
                                                 justify-center
-                                                border-r
-                                                border-[#EFE4DC]
                                                 px-3
                                                 py-7
                                                 text-[12px]
                                                 font-medium
-                                                text-[#4D2E23]
+                                                text-[#4B2E2A]
                                             "
                                         >
                                             {
-                                                slot.time
+                                                slot.time ||
+                                                "--"
                                             }
                                         </div>
 
@@ -730,354 +770,199 @@ const HomevisitConfirmation = () => {
 
                                         <div
                                             className="
+                                                border-l
+                                                border-[#EEE4DD]
                                                 p-3
                                             "
                                         >
 
-                                            {/* ========================= */}
-                                            {/* CONFLICT */}
-                                            {/* ========================= */}
+                                            <div
+                                                className={`
+                                                    flex
+                                                    min-h-[66px]
+                                                    items-center
+                                                    justify-between
+                                                    rounded-xl
+                                                    border
+                                                    px-3
+                                                    py-2.5
 
-                                            {isConflict && (
+                                                    ${
+                                                        confirmed
+                                                            ? "border-green-200 bg-[#EEFFF1]"
+                                                            : pending
+                                                                ? "border-[#EBD5C4] bg-[#FFF8ED]"
+                                                                : "border-[#E8DDD6] bg-white"
+                                                    }
+                                                `}
+                                            >
 
-                                                <div
-                                                    className="
-                                                        rounded-xl
-                                                        border
-                                                        border-[#C9F0D1]
-                                                        bg-[#EEFFF1]
-                                                        px-3
-                                                        py-3
-                                                    "
-                                                >
+                                                <div>
 
-                                                    <div
-                                                        className="
-                                                            flex
-                                                            items-center
-                                                            justify-between
-                                                        "
-                                                    >
-
-                                                        <div>
-
-                                                            <p
-                                                                className="
-                                                                    text-[13px]
-                                                                    font-medium
-                                                                    text-[#2F6B3A]
-                                                                "
-                                                            >
-                                                                {
-                                                                    slot.slot_range ||
-                                                                    slot.time
-                                                                }
-                                                            </p>
-
-                                                            <p
-                                                                className="
-                                                                    mt-1
-                                                                    flex
-                                                                    items-center
-                                                                    gap-1
-                                                                    text-[11px]
-                                                                    text-[#C84D4D]
-                                                                "
-                                                            >
-
-                                                                <HiOutlineExclamationCircle
-                                                                    size={
-                                                                        14
-                                                                    }
-                                                                />
-
-                                                                Multiple bookings
-                                                                for this slot
-
-                                                            </p>
-
-                                                        </div>
-
-
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                handleToggleSlot(
-                                                                    index
-                                                                )
-                                                            }
-                                                            className="
-                                                                flex
-                                                                items-center
-                                                                gap-1
-                                                                text-[11px]
-                                                                font-medium
-                                                                text-[#4D2E23]
-                                                            "
-                                                        >
-
-                                                            View Requests (
-                                                            {
-                                                                requests.length
-                                                            }
-                                                            )
-
-                                                            {expandedSlots[
-                                                                index
-                                                            ] ? (
-                                                                <HiOutlineChevronUp
-                                                                    size={
-                                                                        15
-                                                                    }
-                                                                />
-                                                            ) : (
-                                                                <HiOutlineChevronDown
-                                                                    size={
-                                                                        15
-                                                                    }
-                                                                />
-                                                            )}
-
-                                                        </button>
-
-                                                    </div>
-
-
-                                                    {expandedSlots[
-                                                        index
-                                                    ] && (
-
-                                                            <div
-                                                                className="
-                                                                mt-3
-                                                                space-y-2
-                                                            "
-                                                            >
-
-                                                                {requests.map(
-                                                                    (
-                                                                        request,
-                                                                        requestIndex
-                                                                    ) => (
-
-                                                                        <div
-                                                                            key={
-                                                                                request.appointment_id ||
-                                                                                requestIndex
-                                                                            }
-                                                                            className="
-                                                                            rounded-xl
-                                                                            border
-                                                                            border-[#E8DDD6]
-                                                                            bg-white
-                                                                            px-3
-                                                                            py-3
-                                                                        "
-                                                                        >
-
-                                                                            <div
-                                                                                className="
-                                                                                flex
-                                                                                items-center
-                                                                                justify-between
-                                                                                gap-3
-                                                                            "
-                                                                            >
-
-                                                                                <button
-                                                                                    type="button"
-                                                                                    onClick={() =>
-                                                                                        handleSelectRequest(
-                                                                                            slot,
-                                                                                            request
-                                                                                        )
-                                                                                    }
-                                                                                    className="
-                                                                                    min-w-0
-                                                                                    flex-1
-                                                                                    text-left
-                                                                                "
-                                                                                >
-
-                                                                                    <p
-                                                                                        className="
-                                                                                        text-[12px]
-                                                                                        font-semibold
-                                                                                        text-[#4D2E23]
-                                                                                    "
-                                                                                    >
-                                                                                        {
-                                                                                            request.patient_name
-                                                                                        }
-                                                                                    </p>
-
-                                                                                    <p
-                                                                                        className="
-                                                                                        mt-1
-                                                                                        text-[10px]
-                                                                                        text-[#77716D]
-                                                                                    "
-                                                                                    >
-                                                                                        Patient ID:{" "}
-                                                                                        {
-                                                                                            request.patient_code
-                                                                                        }
-                                                                                    </p>
-
-                                                                                </button>
-
-
-                                                                               
-
-                                                                            </div>
-
-                                                                        </div>
-
-                                                                    )
-                                                                )}
-
-                                                            </div>
-
-                                                        )}
-
-                                                </div>
-
-                                            )}
-
-
-                                            {/* ========================= */}
-                                            {/* NORMAL SLOT */}
-                                            {/* ========================= */}
-
-                                            {!isConflict &&
-                                                (
-                                                    slot.patient_id ||
-                                                    slot.patient_name
-                                                ) && (
-
-                                                    <div
+                                                    <p
                                                         className={`
-                                                            rounded-xl
-                                                            border
-                                                            px-3
-                                                            py-3
-                                                            ${isConfirmed
-                                                                ? "border-[#C9F0D1] bg-[#EEFFF1]"
-                                                                : "border-[#F1DFC4] bg-[#FFF7E9]"
+                                                            text-[12px]
+                                                            font-medium
+
+                                                            ${
+                                                                confirmed
+                                                                    ? "text-[#1B5D2B]"
+                                                                    : pending
+                                                                        ? "text-[#8A4F32]"
+                                                                        : "text-[#4B2E2A]"
                                                             }
                                                         `}
                                                     >
+                                                        {
+                                                            getSlotRange(
+                                                                slot
+                                                            )
+                                                        }
+                                                    </p>
 
-                                                        <div
+
+                                                    <p
+                                                        className="
+                                                            mt-1
+                                                            text-[11px]
+                                                            text-[#4B2E2A]
+                                                        "
+                                                    >
+
+                                                        {
+                                                            getPatientName(
+                                                                slot
+                                                            )
+                                                        }
+
+
+                                                        {slot.type && (
+
+                                                            <>
+                                                                {" "}
+                                                                (
+                                                                {
+                                                                    slot.type
+                                                                }
+                                                                )
+                                                            </>
+
+                                                        )}
+
+                                                    </p>
+
+
+                                                    {getPatientCode(
+                                                        slot
+                                                    ) && (
+
+                                                        <p
                                                             className="
-                                                                flex
-                                                                items-center
-                                                                justify-between
-                                                                gap-3
+                                                                mt-0.5
+                                                                text-[10px]
+                                                                text-[#81756E]
                                                             "
                                                         >
+                                                            Patient ID:{" "}
+                                                            {
+                                                                getPatientCode(
+                                                                    slot
+                                                                )
+                                                            }
+                                                        </p>
 
-                                                            <div>
+                                                    )}
 
-                                                                <p
-                                                                    className={`
-                                                                        text-[13px]
-                                                                        font-medium
-                                                                        ${isConfirmed
-                                                                            ? "text-[#2F6B3A]"
-                                                                            : "text-[#6A3F2D]"
-                                                                        }
-                                                                    `}
-                                                                >
-                                                                    {
-                                                                        slot.slot_range ||
-                                                                        slot.time
-                                                                    }
-                                                                </p>
-
-                                                                <p
-                                                                    className="
-                                                                        mt-1
-                                                                        text-[13px]
-                                                                        text-[#315C39]
-                                                                    "
-                                                                >
-                                                                    {
-                                                                        slot.patient_name ||
-                                                                        "-"
-                                                                    }
-                                                                </p>
-
-                                                            </div>
+                                                </div>
 
 
-                                                            <div
+                                                <div
+                                                    className="
+                                                        flex
+                                                        items-center
+                                                        gap-2
+                                                    "
+                                                >
+
+                                                    {confirmed ? (
+
+                                                        <>
+
+                                                            <span
                                                                 className="
-                                                                    flex
-                                                                    items-center
-                                                                    gap-2
+                                                                    text-[10px]
+                                                                    text-[#1B5D2B]
                                                                 "
                                                             >
+                                                                Confirmed
+                                                            </span>
 
-                                                               
+
+                                                            <HiOutlineCheckCircle
+                                                                size={16}
+                                                                className="
+                                                                    text-green-700
+                                                                "
+                                                            />
+
+                                                        </>
+
+                                                    ) : pending ? (
+
+                                                        <>
+
+                                                            <span
+                                                                className="
+                                                                    text-[10px]
+                                                                    text-[#8A4F32]
+                                                                "
+                                                            >
+                                                                Pending
+                                                            </span>
 
 
-                                                                {isConfirmed ? (
+                                                            <HiOutlineClock
+                                                                size={16}
+                                                                className="
+                                                                    text-[#8A4F32]
+                                                                "
+                                                            />
 
-                                                                    <div
-                                                                        className="
-                                                                            flex
-                                                                            items-center
-                                                                            gap-1
-                                                                            text-[11px]
-                                                                            font-medium
-                                                                            text-[#315C39]
-                                                                        "
-                                                                    >
-                                                                        Confirmed
+                                                        </>
 
-                                                                        <HiOutlineCheckCircle
-                                                                            size={
-                                                                                17
-                                                                            }
-                                                                        />
+                                                    ) : (
 
-                                                                    </div>
+                                                        <>
 
-                                                                ) : (
+                                                            <span
+                                                                className="
+                                                                    text-[10px]
+                                                                    text-[#8A4F32]
+                                                                "
+                                                            >
+                                                                Available
+                                                            </span>
 
-                                                                    <div
-                                                                        className="
-                                                                            flex
-                                                                            items-center
-                                                                            gap-1
-                                                                            text-[11px]
-                                                                            text-[#7A6658]
-                                                                        "
-                                                                    >
-                                                                        Pending
 
-                                                                        <HiOutlineClock
-                                                                            size={
-                                                                                16
-                                                                            }
-                                                                        />
+                                                            <HiOutlineClock
+                                                                size={16}
+                                                                className="
+                                                                    text-[#8A4F32]
+                                                                "
+                                                            />
 
-                                                                    </div>
+                                                        </>
 
-                                                                )}
+                                                    )}
 
-                                                            </div>
+                                                </div>
 
-                                                        </div>
-
-                                                    </div>
-
-                                                )}
+                                            </div>
 
                                         </div>
 
                                     </div>
+
                                 );
 
                             }
@@ -1090,57 +975,10 @@ const HomevisitConfirmation = () => {
             </div>
 
         </DashboardLayout>
+
     );
+
 };
 
 
-// ==========================================
-// INFO BOX
-// ==========================================
-
-const InfoBox = ({
-    title,
-    value,
-    noBorder = false,
-}) => (
-
-    <div
-        className={`
-            flex
-            flex-col
-            justify-center
-            px-5
-            py-4
-            ${!noBorder
-                ? "border-r border-[#EFE4DC]"
-                : ""
-            }
-        `}
-    >
-
-        <p
-            className="
-                text-[12px]
-                text-[#6F625C]
-            "
-        >
-            {title}
-        </p>
-
-        <p
-            className="
-                mt-1
-                text-[15px]
-                font-semibold
-                text-[#4D2E23]
-            "
-        >
-            {value}
-        </p>
-
-    </div>
-
-);
-
-
-export default HomevisitConfirmation;
+export default HomeVisitConfirmation;
