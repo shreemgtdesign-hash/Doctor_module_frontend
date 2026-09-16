@@ -46,11 +46,17 @@ export const getFrontOfficeReferrals = () =>
 
 
 // Billing Details
-export const getFrontOfficeBillingDetails = () =>
-  api.get(
-    "/frontoffice/dashboard/billing-details"
-  );
-
+export const getFrontOfficeBillingDetails = (
+    period = "week"
+) =>
+    api.get(
+        "/frontoffice/dashboard/billing-details",
+        {
+            params: {
+                period,
+            },
+        }
+    );
 
 // Recent Transactions
 export const getFrontOfficeRecentTransactions = () =>

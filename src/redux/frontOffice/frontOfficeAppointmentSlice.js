@@ -30,7 +30,13 @@ import {
     loadFrontOfficeHomevisitAppointmentConfirmation,
     loadFrontOfficeTherapyAppointmentConfirmation,
     loadHomevisitConfirmationList,
+    selectFrontOfficeTherapist,
+    loadTherapistList,
+    loadAppointmentReminders,
+    loadTherapyReminders,
+    sendPendingActionReminder,
 } from "./frontOfficeAppointmentThunk";
+import { loadAssociateDoctorPayoutDetails, loadAssociateDoctorPayouts, loadVisitingDoctorPayoutDetails, loadVisitingDoctorPayouts } from "./frontOfficeBillingThunk";
 
 const initialState = {
     // ==========================================
@@ -72,7 +78,17 @@ const initialState = {
     // ==========================================
     // HOME VISIT CONFIRMATION
     // ==========================================
+    // ==========================================
+    // THERAPIST
+    // ==========================================
 
+    therapistList: [],
+    therapistListLoading: false,
+    therapistListError: null,
+
+    selectTherapistLoading: false,
+    selectTherapistError: null,
+    selectTherapistSuccess: false,
     homevisitConfirmation: null,
     homevisitConfirmationLoading: false,
     homevisitConfirmationError: null,
@@ -181,7 +197,25 @@ const initialState = {
     // ==========================================
     // SCHEDULE
     // ==========================================
+    // ==========================================
+    // REMINDERS
+    // ==========================================
 
+    appointmentReminders: [],
+    appointmentRemindersLoading: false,
+    appointmentRemindersError: null,
+
+    therapyReminders: [],
+    therapyRemindersLoading: false,
+    therapyRemindersError: null,
+
+    sendingReminder: false,
+    sendingReminderId: null,
+    sendingReminderType: null,
+
+    sendReminderSuccess: false,
+    sendReminderMessage: "",
+    sendReminderError: null,
     addingSchedule: false,
     deletingSchedule: false,
     // ==========================================
@@ -568,7 +602,311 @@ const frontOfficeAppointmentSlice = createSlice({
         // ==========================================
         // TOGGLE DOCTOR STATUS
         // ==========================================
+        // ==========================================
+        // THERAPIST LIST
+        // ==========================================
 
+        builder
+
+            .addCase(
+                loadTherapistList.pending,
+                (state) => {
+
+                    state.therapistListLoading = true;
+                    state.therapistListError = null;
+
+                }
+            )
+
+            .addCase(
+                loadTherapistList.fulfilled,
+                (state, action) => {
+
+                    state.therapistListLoading = false;
+                    state.therapistListError = null;
+
+                    state.therapistList =
+                        action.payload?.data ||
+                        [];
+
+                }
+            )
+
+            .addCase(
+                loadTherapistList.rejected,
+                (state, action) => {
+
+                    state.therapistListLoading = false;
+
+                    state.therapistListError =
+                        action.payload ||
+                        "Failed to load therapists.";
+
+                    state.therapistList = [];
+
+                }
+            )
+
+
+            // ==========================================
+            // SELECT THERAPIST
+            // ==========================================
+
+            .addCase(
+                selectFrontOfficeTherapist.pending,
+                (state) => {
+
+                    state.selectTherapistLoading = true;
+                    state.selectTherapistError = null;
+                    state.selectTherapistSuccess = false;
+
+                }
+            )
+
+            .addCase(
+                selectFrontOfficeTherapist.fulfilled,
+                (state) => {
+
+                    state.selectTherapistLoading = false;
+                    state.selectTherapistError = null;
+                    state.selectTherapistSuccess = true;
+
+                }
+            )
+
+            .addCase(
+                selectFrontOfficeTherapist.rejected,
+                (state, action) => {
+
+                    state.selectTherapistLoading = false;
+
+                    state.selectTherapistError =
+                        action.payload ||
+                        "Failed to select therapist.";
+
+                    state.selectTherapistSuccess = false;
+
+                }
+            );
+
+        // ==========================================
+        // APPOINTMENT REMINDERS
+        // ==========================================
+
+        builder
+
+            .addCase(
+                loadAppointmentReminders.pending,
+                (state) => {
+
+                    state.appointmentRemindersLoading =
+                        true;
+
+                    state.appointmentRemindersError =
+                        null;
+                }
+            )
+
+            .addCase(
+                loadAppointmentReminders.fulfilled,
+                (state, action) => {
+
+                    state.appointmentRemindersLoading =
+                        false;
+
+                    state.appointmentReminders =
+                        action.payload?.data || [];
+
+                    state.appointmentRemindersError =
+                        null;
+                }
+            )
+
+            .addCase(
+                loadAppointmentReminders.rejected,
+                (state, action) => {
+
+                    state.appointmentRemindersLoading =
+                        false;
+
+                    state.appointmentRemindersError =
+                        action.payload ||
+                        "Failed to load appointment reminders.";
+
+                    state.appointmentReminders = [];
+                }
+            );
+        // ==========================================
+        // THERAPY REMINDERS
+        // ==========================================
+
+        builder
+
+            .addCase(
+                loadTherapyReminders.pending,
+                (state) => {
+
+                    state.therapyRemindersLoading =
+                        true;
+
+                    state.therapyRemindersError =
+                        null;
+                }
+            )
+
+            .addCase(
+                loadTherapyReminders.fulfilled,
+                (state, action) => {
+
+                    state.therapyRemindersLoading =
+                        false;
+
+                    state.therapyReminders =
+                        action.payload?.data || [];
+
+                    state.therapyRemindersError =
+                        null;
+                }
+            )
+
+            .addCase(
+                loadTherapyReminders.rejected,
+                (state, action) => {
+
+                    state.therapyRemindersLoading =
+                        false;
+
+                    state.therapyRemindersError =
+                        action.payload ||
+                        "Failed to load therapy reminders.";
+
+                    state.therapyReminders = [];
+                }
+            );
+        // ==========================================
+        // SEND REMINDER
+        // ==========================================
+
+        builder
+
+            .addCase(
+                sendPendingActionReminder.pending,
+                (state, action) => {
+
+                    state.sendingReminder = true;
+
+                    state.sendingReminderId =
+                        action.meta.arg.id;
+
+                    state.sendingReminderType =
+                        action.meta.arg.type;
+
+                    state.sendReminderSuccess =
+                        false;
+
+                    state.sendReminderMessage =
+                        "";
+
+                    state.sendReminderError =
+                        null;
+                }
+            )
+
+            .addCase(
+                sendPendingActionReminder.fulfilled,
+                (state, action) => {
+
+                    state.sendingReminder = false;
+
+                    state.sendReminderSuccess =
+                        true;
+
+                    state.sendReminderMessage =
+                        action.payload?.message ||
+                        "Reminder sent successfully!";
+
+
+                    const id =
+                        action.meta.arg.id;
+
+                    const type =
+                        action.meta.arg.type;
+
+
+                    // ======================================
+                    // APPOINTMENT
+                    // ======================================
+
+                    if (
+                        type === "appointment"
+                    ) {
+
+                        const item =
+                            state.appointmentReminders.find(
+                                (reminder) =>
+                                    String(reminder.id) ===
+                                    String(id)
+                            );
+
+                        if (item) {
+
+                            item.status =
+                                "Completed";
+                        }
+                    }
+
+
+                    // ======================================
+                    // THERAPY
+                    // ======================================
+
+                    if (
+                        type === "therapy"
+                    ) {
+
+                        const item =
+                            state.therapyReminders.find(
+                                (reminder) =>
+                                    String(reminder.id) ===
+                                    String(id)
+                            );
+
+                        if (item) {
+
+                            item.status =
+                                "Completed";
+                        }
+                    }
+
+
+                    state.sendingReminderId =
+                        null;
+
+                    state.sendingReminderType =
+                        null;
+                }
+            )
+
+            .addCase(
+                sendPendingActionReminder.rejected,
+                (state, action) => {
+
+                    state.sendingReminder = false;
+
+                    state.sendReminderSuccess =
+                        false;
+
+                    state.sendReminderError =
+                        action.payload ||
+                        "Failed to send reminder.";
+
+                    state.sendingReminderId =
+                        null;
+
+                    state.sendingReminderType =
+                        null;
+                }
+            );
         builder
 
             .addCase(
@@ -642,7 +980,125 @@ const frontOfficeAppointmentSlice = createSlice({
         // =====================================================
         // CREATE DIRECT WALK-IN PATIENT
         // =====================================================
+        builder
+            .addCase(
+                loadVisitingDoctorPayouts.pending,
+                (state) => {
+                    state.visitingDoctorPayoutsLoading = true;
+                    state.visitingDoctorPayoutsError = null;
+                }
+            )
+            .addCase(
+                loadVisitingDoctorPayouts.fulfilled,
+                (state, action) => {
+                    state.visitingDoctorPayoutsLoading = false;
 
+                    const data = action.payload || {};
+
+                    state.visitingDoctorPayouts =
+                        data.data || [];
+
+                    state.visitingDoctorPayoutsTotal =
+                        data.total_pending_payouts || 0;
+
+                    state.visitingDoctorPayoutsPagination =
+                        data.pagination || null;
+                }
+            )
+            .addCase(
+                loadVisitingDoctorPayouts.rejected,
+                (state, action) => {
+                    state.visitingDoctorPayoutsLoading = false;
+
+                    state.visitingDoctorPayoutsError =
+                        action.payload;
+                }
+            )
+              .addCase(
+    loadVisitingDoctorPayoutDetails.pending,
+    (state) => {
+      state.visitingDoctorPayoutDetailsLoading = true;
+      state.visitingDoctorPayoutDetailsError = null;
+      state.visitingDoctorPayoutDetails = null;
+    }
+  )
+  .addCase(
+    loadVisitingDoctorPayoutDetails.fulfilled,
+    (state, action) => {
+      state.visitingDoctorPayoutDetailsLoading = false;
+
+      state.visitingDoctorPayoutDetails =
+        action.payload || null;
+    }
+  )
+  .addCase(
+    loadVisitingDoctorPayoutDetails.rejected,
+    (state, action) => {
+      state.visitingDoctorPayoutDetailsLoading = false;
+
+      state.visitingDoctorPayoutDetailsError =
+        action.payload;
+    }
+  )
+    .addCase(
+    loadAssociateDoctorPayouts.pending,
+    (state) => {
+      state.associateDoctorPayoutsLoading = true;
+      state.associateDoctorPayoutsError = null;
+    }
+  )
+  .addCase(
+    loadAssociateDoctorPayouts.fulfilled,
+    (state, action) => {
+      state.associateDoctorPayoutsLoading = false;
+
+      const data = action.payload || {};
+
+      state.associateDoctorPayouts =
+        data.data || [];
+
+      state.associateDoctorPayoutsTotal =
+        data.total_pending_payouts || 0;
+
+      state.associateDoctorPayoutsPagination =
+        data.pagination || null;
+    }
+  )
+  .addCase(
+    loadAssociateDoctorPayouts.rejected,
+    (state, action) => {
+      state.associateDoctorPayoutsLoading = false;
+
+      state.associateDoctorPayoutsError =
+        action.payload;
+    }
+  )
+    .addCase(
+    loadAssociateDoctorPayoutDetails.pending,
+    (state) => {
+      state.associateDoctorPayoutDetailsLoading = true;
+      state.associateDoctorPayoutDetailsError = null;
+      state.associateDoctorPayoutDetails = null;
+    }
+  )
+  .addCase(
+    loadAssociateDoctorPayoutDetails.fulfilled,
+    (state, action) => {
+      state.associateDoctorPayoutDetailsLoading = false;
+
+      state.associateDoctorPayoutDetails =
+        action.payload || null;
+    }
+  )
+  .addCase(
+    loadAssociateDoctorPayoutDetails.rejected,
+    (state, action) => {
+      state.associateDoctorPayoutDetailsLoading = false;
+
+      state.associateDoctorPayoutDetailsError =
+        action.payload;
+    }
+  )
         builder
             .addCase(
                 createFrontOfficeDirectWalkInPatient.pending,
@@ -1451,60 +1907,60 @@ const frontOfficeAppointmentSlice = createSlice({
         // LOAD HOME VISIT CONFIRMATION
         // ==========================================
         // ==========================================
-// HOME VISIT CONFIRMATION LIST
-// ==========================================
+        // HOME VISIT CONFIRMATION LIST
+        // ==========================================
 
-builder
+        builder
 
-    .addCase(
-        loadHomevisitConfirmationList.pending,
-        (state) => {
+            .addCase(
+                loadHomevisitConfirmationList.pending,
+                (state) => {
 
-            state.homevisitConfirmationListLoading =
-                true;
+                    state.homevisitConfirmationListLoading =
+                        true;
 
-            state.homevisitConfirmationListError =
-                null;
+                    state.homevisitConfirmationListError =
+                        null;
 
-            state.homevisitConfirmationList =
-                [];
+                    state.homevisitConfirmationList =
+                        [];
 
-        }
-    )
+                }
+            )
 
-    .addCase(
-        loadHomevisitConfirmationList.fulfilled,
-        (state, action) => {
+            .addCase(
+                loadHomevisitConfirmationList.fulfilled,
+                (state, action) => {
 
-            state.homevisitConfirmationListLoading =
-                false;
+                    state.homevisitConfirmationListLoading =
+                        false;
 
-            state.homevisitConfirmationListError =
-                null;
+                    state.homevisitConfirmationListError =
+                        null;
 
-            state.homevisitConfirmationList =
-                action.payload?.data ||
-                [];
+                    state.homevisitConfirmationList =
+                        action.payload?.data ||
+                        [];
 
-        }
-    )
+                }
+            )
 
-    .addCase(
-        loadHomevisitConfirmationList.rejected,
-        (state, action) => {
+            .addCase(
+                loadHomevisitConfirmationList.rejected,
+                (state, action) => {
 
-            state.homevisitConfirmationListLoading =
-                false;
+                    state.homevisitConfirmationListLoading =
+                        false;
 
-            state.homevisitConfirmationListError =
-                action.payload ||
-                "Failed to load home visit confirmation list.";
+                    state.homevisitConfirmationListError =
+                        action.payload ||
+                        "Failed to load home visit confirmation list.";
 
-            state.homevisitConfirmationList =
-                [];
+                    state.homevisitConfirmationList =
+                        [];
 
-        }
-    );
+                }
+            );
         builder
 
             .addCase(

@@ -30,6 +30,11 @@ import {
     fetchHomevisitAppointmentConfirmation,
     fetchTherapyAppointmentConfirmation,
     fetchHomevisitConfirmationList,
+    fetchTherapistList,
+    fetchSelectTherapist,
+    fetchAppointmentReminders,
+    fetchTherapyReminders,
+    fetchSendPendingActionReminder,
 } from "../../services/frontOfficeAppointmentService";
 import { fetchAppointmentConfirmationList } from "../../services/therapistAppointmentsService";
 import { fetchPatientReports } from "../../services/doctorAppointmentService";
@@ -945,3 +950,172 @@ export const loadHomevisitConfirmationList =
 
     );
 
+// ==========================================
+// LOAD THERAPIST LIST
+// ==========================================
+
+export const loadTherapistList =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/loadTherapistList",
+
+        async (
+            _,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchTherapistList();
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to load therapists."
+                );
+
+            }
+
+        }
+
+    );
+
+    // ==========================================
+// SELECT THERAPIST
+// ==========================================
+
+export const selectFrontOfficeTherapist =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/selectTherapist",
+
+        async (
+            data,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchSelectTherapist(
+                    data
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to select therapist."
+                );
+
+            }
+
+        }
+
+    );
+
+// ==========================================
+// LOAD APPOINTMENT REMINDERS
+// ==========================================
+
+export const loadAppointmentReminders =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/loadAppointmentReminders",
+
+        async (
+            _,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                const response =
+                    await fetchAppointmentReminders();
+
+                return response;
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to load appointment reminders."
+                );
+
+            }
+
+        }
+    );
+
+// ==========================================
+// LOAD THERAPY REMINDERS
+// ==========================================
+
+export const loadTherapyReminders =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/loadTherapyReminders",
+
+        async (
+            _,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                const response =
+                    await fetchTherapyReminders();
+
+                return response;
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to load therapy reminders."
+                );
+
+            }
+
+        }
+    );
+
+    // ==========================================
+// SEND PENDING ACTION REMINDER
+// ==========================================
+
+export const sendPendingActionReminder =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/sendPendingActionReminder",
+
+        async (
+            data,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                const response =
+                    await fetchSendPendingActionReminder(
+                        data
+                    );
+
+                return response;
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to send reminder."
+                );
+
+            }
+
+        }
+    );

@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   HiOutlineCheckCircle,
   HiOutlineClock,
-  HiOutlineArrowRight,
+  
 } from "react-icons/hi2";
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
@@ -50,19 +50,7 @@ const AppointmentConfirmation = () => {
     return schedule.filter((slot) => slot.appointment_id).length;
   }, [schedule]);
 
-  const getStatus = (slot) => {
-    const status = slot?.status?.toLowerCase();
 
-    if (status === "booked" || status === "confirmed") {
-      return "confirmed";
-    }
-
-    if (status === "waiting" || status === "pending") {
-      return "pending";
-    }
-
-    return status || "available";
-  };
 
   const getPatientName = (slot) => {
     return slot.patient_name || slot.patient?.name || "Available";
@@ -86,27 +74,6 @@ const AppointmentConfirmation = () => {
     );
   };
 
-  const handleConfirm = async (slot) => {
-    if (!slot?.appointment_id || loading) return;
-
-    try {
-      await dispatch(
-        confirmFrontOfficeAppointment({
-          doctor_id: doctorId,
-          appointment_id: slot.appointment_id,
-        })
-      ).unwrap();
-
-      navigate(
-        "/frontoffice/pending-actions/appointment-confirmations"
-      );
-    } catch (err) {
-      console.error(
-        "Appointment confirmation failed:",
-        err
-      );
-    }
-  };
 
   return (
     <DashboardLayout role="frontoffice">
@@ -269,10 +236,10 @@ const AppointmentConfirmation = () => {
             {typeof error === "string"
               ? error
               : error?.message ||
-                confirmationError?.message ||
-                (typeof confirmationError === "string"
-                  ? confirmationError
-                  : "Failed to load appointment confirmation.")}
+              confirmationError?.message ||
+              (typeof confirmationError === "string"
+                ? confirmationError
+                : "Failed to load appointment confirmation.")}
           </div>
         )}
 
@@ -303,12 +270,8 @@ const AppointmentConfirmation = () => {
             </div>
           ) : (
             schedule.map((slot, index) => {
-              const status = getStatus(slot);
-              const confirmed = status === "confirmed";
-              const pending =
-                status === "pending" &&
-                Boolean(slot.appointment_id);
-
+          
+           const confirmed = Boolean(slot.appointment_id);
               return (
                 <div
                   key={
@@ -326,28 +289,22 @@ const AppointmentConfirmation = () => {
                   <div className="border-l border-[#EEE4DD] p-3">
                     <div
                       className={`
-                        flex min-h-[66px] items-center justify-between rounded-xl border px-3 py-2.5
-                        ${
-                          confirmed
-                            ? "border-green-200 bg-[#EEFFF1]"
-                            : pending
-                              ? "border-[#EBD5C4] bg-[#FFF8ED]"
-                              : "border-[#E8DDD6] bg-white"
-                        }
-                      `}
+  flex min-h-[66px] items-center justify-between rounded-xl border px-3 py-2.5
+  ${confirmed
+    ? "border-green-200 bg-[#EEFFF1]"
+    : "border-[#E8DDD6] bg-white"
+  }
+`}
                     >
                       <div>
                         <p
                           className={`
-                            text-[12px] font-medium
-                            ${
-                              confirmed
-                                ? "text-[#1B5D2B]"
-                                : pending
-                                  ? "text-[#8A4F32]"
-                                  : "text-[#4B2E2A]"
-                            }
-                          `}
+  text-[12px] font-medium
+  ${confirmed
+    ? "text-[#1B5D2B]"
+    : "text-[#4B2E2A]"
+  }
+`}
                         >
                           {getSlotRange(slot)}
                         </p>
@@ -371,49 +328,30 @@ const AppointmentConfirmation = () => {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        {confirmed ? (
-                          <>
-                            <span className="text-[10px] text-[#1B5D2B]">
-                              Confirmed
-                            </span>
+  {confirmed ? (
+    <>
+      <span className="text-[10px] font-medium text-[#1B5D2B]">
+        Confirmed
+      </span>
 
-                            <HiOutlineCheckCircle
-                              size={16}
-                              className="text-green-700"
-                            />
-                          </>
-                        ) : pending ? (
-                          <button
-                            type="button"
-                            disabled={loading}
-                            onClick={() =>
-                              handleConfirm(slot)
-                            }
-                            className="flex items-center gap-1.5 rounded-lg bg-[#8A4F32] px-3 py-2 text-[10px] font-medium text-white transition hover:bg-[#6F3E29] disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {loading
-                              ? "Confirming..."
-                              : "Confirm"}
+      <HiOutlineCheckCircle
+        size={16}
+        className="text-green-700"
+      />
+    </>
+  ) : (
+    <>
+      <span className="text-[10px] text-[#8A4F32]">
+        Available
+      </span>
 
-                            {!loading && (
-                              <HiOutlineArrowRight
-                                size={13}
-                              />
-                            )}
-                          </button>
-                        ) : (
-                          <>
-                            <span className="text-[10px] text-[#8A4F32]">
-                              Available
-                            </span>
-
-                            <HiOutlineClock
-                              size={16}
-                              className="text-[#8A4F32]"
-                            />
-                          </>
-                        )}
-                      </div>
+      <HiOutlineClock
+        size={16}
+        className="text-[#8A4F32]"
+      />
+    </>
+  )}
+</div>
                     </div>
                   </div>
                 </div>

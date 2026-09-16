@@ -98,69 +98,48 @@ const frontOfficeDashboardSlice =
           }
         )
 
-        .addCase(
-          loadFrontOfficeDashboard.fulfilled,
-          (
-            state,
-            action
-          ) => {
-
-            state.loading = false;
-
-            const data =
-              action.payload || {};
-
-
-            state.appointments =
-              data.appointments;
-
-
-            state.insurance =
-              data.insurance;
-
-
-            state.packages =
-              data.packages;
-
-
-            state.medicalCamp =
-              data.medicalCamp;
-
-
-            state.referrals =
-              data.referrals;
-
-
-            state.billing =
-              data.billing;
-
-
-            state.transactions =
-              data.transactions?.data ||
-              [];
-
-
-            state.pendingActions =
-              data.pendingActions;
-
-          }
-        )
+      
 
         .addCase(
-          loadFrontOfficeDashboard.rejected,
-          (
-            state,
-            action
-          ) => {
+    loadFrontOfficeDashboard.fulfilled,
+    (state, action) => {
 
-            state.loading = false;
+        state.loading = false;
 
-            state.error =
-              action.payload ||
-              "Failed to load dashboard.";
+        const data =
+            action.payload || {};
 
-          }
+        console.log(
+            "🔥 DASHBOARD REDUX PAYLOAD:",
+            data
         );
+
+        state.appointments =
+            data.appointments;
+
+        state.insurance =
+            data.insurance;
+
+        state.packages =
+            data.packages;
+
+        state.medicalCamp =
+            data.medicalCamp;
+
+        state.referrals =
+            data.referrals;
+
+        state.billing =
+            data.billing;
+
+        state.transactions =
+            data.transactions?.data ||
+            [];
+
+        state.pendingActions =
+            data.pendingActions;
+    }
+)
 
 
       // ======================================

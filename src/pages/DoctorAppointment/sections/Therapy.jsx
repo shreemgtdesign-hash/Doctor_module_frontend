@@ -23,7 +23,7 @@ import {
   saveTherapyThunk,
   updateTherapyThunk,
   deleteTherapyThunk,
-  loadDoctorsList,
+  loadAssociateDoctors,
 } from "../../../redux/consultation/consultationThunk";
 import ConsultationTimer from "../components/ConsultationTimer";
 
@@ -84,7 +84,7 @@ const Therapy = ({
   const {
     therapy,
     therapySearch,
-    doctorsList,
+    associateDoctors = [],
   } = useSelector(
     (state) => state.consultation
   );
@@ -143,10 +143,17 @@ const Therapy = ({
   // GET /prescriptions/doctors
   // ==========================================
 
-  useEffect(() => {
-    dispatch(loadDoctorsList());
-  }, [dispatch]);
+  // ==========================================
+// LOAD ASSOCIATE DOCTORS FOR SELECT DOCTOR
+// ==========================================
 
+useEffect(() => {
+  if (!appointmentId) return;
+
+  dispatch(
+    loadAssociateDoctors(appointmentId)
+  );
+}, [appointmentId, dispatch]);
   // SEARCH THERAPIES
   // ==========================================
 
@@ -1075,7 +1082,7 @@ const Therapy = ({
                              Select Doctor
                            </option>
 
-                           {(doctorsList || []).map((doctor) => {
+                           {(associateDoctors || []).map((doctor) => {
                              const doctorId =
                                doctor.doctor_id || doctor.id;
 

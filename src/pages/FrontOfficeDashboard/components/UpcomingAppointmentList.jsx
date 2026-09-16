@@ -853,7 +853,7 @@ const AppointmentRow = ({
 
     const actionLabel =
         isVitalsAdded
-            ? "Added Vitals"
+            ? "Vitals Added"
             : appointment?.action_label ||
               "+ Add Vitals";
 

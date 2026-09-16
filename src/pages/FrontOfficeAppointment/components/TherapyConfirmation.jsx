@@ -20,7 +20,7 @@ import {
     HiOutlineClock,
     HiOutlineChevronUp,
     HiOutlineChevronDown,
-    
+
 } from "react-icons/hi2";
 
 import DashboardLayout
@@ -28,10 +28,11 @@ import DashboardLayout
 
 import {
     confirmFrontOfficeAppointmentRoom,
-    
     loadFrontOfficeTherapyAppointmentConfirmation,
+    loadTherapistList,
+    selectFrontOfficeTherapist,
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
-
+import { showErrorToast, showSuccessToast } from "../../../../utils/showToast";
 
 const TherapyConfirmation = () => {
 
@@ -51,10 +52,12 @@ const TherapyConfirmation = () => {
         therapyConfirmationLoading,
         therapyConfirmationError,
 
-        confirmingRoomAppointment,
-        roomAppointmentSuccess,
-        roomAppointmentMessage,
-        roomAppointmentError,
+
+
+        therapistList,
+        therapistListLoading,
+        selectTherapistLoading,
+
     } = useSelector(
         (state) =>
             state.frontOfficeAppointment
@@ -82,6 +85,10 @@ const TherapyConfirmation = () => {
         setSelectedRooms,
     ] = useState({});
 
+    const [
+        selectedTherapists,
+        setSelectedTherapists,
+    ] = useState({});
 
     // ==========================================
     // LOAD THERAPY CONFIRMATION
@@ -97,22 +104,32 @@ const TherapyConfirmation = () => {
         dispatch,
     ]);
 
+    useEffect(() => {
+
+        dispatch(
+            loadTherapistList()
+        );
+
+    }, [
+        dispatch,
+    ]);
+
 
     // ==========================================
     // API DATA
     // ==========================================
 
     const doctor =
-    therapyConfirmation?.doctor || {};
+        therapyConfirmation?.doctor || {};
 
-const schedule =
-    therapyConfirmation
-        ?.schedule_overview
-        ?.schedule_slots || [];
+    const schedule =
+        therapyConfirmation
+            ?.schedule_overview
+            ?.schedule_slots || [];
 
-const history =
-    therapyConfirmation
-        ?.patient_history_with_doctor || [];
+    const history =
+        therapyConfirmation
+            ?.patient_history_with_doctor || [];
     // ==========================================
     // PATIENT COUNT
     // ==========================================
@@ -192,97 +209,154 @@ const history =
     // ==========================================
 
     const handleRoomChange = async (
-        slot,
-        request,
-        roomNo
-    ) => {
+    slot,
+    request,
+    roomNo
+) => {
 
-        if (!roomNo) {
-            return;
-        }
+    if (!roomNo) {
+        return;
+    }
+
+    if (!request?.appointment_id) {
+        console.error(
+            "Appointment ID not found:",
+            request
+        );
+
+        showErrorToast(
+            "Room Selection Failed",
+            "Appointment ID is missing."
+        );
+
+        return;
+    }
+
+    if (!request?.patient_id) {
+        console.error(
+            "Patient ID not found:",
+            request
+        );
+
+        showErrorToast(
+            "Room Selection Failed",
+            "Patient ID is missing."
+        );
+
+        return;
+    }
 
 
-        if (
-            !request?.appointment_id
-        ) {
-            console.error(
-                "Appointment ID not found:",
-                request
-            );
+    // ==========================================
+    // STORE ROOM LOCALLY IMMEDIATELY
+    // ==========================================
 
-            return;
-        }
+    setSelectedRooms(
+        (previous) => ({
+            ...previous,
 
-
-        if (
-            !request?.patient_id
-        ) {
-            console.error(
-                "Patient ID not found:",
-                request
-            );
-
-            return;
-        }
+            [request.appointment_id]:
+                roomNo,
+        })
+    );
 
 
-        // ==========================================
-        // STORE SELECTED ROOM
-        // ==========================================
+    try {
 
-        setSelectedRooms(
-            (previous) => ({
-                ...previous,
-
-                [request.appointment_id]:
-                    roomNo,
-            })
+        console.log(
+            "🏠 Confirming room:",
+            {
+                slot_time: slot?.time,
+                patient_id:
+                    request.patient_id,
+                appointment_id:
+                    request.appointment_id,
+                room_no: roomNo,
+            }
         );
 
 
         // ==========================================
-        // CONFIRM ROOM
+        // API
         // ==========================================
 
-        try {
+        await dispatch(
+            confirmFrontOfficeAppointmentRoom({
+                slot_time:
+                    slot.time,
 
-            await dispatch(
-                confirmFrontOfficeAppointmentRoom(
-                    {
-                        slot_time:
-                            slot.time,
+                patient_id:
+                    request.patient_id,
 
-                        patient_id:
-                            request.patient_id,
+                appointment_id:
+                    request.appointment_id,
 
-                        appointment_id:
-                            request.appointment_id,
-
-                        room_no:
-                            roomNo,
-                    }
-                )
-            ).unwrap();
+                room_no:
+                    roomNo,
+            })
+        ).unwrap();
 
 
-            // ==========================================
-            // RELOAD SCREEN
-            // ==========================================
+        // ==========================================
+        // SUCCESS
+        // ==========================================
 
-            dispatch(
-                loadFrontOfficeTherapyAppointmentConfirmation()
-            );
+        showSuccessToast(
+            "Room Confirmed",
+            `${roomNo} has been assigned successfully.`
+        );
 
-        } catch (error) {
 
-            console.error(
-                "Room confirmation failed:",
-                error
-            );
+        // IMPORTANT:
+        // Don't immediately reload here.
+        //
+        // The local selectedRooms state already
+        // contains the selected room.
 
-        }
 
-    };
+    } catch (error) {
+
+        console.error(
+            "❌ Room confirmation failed:",
+            error
+        );
+
+        console.error(
+            "Backend error:",
+            error?.response?.data || error
+        );
+
+
+        // ==========================================
+        // REVERT LOCAL SELECTION
+        // ==========================================
+
+        setSelectedRooms(
+            (previous) => {
+
+                const updated = {
+                    ...previous,
+                };
+
+                delete updated[
+                    request.appointment_id
+                ];
+
+                return updated;
+            }
+        );
+
+
+        showErrorToast(
+            "Room Confirmation Failed",
+            error?.message ||
+                error?.detail ||
+                "Unable to confirm the selected room."
+        );
+
+    }
+
+};
 
 
     // ==========================================
@@ -309,85 +383,311 @@ const history =
     // ==========================================
     // RENDER ROOM SELECT
     // ==========================================
+    // ==========================================
+    // SELECT THERAPIST
+    // ==========================================
 
+    const handleTherapistChange = async (
+        slot,
+        request,
+        therapistId
+    ) => {
+
+        if (!therapistId) {
+            return;
+        }
+
+
+        if (!request?.appointment_id) {
+
+            console.error(
+                "Appointment ID not found:",
+                request
+            );
+
+            return;
+        }
+
+
+        if (!request?.patient_id) {
+
+            console.error(
+                "Patient ID not found:",
+                request
+            );
+
+            return;
+        }
+
+
+        // ==========================================
+        // STORE SELECTED THERAPIST
+        // ==========================================
+
+        setSelectedTherapists(
+            (previous) => ({
+                ...previous,
+
+                [request.appointment_id]:
+                    therapistId,
+            })
+        );
+
+
+        try {
+
+            await dispatch(
+                selectFrontOfficeTherapist({
+
+                    appointment_id:
+                        request.appointment_id,
+
+                    patient_id:
+                        request.patient_id,
+
+                    therapist_id:
+                        therapistId,
+
+                })
+            ).unwrap();
+
+
+            const therapist =
+                therapistList.find(
+                    (item) =>
+                        String(
+                            item.therapist_id ||
+                            item.id
+                        ) ===
+                        String(therapistId)
+                );
+
+
+            showSuccessToast(
+                "Therapist Selected",
+                `${therapist?.therapist_name ||
+                therapist?.name ||
+                "Therapist"
+                } has been selected successfully`
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Therapist selection failed:",
+                error
+            );
+
+
+            showErrorToast(
+                "Selection Failed",
+                typeof error === "string"
+                    ? error
+                    : "Failed to select therapist"
+            );
+
+
+            // Revert selection
+            setSelectedTherapists(
+                (previous) => {
+
+                    const updated = {
+                        ...previous,
+                    };
+
+                    delete updated[
+                        request.appointment_id
+                    ];
+
+                    return updated;
+
+                }
+            );
+
+        }
+
+    };
     const RoomSelect = ({
+    slot,
+    request,
+}) => {
+
+    const roomValue =
+        getRoomValue(
+            slot,
+            request
+        );
+
+
+    return (
+        <select
+            value={roomValue}
+            onChange={(event) =>
+                handleRoomChange(
+                    slot,
+                    request,
+                    event.target.value
+                )
+            }
+            className="
+                h-9
+                min-w-[118px]
+                cursor-pointer
+                appearance-none
+                rounded-[10px]
+                border
+                border-[#E7D5C4]
+                bg-white
+                px-3
+                pr-8
+                text-[11px]
+                font-medium
+                text-[#4D2E23]
+                outline-none
+                transition
+                focus:border-[#8A5035]
+            "
+        >
+
+            <option value="">
+                Select room no.
+            </option>
+
+            <option value="Room 1">
+                Room 1
+            </option>
+
+            <option value="Room 2">
+                Room 2
+            </option>
+
+            <option value="Room 3">
+                Room 3
+            </option>
+
+            <option value="Room 4">
+                Room 4
+            </option>
+
+            <option value="Room 5">
+                Room 5
+            </option>
+
+        </select>
+    );
+};
+    // ==========================================
+    // RENDER THERAPIST SELECT
+    // ==========================================
+
+    const TherapistSelect = ({
         slot,
         request,
     }) => {
 
-        const roomValue =
-            getRoomValue(
-                slot,
-                request
-            );
+        const appointmentId =
+            request?.appointment_id;
 
 
-        const isConfirming =
+        const therapistValue =
+            selectedTherapists[
+            appointmentId
+            ] ||
+            request?.therapist_id ||
+            slot?.therapist_id ||
+            "";
+
+
+        const isSelecting =
             Boolean(
-                confirmingRoomAppointment
+                selectTherapistLoading
             );
 
 
         return (
+
             <select
-                value={roomValue}
+                value={therapistValue}
                 disabled={
-                    isConfirming
+                    therapistListLoading ||
+                    isSelecting
                 }
                 onChange={(event) =>
-                    handleRoomChange(
+                    handleTherapistChange(
                         slot,
                         request,
                         event.target.value
                     )
                 }
                 className="
-                    h-9
-                    min-w-[118px]
-                    cursor-pointer
-                    appearance-none
-                    rounded-[10px]
-                    border
-                    border-[#E7D5C4]
-                    bg-white
-                    px-3
-                    pr-8
-                    text-[11px]
-                    font-medium
-                    text-[#4D2E23]
-                    outline-none
-                    transition
-                    focus:border-[#8A5035]
-                    disabled:cursor-not-allowed
-                    disabled:opacity-60
-                "
+                h-9
+                min-w-[150px]
+                cursor-pointer
+                appearance-none
+                rounded-[10px]
+                border
+                border-[#E7D5C4]
+                bg-white
+                px-3
+                pr-8
+                text-[11px]
+                font-medium
+                text-[#4D2E23]
+                outline-none
+                transition
+                focus:border-[#8A5035]
+                disabled:cursor-not-allowed
+                disabled:opacity-60
+            "
             >
 
                 <option value="">
-                    Select room no.
+                    {therapistListLoading
+                        ? "Loading..."
+                        : "Select Therapist"
+                    }
                 </option>
 
-                <option value="Room 1">
-                    Room 1
-                </option>
 
-                <option value="Room 2">
-                    Room 2
-                </option>
+                {therapistList
+                    ?.filter(
+                        (therapist) =>
+                            therapist.is_available !== false
+                    )
+                    .map(
+                        (therapist) => {
 
-                <option value="Room 3">
-                    Room 3
-                </option>
+                            const therapistId =
+                                therapist.therapist_id ||
+                                therapist.id;
 
-                <option value="Room 4">
-                    Room 4
-                </option>
+                            const therapistName =
+                                therapist.therapist_name ||
+                                therapist.name ||
+                                "Therapist";
 
-                <option value="Room 5">
-                    Room 5
-                </option>
+                            return (
+
+                                <option
+                                    key={
+                                        therapistId
+                                    }
+                                    value={
+                                        therapistId
+                                    }
+                                >
+                                    {
+                                        therapistName
+                                    }
+                                </option>
+
+                            );
+
+                        }
+                    )}
 
             </select>
+
         );
 
     };
@@ -501,56 +801,7 @@ const history =
                 {/* SUCCESS */}
                 {/* ========================================= */}
 
-                {roomAppointmentSuccess &&
-                    roomAppointmentMessage && (
-
-                        <div
-                            className="
-                                mb-4
-                                rounded-xl
-                                border
-                                border-green-200
-                                bg-green-50
-                                px-4
-                                py-3
-                                text-sm
-                                text-green-700
-                            "
-                        >
-                            {
-                                roomAppointmentMessage
-                            }
-                        </div>
-
-                    )}
-
-
-                {/* ========================================= */}
-                {/* ERROR */}
-                {/* ========================================= */}
-
-                {roomAppointmentError && (
-
-                    <div
-                        className="
-                            mb-4
-                            rounded-xl
-                            border
-                            border-red-200
-                            bg-red-50
-                            px-4
-                            py-3
-                            text-sm
-                            text-red-600
-                        "
-                    >
-                        {typeof roomAppointmentError ===
-                            "string"
-                            ? roomAppointmentError
-                            : "Failed to confirm appointment room."}
-                    </div>
-
-                )}
+               
 
 
                 {/* ========================================= */}
@@ -1047,15 +1298,25 @@ const history =
                                                                                     </button>
 
 
-                                                                                    <RoomSelect
-                                                                                        slot={
-                                                                                            slot
-                                                                                        }
-                                                                                        request={
-                                                                                            request
-                                                                                        }
+                                                                                    <div
+                                                                                        className="
+        flex
+        items-center
+        gap-2
+    "
+                                                                                    >
 
-                                                                                    />
+                                                                                        <TherapistSelect
+                                                                                            slot={slot}
+                                                                                            request={request}
+                                                                                        />
+
+                                                                                        <RoomSelect
+                                                                                            slot={slot}
+                                                                                            request={request}
+                                                                                        />
+
+                                                                                    </div>
 
                                                                                 </div>
 
@@ -1152,19 +1413,29 @@ const history =
                                                                 "
                                                             >
 
-                                                                {selectedRequest &&
-                                                                     (
+                                                                {selectedRequest && (
 
-                                                                        <RoomSelect
-                                                                            slot={
-                                                                                slot
-                                                                            }
-                                                                            request={
-                                                                                selectedRequest
-                                                                            }
+                                                                    <div
+                                                                        className="
+            flex
+            items-center
+            gap-2
+        "
+                                                                    >
+
+                                                                        <TherapistSelect
+                                                                            slot={slot}
+                                                                            request={selectedRequest}
                                                                         />
 
-                                                                    )}
+                                                                        <RoomSelect
+                                                                            slot={slot}
+                                                                            request={selectedRequest}
+                                                                        />
+
+                                                                    </div>
+
+                                                                )}
 
 
                                                                 {isConfirmed ? (

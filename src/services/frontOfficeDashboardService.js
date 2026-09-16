@@ -77,14 +77,20 @@ export const fetchFrontOfficeReferrals =
 // ==========================================
 
 export const fetchFrontOfficeBillingDetails =
-  async () => {
+    async (period = "week") => {
 
-    const response =
-      await getFrontOfficeBillingDetails();
+        const response =
+            await getFrontOfficeBillingDetails(
+                period
+            );
 
-    return response.data.data;
-  };
+        console.log(
+            "BILLING API RESPONSE:",
+            response.data
+        );
 
+        return response.data?.billing_details || null;
+    };
 
 // ==========================================
 // RECENT TRANSACTIONS
@@ -128,44 +134,50 @@ export const fetchFrontOfficeUpcomingAppointments =
 // ==========================================
 
 export const fetchFrontOfficeDashboard =
-  async (period = "week") => {
+    async (period = "week") => {
 
-    const [
-      appointments,
-      insurance,
-      packages,
-      medicalCamp,
-      referrals,
-      billing,
-      transactions,
-      pendingActions,
-    ] = await Promise.all([
+        const [
+            appointments,
+            insurance,
+            packages,
+            medicalCamp,
+            referrals,
+            billing,
+            transactions,
+            pendingActions,
+        ] = await Promise.all([
 
-      fetchFrontOfficeUpcomingAppointments(period),
-      fetchFrontOfficeInsurance(period),
+            fetchFrontOfficeUpcomingAppointments(period),
 
-      fetchFrontOfficePackages(period),
+            fetchFrontOfficeInsurance(period),
 
-      fetchFrontOfficeMedicalCamp(period),
+            fetchFrontOfficePackages(period),
 
-      fetchFrontOfficeReferrals(period),
+            fetchFrontOfficeMedicalCamp(period),
 
-      fetchFrontOfficeBillingDetails(period),
+            fetchFrontOfficeReferrals(period),
 
-      fetchFrontOfficeRecentTransactions(period),
+            fetchFrontOfficeBillingDetails(period),
 
-      fetchFrontOfficePendingActions(period),
+            fetchFrontOfficeRecentTransactions(period),
 
-    ]);
+            fetchFrontOfficePendingActions(period),
 
-    return {
-      appointments,
-      insurance,
-      packages,
-      medicalCamp,
-      referrals,
-      billing,
-      transactions,
-      pendingActions,
+        ]);
+
+        console.log(
+            "🔥 BILLING FROM DASHBOARD SERVICE:",
+            billing
+        );
+
+        return {
+            appointments,
+            insurance,
+            packages,
+            medicalCamp,
+            referrals,
+            billing,
+            transactions,
+            pendingActions,
+        };
     };
-  };

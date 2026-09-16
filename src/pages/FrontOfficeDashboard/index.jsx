@@ -15,7 +15,6 @@ import {
   loadFrontOfficeDashboard,
   loadFrontOfficeAppointments,
 } from "../../redux/frontOffice/frontOfficeDashboardThunk";
-import toast from "react-hot-toast";
 import AppointmentsCompleted
   from "./components/UpcomingAppointments";
 
@@ -41,6 +40,7 @@ import PendingActions
   from "./components/PendingActions";
 import { onMessage } from "firebase/messaging";
 import { registerFrontOfficeFCMToken } from "../../redux/notifications/notificationThiunk";
+import { showSuccessToast } from "../../../utils/showToast";
 
 const FrontOfficeDashboard = () => {
 
@@ -138,35 +138,14 @@ const FrontOfficeDashboard = () => {
             // SHOW REACT HOT TOAST
             // ============================================
 
-            toast.success(
-              `${title}\n${body}`,
-              {
-                duration: 6000,
+            // ============================================
+// SHOW SUCCESS TOAST
+// ============================================
 
-                position: "top-right",
-
-                style: {
-                  whiteSpace: "pre-line",
-                  borderRadius: "12px",
-                  padding: "16px",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                },
-
-                onClick: () => {
-
-                  if (appointmentId) {
-
-                    navigate(
-                      `/frontoffice/upcoming-appointments/${appointmentId}`
-                    );
-
-                  }
-
-                },
-
-              }
-            );
+showSuccessToast(
+  title,
+  body
+);
 
           }
         );

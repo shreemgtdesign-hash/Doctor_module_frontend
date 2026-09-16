@@ -39,6 +39,14 @@ import TherapyConfirmation from "./pages/FrontOfficeAppointment/components/Thera
 import HomevisitConfirmation from "./pages/FrontOfficeAppointment/components/HomevisitConfirmation";
 import HomeVisitConfirmationList from "./pages/FrontOfficeAppointment/components/HomeVisitConfirmationList";
 import HomeVisitConfirmation from "./pages/FrontOfficeAppointment/components/HomevisitConfirmation";
+import AppointmentReminders from "./pages/FrontOfficeAppointment/components/AppointmentReminders";
+import TherapyReminders from "./pages/FrontOfficeAppointment/components/TherapyReminders";
+import PendingPayments from "./pages/FrontOfficeAppointment/components/PendingPayments";
+import PendingPaymentDetails from "./pages/FrontOfficeAppointment/components/PendingPaymentDetails";
+import AssociateDoctorPayoutDetails from "./pages/FrontOfficeAppointment/components/AssociateDoctorPayoutDetails";
+import AssociateDoctorPayouts from "./pages/FrontOfficeAppointment/components/AssociateDoctorPayouts";
+import VisitingDoctorPayoutDetails from "./pages/FrontOfficeAppointment/components/VisitingDoctorPayoutDetails";
+import VisitingDoctorPayouts from "./pages/FrontOfficeAppointment/components/VisitingDoctorPayouts";
 
 function App() {
   return (
@@ -290,6 +298,43 @@ function App() {
     element={
         <HomeVisitConfirmation />
     }
+/>
+<Route
+    path="/frontoffice/appointments/reminders"
+    element={<AppointmentReminders />}
+/>
+
+<Route
+    path="/frontoffice/therapies/reminders"
+    element={<TherapyReminders />}
+/>
+<Route
+    path="/frontoffice/billing/pending-payments"
+    element={<PendingPayments />}
+/>
+
+<Route
+    path="/frontoffice/billing/pending-payments/:appointmentId"
+    element={<PendingPaymentDetails />}
+/>
+<Route
+  path="/frontoffice/billing/visiting-doctor-payouts"
+  element={<VisitingDoctorPayouts />}
+/>
+
+<Route
+  path="/frontoffice/billing/visiting-doctor-payouts/:doctorId"
+  element={<VisitingDoctorPayoutDetails />}
+/>
+
+<Route
+  path="/frontoffice/billing/associate-doctor-payouts"
+  element={<AssociateDoctorPayouts />}
+/>
+
+<Route
+  path="/frontoffice/billing/associate-doctor-payouts/:doctorId"
+  element={<AssociateDoctorPayoutDetails/>}
 />
 
     </Routes>

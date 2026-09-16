@@ -1,6 +1,7 @@
 import {
     useEffect,
     useMemo,
+    useState,
 } from "react";
 
 import {
@@ -23,7 +24,11 @@ import DashboardLayout
 
 import {
     loadFrontOfficeHomevisitAppointmentConfirmation,
+    loadTherapistList,
+    selectFrontOfficeTherapist,
+
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
+import { showErrorToast, showSuccessToast } from "../../../../utils/showToast";
 
 
 const HomeVisitConfirmation = () => {
@@ -35,12 +40,27 @@ const HomeVisitConfirmation = () => {
     const {
         doctorId,
     } = useParams();
+    const [
+        selectedTherapists,
+        setSelectedTherapists
+    ] = useState({});
+    useEffect(() => {
 
+        dispatch(
+            loadTherapistList()
+        );
 
+    }, [dispatch]);
     const {
         homevisitConfirmation,
         homevisitConfirmationLoading,
         homevisitConfirmationError,
+
+        therapistList,
+        therapistListLoading,
+
+        selectTherapistLoading,
+
     } = useSelector(
         (state) =>
             state.frontOfficeAppointment
@@ -160,6 +180,94 @@ const HomeVisitConfirmation = () => {
         );
 
     };
+
+    const handleTherapistChange = async (
+    slot,
+    therapistId
+) => {
+
+    if (!therapistId) {
+        return;
+    }
+
+    const therapist =
+        therapistList.find(
+            (item) =>
+                String(
+                    item.therapist_id ||
+                    item.id
+                ) === String(therapistId)
+        );
+
+    setSelectedTherapists(
+        (previous) => ({
+            ...previous,
+
+            [slot.appointment_id]:
+                therapistId,
+        })
+    );
+
+    try {
+
+        await dispatch(
+            selectFrontOfficeTherapist({
+                appointment_id:
+                    slot.appointment_id,
+
+                patient_id:
+                    slot.patient_id,
+
+                therapist_id:
+                    therapistId,
+            })
+        ).unwrap();
+
+
+        // ✅ PREMIUM SUCCESS TOAST
+
+        showSuccessToast(
+            "Therapist Selected",
+            `${
+                therapist?.therapist_name ||
+                therapist?.name ||
+                "Therapist"
+            } has been selected successfully`
+        );
+
+
+    } catch (error) {
+
+        // ❌ PREMIUM ERROR TOAST
+
+        showErrorToast(
+            "Selection Failed",
+            typeof error === "string"
+                ? error
+                : "Failed to select therapist"
+        );
+
+
+        // Revert selection
+
+        setSelectedTherapists(
+            (previous) => {
+
+                const updated = {
+                    ...previous,
+                };
+
+                delete updated[
+                    slot.appointment_id
+                ];
+
+                return updated;
+            }
+        );
+
+    }
+
+};
 
 
     return (
@@ -787,12 +895,11 @@ const HomeVisitConfirmation = () => {
                                                     px-3
                                                     py-2.5
 
-                                                    ${
-                                                        confirmed
-                                                            ? "border-green-200 bg-[#EEFFF1]"
-                                                            : pending
-                                                                ? "border-[#EBD5C4] bg-[#FFF8ED]"
-                                                                : "border-[#E8DDD6] bg-white"
+                                                    ${confirmed
+                                                        ? "border-green-200 bg-[#EEFFF1]"
+                                                        : pending
+                                                            ? "border-[#EBD5C4] bg-[#FFF8ED]"
+                                                            : "border-[#E8DDD6] bg-white"
                                                     }
                                                 `}
                                             >
@@ -804,12 +911,11 @@ const HomeVisitConfirmation = () => {
                                                             text-[12px]
                                                             font-medium
 
-                                                            ${
-                                                                confirmed
-                                                                    ? "text-[#1B5D2B]"
-                                                                    : pending
-                                                                        ? "text-[#8A4F32]"
-                                                                        : "text-[#4B2E2A]"
+                                                            ${confirmed
+                                                                ? "text-[#1B5D2B]"
+                                                                : pending
+                                                                    ? "text-[#8A4F32]"
+                                                                    : "text-[#4B2E2A]"
                                                             }
                                                         `}
                                                     >
@@ -856,33 +962,129 @@ const HomeVisitConfirmation = () => {
                                                         slot
                                                     ) && (
 
-                                                        <p
-                                                            className="
+                                                            <p
+                                                                className="
                                                                 mt-0.5
                                                                 text-[10px]
                                                                 text-[#81756E]
                                                             "
-                                                        >
-                                                            Patient ID:{" "}
-                                                            {
-                                                                getPatientCode(
-                                                                    slot
-                                                                )
-                                                            }
-                                                        </p>
+                                                            >
+                                                                Patient ID:{" "}
+                                                                {
+                                                                    getPatientCode(
+                                                                        slot
+                                                                    )
+                                                                }
+                                                            </p>
 
-                                                    )}
+                                                        )}
 
                                                 </div>
 
 
                                                 <div
                                                     className="
-                                                        flex
-                                                        items-center
-                                                        gap-2
-                                                    "
+        flex
+        items-center
+        gap-3
+    "
                                                 >
+
+                                                    {/* ================================= */}
+                                                    {/* SELECT THERAPIST */}
+                                                    {/* ================================= */}
+
+                                                    {slot.appointment_id && (
+
+                                                        <select
+                                                            value={
+                                                                selectedTherapists[
+                                                                slot.appointment_id
+                                                                ] || ""
+                                                            }
+                                                            onChange={(event) =>
+                                                                handleTherapistChange(
+                                                                    slot,
+                                                                    event.target.value
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                therapistListLoading ||
+                                                                selectTherapistLoading
+                                                            }
+                                                            className="
+                h-[38px]
+                w-[150px]
+                cursor-pointer
+                rounded-xl
+                border
+                border-[#E7D7C8]
+                bg-white
+                px-3
+                text-[12px]
+                font-medium
+                text-[#4B2E2A]
+                outline-none
+                transition
+                focus:border-[#8A563B]
+                disabled:cursor-not-allowed
+                disabled:opacity-60
+            "
+                                                        >
+
+                                                            <option value="">
+                                                                {therapistListLoading
+                                                                    ? "Loading..."
+                                                                    : "Select Therapist"
+                                                                }
+                                                            </option>
+
+
+                                                            {therapistList
+                                                                .filter(
+                                                                    (therapist) =>
+                                                                        therapist.is_available !== false
+                                                                )
+                                                                .map(
+                                                                    (therapist) => {
+
+                                                                        const therapistId =
+                                                                            therapist.therapist_id ||
+                                                                            therapist.id;
+
+                                                                        const therapistName =
+                                                                            therapist.therapist_name ||
+                                                                            therapist.name ||
+                                                                            "";
+
+                                                                        return (
+
+                                                                            <option
+                                                                                key={
+                                                                                    therapistId
+                                                                                }
+                                                                                value={
+                                                                                    therapistId
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    therapistName
+                                                                                }
+                                                                            </option>
+
+                                                                        );
+
+                                                                    }
+                                                                )}
+
+                                                        </select>
+
+                                                    )}
+
+
+                                                    {/* ================================= */}
+                                                    {/* STATUS */}
+                                                    {/* ================================= */}
 
                                                     {confirmed ? (
 
@@ -890,9 +1092,9 @@ const HomeVisitConfirmation = () => {
 
                                                             <span
                                                                 className="
-                                                                    text-[10px]
-                                                                    text-[#1B5D2B]
-                                                                "
+                    text-[10px]
+                    text-[#1B5D2B]
+                "
                                                             >
                                                                 Confirmed
                                                             </span>
@@ -901,8 +1103,8 @@ const HomeVisitConfirmation = () => {
                                                             <HiOutlineCheckCircle
                                                                 size={16}
                                                                 className="
-                                                                    text-green-700
-                                                                "
+                    text-green-700
+                "
                                                             />
 
                                                         </>
@@ -913,9 +1115,9 @@ const HomeVisitConfirmation = () => {
 
                                                             <span
                                                                 className="
-                                                                    text-[10px]
-                                                                    text-[#8A4F32]
-                                                                "
+                    text-[10px]
+                    text-[#8A4F32]
+                "
                                                             >
                                                                 Pending
                                                             </span>
@@ -924,8 +1126,8 @@ const HomeVisitConfirmation = () => {
                                                             <HiOutlineClock
                                                                 size={16}
                                                                 className="
-                                                                    text-[#8A4F32]
-                                                                "
+                    text-[#8A4F32]
+                "
                                                             />
 
                                                         </>
@@ -936,9 +1138,9 @@ const HomeVisitConfirmation = () => {
 
                                                             <span
                                                                 className="
-                                                                    text-[10px]
-                                                                    text-[#8A4F32]
-                                                                "
+                    text-[10px]
+                    text-[#8A4F32]
+                "
                                                             >
                                                                 Available
                                                             </span>
@@ -947,8 +1149,8 @@ const HomeVisitConfirmation = () => {
                                                             <HiOutlineClock
                                                                 size={16}
                                                                 className="
-                                                                    text-[#8A4F32]
-                                                                "
+                    text-[#8A4F32]
+                "
                                                             />
 
                                                         </>

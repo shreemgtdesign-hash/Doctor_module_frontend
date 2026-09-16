@@ -7,7 +7,7 @@ import api from "./axios";
 // Confirm Appointment Slot
 export const confirmAppointmentSlot = (data) =>
     api.post(
-        "/frontoffice/appointments/confirm",
+        "/frontoffice/appointments/confirmation",
         data
     );
 
@@ -246,7 +246,7 @@ export const fetchCreatePatientReport = (payload) => {
 // Confirm Appointment Slot + Room
 export const confirmAppointmentRoom = (data) =>
     api.post(
-        "/frontoffice/appointments/confirmroom",
+        "/frontoffice/therapy/confirmroom",
         data
     );
 
@@ -254,3 +254,60 @@ export const getHomevisitConfirmationList = () =>
     api.get(
         "/frontoffice/homevisit/confirmation-list"
     );
+
+// ==========================================
+// THERAPIST APIs
+// ==========================================
+
+// Get Therapist Dropdown List
+export const getTherapistList = () =>
+    api.get(
+        "/frontoffice/therapists"
+    );
+
+
+// Select / Confirm Therapist
+export const selectTherapist = (data) =>
+    api.post(
+        "/frontoffice/therapy/select-therapist",
+        data
+    );
+
+// ==========================================
+// PENDING ACTIONS - REMINDERS
+// ==========================================
+
+// Get Appointment Reminders
+export const getAppointmentReminders = () =>
+    api.get(
+        "/frontoffice/pending-actions/appointment-reminders"
+    );
+
+
+// Get Therapy Reminders
+export const getTherapyReminders = () =>
+    api.get(
+        "/frontoffice/pending-actions/therapy-reminders"
+    );
+
+
+// Send Reminder
+export const getFrontOfficeBillingDetails = (
+    period = "week"
+) =>
+    api.get(
+        "/frontoffice/dashboard/billing-details",
+        {
+            params: {
+                period,
+            },
+        }
+    );
+
+// Send Appointment / Therapy Reminder
+export const sendPendingActionReminder = (data) =>
+    api.post(
+        "/frontoffice/pending-actions/send-reminder",
+        data
+    );
+

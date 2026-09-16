@@ -14,7 +14,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         position="top-center"
         containerStyle={{
           top: 80,
-          left: "70%",
+          left: "50%",
           transform: "translateX(-50%)",
           zIndex: 99999,
         }}

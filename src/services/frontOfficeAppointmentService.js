@@ -27,7 +27,12 @@ import {
     confirmAppointmentRoom,
     getHomevisitAppointmentConfirmation,
     getTherapyAppointmentConfirmation,
-    getHomevisitConfirmationList
+    getHomevisitConfirmationList,
+    selectTherapist,
+    getTherapistList,
+    sendPendingActionReminder,
+    getTherapyReminders,
+    getAppointmentReminders
 
 } from "../api/frontOfficeAppoinntmentApi";
 import { getMedicalCampDetails } from "../api/frontOfficeDashboardApi";
@@ -416,6 +421,76 @@ export const fetchHomevisitConfirmationList = async () => {
 
     const response =
         await getHomevisitConfirmationList();
+
+    return response.data;
+};
+
+
+// ==========================================
+// GET THERAPIST LIST
+// ==========================================
+
+export const fetchTherapistList = async () => {
+
+    const response =
+        await getTherapistList();
+
+    return response.data;
+};
+
+
+// ==========================================
+// SELECT THERAPIST
+// ==========================================
+
+export const fetchSelectTherapist = async (
+    data
+) => {
+
+    const response =
+        await selectTherapist(data);
+
+    return response.data;
+};
+
+// ==========================================
+// GET APPOINTMENT REMINDERS
+// ==========================================
+
+export const fetchAppointmentReminders = async () => {
+
+    const response =
+        await getAppointmentReminders();
+
+    return response.data;
+};
+
+
+// ==========================================
+// GET THERAPY REMINDERS
+// ==========================================
+
+export const fetchTherapyReminders = async () => {
+
+    const response =
+        await getTherapyReminders();
+
+    return response.data;
+};
+
+
+// ==========================================
+// SEND PENDING ACTION REMINDER
+// ==========================================
+
+export const fetchSendPendingActionReminder = async (
+    data
+) => {
+
+    const response =
+        await sendPendingActionReminder(
+            data
+        );
 
     return response.data;
 };
