@@ -89,6 +89,10 @@ messaging.onBackgroundMessage((payload) => {
 
         body: notificationBody,
 
+        tag: appointmentId ? `apt_${appointmentId}` : undefined,
+
+        renotify: true,
+
         data: {
             appointment_id: appointmentId,
 
@@ -96,7 +100,10 @@ messaging.onBackgroundMessage((payload) => {
                 payload?.data?.type || "",
 
             url:
-                "/frontoffice/upcoming-appointments",
+                payload?.data?.url || "",
+
+            role:
+                payload?.data?.role || "",
         },
 
     };
@@ -129,28 +136,32 @@ self.addEventListener(
 
         event.notification.close();
 
+        const notificationData =
+            event.notification?.data || {};
 
         const appointmentId =
-            event.notification?.data?.appointment_id;
+            notificationData.appointment_id;
 
-
-        // ------------------------------------------
-        // DEFAULT URL
-        // ------------------------------------------
+        const role =
+            (notificationData.role || "").toLowerCase();
 
         let targetUrl =
-            "/frontoffice/upcoming-appointments";
+            notificationData.url || "";
 
-
-        // ------------------------------------------
-        // APPOINTMENT URL
-        // ------------------------------------------
-
-        if (appointmentId) {
-
-            targetUrl =
-                `/frontoffice/upcoming-appointments/${appointmentId}`;
-
+        if (!targetUrl) {
+            if (role === "doctor") {
+                targetUrl = "/doctor/appointments";
+            } else if (role === "duty_doctor" || role === "dutydoctor") {
+                targetUrl = "/duty-doctor/dashboard";
+            } else if (role === "pharmacist") {
+                targetUrl = "/pharmacist/appointments";
+            } else if (role === "therapist") {
+                targetUrl = "/therapist/appointments";
+            } else if (appointmentId) {
+                targetUrl = `/frontoffice/upcoming-appointments/${appointmentId}`;
+            } else {
+                targetUrl = "/";
+            }
         }
 
 
@@ -173,13 +184,28 @@ self.addEventListener(
                         of clientList
                     ) {
 
+                        let finalUrl = targetUrl;
+                        if (!notificationData.url) {
+                            if (client.url.includes("/doctor")) {
+                                finalUrl = "/doctor/appointments";
+                            } else if (client.url.includes("/duty-doctor")) {
+                                finalUrl = "/duty-doctor/dashboard";
+                            } else if (client.url.includes("/pharmacist")) {
+                                finalUrl = "/pharmacist/appointments";
+                            } else if (client.url.includes("/therapist")) {
+                                finalUrl = "/therapist/appointments";
+                            } else if (client.url.includes("/frontoffice") && appointmentId) {
+                                finalUrl = `/frontoffice/upcoming-appointments/${appointmentId}`;
+                            }
+                        }
+
                         if (
                             "focus"
                             in client
                         ) {
 
                             client.navigate(
-                                targetUrl
+                                finalUrl
                             );
 
                             return client.focus();

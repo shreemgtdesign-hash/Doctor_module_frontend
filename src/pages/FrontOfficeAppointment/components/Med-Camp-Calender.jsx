@@ -367,9 +367,8 @@ const MedCampCalender = () => {
   // =========================================================
 
   const handleAddCamp = () => {
-    // Keep your existing Add Camp route here
-    // if it already exists in your project.
-  };
+  navigate("/frontoffice/medcamp/add");
+};
 
   // =========================================================
   // DATE DISPLAY

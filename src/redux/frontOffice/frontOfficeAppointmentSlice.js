@@ -35,6 +35,9 @@ import {
     loadAppointmentReminders,
     loadTherapyReminders,
     sendPendingActionReminder,
+    createFrontOfficeMedicalCamp,
+    loadOnlineMedicineOrderDetails,
+    loadOnlineMedicineOrders,
 } from "./frontOfficeAppointmentThunk";
 import { loadAssociateDoctorPayoutDetails, loadAssociateDoctorPayouts, loadVisitingDoctorPayoutDetails, loadVisitingDoctorPayouts } from "./frontOfficeBillingThunk";
 
@@ -97,7 +100,24 @@ const initialState = {
     // ==========================================
     // ROOM CONFIRMATION
     // ==========================================
+    // ==========================================
+    // ONLINE MEDICINE ORDERS
+    // ==========================================
 
+    onlineMedicineOrders: [],
+    onlineMedicineOrdersLoading: false,
+    onlineMedicineOrdersError: null,
+
+    onlineMedicineOrdersTotal: 0,
+    onlineMedicineOrdersPagination: null,
+
+    // ==========================================
+    // ONLINE MEDICINE ORDER DETAILS
+    // ==========================================
+
+    onlineMedicineOrderDetails: null,
+    onlineMedicineOrderDetailsLoading: false,
+    onlineMedicineOrderDetailsError: null,
     confirmingRoomAppointment: false,
     roomAppointmentSuccess: false,
     roomAppointmentMessage: "",
@@ -152,7 +172,15 @@ const initialState = {
 
     patientReportsLoading: false,
     patientReportsError: null,
+    // ==========================================
+    // CREATE MEDICAL CAMP
+    // ==========================================
 
+    medicalCampCreating: false,
+    medicalCampCreateSuccess: false,
+    medicalCampCreateMessage: "",
+    medicalCampCreateData: null,
+    medicalCampCreateError: null,
     reportUploading: false,
     reportUploadSuccess: false,
     reportUploadData: null,
@@ -237,7 +265,24 @@ const initialState = {
     therapyBookingMessage: "",
     therapyBookingData: null,
     therapyBookingError: null,
+    // ==========================================
+    // VISITING DOCTOR PAYOUTS
+    // ==========================================
 
+    visitingDoctorPayouts: [],
+    visitingDoctorPayoutsLoading: false,
+    visitingDoctorPayoutsError: null,
+
+    visitingDoctorPayoutsTotal: 0,
+    visitingDoctorPayoutsPagination: null,
+
+    // ==========================================
+    // VISITING DOCTOR PAYOUT DETAILS
+    // ==========================================
+
+    visitingDoctorPayoutDetails: null,
+    visitingDoctorPayoutDetailsLoading: false,
+    visitingDoctorPayoutDetailsError: null,
     // ==========================================
     // THERAPIES
     // ==========================================
@@ -245,6 +290,25 @@ const initialState = {
     therapies: [],
     therapiesLoading: false,
     therapiesError: null,
+
+    // ==========================================
+    // ASSOCIATE DOCTOR PAYOUTS
+    // ==========================================
+
+    associateDoctorPayouts: [],
+    associateDoctorPayoutsLoading: false,
+    associateDoctorPayoutsError: null,
+
+    associateDoctorPayoutsTotal: 0,
+    associateDoctorPayoutsPagination: null,
+
+    // ==========================================
+    // ASSOCIATE DOCTOR PAYOUT DETAILS
+    // ==========================================
+
+    associateDoctorPayoutDetails: null,
+    associateDoctorPayoutDetailsLoading: false,
+    associateDoctorPayoutDetailsError: null,
 
     // ==========================================
     // DELETE
@@ -317,7 +381,146 @@ const frontOfficeAppointmentSlice = createSlice({
         // ==========================================
         // CONFIRM / LOAD APPOINTMENT CONFIRMATION
         // ==========================================
+        // ==========================================
+// ONLINE MEDICINE ORDERS
+// ==========================================
 
+builder
+
+    .addCase(
+        loadOnlineMedicineOrders.pending,
+        (state) => {
+
+            state.onlineMedicineOrdersLoading = true;
+            state.onlineMedicineOrdersError = null;
+
+        }
+    )
+
+    .addCase(
+        loadOnlineMedicineOrders.fulfilled,
+        (state, action) => {
+
+            state.onlineMedicineOrdersLoading = false;
+
+            const response =
+                action.payload || {};
+
+            state.onlineMedicineOrders =
+                Array.isArray(response.data)
+                    ? response.data
+                    : [];
+
+            state.onlineMedicineOrdersTotal =
+                response.total_records ??
+                response.count ??
+                0;
+
+            state.onlineMedicineOrdersPagination = {
+                current_page:
+                    response.page || 1,
+
+                per_page:
+                    response.limit || 8,
+
+                total_items:
+                    response.total_records ??
+                    response.count ??
+                    0,
+
+                total_pages: Math.max(
+                    1,
+                    Math.ceil(
+                        (
+                            response.total_records ??
+                            response.count ??
+                            0
+                        ) /
+                        (
+                            response.limit ||
+                            8
+                        )
+                    )
+                ),
+            };
+
+            state.onlineMedicineOrdersError =
+                null;
+
+        }
+    )
+
+    .addCase(
+        loadOnlineMedicineOrders.rejected,
+        (state, action) => {
+
+            state.onlineMedicineOrdersLoading = false;
+
+            state.onlineMedicineOrdersError =
+                action.payload ||
+                "Failed to load online medicine orders.";
+
+            state.onlineMedicineOrders = [];
+
+        }
+    );
+
+
+// ==========================================
+// ONLINE MEDICINE ORDER DETAILS
+// ==========================================
+
+builder
+
+    .addCase(
+        loadOnlineMedicineOrderDetails.pending,
+        (state) => {
+
+            state.onlineMedicineOrderDetailsLoading =
+                true;
+
+            state.onlineMedicineOrderDetailsError =
+                null;
+
+            state.onlineMedicineOrderDetails =
+                null;
+
+        }
+    )
+
+    .addCase(
+        loadOnlineMedicineOrderDetails.fulfilled,
+        (state, action) => {
+
+            state.onlineMedicineOrderDetailsLoading =
+                false;
+
+            state.onlineMedicineOrderDetails =
+                action.payload?.data ||
+                null;
+
+            state.onlineMedicineOrderDetailsError =
+                null;
+
+        }
+    )
+
+    .addCase(
+        loadOnlineMedicineOrderDetails.rejected,
+        (state, action) => {
+
+            state.onlineMedicineOrderDetailsLoading =
+                false;
+
+            state.onlineMedicineOrderDetailsError =
+                action.payload ||
+                "Failed to load medicine order details.";
+
+            state.onlineMedicineOrderDetails =
+                null;
+
+        }
+    )
         builder
 
             .addCase(
@@ -345,6 +548,56 @@ const frontOfficeAppointmentSlice = createSlice({
 
                     state.loading = true;
                     state.error = null;
+                }
+            )
+            // ==========================================
+            // CREATE MEDICAL CAMP
+            // ==========================================
+
+            .addCase(
+                createFrontOfficeMedicalCamp.pending,
+                (state) => {
+
+                    state.medicalCampCreating = true;
+                    state.medicalCampCreateSuccess = false;
+                    state.medicalCampCreateMessage = "";
+                    state.medicalCampCreateData = null;
+                    state.medicalCampCreateError = null;
+
+                }
+            )
+
+            .addCase(
+                createFrontOfficeMedicalCamp.fulfilled,
+                (state, action) => {
+
+                    state.medicalCampCreating = false;
+                    state.medicalCampCreateSuccess = true;
+
+                    state.medicalCampCreateMessage =
+                        action.payload?.message ||
+                        "Medical camp created successfully!";
+
+                    state.medicalCampCreateData =
+                        action.payload?.data ||
+                        null;
+
+                    state.medicalCampCreateError = null;
+
+                }
+            )
+
+            .addCase(
+                createFrontOfficeMedicalCamp.rejected,
+                (state, action) => {
+
+                    state.medicalCampCreating = false;
+                    state.medicalCampCreateSuccess = false;
+
+                    state.medicalCampCreateError =
+                        action.payload ||
+                        "Failed to create medical camp.";
+
                 }
             )
 
@@ -992,17 +1245,33 @@ const frontOfficeAppointmentSlice = createSlice({
                 loadVisitingDoctorPayouts.fulfilled,
                 (state, action) => {
                     state.visitingDoctorPayoutsLoading = false;
+                    state.visitingDoctorPayoutsError = null;
 
-                    const data = action.payload || {};
+                    const response = action.payload || {};
+
+                    console.log(
+                        "Visiting Doctor Payout API:",
+                        response
+                    );
+
+                    // API response:
+                    // {
+                    //   success: true,
+                    //   total_pending_payouts: 17,
+                    //   pagination: {...},
+                    //   data: [...]
+                    // }
 
                     state.visitingDoctorPayouts =
-                        data.data || [];
+                        Array.isArray(response.data)
+                            ? response.data
+                            : [];
 
                     state.visitingDoctorPayoutsTotal =
-                        data.total_pending_payouts || 0;
+                        response.total_pending_payouts ?? 0;
 
                     state.visitingDoctorPayoutsPagination =
-                        data.pagination || null;
+                        response.pagination || null;
                 }
             )
             .addCase(
@@ -1014,91 +1283,91 @@ const frontOfficeAppointmentSlice = createSlice({
                         action.payload;
                 }
             )
-              .addCase(
-    loadVisitingDoctorPayoutDetails.pending,
-    (state) => {
-      state.visitingDoctorPayoutDetailsLoading = true;
-      state.visitingDoctorPayoutDetailsError = null;
-      state.visitingDoctorPayoutDetails = null;
-    }
-  )
-  .addCase(
-    loadVisitingDoctorPayoutDetails.fulfilled,
-    (state, action) => {
-      state.visitingDoctorPayoutDetailsLoading = false;
+            .addCase(
+                loadVisitingDoctorPayoutDetails.pending,
+                (state) => {
+                    state.visitingDoctorPayoutDetailsLoading = true;
+                    state.visitingDoctorPayoutDetailsError = null;
+                    state.visitingDoctorPayoutDetails = null;
+                }
+            )
+            .addCase(
+                loadVisitingDoctorPayoutDetails.fulfilled,
+                (state, action) => {
+                    state.visitingDoctorPayoutDetailsLoading = false;
 
-      state.visitingDoctorPayoutDetails =
-        action.payload || null;
-    }
-  )
-  .addCase(
-    loadVisitingDoctorPayoutDetails.rejected,
-    (state, action) => {
-      state.visitingDoctorPayoutDetailsLoading = false;
+                    state.visitingDoctorPayoutDetails =
+                        action.payload || null;
+                }
+            )
+            .addCase(
+                loadVisitingDoctorPayoutDetails.rejected,
+                (state, action) => {
+                    state.visitingDoctorPayoutDetailsLoading = false;
 
-      state.visitingDoctorPayoutDetailsError =
-        action.payload;
-    }
-  )
-    .addCase(
-    loadAssociateDoctorPayouts.pending,
-    (state) => {
-      state.associateDoctorPayoutsLoading = true;
-      state.associateDoctorPayoutsError = null;
-    }
-  )
-  .addCase(
-    loadAssociateDoctorPayouts.fulfilled,
-    (state, action) => {
-      state.associateDoctorPayoutsLoading = false;
+                    state.visitingDoctorPayoutDetailsError =
+                        action.payload;
+                }
+            )
+            .addCase(
+                loadAssociateDoctorPayouts.pending,
+                (state) => {
+                    state.associateDoctorPayoutsLoading = true;
+                    state.associateDoctorPayoutsError = null;
+                }
+            )
+            .addCase(
+                loadAssociateDoctorPayouts.fulfilled,
+                (state, action) => {
+                    state.associateDoctorPayoutsLoading = false;
 
-      const data = action.payload || {};
+                    const data = action.payload || {};
 
-      state.associateDoctorPayouts =
-        data.data || [];
+                    state.associateDoctorPayouts =
+                        data.data || [];
 
-      state.associateDoctorPayoutsTotal =
-        data.total_pending_payouts || 0;
+                    state.associateDoctorPayoutsTotal =
+                        data.total_pending_payouts || 0;
 
-      state.associateDoctorPayoutsPagination =
-        data.pagination || null;
-    }
-  )
-  .addCase(
-    loadAssociateDoctorPayouts.rejected,
-    (state, action) => {
-      state.associateDoctorPayoutsLoading = false;
+                    state.associateDoctorPayoutsPagination =
+                        data.pagination || null;
+                }
+            )
+            .addCase(
+                loadAssociateDoctorPayouts.rejected,
+                (state, action) => {
+                    state.associateDoctorPayoutsLoading = false;
 
-      state.associateDoctorPayoutsError =
-        action.payload;
-    }
-  )
-    .addCase(
-    loadAssociateDoctorPayoutDetails.pending,
-    (state) => {
-      state.associateDoctorPayoutDetailsLoading = true;
-      state.associateDoctorPayoutDetailsError = null;
-      state.associateDoctorPayoutDetails = null;
-    }
-  )
-  .addCase(
-    loadAssociateDoctorPayoutDetails.fulfilled,
-    (state, action) => {
-      state.associateDoctorPayoutDetailsLoading = false;
+                    state.associateDoctorPayoutsError =
+                        action.payload;
+                }
+            )
+            .addCase(
+                loadAssociateDoctorPayoutDetails.pending,
+                (state) => {
+                    state.associateDoctorPayoutDetailsLoading = true;
+                    state.associateDoctorPayoutDetailsError = null;
+                    state.associateDoctorPayoutDetails = null;
+                }
+            )
+            .addCase(
+                loadAssociateDoctorPayoutDetails.fulfilled,
+                (state, action) => {
+                    state.associateDoctorPayoutDetailsLoading = false;
 
-      state.associateDoctorPayoutDetails =
-        action.payload || null;
-    }
-  )
-  .addCase(
-    loadAssociateDoctorPayoutDetails.rejected,
-    (state, action) => {
-      state.associateDoctorPayoutDetailsLoading = false;
+                    state.associateDoctorPayoutDetails =
+                        action.payload || null;
+                }
+            )
+            .addCase(
+                loadAssociateDoctorPayoutDetails.rejected,
+                (state, action) => {
+                    state.associateDoctorPayoutDetailsLoading = false;
 
-      state.associateDoctorPayoutDetailsError =
-        action.payload;
-    }
-  )
+                    state.associateDoctorPayoutDetailsError =
+                        action.payload;
+                }
+            )
         builder
             .addCase(
                 createFrontOfficeDirectWalkInPatient.pending,

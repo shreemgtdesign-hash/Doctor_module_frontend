@@ -32,7 +32,10 @@ import {
     getTherapistList,
     sendPendingActionReminder,
     getTherapyReminders,
-    getAppointmentReminders
+    getAppointmentReminders,
+    createMedicalCamp,
+    getOnlineMedicineOrderDetails,
+    getOnlineMedicineOrders
 
 } from "../api/frontOfficeAppoinntmentApi";
 import { getMedicalCampDetails } from "../api/frontOfficeDashboardApi";
@@ -494,3 +497,53 @@ export const fetchSendPendingActionReminder = async (
 
     return response.data;
 };
+
+// ==========================================
+// CREATE MEDICAL CAMP
+// ==========================================
+
+export const fetchCreateMedicalCamp = async (
+    data
+) => {
+
+    const response =
+        await createMedicalCamp(data);
+
+    return response.data;
+};
+
+// ==========================================
+// GET ONLINE MEDICINE ORDERS
+// ==========================================
+
+export const fetchOnlineMedicineOrders = async (
+    page = 1,
+    limit = 8
+) => {
+
+    const response =
+        await getOnlineMedicineOrders(
+            page,
+            limit
+        );
+
+    return response.data;
+};
+
+
+// ==========================================
+// GET ONLINE MEDICINE ORDER DETAILS
+// ==========================================
+
+export const fetchOnlineMedicineOrderDetails =
+    async (
+        orderId
+    ) => {
+
+        const response =
+            await getOnlineMedicineOrderDetails(
+                orderId
+            );
+
+        return response.data;
+    };

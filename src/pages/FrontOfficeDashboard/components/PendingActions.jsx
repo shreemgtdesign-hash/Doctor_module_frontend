@@ -84,7 +84,7 @@ const PendingActions = () => {
 
             onClick: () => {
                 navigate(
-                   "/frontoffice/pending-actions/home-visit-confirmations"
+                    "/frontoffice/pending-actions/home-visit-confirmations"
                 );
             },
         },
@@ -115,6 +115,19 @@ const PendingActions = () => {
             onClick: () => {
                 navigate(
                     "/frontoffice/therapies/reminders"
+                );
+            },
+        },
+        {
+            label: "Online Orders",
+
+            value:
+                pending?.online_orders ??
+                0,
+
+            onClick: () => {
+                navigate(
+                    "/frontoffice/pending-actions/online-orders"
                 );
             },
         },

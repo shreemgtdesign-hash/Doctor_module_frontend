@@ -238,7 +238,7 @@ const MedicalCampDetails = () => {
   const handleBack = () => {
 
     navigate(
-      "/frontoffice/medcamp"
+      "/frontoffice/medcamp-calender"
     );
 
   };

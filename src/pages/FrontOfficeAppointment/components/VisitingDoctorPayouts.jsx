@@ -13,14 +13,14 @@ const VisitingDoctorPayouts = () => {
   const navigate = useNavigate();
 
   const {
-    visitingDoctorPayouts,
-    visitingDoctorPayoutsLoading,
-    visitingDoctorPayoutsError,
-    visitingDoctorPayoutsPagination,
-    visitingDoctorPayoutsTotal,
-  } = useSelector(
-    (state) => state.frontOfficeBilling
-  );
+  visitingDoctorPayouts = [],
+  visitingDoctorPayoutsLoading = false,
+  visitingDoctorPayoutsError = null,
+  visitingDoctorPayoutsPagination = null,
+  visitingDoctorPayoutsTotal = 0,
+} = useSelector(
+  (state) => state.frontOfficeAppointment
+);
 
   const currentPage =
     visitingDoctorPayoutsPagination?.current_page || 1;

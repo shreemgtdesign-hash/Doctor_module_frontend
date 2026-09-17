@@ -19,7 +19,7 @@ const VisitingDoctorPayoutDetails = () => {
     visitingDoctorPayoutDetailsLoading,
     visitingDoctorPayoutDetailsError,
   } = useSelector(
-    (state) => state.frontOfficeBilling
+    (state) => state.frontOfficeAppointment
   );
 
   useEffect(() => {

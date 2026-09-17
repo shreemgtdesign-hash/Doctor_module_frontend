@@ -22,6 +22,7 @@ import { loadNotifications, markAllNotificationsRead, markNotificationRead } fro
 
 const Header = ({
   setSidebarOpen,
+  role,
 }) => {
 
   const dispatch = useDispatch();
@@ -152,30 +153,51 @@ const Header = ({
 
     }
 
+    setShowNotifications(false);
 
     // ----------------------------------------------
-    // APPOINTMENT ID
+    // DIRECT URL NAVIGATION
+    // ----------------------------------------------
+    const notificationUrl =
+      notification?.data?.url ||
+      notification?.url;
+
+    if (notificationUrl) {
+      navigate(notificationUrl);
+      return;
+    }
+
+    // ----------------------------------------------
+    // APPOINTMENT ID NAVIGATION ACCORDING TO USER ROLE
     // ----------------------------------------------
 
     const appointmentId =
-      notification?.data
-        ?.appointment_id;
-
-
-    // ----------------------------------------------
-    // GO TO APPOINTMENT
-    // ----------------------------------------------
+      notification?.data?.appointment_id ||
+      notification?.appointment_id;
 
     if (appointmentId) {
+      const currentRole = (
+        role ||
+        user?.role ||
+        ""
+      ).toLowerCase();
 
-      setShowNotifications(
-        false
-      );
-
-      navigate(
-        `/frontoffice/upcoming-appointments/${appointmentId}`
-      );
-
+      if (currentRole === "doctor") {
+        navigate("/doctor/appointments");
+      } else if (
+        currentRole === "duty_doctor" ||
+        currentRole === "dutydoctor"
+      ) {
+        navigate("/duty-doctor/dashboard");
+      } else if (currentRole === "pharmacist") {
+        navigate("/pharmacist/appointments");
+      } else if (currentRole === "therapist") {
+        navigate("/therapist/appointments");
+      } else {
+        navigate(
+          `/frontoffice/upcoming-appointments/${appointmentId}`
+        );
+      }
     }
 
   };

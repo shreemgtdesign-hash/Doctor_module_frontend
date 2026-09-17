@@ -311,3 +311,40 @@ export const sendPendingActionReminder = (data) =>
         data
     );
 
+    // ==========================================
+// MEDICAL CAMP APIs
+// ==========================================
+
+// Create Medical Camp
+export const createMedicalCamp = (data) =>
+    api.post(
+        "/frontoffice/medicalcamp",
+        data
+    );
+// ==========================================
+// ONLINE MEDICINE ORDERS
+// ==========================================
+
+// Get Online Medicine Orders
+export const getOnlineMedicineOrders = (
+    page = 1,
+    limit = 8
+) =>
+    api.get(
+        "/frontoffice/pending-actions/online-orders",
+        {
+            params: {
+                page,
+                limit,
+            },
+        }
+    );
+
+
+// Get Online Medicine Order Details
+export const getOnlineMedicineOrderDetails = (
+    orderId
+) =>
+    api.get(
+        `/frontoffice/pending-actions/online-orders/${orderId}`
+    );

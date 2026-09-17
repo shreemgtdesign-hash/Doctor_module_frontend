@@ -6,7 +6,8 @@ import CustomToast from "../src/components/Toast/CustomToast";
 const showCustomToast = (
     title,
     message,
-    type = "success"
+    type = "success",
+    toastId
 ) => {
 
     toast.custom(
@@ -19,6 +20,7 @@ const showCustomToast = (
             />
         ),
         {
+            id: toastId,
             duration: 5000,
             position: "top-center",
         }
@@ -33,13 +35,15 @@ const showCustomToast = (
 
 export const showSuccessToast = (
     title,
-    message
+    message,
+    toastId
 ) => {
 
     showCustomToast(
         title,
         message,
-        "success"
+        "success",
+        toastId
     );
 
 };

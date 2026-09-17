@@ -51,7 +51,7 @@ const Prescription = ({
 }) => {
 
     const dispatch = useDispatch();
-
+    const [openDoctorDropdown, setOpenDoctorDropdown] = useState(null);
     const {
         prescription,
         prescriptionSearch,
@@ -1013,56 +1013,202 @@ useEffect(() => {
 
                                 <div className="flex flex-col items-end gap-3">
 
-                                    <select
-                                        value={medicine.doctor_name || ""}
-                                        onChange={(e) =>
-                                            updateMedicine(
-                                                index,
-                                                "doctor_name",
-                                                e.target.value
-                                            )
-                                        }
-                                        className="
-                                            h-[42px]
-                                            w-[190px]
-                                            rounded-xl
-                                            border
-                                            border-[#E7DBD3]
-                                            bg-white
-                                            px-4
-                                            text-[14px]
-                                            font-semibold
-                                            text-[#4D2E23]
-                                            outline-none
-                                            cursor-pointer
-                                            focus:border-[#8A563B]
-                                        "
-                                    >
-                                        <option value="">
-                                            Select Doctor
-                                        </option>
+                                   <div className="relative w-[220px]">
 
-                                        {(associateDoctors || []).map((doctor) => {
-                                            const doctorId =
-                                                doctor.doctor_id ||
-                                                doctor.id;
+    {/* SELECTED DOCTOR BUTTON */}
+    <button
+        type="button"
+        onClick={() =>
+            setOpenDoctorDropdown(
+                openDoctorDropdown === index ? null : index
+            )
+        }
+        className="
+            flex
+            h-[48px]
+            w-full
+            items-center
+            justify-between
+            rounded-xl
+            border
+            border-[#E7DBD3]
+            bg-white
+            px-4
+            text-left
+            shadow-sm
+            transition
+            hover:border-[#CDB5A6]
+        "
+    >
+        <div className="min-w-0">
+            {medicine.doctor_name ? (
+                <p className="truncate text-[13px] font-semibold text-[#4D2E23]">
+                    {medicine.doctor_name}
+                </p>
+            ) : (
+                <p className="text-[13px] font-medium text-[#9A8D84]">
+                    Select Doctor
+                </p>
+            )}
+        </div>
 
-                                            const doctorName =
-                                                doctor.doctor_name ||
-                                                doctor.name ||
-                                                doctor.select_doctor ||
-                                                "";
+        <HiChevronDown
+            size={18}
+            className={`
+                ml-2
+                flex-shrink-0
+                text-[#7B665A]
+                transition-transform
+                ${openDoctorDropdown === index ? "rotate-180" : ""}
+            `}
+        />
+    </button>
 
-                                            return (
-                                                <option
-                                                    key={doctorId}
-                                                    value={doctorName}
-                                                >
-                                                    {doctorName}
-                                                </option>
-                                            );
-                                        })}
-                                    </select>
+
+    {/* CUSTOM DROPDOWN */}
+    {openDoctorDropdown === index && (
+        <div
+            className="
+                absolute
+                right-0
+                top-[54px]
+                z-[100]
+                w-[320px]
+                overflow-hidden
+                rounded-2xl
+                border
+                border-[#E7DBD3]
+                bg-white
+                shadow-xl
+            "
+        >
+
+            {/* DEFAULT OPTION */}
+            <button
+                type="button"
+                onClick={() => {
+                    updateMedicine(
+                        index,
+                        "doctor_name",
+                        ""
+                    );
+                    setOpenDoctorDropdown(null);
+                }}
+                className="
+                    flex
+                    w-full
+                    items-center
+                    border-b
+                    border-[#F0E7E1]
+                    px-4
+                    py-3
+                    text-left
+                    transition
+                    hover:bg-[#FFF8F2]
+                "
+            >
+                <span className="text-[12px] text-[#9A8D84]">
+                    Select Doctor
+                </span>
+            </button>
+
+
+            {/* ASSOCIATE DOCTORS */}
+            {(associateDoctors || []).map((doctor) => {
+
+                const doctorId =
+                    doctor.doctor_id || doctor.id;
+
+                const doctorName =
+                    doctor.doctor_name ||
+                    doctor.name ||
+                    doctor.select_doctor ||
+                    "";
+
+                const doctorCategory =
+                    doctor.category || "";
+
+                const isSelected =
+                    medicine.doctor_name === doctorName;
+
+                return (
+                    <button
+                        key={doctorId}
+                        type="button"
+                        onClick={() => {
+                            updateMedicine(
+                                index,
+                                "doctor_name",
+                                doctorName
+                            );
+
+                            setOpenDoctorDropdown(null);
+                        }}
+                        className={`
+                            flex
+                            w-full
+                            items-center
+                            justify-between
+                            border-b
+                            border-[#F2E8E2]
+                            px-4
+                            py-3
+                            text-left
+                            transition
+                            last:border-b-0
+                            hover:bg-[#FFF8F2]
+                            ${
+                                isSelected
+                                    ? "bg-[#FFF8F2]"
+                                    : "bg-white"
+                            }
+                        `}
+                    >
+
+                        <div className="min-w-0">
+
+                            <p className="
+                                truncate
+                                text-[13px]
+                                font-semibold
+                                text-[#4D2E23]
+                            ">
+                                {doctorName}
+                            </p>
+
+                            {doctorCategory && (
+                                <p className="
+                                    mt-1
+                                    truncate
+                                    text-[11px]
+                                    text-[#8D8179]
+                                ">
+                                    {doctorCategory}
+                                </p>
+                            )}
+
+                        </div>
+
+                        {isSelected && (
+                            <span className="
+                                ml-3
+                                flex-shrink-0
+                                text-[12px]
+                                font-semibold
+                                text-[#8A563B]
+                            ">
+                                ✓
+                            </span>
+                        )}
+
+                    </button>
+                );
+            })}
+
+        </div>
+    )}
+
+</div>
 
                                     <div className="rounded-full bg-[#E8F8EA] px-4 py-1 text-xs font-medium text-[#2E7A46]">
                                         In Stock
@@ -1665,11 +1811,11 @@ useEffect(() => {
 
                 <div className="flex items-center justify-between border-t border-[#ECE2DA] px-7 py-7">
 
-                    <h2 className="text-[28px] font-bold text-[#4D2E23]">
+                    <h2 className="text-[24px] font-bold text-[#4D2E23]">
                         Total
                     </h2>
 
-                    <h2 className="text-[34px] font-bold text-[#4D2E23]">
+                    <h2 className="text-[15px] font-bold text-[#824c39]">
 
                         ₹{total.toFixed(2)}
 

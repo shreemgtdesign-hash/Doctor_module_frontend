@@ -3,6 +3,7 @@ import { login } from "./authThunk";
 
 const storedUser = localStorage.getItem("user");
 const storedToken = localStorage.getItem("token");
+const storedRole = localStorage.getItem("role");
 
 const initialState = {
   loading: false,
@@ -12,6 +13,8 @@ const initialState = {
     : null,
 
   token: storedToken || null,
+
+  role: storedRole || null,
 
   isAuthenticated: !!storedToken,
 
@@ -27,10 +30,12 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
+      state.role = null;
       state.isAuthenticated = false;
 
       localStorage.removeItem("user");
       localStorage.removeItem("token");
+      localStorage.removeItem("role");
     },
   },
 
@@ -47,6 +52,7 @@ const authSlice = createSlice({
 
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.role = action.payload.role;
         state.isAuthenticated = true;
 
         // IMPORTANT
@@ -58,6 +64,11 @@ const authSlice = createSlice({
         localStorage.setItem(
           "token",
           action.payload.token
+        );
+
+        localStorage.setItem(
+          "role",
+          action.payload.role
         );
       })
 

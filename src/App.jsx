@@ -47,10 +47,16 @@ import AssociateDoctorPayoutDetails from "./pages/FrontOfficeAppointment/compone
 import AssociateDoctorPayouts from "./pages/FrontOfficeAppointment/components/AssociateDoctorPayouts";
 import VisitingDoctorPayoutDetails from "./pages/FrontOfficeAppointment/components/VisitingDoctorPayoutDetails";
 import VisitingDoctorPayouts from "./pages/FrontOfficeAppointment/components/VisitingDoctorPayouts";
+import NotificationListener from "./components/Notifications/NotificationListener";
+import AddMedicalCamp from "./pages/FrontOfficeAppointment/components/AddMedicalCamp";
+import OnlineMedicineOrders from "./pages/FrontOfficeAppointment/components/OnlineMedicineOrders";
+import OnlineMedicineOrderDetails from "./pages/FrontOfficeAppointment/components/OnlineMedicineOrderDetails";
 
 function App() {
   return (
-    <Routes>
+    <>
+      <NotificationListener />
+      <Routes>
 
       {/* Root */}
       <Route
@@ -336,8 +342,26 @@ function App() {
   path="/frontoffice/billing/associate-doctor-payouts/:doctorId"
   element={<AssociateDoctorPayoutDetails/>}
 />
+<Route
+    path="/frontoffice/medcamp/add"
+    element={<AddMedicalCamp />}
+/>
+<Route
+    path="/frontoffice/pending-actions/online-orders"
+    element={
+        <OnlineMedicineOrders />
+    }
+/>
+
+<Route
+    path="/frontoffice/pending-actions/online-orders/:orderId"
+    element={
+        <OnlineMedicineOrderDetails />
+    }
+/>
 
     </Routes>
+    </>
   );
 }
 

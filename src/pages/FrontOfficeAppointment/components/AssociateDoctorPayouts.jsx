@@ -13,14 +13,14 @@ const AssociateDoctorPayouts = () => {
   const navigate = useNavigate();
 
   const {
-    associateDoctorPayouts,
-    associateDoctorPayoutsLoading,
-    associateDoctorPayoutsError,
-    associateDoctorPayoutsPagination,
-    associateDoctorPayoutsTotal,
-  } = useSelector(
-    (state) => state.frontOfficeBilling
-  );
+  associateDoctorPayouts = [],
+  associateDoctorPayoutsLoading = false,
+  associateDoctorPayoutsError = null,
+  associateDoctorPayoutsPagination = null,
+  associateDoctorPayoutsTotal = 0,
+} = useSelector(
+  (state) => state.frontOfficeAppointment
+);
 
   const currentPage =
     associateDoctorPayoutsPagination?.current_page || 1;

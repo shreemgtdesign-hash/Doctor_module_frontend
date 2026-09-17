@@ -104,13 +104,18 @@ export const markAllNotificationsRead =
     }
   );
 
-  export const registerFrontOfficeFCMToken = createAsyncThunk(
-  "notifications/registerFrontOfficeFCMToken",
+export const registerDeviceFCMToken = createAsyncThunk(
+  "notifications/registerDeviceFCMToken",
 
-  async (token, { rejectWithValue }) => {
+  async (arg, { rejectWithValue }) => {
     try {
+      const token = typeof arg === "string" ? arg : arg?.token;
+      const role = typeof arg === "object" ? arg?.role : localStorage.getItem("role");
+
       const response = await registerFCMToken({
-        device_token:token,
+        device_token: token,
+        role: role,
+        device_type: "web",
       });
 
       return response.data;
@@ -124,3 +129,5 @@ export const markAllNotificationsRead =
     }
   }
 );
+
+export const registerFrontOfficeFCMToken = registerDeviceFCMToken;

@@ -35,6 +35,9 @@ import {
     fetchAppointmentReminders,
     fetchTherapyReminders,
     fetchSendPendingActionReminder,
+    fetchCreateMedicalCamp,
+    fetchOnlineMedicineOrderDetails,
+    fetchOnlineMedicineOrders,
 } from "../../services/frontOfficeAppointmentService";
 import { fetchAppointmentConfirmationList } from "../../services/therapistAppointmentsService";
 import { fetchPatientReports } from "../../services/doctorAppointmentService";
@@ -1113,6 +1116,111 @@ export const sendPendingActionReminder =
                     error.response?.data ||
                     error.message ||
                     "Failed to send reminder."
+                );
+
+            }
+
+        }
+    );
+
+    // ==========================================
+// CREATE MEDICAL CAMP
+// ==========================================
+
+export const createFrontOfficeMedicalCamp =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/createMedicalCamp",
+
+        async (
+            campData,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchCreateMedicalCamp(
+                    campData
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to create medical camp."
+                );
+
+            }
+
+        }
+
+    );
+
+    // ==========================================
+// ONLINE MEDICINE ORDERS
+// ==========================================
+
+export const loadOnlineMedicineOrders =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/loadOnlineMedicineOrders",
+
+        async (
+            {
+                page = 1,
+                limit = 8,
+            } = {},
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchOnlineMedicineOrders(
+                    page,
+                    limit
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to load online medicine orders."
+                );
+
+            }
+
+        }
+    );
+
+
+// ==========================================
+// ONLINE MEDICINE ORDER DETAILS
+// ==========================================
+
+export const loadOnlineMedicineOrderDetails =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/loadOnlineMedicineOrderDetails",
+
+        async (
+            orderId,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchOnlineMedicineOrderDetails(
+                    orderId
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to load medicine order details."
                 );
 
             }

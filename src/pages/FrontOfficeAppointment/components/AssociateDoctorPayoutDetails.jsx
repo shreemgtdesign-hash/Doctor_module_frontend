@@ -19,7 +19,7 @@ const AssociateDoctorPayoutDetails = () => {
     associateDoctorPayoutDetailsLoading,
     associateDoctorPayoutDetailsError,
   } = useSelector(
-    (state) => state.frontOfficeBilling
+    (state) => state.frontOfficeAppointment
   );
 
   useEffect(() => {

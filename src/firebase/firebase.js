@@ -79,6 +79,21 @@ export const generateToken =
         try {
 
             // ------------------------------------------
+            // BROWSER SUPPORT CHECK
+            // ------------------------------------------
+
+            if (
+                typeof window === "undefined" ||
+                !("Notification" in window) ||
+                !("serviceWorker" in navigator)
+            ) {
+                console.warn(
+                    "Push notifications are not supported in this environment."
+                );
+                return null;
+            }
+
+            // ------------------------------------------
             // REQUEST PERMISSION
             // ------------------------------------------
 
@@ -154,7 +169,7 @@ export const generateToken =
                 error
             );
 
-            throw error;
+            return null;
 
         }
 

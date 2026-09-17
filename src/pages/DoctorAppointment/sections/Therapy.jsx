@@ -13,6 +13,7 @@ import {
   HiOutlineClock,
   HiOutlineArrowRightOnRectangle,
   HiOutlineArrowLeft,
+  HiChevronDown,
 } from "react-icons/hi2";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -37,7 +38,11 @@ const Therapy = ({
 }) => {
 
   const dispatch = useDispatch();
+  const [openDoctorDropdown, setOpenDoctorDropdown] =
+  useState(null);
 
+  const [openCategoryDropdown, setOpenCategoryDropdown] =
+  useState(null);
   // ==========================================
   // SEARCH
   // ==========================================
@@ -1053,90 +1058,341 @@ useEffect(() => {
                       </h3>
 
                        <div className="flex items-center gap-3">
-                         <select
-                           value={item.doctor_name || ""}
-                           onChange={(e) =>
-                             updateTherapy(
-                               index,
-                               "doctor_name",
-                               e.target.value
-                             )
-                           }
-                           className="
-                             h-[36px]
-                             w-[180px]
-                             rounded-xl
-                             border
-                             border-[#E8D9CF]
-                             bg-white
-                             px-4
-                             text-[14px]
-                             font-semibold
-                             text-[#4D2E23]
-                             outline-none
-                             cursor-pointer
-                             focus:border-[#8A563B]
-                           "
-                         >
-                           <option value="">
-                             Select Doctor
-                           </option>
+                         <div className="relative w-[220px]">
 
-                           {(associateDoctors || []).map((doctor) => {
-                             const doctorId =
-                               doctor.doctor_id || doctor.id;
+    {/* SELECTED DOCTOR */}
+    <button
+        type="button"
+        onClick={() => {
+            setOpenDoctorDropdown(
+                openDoctorDropdown === index
+                    ? null
+                    : index
+            );
 
-                             const doctorName =
-                               doctor.doctor_name ||
-                               doctor.name ||
-                               doctor.select_doctor ||
-                               "";
+            setOpenCategoryDropdown(null);
+        }}
+        className="
+            flex
+            h-[42px]
+            w-full
+            items-center
+            justify-between
+            rounded-xl
+            border
+            border-[#E8D9CF]
+            bg-white
+            px-4
+            text-left
+            shadow-sm
+            transition
+            hover:border-[#CDB5A6]
+        "
+    >
+        <div className="min-w-0">
 
-                             return (
-                               <option
-                                 key={doctorId}
-                                 value={doctorName}
-                               >
-                                 {doctorName}
-                               </option>
-                             );
-                           })}
-                         </select>
+            {item.doctor_name ? (
+                <p className="
+                    truncate
+                    text-[13px]
+                    font-semibold
+                    text-[#4D2E23]
+                ">
+                    {item.doctor_name}
+                </p>
+            ) : (
+                <p className="
+                    text-[13px]
+                    font-medium
+                    text-[#9A8D84]
+                ">
+                    Select Doctor
+                </p>
+            )}
 
-                         <select
-                           value={item.category || "Treatments"}
-                           onChange={(e) =>
-                             updateTherapy(
-                               index,
-                               "category",
-                               e.target.value
-                             )
-                           }
-                           className="
-                             h-[36px]
-                             w-[160px]
-                             rounded-xl
-                             border
-                             border-[#E8D9CF]
-                             bg-white
-                             px-4
-                             text-[14px]
-                             font-semibold
-                             text-[#4D2E23]
-                             outline-none
-                             cursor-pointer
-                             focus:border-[#8A563B]
-                           "
-                         >
-                           {therapyCategories.map((category) => (
-                             <option
-                               key={category}
-                               value={category}
-                             >
-                               {category}
-                             </option>
-                           ))}
-                         </select>
+        </div>
+
+        <HiChevronDown
+            size={17}
+            className={`
+                ml-2
+                flex-shrink-0
+                text-[#7B665A]
+                transition-transform
+                ${
+                    openDoctorDropdown === index
+                        ? "rotate-180"
+                        : ""
+                }
+            `}
+        />
+    </button>
+
+
+    {/* DOCTOR DROPDOWN */}
+    {openDoctorDropdown === index && (
+        <div
+            className="
+                absolute
+                right-0
+                top-[48px]
+                z-[100]
+                w-[320px]
+                overflow-hidden
+                rounded-2xl
+                border
+                border-[#E7DBD3]
+                bg-white
+                shadow-xl
+            "
+        >
+
+            {/* SELECT DOCTOR */}
+            <button
+                type="button"
+                onClick={() => {
+                    updateTherapy(
+                        index,
+                        "doctor_name",
+                        ""
+                    );
+
+                    setOpenDoctorDropdown(null);
+                }}
+                className="
+                    flex
+                    w-full
+                    border-b
+                    border-[#F0E7E1]
+                    px-4
+                    py-3
+                    text-left
+                    text-[12px]
+                    text-[#9A8D84]
+                    transition
+                    hover:bg-[#FFF8F2]
+                "
+            >
+                Select Doctor
+            </button>
+
+
+            {(associateDoctors || []).map((doctor) => {
+
+                const doctorId =
+                    doctor.doctor_id || doctor.id;
+
+                const doctorName =
+                    doctor.doctor_name ||
+                    doctor.name ||
+                    doctor.select_doctor ||
+                    "";
+
+                const doctorCategory =
+                    doctor.category || "";
+
+                const isSelected =
+                    item.doctor_name === doctorName;
+
+                return (
+                    <button
+                        key={doctorId}
+                        type="button"
+                        onClick={() => {
+                            updateTherapy(
+                                index,
+                                "doctor_name",
+                                doctorName
+                            );
+
+                            setOpenDoctorDropdown(null);
+                        }}
+                        className={`
+                            flex
+                            w-full
+                            items-center
+                            justify-between
+                            border-b
+                            border-[#F2E8E2]
+                            px-4
+                            py-3
+                            text-left
+                            last:border-b-0
+                            transition
+                            hover:bg-[#FFF8F2]
+                            ${
+                                isSelected
+                                    ? "bg-[#FFF8F2]"
+                                    : "bg-white"
+                            }
+                        `}
+                    >
+
+                        <div className="min-w-0">
+
+                            <p className="
+                                truncate
+                                text-[13px]
+                                font-semibold
+                                text-[#4D2E23]
+                            ">
+                                {doctorName}
+                            </p>
+
+                            {doctorCategory && (
+                                <p className="
+                                    mt-1
+                                    truncate
+                                    text-[11px]
+                                    text-[#8D8179]
+                                ">
+                                    {doctorCategory}
+                                </p>
+                            )}
+
+                        </div>
+
+                        {isSelected && (
+                            <span className="
+                                ml-3
+                                flex-shrink-0
+                                text-[12px]
+                                font-semibold
+                                text-[#8A563B]
+                            ">
+                                ✓
+                            </span>
+                        )}
+
+                    </button>
+                );
+            })}
+
+        </div>
+    )}
+
+</div>
+
+                         <div className="relative w-[180px]">
+
+    <button
+        type="button"
+        onClick={() => {
+            setOpenCategoryDropdown(
+                openCategoryDropdown === index
+                    ? null
+                    : index
+            );
+
+            setOpenDoctorDropdown(null);
+        }}
+        className="
+            flex
+            h-[42px]
+            w-full
+            items-center
+            justify-between
+            rounded-xl
+            border
+            border-[#E8D9CF]
+            bg-white
+            px-4
+            text-left
+            shadow-sm
+        "
+    >
+        <span className="
+            truncate
+            text-[13px]
+            font-semibold
+            text-[#4D2E23]
+        ">
+            {item.category || "Treatments"}
+        </span>
+
+        <HiChevronDown
+            size={17}
+            className={`
+                text-[#7B665A]
+                transition-transform
+                ${
+                    openCategoryDropdown === index
+                        ? "rotate-180"
+                        : ""
+                }
+            `}
+        />
+    </button>
+
+
+    {openCategoryDropdown === index && (
+        <div
+            className="
+                absolute
+                right-0
+                top-[48px]
+                z-[100]
+                w-[200px]
+                overflow-hidden
+                rounded-2xl
+                border
+                border-[#E7DBD3]
+                bg-white
+                shadow-xl
+            "
+        >
+            {therapyCategories.map((category) => {
+
+                const isSelected =
+                    item.category === category;
+
+                return (
+                    <button
+                        key={category}
+                        type="button"
+                        onClick={() => {
+                            updateTherapy(
+                                index,
+                                "category",
+                                category
+                            );
+
+                            setOpenCategoryDropdown(null);
+                        }}
+                        className={`
+                            flex
+                            w-full
+                            items-center
+                            justify-between
+                            border-b
+                            border-[#F2E8E2]
+                            px-4
+                            py-3
+                            text-left
+                            text-[12px]
+                            last:border-b-0
+                            hover:bg-[#FFF8F2]
+                            ${
+                                isSelected
+                                    ? "bg-[#FFF8F2] font-semibold text-[#4D2E23]"
+                                    : "text-[#6F625B]"
+                            }
+                        `}
+                    >
+                        {category}
+
+                        {isSelected && (
+                            <span className="text-[#8A563B]">
+                                ✓
+                            </span>
+                        )}
+                    </button>
+                );
+            })}
+        </div>
+    )}
+
+</div>
                        </div>
 </div>
 
@@ -1463,9 +1719,9 @@ useEffect(() => {
 
 
           <h2 className="
-            text-[20px]
+            text-[15px]
             font-bold
-            text-[#4D2E23]
+            text-[#9b614b]
           ">
             ₹
             {total.toLocaleString()}

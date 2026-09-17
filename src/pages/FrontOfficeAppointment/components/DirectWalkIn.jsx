@@ -50,9 +50,12 @@ const DirectWalkIn = () => {
   const walkInSuccess = useSelector(selectWalkInSuccess);
   const walkInMessage = useSelector(selectWalkInMessage);
   const walkInError = useSelector(selectWalkInError);
-
+  const [currentTime, setCurrentTime] = useState(
+  new Date()
+);
   const [formType, setFormType] = useState("appointment");
-
+  const [showReasonDropdown, setShowReasonDropdown] =
+  useState(false);
   const [form, setForm] = useState({
     therapy_id: "",
     patient_appointment_date: "",
@@ -88,6 +91,13 @@ const DirectWalkIn = () => {
 
     comments: "",
   });
+  useEffect(() => {
+  const timer = setInterval(() => {
+    setCurrentTime(new Date());
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, []);
 
   useEffect(() => {
     dispatch(
@@ -575,36 +585,139 @@ const DirectWalkIn = () => {
           <div className="flex items-end gap-7">
 
             <div>
-              <label className="mb-1.5 block text-[11px]">
-                Reason for visit
-              </label>
+  <label className="mb-1.5 block text-[11px]">
+    Reason for visit
+  </label>
 
-              <div className="relative">
-                <select
-                  value={formType}
-                  onChange={(e) => {
-                    setFormType(e.target.value);
-                  }}
-                  className="h-[40px] w-[145px] appearance-none rounded-lg border border-[#E8D9CF] bg-white px-3 pr-8 text-[11px] outline-none"
-                >
-                  <option value="appointment">
-                    Appointment Booking
-                  </option>
+  <div className="relative w-[170px]">
 
-                  <option value="medicine">
-                    Medicine purchase
-                  </option>
-                  <option value="therapy">
-                    Therapy Booking
-                  </option>
-                </select>
+    {/* SELECTED VALUE */}
+    <button
+      type="button"
+      onClick={() =>
+        setShowReasonDropdown((prev) => !prev)
+      }
+      className="
+        flex
+        h-[40px]
+        w-full
+        items-center
+        justify-between
+        rounded-lg
+        border
+        border-[#E8D9CF]
+        bg-white
+        px-3
+        text-left
+        text-[11px]
+        font-medium
+        text-[#4B2418]
+        outline-none
+        transition
+        hover:border-[#CDB5A6]
+      "
+    >
+      <span className="truncate">
+        {formType === "appointment"
+          ? "Appointment Booking"
+          : formType === "medicine"
+            ? "Medicine purchase"
+            : "Therapy Booking"}
+      </span>
 
-                <ChevronDown
-                  size={14}
-                  className="pointer-events-none absolute right-3 top-3 text-[#633A2B]"
-                />
-              </div>
-            </div>
+      <ChevronDown
+        size={14}
+        className={`
+          ml-2
+          flex-shrink-0
+          text-[#633A2B]
+          transition-transform
+          ${showReasonDropdown ? "rotate-180" : ""}
+        `}
+      />
+    </button>
+
+    {/* DROPDOWN */}
+    {showReasonDropdown && (
+      <div
+        className="
+          absolute
+          right-0
+          top-[46px]
+          z-[100]
+          w-[220px]
+          overflow-hidden
+          rounded-xl
+          border
+          border-[#E8D9CF]
+          bg-white
+          shadow-xl
+        "
+      >
+
+        {[
+          {
+            value: "appointment",
+            label: "Appointment Booking",
+          },
+          {
+            value: "medicine",
+            label: "Medicine purchase",
+          },
+          {
+            value: "therapy",
+            label: "Therapy Booking",
+          },
+        ].map((item) => {
+
+          const selected =
+            formType === item.value;
+
+          return (
+            <button
+              key={item.value}
+              type="button"
+              onClick={() => {
+                setFormType(item.value);
+                setShowReasonDropdown(false);
+              }}
+              className={`
+                flex
+                w-full
+                items-center
+                justify-between
+                border-b
+                border-[#F0E5DE]
+                px-3
+                py-3
+                text-left
+                text-[11px]
+                last:border-b-0
+                transition
+                hover:bg-[#FFF8F2]
+                ${
+                  selected
+                    ? "bg-[#FFF8F2] font-semibold text-[#4B2418]"
+                    : "text-[#6F625B]"
+                }
+              `}
+            >
+              <span>{item.label}</span>
+
+              {selected && (
+                <span className="text-[#8A5038]">
+                  ✓
+                </span>
+              )}
+            </button>
+          );
+        })}
+
+      </div>
+    )}
+
+  </div>
+</div>
 
             <div>
               <label className="mb-1.5 block text-[11px]">
@@ -626,20 +739,24 @@ const DirectWalkIn = () => {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-[11px]">
-                Time
-              </label>
+  <label className="mb-1.5 block text-[11px]">
+    Time
+  </label>
 
-              <div className="flex h-[40px] min-w-[94px] items-center gap-2 rounded-lg border border-[#E8D9CF] px-3 text-[11px]">
-                <Clock3 size={13} />
+  <div className="flex h-[40px] min-w-[94px] items-center gap-2 rounded-lg border border-[#E8D9CF] px-3 text-[11px]">
+    <Clock3 size={13} />
 
-                <span>
-                  {form.slot_time
-                    ? formatTime(form.slot_time)
-                    : "--:--"}
-                </span>
-              </div>
-            </div>
+    <span>
+      {form.slot_time
+        ? formatTime(form.slot_time)
+        : currentTime.toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            second: "2-digit",
+          })}
+    </span>
+  </div>
+</div>
           </div>
         </div>
 

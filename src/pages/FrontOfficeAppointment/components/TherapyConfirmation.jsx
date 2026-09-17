@@ -40,7 +40,9 @@ const TherapyConfirmation = () => {
 
     const navigate = useNavigate();
 
-
+    const [openRoomDropdown, setOpenRoomDropdown] = useState(null);
+    const [openTherapistDropdown, setOpenTherapistDropdown] =
+    useState(null);
 
 
     // ==========================================
@@ -512,68 +514,175 @@ const TherapyConfirmation = () => {
     request,
 }) => {
 
-    const roomValue =
-        getRoomValue(
-            slot,
-            request
-        );
+    const roomValue = getRoomValue(
+        slot,
+        request
+    );
 
+    const rooms = [
+        "Room 1",
+        "Room 2",
+        "Room 3",
+        "Room 4",
+        "Room 5",
+    ];
+
+    const dropdownKey =
+        request?.appointment_id;
 
     return (
-        <select
-            value={roomValue}
-            onChange={(event) =>
-                handleRoomChange(
-                    slot,
-                    request,
-                    event.target.value
-                )
-            }
-            className="
-                h-9
-                min-w-[118px]
-                cursor-pointer
-                appearance-none
-                rounded-[10px]
-                border
-                border-[#E7D5C4]
-                bg-white
-                px-3
-                pr-8
-                text-[11px]
-                font-medium
-                text-[#4D2E23]
-                outline-none
-                transition
-                focus:border-[#8A5035]
-            "
-        >
+        <div className="relative min-w-[118px]">
 
-            <option value="">
-                Select room no.
-            </option>
+            {/* SELECTED ROOM */}
+            <button
+                type="button"
+                onClick={() => {
+                    setOpenRoomDropdown(
+                        openRoomDropdown === dropdownKey
+                            ? null
+                            : dropdownKey
+                    );
 
-            <option value="Room 1">
-                Room 1
-            </option>
+                    setOpenTherapistDropdown(null);
+                }}
+                className="
+                    flex
+                    h-9
+                    w-full
+                    items-center
+                    justify-between
+                    rounded-[10px]
+                    border
+                    border-[#E7D5C4]
+                    bg-white
+                    px-3
+                    text-left
+                    text-[11px]
+                    font-medium
+                    text-[#4D2E23]
+                    shadow-sm
+                    transition
+                    hover:border-[#CDB5A6]
+                "
+            >
+                <span className="truncate">
+                    {roomValue || "Select room no."}
+                </span>
 
-            <option value="Room 2">
-                Room 2
-            </option>
+                <HiOutlineChevronDown
+                    size={14}
+                    className={`
+                        ml-2
+                        flex-shrink-0
+                        text-[#7A6658]
+                        transition-transform
+                        ${
+                            openRoomDropdown === dropdownKey
+                                ? "rotate-180"
+                                : ""
+                        }
+                    `}
+                />
+            </button>
 
-            <option value="Room 3">
-                Room 3
-            </option>
 
-            <option value="Room 4">
-                Room 4
-            </option>
+            {/* CUSTOM ROOM DROPDOWN */}
+            {openRoomDropdown === dropdownKey && (
+                <div
+                    className="
+                        absolute
+                        right-0
+                        top-[42px]
+                        z-[100]
+                        w-[150px]
+                        overflow-hidden
+                        rounded-xl
+                        border
+                        border-[#E7D5C4]
+                        bg-white
+                        shadow-xl
+                    "
+                >
 
-            <option value="Room 5">
-                Room 5
-            </option>
+                    {/* CLEAR */}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setOpenRoomDropdown(null);
+                        }}
+                        className="
+                            flex
+                            w-full
+                            items-center
+                            border-b
+                            border-[#F0E5DE]
+                            px-3
+                            py-2.5
+                            text-left
+                            text-[11px]
+                            text-[#8B7A70]
+                            hover:bg-[#FFF8F2]
+                        "
+                    >
+                        Select room no.
+                    </button>
 
-        </select>
+
+                    {rooms.map((room) => {
+
+                        const isSelected =
+                            roomValue === room;
+
+                        return (
+                            <button
+                                key={room}
+                                type="button"
+                                onClick={async () => {
+
+                                    setOpenRoomDropdown(null);
+
+                                    await handleRoomChange(
+                                        slot,
+                                        request,
+                                        room
+                                    );
+                                }}
+                                className={`
+                                    flex
+                                    w-full
+                                    items-center
+                                    justify-between
+                                    border-b
+                                    border-[#F2E8E2]
+                                    px-3
+                                    py-2.5
+                                    text-left
+                                    text-[11px]
+                                    last:border-b-0
+                                    transition
+                                    hover:bg-[#FFF8F2]
+                                    ${
+                                        isSelected
+                                            ? "bg-[#FFF8F2] font-semibold text-[#4D2E23]"
+                                            : "text-[#6F625B]"
+                                    }
+                                `}
+                            >
+                                <span>{room}</span>
+
+                                {isSelected && (
+                                    <span className="text-[#8A5035]">
+                                        ✓
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
+
+                </div>
+            )}
+
+        </div>
     );
 };
     // ==========================================
@@ -581,116 +690,232 @@ const TherapyConfirmation = () => {
     // ==========================================
 
     const TherapistSelect = ({
-        slot,
-        request,
-    }) => {
+    slot,
+    request,
+}) => {
 
-        const appointmentId =
-            request?.appointment_id;
+    const appointmentId =
+        request?.appointment_id;
 
-
-        const therapistValue =
-            selectedTherapists[
+    const therapistValue =
+        selectedTherapists[
             appointmentId
-            ] ||
-            request?.therapist_id ||
-            slot?.therapist_id ||
-            "";
+        ] ||
+        request?.therapist_id ||
+        slot?.therapist_id ||
+        "";
 
+    const isSelecting =
+        Boolean(selectTherapistLoading);
 
-        const isSelecting =
-            Boolean(
-                selectTherapistLoading
+    const dropdownKey =
+        appointmentId;
+
+    const selectedTherapist =
+        therapistList?.find(
+            (therapist) =>
+                String(
+                    therapist.therapist_id ||
+                    therapist.id
+                ) === String(therapistValue)
+        );
+
+    const selectedTherapistName =
+        selectedTherapist?.therapist_name ||
+        selectedTherapist?.name ||
+        "";
+    useEffect(() => {
+    const handleClickOutside = (event) => {
+        const clickedInsideDropdown =
+            event.target.closest(
+                "[data-custom-dropdown]"
             );
 
+        if (!clickedInsideDropdown) {
+            setOpenRoomDropdown(null);
+            setOpenTherapistDropdown(null);
+        }
+    };
 
-        return (
+    document.addEventListener(
+        "mousedown",
+        handleClickOutside
+    );
 
-            <select
-                value={therapistValue}
+    return () => {
+        document.removeEventListener(
+            "mousedown",
+            handleClickOutside
+        );
+    };
+}, []);
+    return (
+        <div className="relative min-w-[150px]" data-custom-dropdown>
+
+            {/* SELECTED THERAPIST */}
+            <button
+                type="button"
                 disabled={
                     therapistListLoading ||
                     isSelecting
                 }
-                onChange={(event) =>
-                    handleTherapistChange(
-                        slot,
-                        request,
-                        event.target.value
-                    )
-                }
-                className="
-                h-9
-                min-w-[150px]
-                cursor-pointer
-                appearance-none
-                rounded-[10px]
-                border
-                border-[#E7D5C4]
-                bg-white
-                px-3
-                pr-8
-                text-[11px]
-                font-medium
-                text-[#4D2E23]
-                outline-none
-                transition
-                focus:border-[#8A5035]
-                disabled:cursor-not-allowed
-                disabled:opacity-60
-            "
-            >
+                onClick={() => {
 
-                <option value="">
+                    setOpenTherapistDropdown(
+                        openTherapistDropdown === dropdownKey
+                            ? null
+                            : dropdownKey
+                    );
+
+                    setOpenRoomDropdown(null);
+                }}
+                className="
+                    flex
+                    h-9
+                    w-full
+                    items-center
+                    justify-between
+                    rounded-[10px]
+                    border
+                    border-[#E7D5C4]
+                    bg-white
+                    px-3
+                    text-left
+                    text-[11px]
+                    font-medium
+                    text-[#4D2E23]
+                    shadow-sm
+                    transition
+                    hover:border-[#CDB5A6]
+                    disabled:cursor-not-allowed
+                    disabled:opacity-60
+                "
+            >
+                <span className="truncate">
                     {therapistListLoading
                         ? "Loading..."
-                        : "Select Therapist"
-                    }
-                </option>
+                        : selectedTherapistName ||
+                          "Select Therapist"}
+                </span>
 
-
-                {therapistList
-                    ?.filter(
-                        (therapist) =>
-                            therapist.is_available !== false
-                    )
-                    .map(
-                        (therapist) => {
-
-                            const therapistId =
-                                therapist.therapist_id ||
-                                therapist.id;
-
-                            const therapistName =
-                                therapist.therapist_name ||
-                                therapist.name ||
-                                "Therapist";
-
-                            return (
-
-                                <option
-                                    key={
-                                        therapistId
-                                    }
-                                    value={
-                                        therapistId
-                                    }
-                                >
-                                    {
-                                        therapistName
-                                    }
-                                </option>
-
-                            );
-
+                <HiOutlineChevronDown
+                    size={14}
+                    className={`
+                        ml-2
+                        flex-shrink-0
+                        text-[#7A6658]
+                        transition-transform
+                        ${
+                            openTherapistDropdown ===
+                            dropdownKey
+                                ? "rotate-180"
+                                : ""
                         }
-                    )}
+                    `}
+                />
+            </button>
 
-            </select>
 
-        );
+            {/* CUSTOM THERAPIST DROPDOWN */}
+            {openTherapistDropdown === dropdownKey &&
+                !therapistListLoading &&
+                !isSelecting && (
+                    <div
+                        className="
+                            absolute
+                            right-0
+                            top-[42px]
+                            z-[100]
+                            w-[220px]
+                            max-h-[250px]
+                            overflow-y-auto
+                            rounded-xl
+                            border
+                            border-[#E7D5C4]
+                            bg-white
+                            shadow-xl
+                        "
+                    >
 
-    };
+                        {therapistList
+                            ?.filter(
+                                (therapist) =>
+                                    therapist.is_available !== false
+                            )
+                            .map((therapist) => {
+
+                                const therapistId =
+                                    therapist.therapist_id ||
+                                    therapist.id;
+
+                                const therapistName =
+                                    therapist.therapist_name ||
+                                    therapist.name ||
+                                    "Therapist";
+
+                                const isSelected =
+                                    String(
+                                        therapistValue
+                                    ) === String(
+                                        therapistId
+                                    );
+
+                                return (
+                                    <button
+                                        key={therapistId}
+                                        type="button"
+                                        onClick={async () => {
+
+                                            setOpenTherapistDropdown(
+                                                null
+                                            );
+
+                                            await handleTherapistChange(
+                                                slot,
+                                                request,
+                                                therapistId
+                                            );
+                                        }}
+                                        className={`
+                                            flex
+                                            w-full
+                                            items-center
+                                            justify-between
+                                            border-b
+                                            border-[#F2E8E2]
+                                            px-3
+                                            py-3
+                                            text-left
+                                            text-[11px]
+                                            last:border-b-0
+                                            transition
+                                            hover:bg-[#FFF8F2]
+                                            ${
+                                                isSelected
+                                                    ? "bg-[#FFF8F2] font-semibold text-[#4D2E23]"
+                                                    : "text-[#6F625B]"
+                                            }
+                                        `}
+                                    >
+                                        <span className="truncate">
+                                            {therapistName}
+                                        </span>
+
+                                        {isSelected && (
+                                            <span className="ml-2 text-[#8A5035]">
+                                                ✓
+                                            </span>
+                                        )}
+                                    </button>
+                                );
+                            })}
+
+                    </div>
+                )}
+
+        </div>
+    );
+};
 
 
     // ==========================================

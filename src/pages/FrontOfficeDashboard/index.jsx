@@ -10,7 +10,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import DashboardLayout
   from "../../components/Layout/DashboardLayout";
-import { generateToken, messaging } from "../../firebase/firebase";
 import {
   loadFrontOfficeDashboard,
   loadFrontOfficeAppointments,
@@ -38,9 +37,6 @@ import RecentTransactions
 
 import PendingActions
   from "./components/PendingActions";
-import { onMessage } from "firebase/messaging";
-import { registerFrontOfficeFCMToken } from "../../redux/notifications/notificationThiunk";
-import { showSuccessToast } from "../../../utils/showToast";
 
 const FrontOfficeDashboard = () => {
 
@@ -57,132 +53,27 @@ const FrontOfficeDashboard = () => {
         state.frontOfficeDashboard
     );
 
+  // Listen for real-time notification events to keep dashboard data fresh
   useEffect(() => {
-
-    let unsubscribe;
-
-    const setupFCM = async () => {
-
-      try {
-
-        // ==============================================
-        // GENERATE / REGISTER FCM TOKEN
-        // ==============================================
-
-        const token = await generateToken();
-
-        console.log("FCM token generated:", token);
-
-        if (token) {
-          await dispatch(
-            registerFrontOfficeFCMToken(token)
-          );
-        }
-
-
-        // ==============================================
-        // LISTEN FOR FOREGROUND MESSAGES
-        // ==============================================
-
-        unsubscribe = onMessage(
-          messaging,
-          (payload) => {
-
-            console.log(
-              "Message received.",
-              payload
-            );
-
-
-            // ============================================
-            // GET TITLE
-            // ============================================
-
-            const title =
-              payload?.notification?.title ||
-              payload?.data?.title ||
-              "New Notification";
-
-
-            // ============================================
-            // GET BODY
-            // ============================================
-
-            const body =
-              payload?.notification?.body ||
-              payload?.data?.body ||
-              "You have a new notification.";
-
-
-            // ============================================
-            // APPOINTMENT ID
-            // ============================================
-
-            const appointmentId =
-              payload?.data?.appointment_id ||
-              payload?.data?.appointmentId ||
-              "";
-
-
-            console.log(
-              "FCM notification:",
-              {
-                title,
-                body,
-                appointmentId,
-              }
-            );
-
-
-            // ============================================
-            // SHOW REACT HOT TOAST
-            // ============================================
-
-            // ============================================
-// SHOW SUCCESS TOAST
-// ============================================
-
-showSuccessToast(
-  title,
-  body
-);
-
-          }
-        );
-
-      } catch (error) {
-
-        console.error(
-          "FCM setup failed:",
-          error
-        );
-
-      }
-
+    const handleFCMNotification = () => {
+      dispatch(
+        loadFrontOfficeDashboard({
+          period: period || "week",
+        })
+      );
+      dispatch(
+        loadFrontOfficeAppointments({
+          period: period || "today",
+        })
+      );
     };
 
-
-    setupFCM();
-
-
-    // ==============================================
-    // CLEANUP FCM LISTENER
-    // ==============================================
+    window.addEventListener("fcm_notification", handleFCMNotification);
 
     return () => {
-
-      if (
-        typeof unsubscribe ===
-        "function"
-      ) {
-
-        unsubscribe();
-
-      }
-
+      window.removeEventListener("fcm_notification", handleFCMNotification);
     };
-
-  }, [navigate]);
+  }, [dispatch, period]);
 
 
 
