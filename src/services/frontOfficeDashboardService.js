@@ -8,6 +8,7 @@ import {
   getFrontOfficeRecentTransactions,
   getFrontOfficePendingActions,
   getFrontOfficeUpcomingAppointments,
+  getFrontOfficeSalesDetails,
 } from "../api/frontOfficeDashboardApi";
 
 
@@ -180,4 +181,22 @@ export const fetchFrontOfficeDashboard =
             transactions,
             pendingActions,
         };
+    };
+
+
+// ==========================================
+// SALES DETAILS
+// ==========================================
+
+export const fetchFrontOfficeSalesDetails =
+    async (
+        period = "week"
+    ) => {
+
+        const response =
+            await getFrontOfficeSalesDetails(
+                period
+            );
+
+        return response.data?.data || null;
     };

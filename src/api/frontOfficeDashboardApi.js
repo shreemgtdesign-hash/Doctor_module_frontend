@@ -76,3 +76,20 @@ export const getMedicalCampDetails = (campId) =>
   api.get(
     `/frontoffice/medicalcamp-details/${campId}`
   );
+
+
+// ==========================================
+// SALES DETAILS
+// ==========================================
+
+export const getFrontOfficeSalesDetails = (
+    period = "week"
+) =>
+    api.get(
+        "/frontoffice/dashboard/sales-details",
+        {
+            params: {
+                period,
+            },
+        }
+    );

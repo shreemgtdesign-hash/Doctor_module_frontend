@@ -5,6 +5,7 @@ import {
 import {
   loadFrontOfficeDashboard,
   loadFrontOfficeAppointments,
+  loadFrontOfficeSalesDetails,
 } from "./frontOfficeDashboardThunk";
 
 
@@ -25,6 +26,9 @@ const initialState = {
   transactions: [],
 
   pendingActions: null,
+  salesDetails: null,
+  salesDetailsLoading: false,
+  salesDetailsError: null,
 
   period: "week",
 
@@ -98,54 +102,97 @@ const frontOfficeDashboardSlice =
           }
         )
 
-      
+
 
         .addCase(
-    loadFrontOfficeDashboard.fulfilled,
-    (state, action) => {
+          loadFrontOfficeDashboard.fulfilled,
+          (state, action) => {
 
-        state.loading = false;
+            state.loading = false;
 
-        const data =
-            action.payload || {};
+            const data =
+              action.payload || {};
 
-        console.log(
-            "🔥 DASHBOARD REDUX PAYLOAD:",
-            data
-        );
+            console.log(
+              "🔥 DASHBOARD REDUX PAYLOAD:",
+              data
+            );
 
-        state.appointments =
-            data.appointments;
+            state.appointments =
+              data.appointments;
 
-        state.insurance =
-            data.insurance;
+            state.insurance =
+              data.insurance;
 
-        state.packages =
-            data.packages;
+            state.packages =
+              data.packages;
 
-        state.medicalCamp =
-            data.medicalCamp;
+            state.medicalCamp =
+              data.medicalCamp;
 
-        state.referrals =
-            data.referrals;
+            state.referrals =
+              data.referrals;
 
-        state.billing =
-            data.billing;
+            state.billing =
+              data.billing;
 
-        state.transactions =
-            data.transactions?.data ||
-            [];
+            state.transactions =
+              data.transactions?.data ||
+              [];
 
-        state.pendingActions =
-            data.pendingActions;
-    }
-)
+            state.pendingActions =
+              data.pendingActions;
+          }
+        )
 
 
-      // ======================================
-      // UPCOMING APPOINTMENTS PERIOD CHANGE
-      // ======================================
+        // ======================================
+        // UPCOMING APPOINTMENTS PERIOD CHANGE
+        // ======================================
+        // ==========================================
+        // SALES DETAILS
+        // ==========================================
 
+        .addCase(
+          loadFrontOfficeSalesDetails.pending,
+          (state) => {
+
+            state.salesDetailsLoading = true;
+            state.salesDetailsError = null;
+
+          }
+        )
+
+        .addCase(
+          loadFrontOfficeSalesDetails.fulfilled,
+          (
+            state,
+            action
+          ) => {
+
+            state.salesDetailsLoading = false;
+
+            state.salesDetails =
+              action.payload || null;
+
+          }
+        )
+
+        .addCase(
+          loadFrontOfficeSalesDetails.rejected,
+          (
+            state,
+            action
+          ) => {
+
+            state.salesDetailsLoading = false;
+
+            state.salesDetailsError =
+              action.payload ||
+              "Failed to load sales details.";
+
+          }
+        )
       builder
 
         .addCase(

@@ -3,6 +3,8 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
   fetchFrontOfficeDashboard,
   
+  fetchFrontOfficeSalesDetails,
+  
   fetchFrontOfficeUpcomingAppointments,
 } from "../../services/frontOfficeDashboardService";
 
@@ -75,3 +77,37 @@ export const loadFrontOfficeDashboard =
     }
 
   );
+
+  // ==========================================
+// SALES DETAILS
+// ==========================================
+
+export const loadFrontOfficeSalesDetails =
+    createAsyncThunk(
+        "frontOfficeDashboard/loadSalesDetails",
+
+        async (
+            period = "week",
+            {
+                rejectWithValue,
+            }
+        ) => {
+
+            try {
+
+                return await fetchFrontOfficeSalesDetails(
+                    period
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to load sales details."
+                );
+
+            }
+
+        }
+    );

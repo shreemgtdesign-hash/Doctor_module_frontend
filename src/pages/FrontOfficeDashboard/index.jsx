@@ -37,6 +37,7 @@ import RecentTransactions
 
 import PendingActions
   from "./components/PendingActions";
+import SalesDetails from "./components/SalesDetails";
 
 const FrontOfficeDashboard = () => {
 
@@ -270,6 +271,10 @@ const FrontOfficeDashboard = () => {
           <BillingDetails />
 
         </div>
+
+        <div className="mt-4">
+    <SalesDetails />
+</div>
 
 
         {/* ================================= */}
