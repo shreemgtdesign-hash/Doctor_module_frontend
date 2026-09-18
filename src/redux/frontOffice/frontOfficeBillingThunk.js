@@ -9,6 +9,7 @@ import {
     fetchAssociateDoctorPayouts,
     fetchVisitingDoctorPayoutDetails,
     fetchVisitingDoctorPayouts,
+    fetchApplyPendingPaymentDiscount,
 } from "../../services/frontOfficeBillingService";
 
 
@@ -171,5 +172,55 @@ export const loadAssociateDoctorPayoutDetails =
                     "Failed to load associate doctor payout details."
                 );
             }
+        }
+    );
+
+
+
+// ==========================================
+// APPLY DISCOUNT & REMARKS
+// ==========================================
+
+export const applyPendingPaymentDiscountThunk =
+    createAsyncThunk(
+        "frontOfficeBilling/applyPendingPaymentDiscount",
+
+        async (
+            {
+                appointmentId,
+                itemId,
+                category,
+                discountPercentage,
+                remarks,
+            },
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchApplyPendingPaymentDiscount(
+                    appointmentId,
+                    {
+                        item_id: itemId,
+                        category,
+                        discount_percentage:
+                            Number(
+                                discountPercentage
+                            ) || 0,
+                        remarks:
+                            remarks || "",
+                    }
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to apply discount and remarks."
+                );
+
+            }
+
         }
     );

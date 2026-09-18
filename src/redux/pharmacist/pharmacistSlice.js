@@ -12,6 +12,12 @@ import {
     dispenseBulk,
     loadMedicinesDispensedTable,
     searchMedicines,
+    loadEmployeePurchases,
+    createPharmacistEmployeePurchase,
+    loadPharmacistEmployees,
+    processOnlineOrder,
+    loadOnlineOrderDetails,
+    loadOnlineDeliveryOrders,
 } from "./pharmacistThunk";
 
 
@@ -22,9 +28,47 @@ const initialState = {
     error: null,
 
     pharmacist: null,
-        // Walk-in medicine purchases
+    // Walk-in medicine purchases
     walkInMedicines: {},
+    // ==========================================
+    // ONLINE DELIVERY ORDERS
+    // ==========================================
 
+    onlineDeliveryOrders: [],
+
+    onlineDeliveryOrdersLoading: false,
+
+    onlineDeliveryOrdersError: null,
+
+    onlineDeliveryOrdersCount: 0,
+
+    onlineDeliveryBadgeCount: 0,
+
+
+    // ==========================================
+    // ONLINE ORDER DETAILS
+    // ==========================================
+
+    onlineOrderDetails: null,
+
+    onlineOrderDetailsLoading: false,
+
+    onlineOrderDetailsError: null,
+
+
+    // ==========================================
+    // PROCESS DELIVERY
+    // ==========================================
+
+    processingOnlineOrder: false,
+
+    processOnlineOrderSuccess: false,
+
+    processOnlineOrderMessage: "",
+
+    processOnlineOrderData: null,
+
+    processOnlineOrderError: null,
     // ==========================================
     // Dashboard
     // ==========================================
@@ -63,7 +107,34 @@ const initialState = {
 
     sales: {
         period: "",
-        total_business: 0,
+
+        in_store_purchases: {
+            label: "",
+            amount: 0,
+            formatted_amount: "₹0",
+            growth_percentage: "",
+            comparison_label: "",
+        },
+
+        online_purchases: {
+            label: "",
+            badge_count: 0,
+            count: 0,
+            amount: 0,
+            formatted_amount: "₹0",
+            growth_percentage: "",
+            comparison_label: "",
+        },
+
+        total_sales: {
+            label: "",
+            amount: 0,
+            formatted_amount: "₹0",
+        },
+
+        total_business_done: "₹0",
+        total_amount: 0,
+
         trend: [],
     },
 
@@ -87,7 +158,23 @@ const initialState = {
 
     prescriptionLoading: false,
 
+    // ==========================================
+    // EMPLOYEE PURCHASES
+    // ==========================================
 
+    employees: [],
+    employeesLoading: false,
+    employeesError: null,
+
+    employeePurchases: [],
+    employeePurchasesLoading: false,
+    employeePurchasesError: null,
+
+    employeePurchaseCreating: false,
+    employeePurchaseSuccess: false,
+    employeePurchaseMessage: "",
+    employeePurchaseData: null,
+    employeePurchaseError: null,
     // ==========================================
     // Dispensing
     // ==========================================
@@ -107,7 +194,7 @@ const pharmacistSlice = createSlice({
 
 
 
-                setWalkInMedicines: (
+        setWalkInMedicines: (
             state,
             action
         ) => {
@@ -228,7 +315,181 @@ const pharmacistSlice = createSlice({
         // =====================================
         // MEDICINES DISPENSED
         // =====================================
+        // ==========================================
+        // ONLINE DELIVERY ORDERS
+        // ==========================================
 
+        builder
+
+            .addCase(
+                loadOnlineDeliveryOrders.pending,
+                (state) => {
+
+                    state.onlineDeliveryOrdersLoading =
+                        true;
+
+                    state.onlineDeliveryOrdersError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                loadOnlineDeliveryOrders.fulfilled,
+                (state, action) => {
+
+                    state.onlineDeliveryOrdersLoading =
+                        false;
+
+                    state.onlineDeliveryOrders =
+                        action.payload?.data ||
+                        [];
+
+                    state.onlineDeliveryOrdersCount =
+                        action.payload?.count ||
+                        0;
+
+                    state.onlineDeliveryBadgeCount =
+                        action.payload?.badge_count ||
+                        0;
+
+                }
+            )
+
+            .addCase(
+                loadOnlineDeliveryOrders.rejected,
+                (state, action) => {
+
+                    state.onlineDeliveryOrdersLoading =
+                        false;
+
+                    state.onlineDeliveryOrdersError =
+                        action.payload ||
+                        "Failed to load online delivery orders";
+
+                    state.onlineDeliveryOrders =
+                        [];
+
+                }
+            );
+
+
+        // ==========================================
+        // ONLINE ORDER DETAILS
+        // ==========================================
+
+        builder
+
+            .addCase(
+                loadOnlineOrderDetails.pending,
+                (state) => {
+
+                    state.onlineOrderDetailsLoading =
+                        true;
+
+                    state.onlineOrderDetailsError =
+                        null;
+
+                    state.onlineOrderDetails =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                loadOnlineOrderDetails.fulfilled,
+                (state, action) => {
+
+                    state.onlineOrderDetailsLoading =
+                        false;
+
+                    state.onlineOrderDetails =
+                        action.payload ||
+                        null;
+
+                }
+            )
+
+            .addCase(
+                loadOnlineOrderDetails.rejected,
+                (state, action) => {
+
+                    state.onlineOrderDetailsLoading =
+                        false;
+
+                    state.onlineOrderDetailsError =
+                        action.payload ||
+                        "Failed to load order details";
+
+                    state.onlineOrderDetails =
+                        null;
+
+                }
+            );
+
+
+        // ==========================================
+        // PROCESS DELIVERY
+        // ==========================================
+
+        builder
+
+            .addCase(
+                processOnlineOrder.pending,
+                (state) => {
+
+                    state.processingOnlineOrder =
+                        true;
+
+                    state.processOnlineOrderSuccess =
+                        false;
+
+                    state.processOnlineOrderMessage =
+                        "";
+
+                    state.processOnlineOrderError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                processOnlineOrder.fulfilled,
+                (state, action) => {
+
+                    state.processingOnlineOrder =
+                        false;
+
+                    state.processOnlineOrderSuccess =
+                        true;
+
+                    state.processOnlineOrderMessage =
+                        action.payload?.message ||
+                        "Order delivery processed successfully";
+
+                    state.processOnlineOrderData =
+                        action.payload?.data ||
+                        null;
+
+                }
+            )
+
+            .addCase(
+                processOnlineOrder.rejected,
+                (state, action) => {
+
+                    state.processingOnlineOrder =
+                        false;
+
+                    state.processOnlineOrderSuccess =
+                        false;
+
+                    state.processOnlineOrderError =
+                        action.payload ||
+                        "Failed to process delivery";
+
+                }
+            );
         builder
 
             .addCase(
@@ -313,7 +574,178 @@ const pharmacistSlice = createSlice({
         // =====================================
         // SALES
         // =====================================
+        // ==========================================
+        // EMPLOYEE LIST
+        // ==========================================
 
+        builder
+
+            .addCase(
+                loadPharmacistEmployees.pending,
+                (state) => {
+
+                    state.employeesLoading =
+                        true;
+
+                    state.employeesError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                loadPharmacistEmployees.fulfilled,
+                (state, action) => {
+
+                    state.employeesLoading =
+                        false;
+
+                    state.employees =
+                        action.payload || [];
+
+                    state.employeesError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                loadPharmacistEmployees.rejected,
+                (state, action) => {
+
+                    state.employeesLoading =
+                        false;
+
+                    state.employeesError =
+                        action.payload ||
+                        "Failed to load employees";
+
+                    state.employees = [];
+
+                }
+            );
+
+
+        // ==========================================
+        // CREATE EMPLOYEE PURCHASE
+        // ==========================================
+
+        builder
+
+            .addCase(
+                createPharmacistEmployeePurchase.pending,
+                (state) => {
+
+                    state.employeePurchaseCreating =
+                        true;
+
+                    state.employeePurchaseSuccess =
+                        false;
+
+                    state.employeePurchaseMessage =
+                        "";
+
+                    state.employeePurchaseData =
+                        null;
+
+                    state.employeePurchaseError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                createPharmacistEmployeePurchase.fulfilled,
+                (state, action) => {
+
+                    state.employeePurchaseCreating =
+                        false;
+
+                    state.employeePurchaseSuccess =
+                        true;
+
+                    state.employeePurchaseMessage =
+                        action.payload?.message ||
+                        "Employee purchase processed successfully";
+
+                    state.employeePurchaseData =
+                        action.payload?.data ||
+                        null;
+
+                    state.employeePurchaseError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                createPharmacistEmployeePurchase.rejected,
+                (state, action) => {
+
+                    state.employeePurchaseCreating =
+                        false;
+
+                    state.employeePurchaseSuccess =
+                        false;
+
+                    state.employeePurchaseError =
+                        action.payload ||
+                        "Failed to create employee purchase";
+
+                }
+            );
+
+
+        // ==========================================
+        // EMPLOYEE PURCHASE LIST
+        // ==========================================
+
+        builder
+
+            .addCase(
+                loadEmployeePurchases.pending,
+                (state) => {
+
+                    state.employeePurchasesLoading =
+                        true;
+
+                    state.employeePurchasesError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                loadEmployeePurchases.fulfilled,
+                (state, action) => {
+
+                    state.employeePurchasesLoading =
+                        false;
+
+                    state.employeePurchases =
+                        action.payload || [];
+
+                    state.employeePurchasesError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                loadEmployeePurchases.rejected,
+                (state, action) => {
+
+                    state.employeePurchasesLoading =
+                        false;
+
+                    state.employeePurchasesError =
+                        action.payload ||
+                        "Failed to load employee purchases";
+
+                    state.employeePurchases = [];
+
+                }
+            );
         builder
 
             .addCase(
@@ -322,12 +754,17 @@ const pharmacistSlice = createSlice({
 
                     state.sales =
                         action.payload || {
-                            total_business: 0,
+                            period: "",
+                            in_store_purchases: {},
+                            online_purchases: {},
+                            total_sales: {},
+                            total_business_done: "₹0",
+                            total_amount: 0,
                             trend: [],
                         };
 
                 }
-            );
+            )
 
 
         // =====================================

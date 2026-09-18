@@ -5,6 +5,7 @@ import {
     getAssociateDoctorPayoutDetails,
     getVisitingDoctorPayoutDetails,
     getVisitingDoctorPayouts,
+    applyPendingPaymentDiscount,
 } from "../api/frontOfficeBillingApi";
 
 
@@ -89,3 +90,22 @@ export const fetchAssociateDoctorPayoutDetails = async (
 
   return response.data;
 };
+
+// ==========================================
+// APPLY DISCOUNT & REMARKS
+// ==========================================
+
+export const fetchApplyPendingPaymentDiscount =
+    async (
+        appointmentId,
+        data
+    ) => {
+
+        const response =
+            await applyPendingPaymentDiscount(
+                appointmentId,
+                data
+            );
+
+        return response.data;
+    };

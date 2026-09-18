@@ -56,3 +56,17 @@ export const getAssociateDoctorPayouts = (page = 1, limit = 8) =>
 
 export const getAssociateDoctorPayoutDetails = (doctorId) =>
   api.get(`/frontoffice/billing/associate-doctor-payouts/${doctorId}`);
+
+
+// ==========================================
+// APPLY DISCOUNT & REMARKS
+// ==========================================
+
+export const applyPendingPaymentDiscount = (
+    appointmentId,
+    data
+) =>
+    api.post(
+        `/frontoffice/billing/pending-payments/${appointmentId}`,
+        data
+    );

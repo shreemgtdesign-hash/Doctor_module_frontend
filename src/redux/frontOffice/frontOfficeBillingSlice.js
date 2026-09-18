@@ -5,6 +5,7 @@ import {
 import {
     loadPendingPayments,
     loadPendingPaymentInvoiceDetails,
+    applyPendingPaymentDiscountThunk,
 } from "./frontOfficeBillingThunk";
 
 
@@ -43,7 +44,10 @@ const initialState = {
     associateDoctorPayoutDetailsLoading: false,
     associateDoctorPayoutDetailsError: null,
 
-
+    applyingPendingPaymentDiscount: false,
+pendingPaymentDiscountSuccess: false,
+pendingPaymentDiscountMessage: "",
+pendingPaymentDiscountError: null,
     // ======================================
     // INVOICE DETAILS
     // ======================================
@@ -188,6 +192,58 @@ const frontOfficeBillingSlice =
 
                     }
                 )
+                .addCase(
+    applyPendingPaymentDiscountThunk.pending,
+    (state) => {
+
+        state.applyingPendingPaymentDiscount =
+            true;
+
+        state.pendingPaymentDiscountSuccess =
+            false;
+
+        state.pendingPaymentDiscountMessage =
+            "";
+
+        state.pendingPaymentDiscountError =
+            null;
+    }
+)
+
+.addCase(
+    applyPendingPaymentDiscountThunk.fulfilled,
+    (state, action) => {
+
+        state.applyingPendingPaymentDiscount =
+            false;
+
+        state.pendingPaymentDiscountSuccess =
+            true;
+
+        state.pendingPaymentDiscountMessage =
+            action.payload?.message ||
+            "Discount and remarks updated successfully.";
+
+        state.pendingPaymentDiscountError =
+            null;
+    }
+)
+
+.addCase(
+    applyPendingPaymentDiscountThunk.rejected,
+    (state, action) => {
+
+        state.applyingPendingPaymentDiscount =
+            false;
+
+        state.pendingPaymentDiscountSuccess =
+            false;
+
+        state.pendingPaymentDiscountError =
+            action.payload ||
+            "Failed to apply discount and remarks.";
+    }
+)
 
 
                 .addCase(

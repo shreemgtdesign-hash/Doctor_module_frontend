@@ -633,17 +633,7 @@ const OnlineMedicineOrderDetails = () => {
                             Qty.
                         </div>
 
-                        <div className="
-                            border-l
-                            border-[#E8DDD6]
-                            px-3
-                            py-3
-                            text-center
-                            text-[11px]
-                            font-medium
-                        ">
-                            Discount(%)
-                        </div>
+                     
 
                         <div className="
                             border-l
@@ -750,35 +740,7 @@ const OnlineMedicineOrderDetails = () => {
 
                                 {/* DISCOUNT */}
 
-                                <div className="
-                                    flex
-                                    items-center
-                                    justify-center
-                                    border-l
-                                    border-[#EEE4DD]
-                                    px-3
-                                ">
-
-                                    <span className="
-                                        inline-flex
-                                        min-w-[68px]
-                                        items-center
-                                        justify-center
-                                        rounded-full
-                                        border
-                                        border-[#E7DBD3]
-                                        px-3
-                                        py-2
-                                        text-[10px]
-                                        text-[#756D69]
-                                    ">
-                                        {
-                                            medicine.discount_display ||
-                                            `${medicine.discount_percent || 0}%`
-                                        }
-                                    </span>
-
-                                </div>
+                               
 
 
                                 {/* TOTAL */}

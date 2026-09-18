@@ -1,15 +1,30 @@
-import { useSelector } from "react-redux";
+import {
+    useDispatch,
+    useSelector,
+} from "react-redux";
+
+import {
+    useNavigate,
+} from "react-router-dom";
+
+import {
+    loadMedicinesDispensed,
+} from "../../../../redux/pharmacist/pharmacistThunk";
 
 import DashboardCard
     from "../../../../components/Dashboard/DashboardCard";
 
 import DashboardDropdown
     from "../../../../components/Dashboard/DashboardDropdown";
-import { useNavigate } from "react-router-dom";
 
 
 const MedicinesDispensed = () => {
-    const navigate = useNavigate()
+
+    const dispatch = useDispatch();
+
+    const navigate = useNavigate();
+
+
     const medicinesDispensed =
         useSelector(
             (state) =>
@@ -21,90 +36,220 @@ const MedicinesDispensed = () => {
         medicinesDispensed?.breakdown || [];
 
 
+    // ==========================================
+    // CHANGE PERIOD
+    // ==========================================
+
+    const handlePeriodChange = (
+        period
+    ) => {
+
+        dispatch(
+            loadMedicinesDispensed(
+                period
+            )
+        );
+
+    };
+
+
     return (
 
-        <DashboardCard className="p-5"
-          onClick={()=> navigate('/pharmacist/medicine-dispensed')}>
+        <DashboardCard
+            className="
+                h-full
+                p-4
+            "
+            onClick={() =>
+                navigate(
+                    "/pharmacist/medicine-dispensed"
+                )
+            }
+        >
 
-            {/* Header */}
+            {/* ========================================= */}
+            {/* HEADER */}
+            {/* ========================================= */}
 
-            <div className="flex items-center justify-between">
+            <div className="
+                flex
+                items-center
+                justify-between
+            ">
 
-                <div className="flex items-center gap-3">
+                <div className="
+                    flex
+                    min-w-0
+                    items-center
+                    gap-2
+                ">
 
-                    <h2 className="text-[18px] font-semibold text-[#4B2E2A]">
+                    <h2 className="
+                        whitespace-nowrap
+                        text-[16px]
+                        font-semibold
+                        text-[#4B2E2A]
+                    ">
 
-                        {medicinesDispensed?.total || 0}
+                        <span className="
+                            text-[28px]
+                            font-bold
+                        ">
+                            {
+                                medicinesDispensed?.total ||
+                                0
+                            }
+                        </span>
 
-                        {" "}
-
-                        Medicines Dispensed
+                        <span className="ml-2">
+                            Medicines Dispensed
+                        </span>
 
                     </h2>
 
-                    <span className="rounded-full bg-[#E8F8ED] px-3 py-1 text-xs font-medium text-green-600">
+
+                    <span className="
+                        flex-shrink-0
+                        rounded-full
+                        bg-[#E8F8ED]
+                        px-2.5
+                        py-1
+                        text-[11px]
+                        font-medium
+                        text-green-600
+                    ">
                         +24.8%
                     </span>
 
-                    <span className="text-sm text-[#8B7A70]">
+
+                    <span className="
+                        whitespace-nowrap
+                        text-[12px]
+                        text-[#8B7A70]
+                    ">
                         Compared to last week
                     </span>
 
                 </div>
 
 
-                <DashboardDropdown
-                    value={
-                        medicinesDispensed?.period ||
-                        "week"
+                <div
+                    onClick={(event) =>
+                        event.stopPropagation()
                     }
-                    options={[
-                        {
-                            label: "This Week",
-                            value: "week",
-                        },
-                        {
-                            label: "This Month",
-                            value: "month",
-                        },
-                        {
-                            label: "Till Date",
-                            value: "till_date",
-                        },
-                    ]}
-                />
+                    className="flex-shrink-0"
+                >
+
+                    <DashboardDropdown
+
+                        value={
+                            medicinesDispensed?.period ||
+                            "week"
+                        }
+
+                        options={[
+                            {
+                                label: "This Week",
+                                value: "week",
+                            },
+                            {
+                                label: "This Month",
+                                value: "month",
+                            },
+                            {
+                                label: "Till Date",
+                                value: "till_date",
+                            },
+                        ]}
+
+                        onChange={
+                            handlePeriodChange
+                        }
+
+                    />
+
+                </div>
 
             </div>
 
 
-            {/* Breakdown */}
+            {/* ========================================= */}
+            {/* DIVIDER */}
+            {/* ========================================= */}
 
-            <div className="mt-6 grid grid-cols-8 divide-x divide-[#EFE4DC]">
+            <div className="
+                my-4
+                h-px
+                w-full
+                bg-[#EFE4DC]
+            " />
+
+
+            {/* ========================================= */}
+            {/* BREAKDOWN */}
+            {/* ========================================= */}
+
+            <div className="
+                grid
+                grid-cols-8
+                divide-x
+                divide-[#EFE4DC]
+            ">
 
                 {breakdown
                     .slice(0, 8)
-                    .map((item) => (
+                    .map(
+                        (item) => (
 
-                        <div
-                            key={item.category}
-                            className="px-2 text-center"
-                        >
+                            <div
+                                key={
+                                    item.category
+                                }
+                                className="
+                                    flex
+                                    min-w-0
+                                    flex-col
+                                    items-center
+                                    justify-center
+                                    px-1.5
+                                "
+                            >
 
-                            <p className="text-sm text-[#5B4035]">
-                                {item.category}
-                            </p>
+                                <p className="
+                                    w-full
+                                    truncate
+                                    text-center
+                                    text-[12px]
+                                    font-medium
+                                    text-[#5B4035]
+                                ">
+                                    {
+                                        item.category
+                                    }
+                                </p>
 
-                            <p className="mt-2 text-xl font-bold text-[#4D2E23]">
-                                {item.count}
-                            </p>
 
-                        </div>
+                                <p className="
+                                    mt-1
+                                    text-[19px]
+                                    font-bold
+                                    leading-none
+                                    text-[#4D2E23]
+                                ">
+                                    {
+                                        item.count
+                                    }
+                                </p>
 
-                    ))}
+                            </div>
+
+                        )
+                    )}
 
             </div>
 
         </DashboardCard>
+
     );
 };
 

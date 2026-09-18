@@ -51,6 +51,9 @@ import NotificationListener from "./components/Notifications/NotificationListene
 import AddMedicalCamp from "./pages/FrontOfficeAppointment/components/AddMedicalCamp";
 import OnlineMedicineOrders from "./pages/FrontOfficeAppointment/components/OnlineMedicineOrders";
 import OnlineMedicineOrderDetails from "./pages/FrontOfficeAppointment/components/OnlineMedicineOrderDetails";
+import EmployeePurchase from "./pages/Pharmacist/PharmacistAppointments/components/EmployeePurchase";
+import OnlineDeliveryOrders from "./pages/Pharmacist/PharmacistAppointments/components/OnlineDeliveryOrders";
+import OnlineOrderDetails from "./pages/Pharmacist/PharmacistAppointments/components/OnlineOrderDetails";
 
 function App() {
   return (
@@ -357,6 +360,27 @@ function App() {
     path="/frontoffice/pending-actions/online-orders/:orderId"
     element={
         <OnlineMedicineOrderDetails />
+    }
+/>
+
+<Route
+    path="/pharmacist/employee-purchases/add"
+    element={
+        <EmployeePurchase />
+    }
+/>
+
+<Route
+    path="/pharmacist/online-purchases"
+    element={
+        <OnlineDeliveryOrders />
+    }
+/>
+
+<Route
+    path="/pharmacist/online-purchases/:orderId"
+    element={
+        <OnlineOrderDetails />
     }
 />
 

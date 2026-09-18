@@ -5,29 +5,74 @@ import api from "./axios";
 // ==========================================
 
 export const pharmacistLogin = (payload) =>
-    api.post("/auth/pharmacist/login", payload);
+    api.post(
+        "/auth/pharmacist/login",
+        payload
+    );
 
 
 // ==========================================
 // Pharmacist Dashboard
 // ==========================================
-export const getMedicinesDispensedTable = () =>
-    api.get("/pharmacist/medicines-dispensed");
-// Medicines Dispensed
-export const getMedicinesDispensed = () =>
-    api.get("/pharmacist/dashboard/medicines-dispensed");
 
-// Ailments Addressed
-export const getPharmacistAilments = () =>
-    api.get("/pharmacist/dashboard/ailments-addressed");
+export const getMedicinesDispensedTable = (period="week") =>
+    api.get(
+        "/pharmacist/medicines-dispensed",
+         {
+            params: {
+                period,
+            },
+        }
+    );
 
-// Patients Tended
-export const getPatientsTended = () =>
-    api.get("/pharmacist/dashboard/patients-tended");
+export const getMedicinesDispensed = (period="week") =>
+    api.get(
+        "/pharmacist/dashboard/medicines-dispensed",
+         {
+            params: {
+                period,
+            },
+        }
+    );
 
-// Sales
-export const getPharmacistSales = () =>
-    api.get("/pharmacist/dashboard/sales");
+export const getPharmacistAilments = (period="week") =>
+    api.get(
+        "/pharmacist/dashboard/ailments-addressed",
+         {
+            params: {
+                period,
+            },
+        }
+    );
+
+export const getPatientsTended = (
+     period = "week"
+) =>
+    api.get(
+        "/pharmacist/dashboard/patients-tended",
+         {
+            params: {
+                period,
+            },
+        }
+    );
+
+
+// ==========================================
+// SALES
+// ==========================================
+
+export const getPharmacistSales = (
+    period = "week"
+) =>
+    api.get(
+        "/pharmacist/dashboard/sales",
+        {
+            params: {
+                period,
+            },
+        }
+    );
 
 
 // ==========================================
@@ -35,22 +80,27 @@ export const getPharmacistSales = () =>
 // ==========================================
 
 export const getPharmacistPatients = () =>
-    api.get("/pharmacist/patients");
+    api.get(
+        "/pharmacist/patients"
+    );
 
 
 // ==========================================
 // Prescription
 // ==========================================
 
-export const getPrescriptionItems = (consultationId) =>
-    api.get(`/prescriptions/${consultationId}`);
+export const getPrescriptionItems = (
+    consultationId
+) =>
+    api.get(
+        `/prescriptions/${consultationId}`
+    );
 
 
 // ==========================================
 // Dispensing
 // ==========================================
 
-// Dispense single prescription item
 export const dispensePrescriptionItem = (
     consultationId,
     payload
@@ -60,22 +110,93 @@ export const dispensePrescriptionItem = (
         payload
     );
 
-
-// Bulk dispense
-export const dispensePrescriptionBulk = (payload) =>
+export const dispensePrescriptionBulk = (
+    payload
+) =>
     api.post(
         "/pharmacist/prescriptions/dispense-bulk",
         payload
     );
 
 
-    // ==========================================
+// ==========================================
 // Medicine Search
 // ==========================================
 
-export const searchPharmacistMedicines = (search) =>
-    api.get("/pharmacist/medicines", {
-        params: {
-            search,
-        },
-    });
+export const searchPharmacistMedicines = (
+    search
+) =>
+    api.get(
+        "/pharmacist/medicines",
+        {
+            params: {
+                search,
+            },
+        }
+    );
+
+
+// ==========================================
+// EMPLOYEE APIs
+// ==========================================
+
+// Employee List
+// IMPORTANT:
+// Replace this URL if your backend gives
+// a different employee-list endpoint.
+export const getPharmacistEmployees = () =>
+    api.get(
+        "/pharmacist/employees"
+    );
+
+
+// ==========================================
+// EMPLOYEE PURCHASE
+// ==========================================
+
+export const createEmployeePurchase = (
+    payload
+) =>
+    api.post(
+        "/pharmacist/employee-purchases",
+        payload
+    );
+
+
+// ==========================================
+// EMPLOYEE PURCHASE LIST
+// ==========================================
+
+export const getEmployeePurchases = () =>
+    api.get(
+        "/pharmacist/employee-purchases"
+    );
+
+
+// ==========================================
+// ONLINE DELIVERY ORDERS
+// ==========================================
+
+// Online delivery orders queue
+export const getOnlineDeliveryOrders = () =>
+    api.get(
+        "/pharmacist/online-orders"
+    );
+
+
+// Order details
+export const getOnlineOrderDetails = (
+    orderId
+) =>
+    api.get(
+        `/pharmacist/orders/${orderId}`
+    );
+
+
+// Process delivery
+export const processOnlineOrderDelivery = (
+    orderId
+) =>
+    api.post(
+        `/pharmacist/orders/${orderId}/process-delivery`
+    );
