@@ -4,247 +4,652 @@
 // ======================================================
 
 /**
- * Normalizes a role string for comparison.
- * e.g. "Front Office" -> "frontoffice", "duty_doctor" -> "dutydoctor"
+ * Normalizes a role string or object for strict comparison.
+ * Maps any variant to one of:
+ * - "frontoffice"
+ * - "pharmacist"
+ * - "doctor"
+ * - "dutydoctor"
+ * - "therapist"
  */
-export const normalizeRole = (r) =>
-  (r || "")
+export const normalizeRole = (r) => {
+  if (!r) return "";
+  if (typeof r === "object") {
+    r = r.name || r.role || r.slug || r.title || "";
+  }
+  const clean = String(r)
     .toLowerCase()
     .trim()
     .replace(/[\s_-]/g, "");
 
-
-/**
- * NOTIFICATION TYPE → ALLOWED ROLES MAP
- *
- * Every notification type the backend sends must be listed here
- * with the array of roles that are allowed to see it.
- *
- * This is the PRIMARY and most reliable filter.
- * If the backend sends `type` in the FCM data payload, this table
- * decides who sees it.
- */
-const TYPE_ROLE_MAP = {
-  // Front Office types
-  appointment_booked:          ["frontoffice", "front_office"],
-  appointment_confirmed:       ["frontoffice", "front_office"],
-  appointment_cancelled:       ["frontoffice", "front_office"],
-  walk_in_registered:          ["frontoffice", "front_office"],
-  payment_received:            ["frontoffice", "front_office"],
-  payment_pending:             ["frontoffice", "front_office"],
-  billing_update:              ["frontoffice", "front_office"],
-  home_visit_requested:        ["frontoffice", "front_office"],
-  home_visit_confirmed:        ["frontoffice", "front_office"],
-  package_subscribed:          ["frontoffice", "front_office"],
-  insurance_update:            ["frontoffice", "front_office"],
-  medical_camp_update:         ["frontoffice", "front_office"],
-
-  // Doctor types
-  new_appointment:             ["doctor"],
-  consultation_due:            ["doctor"],
-  patient_arrived:             ["doctor"],
-  prescription_sent:           ["doctor"],
-  prescription_update:         ["doctor"],
-  therapy_prescribed:          ["doctor"],
-
-  // Therapist types
-  therapy_assigned:            ["therapist"],
-  therapy_session_scheduled:   ["therapist"],
-  therapy_reminder:            ["therapist"],
-  therapy_updated:             ["therapist"],
-  room_assigned:               ["therapist"],
-  therapist_assigned:          ["therapist"],
-
-  // Pharmacist types
-  prescription_to_dispense:    ["pharmacist"],
-  medicine_dispensed:          ["pharmacist"],
-  medicine_stock_low:          ["pharmacist"],
-  pharmacy_order:              ["pharmacist"],
-
-  // Duty Doctor types
-  patient_in_queue:            ["dutydoctor", "duty_doctor"],
-  pain_assessment_due:         ["dutydoctor", "duty_doctor"],
-  triage_update:               ["dutydoctor", "duty_doctor"],
-  duty_doctor_alert:           ["dutydoctor", "duty_doctor"],
+  if (
+    clean === "frontoffice" ||
+    clean === "front_office" ||
+    clean === "reception" ||
+    clean === "receptionist"
+  ) {
+    return "frontoffice";
+  }
+  if (clean === "pharmacist" || clean === "pharmacy") {
+    return "pharmacist";
+  }
+  if (clean === "doctor" || clean === "physician") {
+    return "doctor";
+  }
+  if (
+    clean === "dutydoctor" ||
+    clean === "duty_doctor" ||
+    clean === "triage"
+  ) {
+    return "dutydoctor";
+  }
+  if (
+    clean === "therapist" ||
+    clean === "headtherapist" ||
+    clean === "therapy"
+  ) {
+    return "therapist";
+  }
+  return clean;
 };
 
+/**
+ * Resolves the currently active user role with fallback layers:
+ * 1. Explicit reduxRole parameter
+ * 2. localStorage "role"
+ * 3. User object in Redux or localStorage
+ * 4. Current URL pathname (URL-based portal detection)
+ */
+export const getActiveRole = (user = null, reduxRole = null) => {
+  if (reduxRole) {
+    const r = normalizeRole(reduxRole);
+    if (r) return r;
+  }
+
+  const storedRole = localStorage.getItem("role");
+  if (storedRole) {
+    const r = normalizeRole(storedRole);
+    if (r) return r;
+  }
+
+  const u =
+    user ||
+    (() => {
+      try {
+        return JSON.parse(localStorage.getItem("user") || "{}");
+      } catch {
+        return {};
+      }
+    })();
+
+  if (u?.role) {
+    const r = normalizeRole(u.role);
+    if (r) return r;
+  }
+  if (u?.role_name || u?.user_type || u?.type) {
+    const r = normalizeRole(u.role_name || u.user_type || u.type);
+    if (r) return r;
+  }
+
+  // Fallback: Infer from current URL route
+  if (typeof window !== "undefined" && window.location?.pathname) {
+    const path = window.location.pathname.toLowerCase();
+    if (path.startsWith("/pharmacist")) return "pharmacist";
+    if (path.startsWith("/frontoffice")) return "frontoffice";
+    if (path.startsWith("/doctor") || path.startsWith("/doctordashboard"))
+      return "doctor";
+    if (path.startsWith("/duty-doctor")) return "dutydoctor";
+    if (path.startsWith("/therapist")) return "therapist";
+  }
+
+  return "";
+};
 
 /**
- * Main filter function.
- * Returns true if the notification should be shown to this role.
+ * Comprehensive NOTIFICATION TYPE → ALLOWED ROLES MAP
+ */
+export const TYPE_ROLE_MAP = {
+  // Front Office types
+  appointment: ["frontoffice"],
+  appointments: ["frontoffice"],
+  new_appointment: ["frontoffice", "doctor"],
+  appointment_booked: ["frontoffice"],
+  appointment_created: ["frontoffice"],
+  appointment_confirmed: ["frontoffice"],
+  appointment_cancelled: ["frontoffice"],
+  appointment_rescheduled: ["frontoffice"],
+  walk_in: ["frontoffice"],
+  walkin: ["frontoffice"],
+  walk_in_registered: ["frontoffice"],
+  direct_walk_in: ["frontoffice"],
+  direct_walkin: ["frontoffice"],
+  payment: ["frontoffice"],
+  payment_received: ["frontoffice"],
+  payment_pending: ["frontoffice"],
+  billing: ["frontoffice"],
+  billing_update: ["frontoffice"],
+  invoice: ["frontoffice"],
+  home_visit: ["frontoffice"],
+  homevisit: ["frontoffice"],
+  home_visit_requested: ["frontoffice"],
+  home_visit_confirmed: ["frontoffice"],
+  home_visit_cancelled: ["frontoffice"],
+  package: ["frontoffice"],
+  packages: ["frontoffice"],
+  package_subscribed: ["frontoffice"],
+  insurance: ["frontoffice"],
+  insurance_update: ["frontoffice"],
+  medical_camp: ["frontoffice"],
+  medical_camp_update: ["frontoffice"],
+  med_camp: ["frontoffice"],
+  camp: ["frontoffice"],
+  referral: ["frontoffice"],
+  referrals: ["frontoffice"],
+  doctor_payout: ["frontoffice"],
+  visiting_doctor_payout: ["frontoffice"],
+  associate_doctor_payout: ["frontoffice"],
+  front_office: ["frontoffice"],
+  frontoffice: ["frontoffice"],
+
+  // Pharmacist types
+  prescription_to_dispense: ["pharmacist"],
+  prescription_dispense: ["pharmacist"],
+  dispense_prescription: ["pharmacist"],
+  medicines_to_dispense: ["pharmacist"],
+  medicine_dispensed: ["pharmacist"],
+  dispense_medicine: ["pharmacist"],
+  dispense: ["pharmacist"],
+  prescription_created: ["pharmacist"],
+  prescription_sent: ["pharmacist", "doctor"],
+  medicine_stock_low: ["pharmacist"],
+  stock_low: ["pharmacist"],
+  low_stock: ["pharmacist"],
+  stock_alert: ["pharmacist"],
+  out_of_stock: ["pharmacist"],
+  pharmacy_order: ["pharmacist"],
+  online_delivery_order: ["pharmacist"],
+  online_purchase: ["pharmacist"],
+  employee_purchase: ["pharmacist"],
+  pharmacy: ["pharmacist"],
+  pharmacist: ["pharmacist"],
+
+  // Doctor types
+  doctor_appointment: ["doctor"],
+  doctor_consultation: ["doctor"],
+  consultation_due: ["doctor"],
+  consultation_reminder: ["doctor"],
+  patient_arrived: ["doctor"],
+  patient_in_doctor_queue: ["doctor"],
+  prescription_saved: ["doctor"],
+  prescription_update: ["doctor"],
+  therapy_prescribed: ["doctor"],
+  doctor_alert: ["doctor"],
+  doctor: ["doctor"],
+
+  // Therapist types
+  therapy_assigned: ["therapist"],
+  therapy_session_scheduled: ["therapist"],
+  therapy_reminder: ["therapist"],
+  therapy_updated: ["therapist"],
+  room_assigned: ["therapist"],
+  therapist_assigned: ["therapist"],
+  therapy_completed: ["therapist"],
+  therapist: ["therapist"],
+  headtherapist: ["therapist"],
+
+  // Duty Doctor types
+  patient_in_queue: ["dutydoctor"],
+  pain_assessment: ["dutydoctor"],
+  pain_assessment_due: ["dutydoctor"],
+  triage_update: ["dutydoctor"],
+  triage: ["dutydoctor"],
+  duty_doctor_alert: ["dutydoctor"],
+  duty_doctor: ["dutydoctor"],
+  dutydoctor: ["dutydoctor"],
+};
+
+/**
+ * Safely parse notification payload data object.
+ * Handles nested JSON strings if backend stringified fields.
+ */
+export const parsePayloadData = (raw) => {
+  if (!raw || typeof raw !== "object") return {};
+  let parsed = { ...raw };
+
+  if (typeof parsed.data === "string") {
+    try {
+      const inner = JSON.parse(parsed.data);
+      if (typeof inner === "object" && inner !== null) {
+        parsed = { ...parsed, ...inner };
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  if (typeof parsed.payload === "string") {
+    try {
+      const inner = JSON.parse(parsed.payload);
+      if (typeof inner === "object" && inner !== null) {
+        parsed = { ...parsed, ...inner };
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return parsed;
+};
+
+/**
+ * Main role-based notification filter.
+ * Returns true ONLY if the notification strictly belongs to `role`.
  *
- * Priority order:
- * 1. Explicit recipient user ID match (most specific)
- * 2. Explicit target_role in payload (backend-controlled)
- * 3. Notification type lookup in TYPE_ROLE_MAP
- * 4. Strict text-based role classification (last resort)
+ * Rules:
+ * 1. Unknown or unauthenticated role -> return false (NEVER leak to other roles).
+ * 2. Explicit recipient user ID mismatch -> return false.
+ * 3. URL path mismatch -> return false (e.g. /frontoffice/ URL on a pharmacist tab).
+ * 4. Explicit target role -> strict membership check.
+ * 5. Explicit notification type -> strict TYPE_ROLE_MAP check.
+ * 6. Content signal check -> mutually exclusive signals.
+ * 7. Default -> return false.
  */
 export const isNotificationForRole = (
   role,
   title = "",
   body = "",
-  data = {},
+  rawData = {},
   user = null
 ) => {
   const normRole = normalizeRole(role);
-  if (!normRole) return true; // unknown role — let it through
+  if (!normRole) {
+    console.log("[FCM Filter] Dropped — unknown or missing role:", role);
+    return false;
+  }
 
+  const data = parsePayloadData(rawData);
   const text = `${title || ""} ${body || ""}`.toLowerCase();
 
   // ------------------------------------------------------------------
-  // PRIORITY 1 — EXPLICIT USER ID
-  // If the payload targets a specific user, only show to that user.
+  // CHECK 1: EXPLICIT TARGET USER ID (if specific recipient is tagged)
   // ------------------------------------------------------------------
-  const recipientUserId =
-    data?.user_id ||
-    data?.userId ||
+  const targetedRecipientId =
     data?.recipient_id ||
     data?.recipientId ||
-    data?.receiver_id;
+    data?.recipient_user_id ||
+    data?.target_user_id ||
+    data?.targetUserId;
+
   const currentUserId = user?.id || user?._id || user?.user_id;
 
-  if (recipientUserId && currentUserId) {
-    const match = String(recipientUserId) === String(currentUserId);
-    if (!match) {
-      console.log(`[FCM Filter] Dropped — targeted to user ${recipientUserId}, current user is ${currentUserId}`);
+  if (targetedRecipientId && currentUserId) {
+    if (String(targetedRecipientId) !== String(currentUserId)) {
+      console.log(
+        `[FCM Filter] Dropped — targeted to user ${targetedRecipientId}, current user is ${currentUserId}`
+      );
+      return false;
     }
-    return match;
   }
 
   // ------------------------------------------------------------------
-  // PRIORITY 2 — EXPLICIT TARGET ROLE FROM BACKEND
-  // The backend should set data.target_role or data.role in FCM payload.
+  // CHECK 2: EXPLICIT DESTINATION URL
+  // If the payload specifies a URL path for a specific module,
+  // it must match the current role's module.
+  // ------------------------------------------------------------------
+  const targetUrl = (data?.url || data?.link || "").toLowerCase();
+  if (targetUrl) {
+    if (targetUrl.includes("/frontoffice") && normRole !== "frontoffice") {
+      console.log(
+        `[FCM Filter] Dropped — URL is frontoffice (${targetUrl}), user role is ${normRole}`
+      );
+      return false;
+    }
+    if (targetUrl.includes("/pharmacist") && normRole !== "pharmacist") {
+      console.log(
+        `[FCM Filter] Dropped — URL is pharmacist (${targetUrl}), user role is ${normRole}`
+      );
+      return false;
+    }
+    if (targetUrl.includes("/doctor") && normRole !== "doctor") {
+      console.log(
+        `[FCM Filter] Dropped — URL is doctor (${targetUrl}), user role is ${normRole}`
+      );
+      return false;
+    }
+    if (targetUrl.includes("/duty-doctor") && normRole !== "dutydoctor") {
+      console.log(
+        `[FCM Filter] Dropped — URL is duty-doctor (${targetUrl}), user role is ${normRole}`
+      );
+      return false;
+    }
+    if (targetUrl.includes("/therapist") && normRole !== "therapist") {
+      console.log(
+        `[FCM Filter] Dropped — URL is therapist (${targetUrl}), user role is ${normRole}`
+      );
+      return false;
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // CHECK 3: EXPLICIT TARGET ROLE(S) IN PAYLOAD
+  // Backend role field: role, target_role, roles, module, etc.
   // ------------------------------------------------------------------
   const rawTargetRole =
     data?.target_role ||
     data?.targetRole ||
+    data?.target_roles ||
+    data?.targetRoles ||
     data?.recipient_role ||
     data?.recipientRole ||
+    data?.intended_for ||
     data?.for ||
-    data?.role;         // "role" is what the backend most likely sends
+    data?.module ||
+    data?.role ||
+    data?.roles;
 
   if (rawTargetRole) {
-    const targetRole = normalizeRole(rawTargetRole);
-    const match = normRole === targetRole;
-    if (!match) {
-      console.log(`[FCM Filter] Dropped — notification is for role "${targetRole}", current role is "${normRole}"`);
+    let targetRoles = [];
+    if (Array.isArray(rawTargetRole)) {
+      targetRoles = rawTargetRole.map(normalizeRole);
+    } else if (typeof rawTargetRole === "string") {
+      let str = rawTargetRole.trim();
+      if (str.startsWith("[") && str.endsWith("]")) {
+        try {
+          const arr = JSON.parse(str);
+          if (Array.isArray(arr)) {
+            targetRoles = arr.map(normalizeRole);
+          }
+        } catch {
+          targetRoles = str
+            .replace(/[\[\]"']/g, "")
+            .split(",")
+            .map(normalizeRole);
+        }
+      } else {
+        targetRoles = str.split(",").map(normalizeRole);
+      }
     }
-    return match;
+
+    targetRoles = targetRoles.filter(Boolean);
+
+    if (targetRoles.length > 0) {
+      if (targetRoles.includes("all")) {
+        return true;
+      }
+      const match = targetRoles.includes(normRole);
+      if (!match) {
+        console.log(
+          `[FCM Filter] Dropped — payload target roles [${targetRoles.join(
+            ", "
+          )}], current role is "${normRole}"`
+        );
+      }
+      return match;
+    }
   }
 
   // ------------------------------------------------------------------
-  // PRIORITY 3 — NOTIFICATION TYPE LOOKUP
+  // CHECK 4: NOTIFICATION TYPE LOOKUP
   // ------------------------------------------------------------------
-  const notifType = (data?.type || "").toLowerCase().trim().replace(/[\s-]/g, "_");
+  const rawType =
+    data?.type ||
+    data?.notification_type ||
+    data?.event_type ||
+    data?.event ||
+    data?.category ||
+    "";
+  const notifType = String(rawType).toLowerCase().trim().replace(/[\s-]/g, "_");
 
   if (notifType && TYPE_ROLE_MAP[notifType]) {
     const allowedRoles = TYPE_ROLE_MAP[notifType].map(normalizeRole);
     const match = allowedRoles.includes(normRole);
     if (!match) {
-      console.log(`[FCM Filter] Dropped — type "${notifType}" is for roles [${allowedRoles.join(", ")}], current role is "${normRole}"`);
+      console.log(
+        `[FCM Filter] Dropped — type "${notifType}" is only for [${allowedRoles.join(
+          ", "
+        )}], current role is "${normRole}"`
+      );
     }
     return match;
   }
 
   // ------------------------------------------------------------------
-  // PRIORITY 4 — STRICT TEXT-BASED ROLE CLASSIFICATION (LAST RESORT)
-  // Only applied when the backend hasn't provided type/role fields.
+  // CHECK 5: MUTUALLY EXCLUSIVE CONTENT CLASSIFICATION
+  // When no role/type metadata was sent by the backend.
   // ------------------------------------------------------------------
-
-  // --- Content signal groups ---
-  const isTherapistSignal =
-    text.includes("has been assigned") && (text.includes("therapy") || text.includes("counselling") || text.includes("treatment")) ||
-    text.includes("therapy assigned") ||
-    text.includes("therapist assigned") ||
-    text.includes("therapy session scheduled") ||
-    text.includes("assigned to you") && text.includes("therapy") ||
-    text.includes("room has been assigned");
-
-  const isDoctorSignal =
-    text.includes("patient booked an appointment with you") ||
-    text.includes("new appointment with you") ||
-    text.includes("scheduled with you") ||
-    text.includes("you have a consultation") ||
-    text.includes("new therapy prescribed") ||
-    (text.includes("prescribed") && (text.includes("by dr.") || text.includes("by dr ")));
-
   const isPharmacistSignal =
+    text.includes("dispense") ||
+    text.includes("dispensed") ||
+    text.includes("dispensing") ||
     text.includes("prescription to dispense") ||
     text.includes("medicines to dispense") ||
-    text.includes("dispense") ||
     text.includes("medicine stock") ||
-    text.includes("pharmacy order");
+    text.includes("stock low") ||
+    text.includes("out of stock") ||
+    text.includes("low stock alert") ||
+    text.includes("pharmacy order") ||
+    text.includes("online delivery order") ||
+    text.includes("employee purchase");
 
   const isDutyDoctorSignal =
     text.includes("pain assessment") ||
-    text.includes("patient in queue") ||
+    text.includes("duty doctor") ||
     text.includes("triage") ||
-    text.includes("duty doctor alert");
+    text.includes("patient in queue for assessment") ||
+    text.includes("duty doctor alert") ||
+    text.includes("assessment due");
 
-  const isFrontOfficeConfirmation =
-    text.includes("you assigned") ||
-    text.includes("you booked") ||
-    text.includes("assigned successfully") ||
+  const isTherapistSignal =
+    text.includes("therapy assigned") ||
+    text.includes("therapist assigned") ||
+    text.includes("therapy session") ||
+    text.includes("therapy reminder") ||
+    text.includes("treatment assigned") ||
+    text.includes("room assigned for therapy") ||
+    (text.includes("assigned to you") && text.includes("therapy"));
+
+  const isDoctorSignal =
+    text.includes("patient arrived for consultation") ||
+    text.includes("consultation call") ||
+    text.includes("consultation due") ||
+    text.includes("scheduled consultation with dr") ||
+    text.includes("consultation with dr") ||
+    text.includes("patient waiting in consultation");
+
+  const isFrontOfficeSignal =
+    text.includes("appointment booked") ||
+    text.includes("appointment confirmed") ||
+    text.includes("appointment cancelled") ||
+    text.includes("new appointment") ||
+    text.includes("walk-in") ||
+    text.includes("walk in") ||
+    text.includes("direct walk-in") ||
+    text.includes("home visit") ||
+    text.includes("homevisit") ||
+    text.includes("payment received") ||
+    text.includes("payment pending") ||
+    text.includes("billing") ||
+    text.includes("invoice") ||
+    text.includes("medical camp") ||
+    text.includes("med camp") ||
+    text.includes("insurance") ||
+    text.includes("package subscribed") ||
+    text.includes("referral") ||
+    text.includes("visiting doctor payout") ||
+    text.includes("associate doctor payout") ||
     text.includes("booked successfully") ||
-    text.includes("room confirmed") ||
-    text.includes("walk-in registered") ||
-    text.includes("payment received");
+    text.includes("assigned successfully");
 
-  // --- Apply strict per-role rules ---
   switch (normRole) {
+    case "pharmacist":
+      // Pharmacist ONLY receives pure pharmacy / dispensing notifications
+      if (!isPharmacistSignal) {
+        console.log(
+          `[FCM Filter] Dropped for pharmacist — no pharmacy signal in: "${title}"`
+        );
+        return false;
+      }
+      return true;
+
     case "therapist":
-    case "headtherapist":
       if (!isTherapistSignal) {
-        console.log(`[FCM Filter][Fallback] Dropped for therapist — no therapist signal in: "${title}"`);
+        console.log(
+          `[FCM Filter] Dropped for therapist — no therapist signal in: "${title}"`
+        );
+        return false;
+      }
+      return true;
+
+    case "dutydoctor":
+      if (!isDutyDoctorSignal) {
+        console.log(
+          `[FCM Filter] Dropped for duty doctor — no duty doctor signal in: "${title}"`
+        );
         return false;
       }
       return true;
 
     case "doctor":
       if (!isDoctorSignal) {
-        console.log(`[FCM Filter][Fallback] Dropped for doctor — no doctor signal in: "${title}"`);
-        return false;
-      }
-      return true;
-
-    case "pharmacist":
-      if (!isPharmacistSignal) {
-        console.log(`[FCM Filter][Fallback] Dropped for pharmacist — no pharmacist signal in: "${title}"`);
-        return false;
-      }
-      return true;
-
-    case "dutydoctor":
-    case "duty_doctor":
-      if (!isDutyDoctorSignal) {
-        console.log(`[FCM Filter][Fallback] Dropped for duty doctor — no duty doctor signal in: "${title}"`);
+        console.log(
+          `[FCM Filter] Dropped for doctor — no doctor consultation signal in: "${title}"`
+        );
         return false;
       }
       return true;
 
     case "frontoffice":
-    case "front_office":
-      // Front Office sees its own confirmations, booking alerts, billing, etc.
-      // Exclude purely-therapist execution alerts and pure doctor prescription alerts.
-      if (isTherapistSignal && !isFrontOfficeConfirmation) {
-        console.log(`[FCM Filter][Fallback] Dropped for front office — therapist execution alert: "${title}"`);
-        return false;
-      }
-      if (isDoctorSignal && !isFrontOfficeConfirmation) {
-        console.log(`[FCM Filter][Fallback] Dropped for front office — doctor signal: "${title}"`);
-        return false;
-      }
-      if (isPharmacistSignal) {
-        console.log(`[FCM Filter][Fallback] Dropped for front office — pharmacy signal: "${title}"`);
+      // Front office receives appointments, billing, home visits, camps, etc.
+      // But NEVER receives pure pharmacy dispensing or duty-doctor triage alerts.
+      if (isPharmacistSignal && !isFrontOfficeSignal) {
+        console.log(
+          `[FCM Filter] Dropped for front office — pure pharmacy signal: "${title}"`
+        );
         return false;
       }
       if (isDutyDoctorSignal) {
-        console.log(`[FCM Filter][Fallback] Dropped for front office — duty doctor signal: "${title}"`);
+        console.log(
+          `[FCM Filter] Dropped for front office — duty doctor signal: "${title}"`
+        );
+        return false;
+      }
+      if (isTherapistSignal && !isFrontOfficeSignal) {
+        console.log(
+          `[FCM Filter] Dropped for front office — pure therapist signal: "${title}"`
+        );
+        return false;
+      }
+      if (!isFrontOfficeSignal) {
+        console.log(
+          `[FCM Filter] Dropped for front office — no front office signal in: "${title}"`
+        );
         return false;
       }
       return true;
 
     default:
-      return true;
+      // STRICT: unknown role never receives notifications
+      console.log(
+        `[FCM Filter] Dropped — role "${normRole}" has no matching rules for: "${title}"`
+      );
+      return false;
+  }
+};
+
+// ======================================================
+// SERVICE WORKER & INDEXEDDB SYNC
+// Allows background worker in public/firebase-messaging-sw.js
+// to know which role is currently logged in and filter
+// background push notifications too.
+// ======================================================
+
+const DB_NAME = "hospital_fcm_db";
+const STORE_NAME = "auth";
+
+const openIDB = () => {
+  return new Promise((resolve) => {
+    if (typeof indexedDB === "undefined") {
+      resolve(null);
+      return;
+    }
+    try {
+      const request = indexedDB.open(DB_NAME, 1);
+      request.onerror = () => resolve(null);
+      request.onsuccess = (e) => resolve(e.target.result);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME, { keyPath: "id" });
+        }
+      };
+    } catch {
+      resolve(null);
+    }
+  });
+};
+
+export const syncActiveRoleToSW = async (role, userId = null) => {
+  const normRole = normalizeRole(role);
+  if (!normRole) return;
+
+  // 1. Post to active ServiceWorker controller if available
+  if (
+    typeof navigator !== "undefined" &&
+    navigator.serviceWorker &&
+    navigator.serviceWorker.controller
+  ) {
+    try {
+      navigator.serviceWorker.controller.postMessage({
+        type: "SET_ACTIVE_ROLE",
+        role: normRole,
+        userId: userId || null,
+      });
+    } catch (e) {
+      console.warn("[FCM Filter] Failed to post role to ServiceWorker:", e);
+    }
+  }
+
+  // 2. Persist to IndexedDB so SW can read it on wake-up
+  try {
+    const db = await openIDB();
+    if (db) {
+      const tx = db.transaction(STORE_NAME, "readwrite");
+      const store = tx.objectStore(STORE_NAME);
+      store.put({
+        id: "current_user",
+        role: normRole,
+        userId: userId || null,
+        updatedAt: Date.now(),
+      });
+    }
+  } catch (e) {
+    console.warn("[FCM Filter] Failed to persist role to IndexedDB:", e);
+  }
+};
+
+export const clearActiveRoleFromSW = async () => {
+  if (
+    typeof navigator !== "undefined" &&
+    navigator.serviceWorker &&
+    navigator.serviceWorker.controller
+  ) {
+    try {
+      navigator.serviceWorker.controller.postMessage({
+        type: "CLEAR_ACTIVE_ROLE",
+      });
+    } catch {
+      // ignore
+    }
+  }
+
+  try {
+    const db = await openIDB();
+    if (db) {
+      const tx = db.transaction(STORE_NAME, "readwrite");
+      const store = tx.objectStore(STORE_NAME);
+      store.delete("current_user");
+    }
+  } catch {
+    // ignore
   }
 };

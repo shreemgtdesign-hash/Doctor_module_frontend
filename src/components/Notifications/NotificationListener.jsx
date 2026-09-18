@@ -7,44 +7,43 @@ import {
   loadNotifications,
 } from "../../redux/notifications/notificationThiunk";
 import { showSuccessToast } from "../../../utils/showToast";
-import { isNotificationForRole } from "../../utils/notificationFilter";
-
-// ======================================================
-// Helpers
-// ======================================================
-
-const normalizeRole = (r) =>
-  (r || "").toLowerCase().trim().replace(/[\s_-]/g, "");
+import {
+  isNotificationForRole,
+  getActiveRole,
+  normalizeRole,
+  syncActiveRoleToSW,
+  clearActiveRoleFromSW,
+} from "../../utils/notificationFilter";
 
 const NotificationListener = () => {
   const dispatch = useDispatch();
 
-  // Read role directly from Redux (now stored in authSlice)
+  // Read auth state directly from Redux
   const { token, role: reduxRole, user } = useSelector(
     (state) => state.auth
   );
   const authToken = token || localStorage.getItem("token");
 
-  // ------------------------------------------------------------------
-  // Resolve the active role: Redux > localStorage
-  // ------------------------------------------------------------------
-  const getActiveRole = () =>
-    reduxRole ||
-    localStorage.getItem("role") ||
-    user?.role ||
-    "";
-
   // Track last registered token+role pair to skip redundant API calls
   const registeredTokenRef = useRef(null);
 
   // Track recently shown notification events for deduplication
-  // Key: eventKey (appointment ID or text hash), Value: { timestamp, count }
   const recentEventsRef = useRef(new Map());
 
   useEffect(() => {
+    // If not authenticated, clear role from SW and reset state
     if (!authToken) {
       registeredTokenRef.current = null;
+      clearActiveRoleFromSW();
       return;
+    }
+
+    const currentRole = getActiveRole(user, reduxRole);
+    const normRole = normalizeRole(currentRole);
+
+    // Sync active role to Service Worker and IndexedDB for background filtering
+    if (normRole) {
+      syncActiveRoleToSW(normRole, user?.id || user?._id);
     }
 
     let unsubscribe = null;
@@ -52,42 +51,36 @@ const NotificationListener = () => {
 
     const setupFCM = async () => {
       try {
-        // ============================================================
-        // STEP 1: Generate FCM device token
-        // ============================================================
+        // STEP 1: Generate or retrieve FCM device token
         const fcmToken = await generateToken();
         if (!isSubscribed) return;
         if (!fcmToken) {
-          console.warn("[FCM] Token generation failed or permission denied.");
+          console.warn("[FCM] Token generation failed or permission not granted.");
           return;
         }
 
-        // ============================================================
-        // STEP 2: Register device token with backend (include role)
-        // ============================================================
-        const currentRole = getActiveRole();
-        const tokenKey = `${fcmToken}::${currentRole}`;
-
-        if (registeredTokenRef.current !== tokenKey) {
-          console.log(`[FCM] Registering token for role: "${currentRole}"`);
+        // STEP 2: Register device token with backend for this role
+        const tokenKey = `${fcmToken}::${normRole}`;
+        if (registeredTokenRef.current !== tokenKey && normRole) {
+          console.log(`[FCM] Registering device token for role: "${normRole}"`);
 
           try {
             await dispatch(
               registerDeviceFCMToken({
                 token: fcmToken,
-                role: currentRole,
+                role: normRole,
               })
             ).unwrap();
             registeredTokenRef.current = tokenKey;
-            console.log(`[FCM] Token registered successfully for role: "${currentRole}"`);
+            console.log(
+              `[FCM] Token registered successfully for role: "${normRole}"`
+            );
           } catch (err) {
             console.error("[FCM] Token registration failed:", err);
           }
         }
 
-        // ============================================================
         // STEP 3: Foreground notification listener
-        // ============================================================
         if (!messaging) return;
 
         unsubscribe = onMessage(messaging, (payload) => {
@@ -105,62 +98,56 @@ const NotificationListener = () => {
 
           const data = payload?.data || {};
 
-          // ----------------------------------------------------------
-          // STEP 4: Role-based filter
-          // ----------------------------------------------------------
-          const activeRole = getActiveRole();
-          const normRole = normalizeRole(activeRole);
+          // Resolve active role at moment of notification arrival
+          const activeRoleNow = getActiveRole(user, reduxRole);
+          const activeNormRole = normalizeRole(activeRoleNow);
 
-          console.log(`[FCM] Active role: "${normRole}", checking notification: "${title}"`);
+          console.log(
+            `[FCM] Active role: "${activeNormRole}", evaluating notification: "${title}"`
+          );
 
+          // STEP 4: Strict role filter
           const isRelevant = isNotificationForRole(
-            activeRole,
+            activeNormRole,
             title,
             body,
             data,
             user
           );
 
-          // Always refresh notification badge in background
-          dispatch(loadNotifications());
-
           if (!isRelevant) {
             console.log(
-              `[FCM] Notification filtered out for role "${normRole}": "${title}"`
+              `[FCM] Notification filtered out for role "${activeNormRole}": "${title}"`
             );
             return;
           }
 
-          // ----------------------------------------------------------
-          // STEP 5: Deduplication — prevent the same event from showing
-          // multiple toasts within 3 seconds
-          // ----------------------------------------------------------
+          // STEP 5: Only refresh notifications for the relevant role
+          dispatch(loadNotifications());
+
+          // STEP 6: Deduplication — prevent duplicate toasts within 3 seconds
           const appointmentId =
             data.appointment_id ||
             data.appointmentId ||
             data.booking_id ||
             "";
 
-          // Build a stable event key
           const patientIdMatch = `${title} ${body}`.match(/\[ID:[^\]]+\]/i);
           const patientKey = patientIdMatch ? patientIdMatch[0] : "";
 
-          const contentKey =
-            appointmentId
-              ? `apt::${appointmentId}`
-              : patientKey
-              ? `pat::${patientKey}`
-              : `txt::${normalizeRole(title).slice(0, 30)}`;
+          const contentKey = appointmentId
+            ? `apt::${appointmentId}`
+            : patientKey
+            ? `pat::${patientKey}`
+            : `txt::${normalizeRole(title).slice(0, 30)}`;
 
-          // Include role in key so different roles on same device don't conflict
-          const eventKey = `${normRole}::${contentKey}`;
-
+          const eventKey = `${activeNormRole}::${contentKey}`;
           const now = Date.now();
           const lastEvent = recentEventsRef.current.get(eventKey);
 
           if (lastEvent && now - lastEvent.timestamp < 3000) {
             console.log(
-              `[FCM] Deduplicated notification (${now - lastEvent.timestamp}ms since last): "${title}"`
+              `[FCM] Deduplicated foreground notification (${now - lastEvent.timestamp}ms): "${title}"`
             );
             return;
           }
@@ -176,14 +163,14 @@ const NotificationListener = () => {
             }
           }
 
-          // ----------------------------------------------------------
-          // STEP 6: Show toast with unique ID (prevents duplicate cards)
-          // ----------------------------------------------------------
+          // STEP 7: Show UI Toast
           const toastId = `fcm::${eventKey}`;
-          console.log(`[FCM] Showing toast for role "${normRole}": "${title}"`);
+          console.log(
+            `[FCM] Showing toast for role "${activeNormRole}": "${title}"`
+          );
           showSuccessToast(title, body, toastId);
 
-          // Emit event so active pages can refresh their data tables
+          // STEP 8: Emit custom event so active role pages can refresh tables
           window.dispatchEvent(
             new CustomEvent("fcm_notification", { detail: payload })
           );
@@ -201,8 +188,7 @@ const NotificationListener = () => {
         unsubscribe();
       }
     };
-  // Re-run whenever auth changes (login/logout/role switch)
-  }, [authToken, reduxRole, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [authToken, reduxRole, user, dispatch]);
 
   return null;
 };

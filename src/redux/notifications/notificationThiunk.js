@@ -110,11 +110,12 @@ export const registerDeviceFCMToken = createAsyncThunk(
   async (arg, { rejectWithValue }) => {
     try {
       const token = typeof arg === "string" ? arg : arg?.token;
-      const role = typeof arg === "object" ? arg?.role : localStorage.getItem("role");
+      const rawRole = typeof arg === "object" ? arg?.role : localStorage.getItem("role");
+      const cleanRole = (rawRole || "").toString().toLowerCase().trim().replace(/[\s-]/g, "_");
 
       const response = await registerFCMToken({
         device_token: token,
-        role: role,
+        role: cleanRole,
         device_type: "web",
       });
 

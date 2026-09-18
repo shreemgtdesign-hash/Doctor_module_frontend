@@ -17,6 +17,7 @@ import {
 
 import { useNavigate } from "react-router-dom";
 import { loadNotifications, markAllNotificationsRead, markNotificationRead } from "../../redux/notifications/notificationThiunk";
+import { isNotificationForRole, getActiveRole } from "../../utils/notificationFilter";
 
 
 
@@ -57,6 +58,22 @@ const Header = ({
     (state) =>
       state.notifications
   );
+
+  // Filter notifications strictly for the active user's role
+  const activeRole = getActiveRole(user, role);
+  const roleFilteredNotifications = (notifications || []).filter((item) =>
+    isNotificationForRole(
+      activeRole,
+      item?.title || "",
+      item?.body || "",
+      item?.data || item,
+      user
+    )
+  );
+
+  const roleUnreadCount = roleFilteredNotifications.filter(
+    (item) => !item.is_read
+  ).length;
 
 
   // ==================================================
@@ -210,7 +227,7 @@ const Header = ({
   const handleMarkAllRead = () => {
 
     if (
-      unreadCount === 0
+      roleUnreadCount === 0
     ) {
       return;
     }
@@ -522,7 +539,7 @@ const Header = ({
 
           {/* UNREAD DOT */}
 
-          {unreadCount > 0 && (
+          {roleUnreadCount > 0 && (
 
             <span
               className="
@@ -595,7 +612,7 @@ const Header = ({
                   Notifications
                 </h3>
 
-                {unreadCount > 0 && (
+                {roleUnreadCount > 0 && (
 
                   <p
                     className="
@@ -604,7 +621,7 @@ const Header = ({
                       text-[#8A7A72]
                     "
                   >
-                    {unreadCount} unread
+                    {roleUnreadCount} unread
                   </p>
 
                 )}
@@ -612,7 +629,7 @@ const Header = ({
               </div>
 
 
-              {unreadCount > 0 && (
+              {roleUnreadCount > 0 && (
 
                 <button
                   type="button"
@@ -660,7 +677,7 @@ const Header = ({
             {/* ================================= */}
 
             {!loading &&
-              notifications.length === 0 && (
+              roleFilteredNotifications.length === 0 && (
 
                 <div
                   className="
@@ -709,7 +726,7 @@ const Header = ({
             {/* ================================= */}
 
             {!loading &&
-              notifications.length > 0 && (
+              roleFilteredNotifications.length > 0 && (
 
                 <div
                   className="
@@ -718,7 +735,7 @@ const Header = ({
                   "
                 >
 
-                  {notifications.map(
+                  {roleFilteredNotifications.map(
                     (notification) => (
 
                       <button
