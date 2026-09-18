@@ -531,7 +531,7 @@ const TherapyConfirmation = () => {
         request?.appointment_id;
 
     return (
-        <div className="relative min-w-[118px]">
+        <div className="relative min-w-[118px]" data-custom-dropdown>
 
             {/* SELECTED ROOM */}
             <button
