@@ -273,8 +273,8 @@ const FrontOfficeDashboard = () => {
         </div>
 
         <div className="mt-4">
-    <SalesDetails />
-</div>
+          <SalesDetails />
+        </div>
 
 
         {/* ================================= */}
