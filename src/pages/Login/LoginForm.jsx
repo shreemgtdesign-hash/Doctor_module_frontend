@@ -70,6 +70,11 @@ const LoginForm = () => {
                         replace: true,
                     });
                     break;
+                case "junior_doctor":
+                    navigate("/junior-doctor/dashboard", {
+                        replace: true,
+                    });
+                    break;
 
                 default:
                     console.error(

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardCard from "../../../components/Dashboard/DashboardCard";
 import DashboardDropdown from "../../../components/Dashboard/DashboardDropdown";
 import StatsCard from "../../../components/Dashboard/StatsCard";
-import {loadConsultation, loadOverview } from "../../../redux/dashboard/dashboardThunk";
+import { loadOverview } from "../../../redux/dashboard/dashboardThunk";
 
 const ScheduleOverview = () => {
   const dispatch = useDispatch();

@@ -54,6 +54,8 @@ import OnlineMedicineOrderDetails from "./pages/FrontOfficeAppointment/component
 import EmployeePurchase from "./pages/Pharmacist/PharmacistAppointments/components/EmployeePurchase";
 import OnlineDeliveryOrders from "./pages/Pharmacist/PharmacistAppointments/components/OnlineDeliveryOrders";
 import OnlineOrderDetails from "./pages/Pharmacist/PharmacistAppointments/components/OnlineOrderDetails";
+import JuniorDoctorAppointment from "./pages/JuniorDoctorAppointment/JuniorDoctorAppointment";
+import JuniorDoctorDashboard from "./pages/JuniorDoctorDashboard/JuniorDoctorDashboard";
 
 function App() {
   return (
@@ -382,6 +384,20 @@ function App() {
     element={
         <OnlineOrderDetails />
     }
+/>
+
+<Route
+  path="/junior-doctor/dashboard"
+  element={
+    <JuniorDoctorDashboard />
+  }
+/>
+
+<Route
+  path="/junior-doctor/appointments"
+  element={
+    <JuniorDoctorAppointment />
+  }
 />
 
     </Routes>

@@ -45,40 +45,20 @@ const PrescriptionTable = ({
     };
 
 
-    const handleQuantityChange = (
-        item,
-        value
-    ) => {
+    const handleQuantityChange = (item, value) => {
+    let quantity = Number(value);
 
-        const prescribed =
-            Number(item.quantity || 0);
+    if (Number.isNaN(quantity)) {
+        quantity = 0;
+    }
 
-        let quantity =
-            Number(value);
+    quantity = Math.max(0, quantity);
 
-        if (Number.isNaN(quantity)) {
-            quantity = 0;
-        }
-
-        quantity =
-            Math.max(
-                0,
-                Math.min(
-                    quantity,
-                    prescribed
-                )
-            );
-
-
-        setQuantities((prev) => ({
-
-            ...prev,
-
-            [item.id]: quantity,
-
-        }));
-
-    };
+    setQuantities((prev) => ({
+        ...prev,
+        [item.id]: quantity,
+    }));
+};
 
 
     const handleDispense = async () => {

@@ -7,6 +7,7 @@ import {
   readNotification,
   readAllNotifications,
 } from "../../services/notificationService";
+
 import { registerFCMToken } from "../../api/notificationApi";
 
 
@@ -19,21 +20,15 @@ export const loadNotifications =
     "notifications/loadNotifications",
 
     async (_, { rejectWithValue }) => {
-
       try {
-
         return await fetchNotifications();
-
       } catch (error) {
-
         return rejectWithValue(
           error.response?.data ||
           error.message ||
           "Failed to load notifications."
         );
-
       }
-
     }
   );
 
@@ -50,13 +45,9 @@ export const markNotificationRead =
       notificationId,
       { rejectWithValue }
     ) => {
-
       try {
-
         const response =
-          await readNotification(
-            notificationId
-          );
+          await readNotification(notificationId);
 
         return {
           notificationId,
@@ -64,15 +55,12 @@ export const markNotificationRead =
         };
 
       } catch (error) {
-
         return rejectWithValue(
           error.response?.data ||
           error.message ||
           "Failed to mark notification as read."
         );
-
       }
-
     }
   );
 
@@ -86,49 +74,145 @@ export const markAllNotificationsRead =
     "notifications/markAllNotificationsRead",
 
     async (_, { rejectWithValue }) => {
-
       try {
-
         return await readAllNotifications();
 
       } catch (error) {
-
         return rejectWithValue(
           error.response?.data ||
           error.message ||
           "Failed to mark notifications as read."
         );
-
       }
-
     }
   );
 
-export const registerDeviceFCMToken = createAsyncThunk(
-  "notifications/registerDeviceFCMToken",
 
-  async (arg, { rejectWithValue }) => {
-    try {
-      const token = typeof arg === "string" ? arg : arg?.token;
-      const rawRole = typeof arg === "object" ? arg?.role : localStorage.getItem("role");
-      const cleanRole = (rawRole || "").toString().toLowerCase().trim().replace(/[\s-]/g, "_");
+// ======================================================
+// REGISTER FCM TOKEN
+// ======================================================
 
-      const response = await registerFCMToken({
-        device_token: token,
-        role: cleanRole,
-        device_type: "web",
-      });
+export const registerDeviceFCMToken =
+  createAsyncThunk(
+    "notifications/registerDeviceFCMToken",
 
-      return response.data;
+    async (arg, { rejectWithValue }) => {
 
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data ||
-        error.message ||
-        "Failed to register FCM token."
-      );
+      try {
+
+        // ----------------------------------------------
+        // GET TOKEN
+        // ----------------------------------------------
+
+        const token =
+          typeof arg === "string"
+            ? arg
+            : arg?.token;
+
+
+        // ----------------------------------------------
+        // GET ROLE
+        // ----------------------------------------------
+
+        const rawRole =
+          typeof arg === "object" && arg?.role
+            ? arg.role
+            : localStorage.getItem("role");
+
+
+        // ----------------------------------------------
+        // NORMALIZE ROLE
+        // ----------------------------------------------
+
+        const role = (rawRole || "")
+          .toString()
+          .trim()
+          .toLowerCase();
+
+
+      
+
+        const roleMap = {
+          "juniordoctor": "junior_doctor",
+          
+          
+
+          "doctor": "doctor",
+          
+          "frontoffice": "front_office",
+         
+
+          "pharmacist": "pharmacist",
+          "admin": "admin",
+        };
+
+
+        const backendRole =
+          roleMap[role] || role;
+
+
+        // ----------------------------------------------
+        // VALIDATE
+        // ----------------------------------------------
+
+        if (!token) {
+          throw new Error("FCM token is missing.");
+        }
+
+        if (!backendRole) {
+          throw new Error("User role is missing.");
+        }
+
+
+        // ----------------------------------------------
+        // DEBUG
+        // ----------------------------------------------
+
+        console.log(
+          "[FCM] Registering token:",
+          {
+            device_token: token,
+            device_type: "web",
+            original_role: rawRole,
+            backend_role: backendRole,
+          }
+        );
+
+
+        // ----------------------------------------------
+        // REGISTER TOKEN
+        // ----------------------------------------------
+
+        const response =
+          await registerFCMToken({
+            device_token: token,
+            role: backendRole,
+            device_type: "web",
+          });
+
+
+        return response.data;
+
+      } catch (error) {
+
+        console.error(
+          "[FCM] Token registration failed:",
+          error.response?.data || error.message
+        );
+
+        return rejectWithValue(
+          error.response?.data ||
+          error.message ||
+          "Failed to register FCM token."
+        );
+      }
     }
-  }
-);
+  );
 
-export const registerFrontOfficeFCMToken = registerDeviceFCMToken;
+
+// ======================================================
+// FRONT OFFICE FCM TOKEN
+// ======================================================
+
+export const registerFrontOfficeFCMToken =
+  registerDeviceFCMToken;
