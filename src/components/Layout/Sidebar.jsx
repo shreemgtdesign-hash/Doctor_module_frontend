@@ -60,6 +60,18 @@ const pharmacistMenu = [
         path: "/pharmacist/appointments",
     },
 ];
+const juniorDoctor = [
+    {
+        name: "Dashboard",
+        icon: HiHome,
+        path: "/junior-doctor/dashboard",
+    },
+    {
+        name: "Appointments",
+        icon: HiOutlineCalendar,
+        path: "/junior-doctor/appointments",
+    },
+];
 
 
 // ==========================================
@@ -251,6 +263,9 @@ const Sidebar = ({
 
     if (role === "therapist") {
         currentMenu = therapistMenu;
+    }
+    if (role === "junior-doctor") {
+        currentMenu = juniorDoctor;
     }
 
 

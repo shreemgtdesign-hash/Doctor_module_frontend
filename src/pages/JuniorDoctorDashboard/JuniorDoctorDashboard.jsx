@@ -1,92 +1,81 @@
-import DashboardLayout
-  from "../../components/Layout/DashboardLayout";
-
-import ScheduleOverview
-  from "../DoctorDashboard/components/ScheduleOverview";
-
-import ConsultationHistory
-  from "../DoctorDashboard/components/ConsultationHistory";
-
-import Wellness
-  from "../DoctorDashboard/components/Wellness";
-
-import Beauty
-  from "../DoctorDashboard/components/Beauty";
-
-import AilmentsAddressed
-  from "../DoctorDashboard/components/AilmentsAddressed";
+import DashboardLayout from "../../components/Layout/DashboardLayout";
+import JuniorDoctorAilmentsAddressed from "./components/JuniorDoctorAilmentsAddressed";
+import JuniorDoctorBeauty from "./components/JuniorDoctorBeauty";
+import JuniorDoctorConsultationHistory from "./components/JuniorDoctorConsultationHistory";
+import JuniorDoctorScheduleOverview from "./components/JuniorDoctorScheduleOverview";
+import JuniorDoctorWellness from "./components/JuniorDoctorWellness";
 
 
 const JuniorDoctorDashboard = () => {
 
-  return (
+    return (
 
-    <DashboardLayout
-      role="doctor"
-    >
-
-      <div
-        className="
-          min-h-screen
-          bg-[#F8F6F3]
-          p-6
-        "
-      >
-
-        {/* ================================= */}
-        {/* TOP TWO CARDS */}
-        {/* ================================= */}
-
-        <div
-          className="
-            grid
-            grid-cols-2
-            gap-5
-          "
+        <DashboardLayout
+            role="junior-doctor"
         >
 
-          <ScheduleOverview />
+            <div
+                className="
+                    min-h-screen
+                    bg-[#F8F6F3]
+                    p-6
+                "
+            >
 
-          <ConsultationHistory />
+                {/* ================================= */}
+                {/* TOP TWO CARDS */}
+                {/* ================================= */}
 
-        </div>
+                <div
+                    className="
+                        grid
+                        grid-cols-2
+                        gap-5
+                    "
+                >
 
+                    <JuniorDoctorScheduleOverview />
 
-        {/* ================================= */}
-        {/* WELLNESS + BEAUTY */}
-        {/* ================================= */}
+                    <JuniorDoctorConsultationHistory />
 
-        <div
-          className="
-            mt-5
-            grid
-            grid-cols-2
-            gap-5
-          "
-        >
-
-          <Wellness />
-
-          <Beauty />
-
-        </div>
+                </div>
 
 
-        {/* ================================= */}
-        {/* AILMENTS */}
-        {/* ================================= */}
+                {/* ================================= */}
+                {/* WELLNESS + BEAUTY */}
+                {/* ================================= */}
 
-        <div className="mt-5">
+                <div
+                    className="
+                        mt-5
+                        grid
+                        grid-cols-2
+                        gap-5
+                    "
+                >
 
-          <AilmentsAddressed />
+                    <JuniorDoctorWellness />
 
-        </div>
+                    <JuniorDoctorBeauty />
 
-      </div>
+                </div>
 
-    </DashboardLayout>
 
-  );
+                {/* ================================= */}
+                {/* AILMENTS */}
+                {/* ================================= */}
+
+                <div className="mt-5">
+
+                    <JuniorDoctorAilmentsAddressed />
+
+                </div>
+
+            </div>
+
+        </DashboardLayout>
+
+    );
 
 };
 

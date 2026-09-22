@@ -278,27 +278,30 @@ const AppointmentList = ({
   useEffect(() => {
 
     if (!doctor?.id) {
-      return;
+        return;
     }
 
+
     dispatch(
-      loadAppointments({
-        doctorId:
-          doctor.doctor_id ||
-          doctor.id,
+        loadAppointments({
+            doctorId:
+                doctor.doctor_id ||
+                doctor.id,
 
-        period,
+            period,
 
-        status: "",
-      })
+            status:
+                activeFilter,
+        })
     );
 
-  }, [
+}, [
     dispatch,
     doctor?.doctor_id,
     doctor?.id,
     period,
-  ]);
+    activeFilter,
+]);
 
   // ==========================================
   // RESET SEARCH/FILTER WHEN PERIOD CHANGES

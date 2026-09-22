@@ -64,14 +64,21 @@ export const updatePatientAllergies = (
 /* Appointment APIs */
 
 // Today's appointments
-export const getAppointments = ( period, status = "") => {
-  let url = `/appointments?period=${period}&status=${status}`;
-   
-  if (status) {
-    url += `&status=${status}`;
-  }
+export const getAppointments = (
+    period,
+    status = ""
+) => {
 
-  return api.get(url);
+    return api.get(
+        "/appointments",
+        {
+            params: {
+                period,
+                status,
+            },
+        }
+    );
+
 };
 
 export const getChiefComplaints = (appointmentId) => {

@@ -1,195 +1,200 @@
 import {
-  useEffect,
-  useState,
+    useState,
 } from "react";
 
 import {
-  useDispatch,
-  useSelector,
+    useDispatch,
 } from "react-redux";
 
 import DashboardLayout
-  from "../../components/Layout/DashboardLayout";
+    from "../../components/Layout/DashboardLayout";
 
 import {
-  setActiveFilter,
+    setActiveFilter,
+    setSelectedPatient,
 } from "../../redux/consultation/consultationSlice";
 
 import {
-  loadOverview,
-} from "../../redux/dashboard/dashboardThunk";
+    loadPatientDetails,
+} from "../../redux/consultation/consultationThunk";
 
+import JuniorAppointmentScheduleOverview
+    from "./components/JuniorAppointmentScheduleOverview";
+
+import JuniorDoctorAppointmentList
+    from "./components/JuniorDoctorAppointmentList";
 
 import JuniorPatientProfile
-  from "./components/JuniorPatientProfile";
-import ScheduleOverview from "../DoctorAppointment/components/ScheduleOverview";
-import AppointmentList from "../DoctorAppointment/components/AppointmentList";
+    from "./components/JuniorPatientProfile";
 
 
 const JuniorDoctorAppointment = () => {
 
-  const dispatch = useDispatch();
+    const dispatch =
+        useDispatch();
 
 
-  // ==========================================
-  // STATE
-  // ==========================================
-
-  const [
-    activeSection,
-    setActiveSection,
-  ] = useState("overview");
+    const [
+        activeSection,
+        setActiveSection,
+    ] = useState("overview");
 
 
-  const [
-    period,
-    setPeriod,
-  ] = useState("today");
-
-
-  // ==========================================
-  // AUTH USER
-  // ==========================================
-
-  const doctor = useSelector(
-    (state) =>
-      state.auth.user
-  );
-
-
-  // ==========================================
-  // DASHBOARD OVERVIEW
-  // ==========================================
-
-  const {
-    overview,
-  } = useSelector(
-    (state) =>
-      state.dashboard
-  );
-
-
-  // ==========================================
-  // PERIOD CHANGE
-  // ==========================================
-
-  const handlePeriodChange = (
-    newPeriod
-  ) => {
-
-    setPeriod(newPeriod);
-
-    dispatch(
-      setActiveFilter("")
-    );
-
-    setActiveSection(
-      "overview"
-    );
-
-  };
-
-
-  // ==========================================
-  // LOAD OVERVIEW
-  // ==========================================
-
-  useEffect(() => {
-
-    const doctorId =
-      doctor?.doctor_id ||
-      doctor?.id;
-
-    if (!doctorId) {
-      return;
-    }
-
-    dispatch(
-      loadOverview({
-        doctorId,
+    const [
         period,
-      })
-    );
-
-  }, [
-    dispatch,
-    doctor?.doctor_id,
-    doctor?.id,
-    period,
-  ]);
+        setPeriod,
+    ] = useState("today");
 
 
-  return (
+    const handlePeriodChange = (
+        newPeriod
+    ) => {
 
-    <DashboardLayout
-      role="doctor"
-    >
+        setPeriod(
+            newPeriod
+        );
 
-      <div
-        className="
-          min-h-screen
-          bg-[#F7F7F7]
-          p-8
-        "
-      >
+        dispatch(
+            setActiveFilter("")
+        );
 
-        {/* ================================= */}
-        {/* SCHEDULE OVERVIEW */}
-        {/* ================================= */}
+        setActiveSection(
+            "overview"
+        );
 
-        <ScheduleOverview
-          overview={
-            overview
-          }
-          period={
-            period
-          }
-          setPeriod={
-            handlePeriodChange
-          }
-        />
+    };
 
 
-        {/* ================================= */}
-        {/* APPOINTMENTS + PATIENT */}
-        {/* ================================= */}
+    // =====================================================
+    // SELECT PATIENT
+    // =====================================================
 
-        <div
-          className="
-            mt-6
-            grid
-            grid-cols-[430px_1fr]
-            gap-5
-          "
+    const handleSelectPatient = (
+        appointment
+    ) => {
+
+        if (!appointment) {
+            return;
+        }
+
+
+        // ================================================
+        // STORE SELECTED APPOINTMENT
+        // ================================================
+
+        dispatch(
+            setSelectedPatient(
+                appointment
+            )
+        );
+
+
+        // ================================================
+        // LOAD PATIENT PROFILE + WELLNESS
+        // ================================================
+
+        if (
+            appointment.patient_id
+        ) {
+
+            dispatch(
+                loadPatientDetails(
+                    appointment.patient_id
+                )
+            );
+
+        }
+
+
+        // ================================================
+        // OPEN OVERVIEW
+        // ================================================
+
+        setActiveSection(
+            "overview"
+        );
+
+    };
+
+
+    return (
+
+        <DashboardLayout
+            role="junior-doctor"
         >
 
-          {/* LEFT */}
+            <div
+                className="
+                    min-h-screen
+                    bg-[#F7F7F7]
+                    p-8
+                "
+            >
 
-          <AppointmentList
-            period={
-              period
-            }
-          />
+                {/* ================================= */}
+                {/* SCHEDULE OVERVIEW */}
+                {/* ================================= */}
+
+                <JuniorAppointmentScheduleOverview
+                    period={
+                        period
+                    }
+
+                    setPeriod={
+                        handlePeriodChange
+                    }
+                />
 
 
-          {/* RIGHT */}
+                {/* ================================= */}
+                {/* APPOINTMENTS + PATIENT PROFILE */}
+                {/* ================================= */}
 
-          <JuniorPatientProfile
-            activeSection={
-              activeSection
-            }
-            setActiveSection={
-              setActiveSection
-            }
-          />
+                <div
+                    className="
+                        mt-6
+                        grid
+                        grid-cols-[430px_1fr]
+                        gap-5
+                    "
+                >
 
-        </div>
+                    {/* ================================= */}
+                    {/* LEFT */}
+                    {/* ================================= */}
 
-      </div>
+                    <JuniorDoctorAppointmentList
+                        period={
+                            period
+                        }
 
-    </DashboardLayout>
+                        onSelectPatient={
+                            handleSelectPatient
+                        }
+                    />
 
-  );
+
+                    {/* ================================= */}
+                    {/* RIGHT */}
+                    {/* ================================= */}
+
+                    <JuniorPatientProfile
+                        activeSection={
+                            activeSection
+                        }
+
+                        setActiveSection={
+                            setActiveSection
+                        }
+                    />
+
+                </div>
+
+            </div>
+
+        </DashboardLayout>
+
+    );
 
 };
 
