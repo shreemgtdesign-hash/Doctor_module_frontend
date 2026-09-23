@@ -826,11 +826,6 @@ const AppointmentRow = ({
     // STATUS
     // ==========================================
 
-    const rawStatus =
-        String(
-            appointment?.status || ""
-        ).toLowerCase();
-
 
     const isCompleted =
      
@@ -1200,22 +1195,6 @@ const PeriodButton = ({
 // CAPITALIZE FIRST LETTER
 // ==========================================
 
-const capitalizeFirstLetter = (
-    value
-) => {
-
-    if (!value) {
-        return "";
-    }
-
-    const text =
-        String(value);
-
-    return (
-        text.charAt(0).toUpperCase() +
-        text.slice(1)
-    );
-};
 
 
 export default UpcomingAppointmentsList;

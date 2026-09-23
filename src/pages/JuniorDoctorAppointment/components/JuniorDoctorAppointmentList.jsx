@@ -45,7 +45,10 @@ const JuniorDoctorAppointmentList = ({
 
     const dispatch = useDispatch();
 
-
+    const [
+    selectedPatientId,
+    setSelectedPatientId,
+] = useState(null);
     const {
         appointments,
         appointmentsLoading,
@@ -497,23 +500,41 @@ const JuniorDoctorAppointmentList = ({
                                         appointment.id
                                     }
                                     type="button"
-                                    onClick={() =>
-                                        onSelectPatient?.(
-                                            appointment
-                                        )
-                                    }
-                                    className="
-                                        w-full
-                                        rounded-2xl
-                                        border
-                                        border-[#E8DDD4]
-                                        bg-white
-                                        p-5
-                                        text-left
-                                        transition
-                                        hover:border-[#6A3F2D]
-                                        hover:bg-[#FFF8F2]
-                                    "
+                                    onClick={() => {
+
+    setSelectedPatientId(
+        appointment.id
+    );
+
+    onSelectPatient?.(
+        appointment
+    );
+
+}}
+                                    className={`
+    w-full
+    rounded-2xl
+    border
+    p-5
+    text-left
+    transition-all
+    duration-200
+
+    ${
+        selectedPatientId === appointment.id
+            ? `
+                border-[#8B5037]
+                bg-[#FFF0E4]
+                shadow-[0_4px_14px_rgba(139,80,55,0.12)]
+            `
+            : `
+                border-[#E8DDD4]
+                bg-white
+                hover:border-[#6A3F2D]
+                hover:bg-[#FFF8F2]
+            `
+    }
+`}
                                 >
 
                                     <div

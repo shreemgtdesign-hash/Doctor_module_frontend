@@ -731,7 +731,7 @@ useEffect(() => {
     const total = useMemo(() => {
 
         return editableMedicines.reduce(
-
+        
             (sum, item) =>
 
                 sum +

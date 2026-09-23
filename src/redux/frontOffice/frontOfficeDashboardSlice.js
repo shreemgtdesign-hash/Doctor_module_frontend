@@ -6,6 +6,10 @@ import {
   loadFrontOfficeDashboard,
   loadFrontOfficeAppointments,
   loadFrontOfficeSalesDetails,
+  loadFrontOfficeReferrals,
+  loadFrontOfficeMedicalCamp,
+  loadFrontOfficeRecentTransactions,
+  loadFrontOfficePendingActions
 } from "./frontOfficeDashboardThunk";
 
 
@@ -234,7 +238,103 @@ const frontOfficeDashboardSlice =
               "Failed to load upcoming appointments.";
 
           }
-        );
+        )
+        // ==========================================
+        // PENDING ACTIONS
+        // ==========================================
+
+        .addCase(
+          loadFrontOfficePendingActions.pending,
+          (state) => {
+
+            state.loading = true;
+            state.error = null;
+
+          }
+        )
+
+        .addCase(
+          loadFrontOfficePendingActions.fulfilled,
+          (
+            state,
+            action
+          ) => {
+
+            state.loading = false;
+
+            console.log(
+              "🔥 PENDING ACTIONS REDUX PAYLOAD:",
+              action.payload
+            );
+
+            state.pendingActions =
+              action.payload;
+
+          }
+        )
+
+        .addCase(
+          loadFrontOfficePendingActions.rejected,
+          (
+            state,
+            action
+          ) => {
+
+            state.loading = false;
+
+            state.error =
+              action.payload ||
+              "Failed to load pending actions.";
+
+          }
+        )
+        .addCase(
+          loadFrontOfficeRecentTransactions.pending,
+          (state) => {
+
+            state.loading = true;
+            state.error = null;
+
+          }
+        )
+
+        .addCase(
+          loadFrontOfficeRecentTransactions.fulfilled,
+          (
+            state,
+            action
+          ) => {
+
+            state.loading = false;
+
+            console.log(
+              "🔥 RECENT TRANSACTIONS:",
+              action.payload
+            );
+
+            state.transactions =
+              action.payload?.data ||
+              action.payload ||
+              [];
+
+          }
+        )
+
+        .addCase(
+          loadFrontOfficeRecentTransactions.rejected,
+          (
+            state,
+            action
+          ) => {
+
+            state.loading = false;
+
+            state.error =
+              action.payload ||
+              "Failed to load recent transactions.";
+
+          }
+        )
 
     },
 

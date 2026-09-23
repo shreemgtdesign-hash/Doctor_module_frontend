@@ -83,7 +83,7 @@ const PatientProfile = forwardRef(
     useEffect(() => {
 
       if (
-        activeSection !== "complaints"
+        activeSection !== "prescription"
       ) {
         return;
       }

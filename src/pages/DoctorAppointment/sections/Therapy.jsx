@@ -99,9 +99,16 @@ const Therapy = ({
   // TOTAL
   // ==========================================
 
-  const total =
-    Number(therapy?.total || 0);
+  // ==========================================
+// TOTAL
+// ==========================================
 
+const total = editableTherapies.reduce(
+  (sum, item) => {
+    return sum + Number(item.amount || 0);
+  },
+  0
+);
 
   // ==========================================
   // KEEP LOCAL LIST IN SYNC
@@ -225,69 +232,88 @@ useEffect(() => {
   // ADD THERAPY
   // ==========================================
 
-  const addTherapy = async (
-    selectedTherapy
-  ) => {
+  // ==========================================
+// ADD THERAPY
+// ==========================================
 
-    if (!selectedTherapy) {
-      return;
-    }
+const addTherapy = async (selectedTherapy) => {
+  if (!selectedTherapy) {
+    return;
+  }
 
-    try {
-      // Keep newly selected therapy locally first.
-      // Doctor is selected on the therapy card, then the
-      // actual POST /visits/{appointmentId}/therapies is
-      // triggered from Save & Continue with doctor_name.
-      const newTherapy = {
-        isNew: true,
-        treatment_id: selectedTherapy.id,
-        treatment_name:
-          selectedTherapy.name ||
-          selectedTherapy.treatment_name ||
-          "Therapy",
-        description:
-         
-          selectedTherapy.notes ||
-          "No description available",
-        image_url:
-          selectedTherapy.image_url || "",
-        amount: Number(
-          selectedTherapy.daycare_price || 0
-        ),
-        booking_date: new Date()
-          .toISOString()
-          .split("T")[0],
-        slot_time: "15:30:00",
-        notes: "",
-        doctor_prescription_therpay_notes: "",
-        no_of_days: Number(noOfDays) || 0,
-        category:
-          selectedTherapy.category ||
-          "Treatments",
-        doctor_name: "",
-      };
+  // Check whether this therapy is already selected
+  const therapyAlreadySelected = editableTherapies.some(
+    (item) =>
+      String(item.treatment_id) ===
+      String(selectedTherapy.id)
+  );
 
-      console.log(
-        "Adding therapy locally:",
-        newTherapy
-      );
+  if (therapyAlreadySelected) {
+    alert("This therapy is already selected.");
+    return;
+  }
 
-      setEditableTherapies((prev) => [
-        ...prev,
-        newTherapy,
-      ]);
+  try {
+    const newTherapy = {
+      isNew: true,
+      treatment_id: selectedTherapy.id,
 
-      setSearch("");
-      setShowDropdown(false);
-      setNoOfDays("");
+      treatment_name:
+        selectedTherapy.name ||
+        selectedTherapy.treatment_name ||
+        "Therapy",
 
-    } catch (error) {
-      console.error(
-        "Failed to add therapy:",
-        error
-      );
-    }
-  };
+      description:
+        selectedTherapy.notes ||
+        "No description available",
+
+      image_url:
+        selectedTherapy.image_url || "",
+
+      amount: Number(
+        selectedTherapy.daycare_price || 0
+      ),
+
+      booking_date: new Date()
+        .toISOString()
+        .split("T")[0],
+
+      slot_time: "15:30:00",
+
+      notes: "",
+
+      doctor_prescription_therpay_notes: "",
+
+      no_of_days: Number(noOfDays) || 0,
+
+      category:
+        selectedTherapy.category ||
+        "Treatments",
+
+      doctor_name: "",
+    };
+
+    console.log(
+      "Adding therapy locally:",
+      newTherapy
+    );
+
+    setEditableTherapies((prev) => [
+      ...prev,
+      newTherapy,
+    ]);
+
+    setSearch("");
+    setShowDropdown(false);
+    setNoOfDays("");
+
+  } catch (error) {
+    console.error(
+      "Failed to add therapy:",
+      error
+    );
+  }
+};
 
 
   // ==========================================
@@ -671,95 +697,93 @@ useEffect(() => {
               shadow-xl
             ">
 
-              {therapySearch.map(
-                (item) => (
+             {therapySearch.map((item) => {
+  const isAlreadySelected = editableTherapies.some(
+    (therapy) =>
+      String(therapy.treatment_id) ===
+      String(item.id)
+  );
 
-                  <button
-                    key={item.id}
+  return (
+    <button
+      key={item.id}
+      type="button"
+      disabled={isAlreadySelected}
+      onClick={() => {
+        if (!isAlreadySelected) {
+          addTherapy(item);
+        }
+      }}
+      className={`
+        flex
+        w-full
+        items-center
+        gap-3
+        border-b
+        border-[#EFE7E1]
+        p-3
+        text-left
+        last:border-b-0
+        ${
+          isAlreadySelected
+            ? "cursor-not-allowed bg-[#F8F5F2] opacity-70"
+            : "hover:bg-[#FFF8F2]"
+        }
+      `}
+    >
+      {item.image_url ? (
+        <img
+          src={item.image_url}
+          alt=""
+          className="h-16 w-16 rounded-xl object-cover"
+        />
+      ) : (
+        <div className="
+          flex
+          h-16
+          w-16
+          items-center
+          justify-center
+          rounded-xl
+          bg-[#FFF0E5]
+          text-[#8A563B]
+        ">
+          <HiOutlinePlus size={26} />
+        </div>
+      )}
 
-                    type="button"
+      <div className="flex-1">
+        <h3 className="
+          font-semibold
+          text-[#4D2E23]
+        ">
+          {item.name}
+        </h3>
 
-                    onClick={() =>
-                      addTherapy(
-                        item
-                      )
-                    }
+        <p className="text-sm text-gray-500">
+          ₹
+          {Number(
+            item.daycare_price || 0
+          ).toLocaleString()}
+        </p>
+      </div>
 
-                    className="
-                      flex
-                      w-full
-                      items-center
-                      gap-3
-                      border-b
-                      border-[#EFE7E1]
-                      p-3
-                      text-left
-                      hover:bg-[#FFF8F2]
-                      last:border-b-0
-                    "
-                  >
-
-                    {item.image_url ? (
-
-                      <img
-                        src={
-                          item.image_url
-                        }
-                        alt=""
-                        className="
-                          h-16
-                          w-16
-                          rounded-xl
-                          object-cover
-                        "
-                      />
-
-                    ) : (
-
-                      <div className="
-                        flex
-                        h-16
-                        w-16
-                        items-center
-                        justify-center
-                        rounded-xl
-                        bg-[#FFF0E5]
-                        text-[#8A563B]
-                      ">
-                        <HiOutlinePlus
-                          size={26}
-                        />
-                      </div>
-
-                    )}
-
-
-                    <div>
-
-                      <h3 className="
-                        font-semibold
-                        text-[#4D2E23]
-                      ">
-                        {item.name}
-                      </h3>
-
-
-                      <p className="
-                        text-sm
-                        text-gray-500
-                      ">
-                        ₹
-                        {Number(
-                          item.daycare_price || 0
-                        ).toLocaleString()}
-                      </p>
-
-                    </div>
-
-                  </button>
-
-                )
-              )}
+      {isAlreadySelected && (
+        <span className="
+          rounded-full
+          bg-[#FDEEDC]
+          px-3
+          py-1
+          text-xs
+          font-semibold
+          text-[#8A563B]
+        ">
+          Already Selected
+        </span>
+      )}
+    </button>
+  );
+})}
 
             </div>
 

@@ -1,11 +1,15 @@
 import {
-    HiOutlineCalendarDays,
-    HiOutlineChevronRight,
-} from "react-icons/hi2";
+    useState,
+} from "react";
 
 import {
+    useDispatch,
     useSelector,
 } from "react-redux";
+
+import {
+    HiOutlineChevronRight,
+} from "react-icons/hi2";
 
 import {
     useNavigate,
@@ -14,11 +18,26 @@ import {
 import DashboardCard
     from "../../../components/Dashboard/DashboardCard";
 
+import DashboardDropdown
+    from "../../../components/Dashboard/DashboardDropdown";
+
+import {
+    loadFrontOfficePendingActions,
+} from "../../../redux/frontOffice/frontOfficeDashboardThunk";
+
 
 const PendingActions = () => {
 
-    const navigate = useNavigate();
+    const navigate =
+        useNavigate();
 
+    const dispatch =
+        useDispatch();
+
+
+    // ==========================================
+    // PENDING ACTIONS
+    // ==========================================
 
     const pending =
         useSelector(
@@ -27,6 +46,67 @@ const PendingActions = () => {
                     .pendingActions
         );
 
+
+    // ==========================================
+    // PERIOD
+    // ==========================================
+
+    const [period, setPeriod] =
+        useState("today");
+
+
+    // ==========================================
+    // PERIOD OPTIONS
+    // ==========================================
+
+    const periodOptions = [
+        {
+            label: "Today",
+            value: "today",
+        },
+        {
+            label: "This Week",
+            value: "week",
+        },
+        {
+            label: "This Month",
+            value: "month",
+        },
+        {
+            label: "Till Date",
+            value: "till_date",
+        },
+    ];
+
+
+    // ==========================================
+    // PERIOD CHANGE
+    // ==========================================
+
+    const handlePeriodChange = (
+        newPeriod
+    ) => {
+
+        console.log(
+            "📅 Pending Actions Period:",
+            newPeriod
+        );
+
+        setPeriod(
+            newPeriod
+        );
+
+        dispatch(
+            loadFrontOfficePendingActions(
+                newPeriod
+            )
+        );
+    };
+
+
+    // ==========================================
+    // ACTIONS
+    // ==========================================
 
     const actions = [
 
@@ -118,6 +198,8 @@ const PendingActions = () => {
                 );
             },
         },
+
+
         {
             label: "Online Orders",
 
@@ -168,34 +250,32 @@ const PendingActions = () => {
                 </h2>
 
 
-                <button
-                    type="button"
-                    onClick={(event) => {
-                        event.stopPropagation();
-                    }}
+                {/* ================================= */}
+                {/* PERIOD DROPDOWN */}
+                {/* ================================= */}
+
+                <div
+                    onClick={(event) =>
+                        event.stopPropagation()
+                    }
                     className="
-                        flex
-                        items-center
-                        gap-2
-                        rounded-lg
-                        border
-                        border-[#E7DBD3]
-                        px-3
-                        py-2
-                        text-[12px]
-                        text-[#4B2E2A]
+                        shrink-0
                     "
                 >
 
-                    <HiOutlineCalendarDays
-                        size={14}
+                    <DashboardDropdown
+                        value={
+                            period
+                        }
+                        options={
+                            periodOptions
+                        }
+                        onChange={
+                            handlePeriodChange
+                        }
                     />
 
-                    Today
-
-                    <span>⌄</span>
-
-                </button>
+                </div>
 
             </div>
 

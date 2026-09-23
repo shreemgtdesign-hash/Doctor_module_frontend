@@ -59,7 +59,7 @@ const FrontOfficeDashboard = () => {
     const handleFCMNotification = () => {
       dispatch(
         loadFrontOfficeDashboard({
-          period: period || "week",
+          period: period || "today",
         })
       );
       dispatch(
@@ -95,7 +95,7 @@ const FrontOfficeDashboard = () => {
 
     dispatch(
       loadFrontOfficeDashboard({
-        period: "week",
+        period: "today",
       })
     );
 

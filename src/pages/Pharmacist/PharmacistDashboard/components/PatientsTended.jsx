@@ -1,4 +1,9 @@
 import {
+    useEffect,
+    useState,
+} from "react";
+
+import {
     useDispatch,
     useSelector,
 } from "react-redux";
@@ -27,16 +32,55 @@ const PatientsTended = () => {
 
 
     // ==========================================
+    // PERIOD
+    // ==========================================
+
+    const [period, setPeriod] =
+        useState(
+            patients?.period ||
+            "week"
+        );
+
+
+    // ==========================================
+    // KEEP PERIOD IN SYNC WITH REDUX
+    // ==========================================
+
+    useEffect(() => {
+
+        if (
+            patients?.period
+        ) {
+
+            setPeriod(
+                patients.period
+            );
+
+        }
+
+    }, [
+        patients?.period,
+    ]);
+
+
+    // ==========================================
     // CHANGE PERIOD
     // ==========================================
 
     const handlePeriodChange = (
-        period
+        newPeriod
     ) => {
 
+        // Immediately update dropdown
+        setPeriod(
+            newPeriod
+        );
+
+
+        // Load selected period
         dispatch(
             loadPatientsTended(
-                period
+                newPeriod
             )
         );
 
@@ -71,8 +115,7 @@ const PatientsTended = () => {
                 <DashboardDropdown
 
                     value={
-                        patients?.period ||
-                        "week"
+                        period
                     }
 
                     options={[

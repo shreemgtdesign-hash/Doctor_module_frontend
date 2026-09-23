@@ -4,48 +4,95 @@ import api from "./axios";
 // FRONT OFFICE DASHBOARD APIs
 // ==========================================
 
-// Appointments Completed
+// ==========================================
+// UPCOMING APPOINTMENTS
+// ==========================================
 
 export const getFrontOfficeUpcomingAppointments = (
-  period = "week"
+    period = "week"
 ) =>
-  api.get(
-    "/frontoffice/dashboard/upcoming-appointments",
-    {
-      params: {
-        period,
-      },
-    }
-  );
-// Insurance
-export const getFrontOfficeInsurance = () =>
-  api.get(
-    "/frontoffice/dashboard/insurance"
-  );
+    api.get(
+        "/frontoffice/dashboard/upcoming-appointments",
+        {
+            params: {
+                period,
+            },
+        }
+    );
 
 
-// Packages
-export const getFrontOfficePackages = () =>
-  api.get(
-    "/frontoffice/dashboard/packages"
-  );
+// ==========================================
+// INSURANCE
+// ==========================================
+
+export const getFrontOfficeInsurance = (
+    period = "today"
+) =>
+    api.get(
+        "/frontoffice/dashboard/insurance",
+        {
+            params: {
+                period,
+            },
+        }
+    );
 
 
-// Medical Camp
-export const getFrontOfficeMedicalCamp = () =>
-  api.get(
-    "/frontoffice/dashboard/medical-camp"
-  );
+// ==========================================
+// PACKAGES
+// ==========================================
+
+export const getFrontOfficePackages = (
+    period = "till_date"
+) =>
+    api.get(
+        "/frontoffice/dashboard/packages",
+        {
+            params: {
+                period,
+            },
+        }
+    );
 
 
-// Referrals
-export const getFrontOfficeReferrals = () =>
-  api.get(
-    "/frontoffice/dashboard/referrals"
-  );
+// ==========================================
+// MEDICAL CAMP
+// ==========================================
+
+export const getFrontOfficeMedicalCamp = (
+    period = "week"
+) =>
+    api.get(
+        "/frontoffice/dashboard/medical-camp",
+        {
+            params: {
+                period,
+            },
+        }
+    );
 
 
-// Billing Details
+// ==========================================
+// REFERRALS
+// ==========================================
+
+export const getFrontOfficeReferrals = (
+    period = "week"
+) =>
+    api.get(
+        "/frontoffice/dashboard/referrals",
+        {
+            params: {
+                period,
+            },
+        }
+    );
+
+
+// ==========================================
+// BILLING DETAILS
+// ==========================================
+
 export const getFrontOfficeBillingDetails = (
     period = "week"
 ) =>
@@ -58,24 +105,51 @@ export const getFrontOfficeBillingDetails = (
         }
     );
 
-// Recent Transactions
-export const getFrontOfficeRecentTransactions = () =>
-  api.get(
-    "/frontoffice/dashboard/recent-transactions"
-  );
+
+// ==========================================
+// RECENT TRANSACTIONS
+// ==========================================
+
+export const getFrontOfficeRecentTransactions = (
+    period = "week"
+) =>
+    api.get(
+        "/frontoffice/dashboard/recent-transactions",
+        {
+            params: {
+                period,
+            },
+        }
+    );
 
 
-// Pending Actions
-export const getFrontOfficePendingActions = () =>
-  api.get(
-    "/frontoffice/dashboard/pending-actions"
-  );
+// ==========================================
+// PENDING ACTIONS
+// ==========================================
+
+export const getFrontOfficePendingActions = (
+    period = "today"
+) =>
+    api.get(
+        "/frontoffice/dashboard/pending-actions",
+        {
+            params: {
+                period,
+            },
+        }
+    );
 
 
-export const getMedicalCampDetails = (campId) =>
-  api.get(
-    `/frontoffice/medicalcamp-details/${campId}`
-  );
+// ==========================================
+// MEDICAL CAMP DETAILS
+// ==========================================
+
+export const getMedicalCampDetails = (
+    campId
+) =>
+    api.get(
+        `/frontoffice/medicalcamp-details/${campId}`
+    );
 
 
 // ==========================================

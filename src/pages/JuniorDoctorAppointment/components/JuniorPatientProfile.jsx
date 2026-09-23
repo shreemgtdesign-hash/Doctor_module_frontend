@@ -1,13 +1,15 @@
 import {
     useEffect,
     useRef,
+    useState,
 } from "react";
 
 import {
     useDispatch,
     useSelector,
 } from "react-redux";
-
+import ConsultationTimer
+    from "../../DoctorAppointment/components/ConsultationTimer";
 import {
     HiOutlineArrowRightOnRectangle,
 } from "react-icons/hi2";
@@ -55,98 +57,258 @@ const JuniorPatientProfile = ({
             state.consultation
     );
     const {
-    finishConsultationLoading,
-} = useSelector(
-    (state) =>
-        state.juniorDoctorAppointment
-);
+        finishConsultationLoading,
+    } = useSelector(
+        (state) =>
+            state.juniorDoctorAppointment
+    );
     const dispatch = useDispatch();
 
     const sectionTopRef =
         useRef(null);
+    // =====================================================
+    // CONSULTATION TIMER
+    // =====================================================
+
+    const CONSULTATION_DURATION =
+        15 * 60;
+
+    const [
+        consultationTimeLeft,
+        setConsultationTimeLeft,
+    ] = useState(
+        CONSULTATION_DURATION
+    );
+
+    const [
+        consultationTimerStarted,
+        setConsultationTimerStarted,
+    ] = useState(false);
+
+    const consultationTimerRef =
+        useRef(null);
+    // =====================================================
+    // START CONSULTATION TIMER
+    // JUNIOR DOCTOR → CHIEF COMPLAINTS
+    // =====================================================
+
+    useEffect(() => {
+
+        if (
+            activeSection !== "complaints"
+        ) {
+            return;
+        }
+
+        if (
+            consultationTimerStarted
+        ) {
+            return;
+        }
+
+        console.log(
+            "⏱️ Junior Doctor consultation timer started from Chief Complaints"
+        );
+
+        setConsultationTimerStarted(
+            true
+        );
+
+    }, [
+        activeSection,
+        consultationTimerStarted,
+    ]);
+    // =====================================================
+    // CONSULTATION TIMER COUNTDOWN
+    // =====================================================
+
+    useEffect(() => {
+
+        if (
+            !consultationTimerStarted
+        ) {
+            return;
+        }
+
+        if (
+            consultationTimeLeft <= 0
+        ) {
+            return;
+        }
+
+        consultationTimerRef.current =
+            setInterval(() => {
+
+                setConsultationTimeLeft(
+                    (previousTime) => {
+
+                        if (
+                            previousTime <= 1
+                        ) {
+
+                            clearInterval(
+                                consultationTimerRef.current
+                            );
+
+                            return 0;
+                        }
+
+                        return previousTime - 1;
+                    }
+                );
+
+            }, 1000);
 
 
+        return () => {
+
+            if (
+                consultationTimerRef.current
+            ) {
+
+                clearInterval(
+                    consultationTimerRef.current
+                );
+
+            }
+
+        };
+
+    }, [
+        consultationTimerStarted,
+        consultationTimeLeft,
+    ]);
+
+    // =====================================================
+    // RESET TIMER FOR NEW PATIENT
+    // =====================================================
+
+    const previousPatientIdRef =
+        useRef(null);
+
+    useEffect(() => {
+
+        const currentPatientId =
+            selectedPatient?.id;
+
+        if (!currentPatientId) {
+            return;
+        }
+
+        if (
+            previousPatientIdRef.current ===
+            currentPatientId
+        ) {
+            return;
+        }
+
+        previousPatientIdRef.current =
+            currentPatientId;
+
+
+        if (
+            consultationTimerRef.current
+        ) {
+
+            clearInterval(
+                consultationTimerRef.current
+            );
+
+        }
+
+
+        setConsultationTimerStarted(
+            false
+        );
+
+        setConsultationTimeLeft(
+            CONSULTATION_DURATION
+        );
+
+    }, [
+        selectedPatient?.id,
+    ]);
     // =====================================================
     // SCROLL WHEN SECTION CHANGES
     // =====================================================
     const handleFinishConsultation = async () => {
 
-    const appointmentId =
-        selectedPatient?.id ||
-        selectedPatient?.appointment_id;
+        const appointmentId =
+            selectedPatient?.id ||
+            selectedPatient?.appointment_id;
 
 
-    if (!appointmentId) {
+        if (!appointmentId) {
 
-        showErrorToast(
-            "Unable to finish consultation",
-            "Appointment ID is missing."
-        );
+            showErrorToast(
+                "Unable to finish consultation",
+                "Appointment ID is missing."
+            );
 
-        return;
+            return;
 
-    }
+        }
 
 
-    try {
+        try {
 
-        const response =
-            await dispatch(
-                finishJuniorDoctorConsultation(
-                    appointmentId
+            const response =
+                await dispatch(
+                    finishJuniorDoctorConsultation(
+                        appointmentId
+                    )
+                ).unwrap();
+
+
+            showSuccessToast(
+                response?.message ||
+                "Consultation completed successfully."
+            );
+
+
+            // =========================================
+            // RELOAD TODAY'S APPOINTMENTS
+            // =========================================
+
+            dispatch(
+                loadJuniorDoctorAppointments(
+                    "today"
                 )
-            ).unwrap();
+            );
 
 
-        showSuccessToast(
-            response?.message ||
-            "Consultation completed successfully."
-        );
+            // =========================================
+            // RETURN TO OVERVIEW
+            // =========================================
+
+            setActiveSection(
+                "overview"
+            );
 
 
-        // =========================================
-        // RELOAD TODAY'S APPOINTMENTS
-        // =========================================
+        } catch (error) {
 
-        dispatch(
-            loadJuniorDoctorAppointments(
-                "today"
-            )
-        );
+            console.error(
+                "Finish consultation failed:",
+                error
+            );
 
 
-        // =========================================
-        // RETURN TO OVERVIEW
-        // =========================================
-
-        setActiveSection(
-            "overview"
-        );
+            const message =
+                error?.message ||
+                error?.detail ||
+                error?.error ||
+                "Chief Complaints and Diagnosis must be completed before finishing the consultation.";
 
 
-    } catch (error) {
+            showErrorToast(
+                "Unable to finish consultation",
+                message
+            );
 
-        console.error(
-            "Finish consultation failed:",
-            error
-        );
+        }
 
-
-        const message =
-            error?.message ||
-            error?.detail ||
-            error?.error ||
-            "Chief Complaints and Diagnosis must be completed before finishing the consultation.";
-
-
-        showErrorToast(
-            "Unable to finish consultation",
-            message
-        );
-
-    }
-
-};
+    };
     useEffect(() => {
 
         if (!activeSection) {
@@ -366,6 +528,14 @@ const JuniorPatientProfile = ({
                                 selectedPatient?.id
                             }
 
+                            consultationTimerStarted={
+                                consultationTimerStarted
+                            }
+
+                            consultationTimeLeft={
+                                consultationTimeLeft
+                            }
+
                             setActiveSection={
                                 setActiveSection
                             }
@@ -401,18 +571,24 @@ const JuniorPatientProfile = ({
                                 patientProfile
                             }
 
+                            consultationTimeLeft={
+                                consultationTimeLeft
+                            }
+
+                            consultationTimerStarted={
+                                consultationTimerStarted
+                            }
+
                             appointment={
                                 selectedPatient
                             }
 
                             onViewReport={
                                 (consultationId) => {
-
                                     console.log(
                                         "View consultation:",
                                         consultationId
                                     );
-
                                 }
                             }
 
@@ -445,6 +621,14 @@ const JuniorPatientProfile = ({
                         <Reports
                             patient={
                                 patientProfile
+                            }
+
+                            consultationTimeLeft={
+                                consultationTimeLeft
+                            }
+
+                            consultationTimerStarted={
+                                consultationTimerStarted
                             }
 
                             appointment={
@@ -480,6 +664,14 @@ const JuniorPatientProfile = ({
                         <Diagnosis
                             patient={
                                 patientProfile
+                            }
+
+                            consultationTimeLeft={
+                                consultationTimeLeft
+                            }
+
+                            consultationTimerStarted={
+                                consultationTimerStarted
                             }
 
                             appointmentId={
@@ -521,35 +713,13 @@ const JuniorPatientProfile = ({
                 "
             >
 
+
+
                 <button
                     type="button"
+                    disabled={finishConsultationLoading}
+                    onClick={handleFinishConsultation}
                     className="
-                        flex
-                        h-[50px]
-                        w-full
-                        items-center
-                        justify-center
-                        gap-2
-                        rounded-xl
-                        bg-[#8B5037]
-                        text-[15px]
-                        font-semibold
-                        text-white
-                        transition
-                        hover:bg-[#79432F]
-                        active:scale-[0.99]
-                    "
-                >
-
-                    <HiOutlineArrowRightOnRectangle
-                        size={20}
-                    />
-
-                    <button
-    type="button"
-    disabled={finishConsultationLoading}
-    onClick={handleFinishConsultation}
-    className="
         flex
         h-[50px]
         w-full
@@ -567,22 +737,22 @@ const JuniorPatientProfile = ({
         disabled:cursor-not-allowed
         disabled:opacity-60
     "
->
+                >
 
-    <HiOutlineArrowRightOnRectangle
-        size={20}
-    />
+                    <HiOutlineArrowRightOnRectangle
+                        size={20}
+                    />
 
-    <span>
-        {finishConsultationLoading
-            ? "Finishing Consultation..."
-            : "Finish Consultation"
-        }
-    </span>
-
-</button>
+                    <span>
+                        {finishConsultationLoading
+                            ? "Finishing Consultation..."
+                            : "Finish Consultation"
+                        }
+                    </span>
 
                 </button>
+
+
 
             </div>
 
