@@ -1,6 +1,6 @@
 import {
     useEffect,
-    useState,
+    
 } from "react";
 
 import {
@@ -8,9 +8,10 @@ import {
     useSelector,
 } from "react-redux";
 
+
 import {
     loadJuniorDoctorScheduleOverview,
-} from "../../../redux/juniorDoctor/juniorDoctorDashboardThunk";
+} from "../../../redux/juniorDoctor/JuniorDoctorAppointmentThunk";
 
 import DashboardDropdown
     from "../../../components/Dashboard/DashboardDropdown";
