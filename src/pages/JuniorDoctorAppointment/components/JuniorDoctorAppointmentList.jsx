@@ -16,8 +16,7 @@ import {
 
 import {
     loadJuniorDoctorAppointments,
-} from "../../../redux/juniorDoctor/juniorDoctorAppointmentThunk";
-
+} from "../../../redux/juniorDoctor/JuniorDoctorAppointmentThunk";
 
 const tabs = [
     {
