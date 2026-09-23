@@ -11,8 +11,7 @@ import {
 
 import {
     loadJuniorDoctorScheduleOverview,
-} from "../../../redux/juniorDoctor/JuniorDoctorAppointmentThunk";
-
+} from "../../../redux/juniorDoctor/juniorDoctorDashboardThunk";
 import DashboardDropdown
     from "../../../components/Dashboard/DashboardDropdown";
 
