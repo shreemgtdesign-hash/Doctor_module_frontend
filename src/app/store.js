@@ -19,6 +19,8 @@ import frontOfficeBillingReducer
     from "../redux/juniorDoctor/juniorDoctorDashboardSlice";
   import juniorDoctorAppointmentReducer
     from "../redux/juniorDoctor/juniorDoctorAppointmentSlice";
+import corporateDashboardReducer
+  from "../redux/corporate/corporateDashboardSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -34,6 +36,7 @@ export const store = configureStore({
     dutyDoctor:dutyDoctorReducer,
     frontOfficeBilling:frontOfficeBillingReducer,
      juniorDoctorAppointment:juniorDoctorAppointmentReducer,
-    juniorDoctorDashboard:juniorDoctorDashboardReducer
+    juniorDoctorDashboard:juniorDoctorDashboardReducer,
+    corporateDashboard:corporateDashboardReducer,
   },
 });

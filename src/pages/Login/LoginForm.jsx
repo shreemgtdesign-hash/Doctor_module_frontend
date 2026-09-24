@@ -47,6 +47,12 @@ const LoginForm = () => {
                     });
                     break;
 
+                case "corporate":
+                    navigate("/corporate/dashboard", {
+                        replace: true,
+                    });
+                    break;
+
                 case "duty_doctor":
                     navigate("/duty-doctor/dashboard", {
                         replace: true,
@@ -75,6 +81,7 @@ const LoginForm = () => {
                         replace: true,
                     });
                     break;
+                
 
                 default:
                     console.error(

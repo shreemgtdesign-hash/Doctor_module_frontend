@@ -56,6 +56,7 @@ import OnlineDeliveryOrders from "./pages/Pharmacist/PharmacistAppointments/comp
 import OnlineOrderDetails from "./pages/Pharmacist/PharmacistAppointments/components/OnlineOrderDetails";
 import JuniorDoctorAppointment from "./pages/JuniorDoctorAppointment/JuniorDoctorAppointment";
 import JuniorDoctorDashboard from "./pages/JuniorDoctorDashboard/JuniorDoctorDashboard";
+import CorporateDashboard from "./pages/Corporate/CorporateDashboard/CorporateDashboard";
 
 function App() {
   return (
@@ -398,6 +399,10 @@ function App() {
   element={
     <JuniorDoctorAppointment />
   }
+/>
+<Route
+  path="/corporate/dashboard"
+  element={<CorporateDashboard />}
 />
 
     </Routes>
