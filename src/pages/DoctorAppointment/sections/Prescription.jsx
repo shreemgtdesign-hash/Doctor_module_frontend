@@ -61,6 +61,10 @@ const Prescription = ({
     } = useSelector(
         (state) => state.consultation
     );
+    const activeConsultationId =
+        consultationId ||
+        appointment ||
+        prescription?.consultation_id;
     const prescriptionConsultationRef = useRef(null);
     const [search, setSearch] = useState("");
 
@@ -143,13 +147,13 @@ const Prescription = ({
     useEffect(() => {
     console.log(
         "🔵 Prescription consultation changed:",
-        consultationId
+        activeConsultationId
     );
 
     // Mark the new consultation immediately.
     // This prevents the old prescription from being
     // processed for the new patient.
-    prescriptionConsultationRef.current = consultationId;
+    prescriptionConsultationRef.current = activeConsultationId;
 
     // ALWAYS clear previous patient UI first
     setEditableMedicines([]);
@@ -169,22 +173,22 @@ const Prescription = ({
     setShowSearch(false);
 
     // No consultation
-    if (!consultationId) {
+    if (!activeConsultationId) {
         console.log("❌ No consultationId");
         return;
     }
 
     console.log(
         "🚀 GET prescription:",
-        consultationId
+        activeConsultationId
     );
 
     dispatch(
-        loadPrescription(consultationId)
+        loadPrescription(activeConsultationId)
     );
 
 }, [
-    consultationId,
+    activeConsultationId,
     dispatch
 ]);
     useEffect(() => {
@@ -192,13 +196,13 @@ const Prescription = ({
     console.log(
         "🟣 Prescription response changed:",
         {
-            consultationId,
+            consultationId: activeConsultationId,
             prescription,
         }
     );
 
     // No consultation selected
-    if (!consultationId) {
+    if (!activeConsultationId) {
         setEditableMedicines([]);
         setBackupMedicines([]);
         setHasExistingPrescription(false);
@@ -216,7 +220,7 @@ const Prescription = ({
 
         console.log(
             "📭 No prescription for:",
-            consultationId
+            activeConsultationId
         );
 
         setEditableMedicines([]);
@@ -245,7 +249,7 @@ const Prescription = ({
 
         console.log(
             "📭 Prescription is empty for:",
-            consultationId
+            activeConsultationId
         );
 
         setEditableMedicines([]);
@@ -333,7 +337,7 @@ const Prescription = ({
 
     console.log(
         "✅ Setting prescription for:",
-        consultationId,
+        activeConsultationId,
         cloned
     );
 
@@ -386,7 +390,7 @@ const Prescription = ({
 }, [
     prescription,
     chiefComplaints,
-    consultationId
+    activeConsultationId
 ]);
     useEffect(() => {
 
@@ -610,12 +614,16 @@ useEffect(() => {
     //     );
 
     // };
-    console.log("consultationId prop:", consultationId);
+    console.log("consultationId prop:", consultationId, "activeConsultationId:", activeConsultationId);
     const handleSaveAndContinue = async () => {
         try {
+            if (!activeConsultationId) {
+                console.error("❌ No consultationId found to save prescription");
+                return;
+            }
 
             const payload = {
-                consultation_id: consultationId,
+                consultation_id: activeConsultationId,
 
                 special_instructions:
                     specialInstructions,
@@ -690,8 +698,10 @@ useEffect(() => {
 
                 await dispatch(
                     updatePrescriptionThunk({
+                        consultationId:
+                            activeConsultationId,
                         prescriptionId:
-                            consultationId,
+                            activeConsultationId,
 
                         payload,
                     })
@@ -710,7 +720,7 @@ useEffect(() => {
             // Reload latest prescription
             await dispatch(
                 loadPrescription(
-                    consultationId
+                    activeConsultationId
                 )
             );
 

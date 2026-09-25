@@ -729,7 +729,8 @@ const PatientProfile = forwardRef(
 
                 consultationId={
                   selectedPatient
-                    ?.consultation_id
+                    ?.consultation_id ||
+                  selectedPatient?.id
                 }
 
                 patientId={
@@ -780,7 +781,8 @@ const PatientProfile = forwardRef(
 
                 consultationId={
                   selectedPatient
-                    ?.consultation_id
+                    ?.consultation_id ||
+                  selectedPatient?.id
                 }
 
                 onBack={() =>
