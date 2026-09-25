@@ -96,13 +96,7 @@ const Prescription = ({
         setAllergyInput] =
         useState("");
 
-    const [dosagePopup,
-        setDosagePopup] =
-        useState(null);
 
-    const [durationPopup,
-        setDurationPopup] =
-        useState(null);
     const parseDosage = (dosage) => {
 
         if (!dosage) {
@@ -162,8 +156,7 @@ const Prescription = ({
     setReviewDate("");
     setPatientAllergies([]);
 
-    setDosagePopup(null);
-    setDurationPopup(null);
+
 
     setSearch("");
     setShowSearch(false);
@@ -515,7 +508,7 @@ useEffect(() => {
                 image_url: medicine.image_url,
 
                 price: Number(medicine.unit_rate),
-
+                notes:medicine.notes,
                 quantity: 1,
 
                 morning: 1,
@@ -668,6 +661,7 @@ useEffect(() => {
 
                         food:
                             item.food || "Before Food",
+                        notes: item.notes || "",
 
                         duration:
                             item.duration,
@@ -954,876 +948,862 @@ useEffect(() => {
 
             </div>
 
-            {/* Medicine Cards */}
+            {/* ========================================================= */}
+{/* MEDICINE CARDS */}
+{/* ========================================================= */}
 
-            <div className="overflow-hidden rounded-[28px] border border-[#E7DBD3] bg-white">
+<div className="overflow-hidden rounded-[28px] border border-[#E7DBD3] bg-white">
 
-                {editableMedicines.length === 0 && (
+    {/* NO MEDICINES */}
+    {editableMedicines.length === 0 && (
+        <div className="flex h-[220px] flex-col items-center justify-center">
+            <h3 className="text-xl font-semibold text-[#4D2E23]">
+                No medicines added
+            </h3>
 
-                    <div className="flex h-[220px] flex-col items-center justify-center">
-
-                        <h3 className="text-xl font-semibold text-[#4D2E23]">
-                            No medicines added
-                        </h3>
-
-                        <p className="mt-2 text-[#8D8D8D]">
-                            Search medicines above to create a prescription.
-                        </p>
-
-                    </div>
-
-                )}
-                {editableMedicines.map(
-                    (medicine, index) => (
-
-                        <div
-                            key={
-                                medicine.id ??
-                                medicine.product_id ??
-                                index
-                            }
-                            className="border-b border-[#ECE2DA] p-7 last:border-b-0"
-                        >
-
-                            {/* Top */}
-
-                            <div className="flex items-start justify-between">
-
-                                <div className="flex gap-5">
-
-                                    <img
-                                        src={medicine.image_url}
-                                        alt=""
-                                        className="h-20 w-20 rounded-3xl bg-[#F7EFE8] object-cover"
-                                    />
-
-                                    <div>
-
-                                        <h2 className="text-[22px] font-bold text-[#4D2E23]">
-                                            {medicine.medicine_name}
-                                        </h2>
-
-                                        <p className="mt-2 text-[#7E7E7E]">
-                                            {medicine.category}
-                                        </p>
-
-                                    </div>
-
-                                </div>
-
-                                <div className="flex flex-col items-end gap-3">
-
-                                   <div className="relative w-[220px]">
-
-    {/* SELECTED DOCTOR BUTTON */}
-    <button
-        type="button"
-        onClick={() =>
-            setOpenDoctorDropdown(
-                openDoctorDropdown === index ? null : index
-            )
-        }
-        className="
-            flex
-            h-[48px]
-            w-full
-            items-center
-            justify-between
-            rounded-xl
-            border
-            border-[#E7DBD3]
-            bg-white
-            px-4
-            text-left
-            shadow-sm
-            transition
-            hover:border-[#CDB5A6]
-        "
-    >
-        <div className="min-w-0">
-            {medicine.doctor_name ? (
-                <p className="truncate text-[13px] font-semibold text-[#4D2E23]">
-                    {medicine.doctor_name}
-                </p>
-            ) : (
-                <p className="text-[13px] font-medium text-[#9A8D84]">
-                    Select Doctor
-                </p>
-            )}
-        </div>
-
-        <HiChevronDown
-            size={18}
-            className={`
-                ml-2
-                flex-shrink-0
-                text-[#7B665A]
-                transition-transform
-                ${openDoctorDropdown === index ? "rotate-180" : ""}
-            `}
-        />
-    </button>
-
-
-    {/* CUSTOM DROPDOWN */}
-    {openDoctorDropdown === index && (
-        <div
-            className="
-                absolute
-                right-0
-                top-[54px]
-                z-[100]
-                w-[320px]
-                overflow-hidden
-                rounded-2xl
-                border
-                border-[#E7DBD3]
-                bg-white
-                shadow-xl
-            "
-        >
-
-            {/* DEFAULT OPTION */}
-            <button
-                type="button"
-                onClick={() => {
-                    updateMedicine(
-                        index,
-                        "doctor_name",
-                        ""
-                    );
-                    setOpenDoctorDropdown(null);
-                }}
-                className="
-                    flex
-                    w-full
-                    items-center
-                    border-b
-                    border-[#F0E7E1]
-                    px-4
-                    py-3
-                    text-left
-                    transition
-                    hover:bg-[#FFF8F2]
-                "
-            >
-                <span className="text-[12px] text-[#9A8D84]">
-                    Select Doctor
-                </span>
-            </button>
-
-
-            {/* ASSOCIATE DOCTORS */}
-            {(associateDoctors || []).map((doctor) => {
-
-                const doctorId =
-                    doctor.doctor_id || doctor.id;
-
-                const doctorName =
-                    doctor.doctor_name ||
-                    doctor.name ||
-                    doctor.select_doctor ||
-                    "";
-
-                const doctorCategory =
-                    doctor.category || "";
-
-                const isSelected =
-                    medicine.doctor_name === doctorName;
-
-                return (
-                    <button
-                        key={doctorId}
-                        type="button"
-                        onClick={() => {
-                            updateMedicine(
-                                index,
-                                "doctor_name",
-                                doctorName
-                            );
-
-                            setOpenDoctorDropdown(null);
-                        }}
-                        className={`
-                            flex
-                            w-full
-                            items-center
-                            justify-between
-                            border-b
-                            border-[#F2E8E2]
-                            px-4
-                            py-3
-                            text-left
-                            transition
-                            last:border-b-0
-                            hover:bg-[#FFF8F2]
-                            ${
-                                isSelected
-                                    ? "bg-[#FFF8F2]"
-                                    : "bg-white"
-                            }
-                        `}
-                    >
-
-                        <div className="min-w-0">
-
-                            <p className="
-                                truncate
-                                text-[13px]
-                                font-semibold
-                                text-[#4D2E23]
-                            ">
-                                {doctorName}
-                            </p>
-
-                            {doctorCategory && (
-                                <p className="
-                                    mt-1
-                                    truncate
-                                    text-[11px]
-                                    text-[#8D8179]
-                                ">
-                                    {doctorCategory}
-                                </p>
-                            )}
-
-                        </div>
-
-                        {isSelected && (
-                            <span className="
-                                ml-3
-                                flex-shrink-0
-                                text-[12px]
-                                font-semibold
-                                text-[#8A563B]
-                            ">
-                                ✓
-                            </span>
-                        )}
-
-                    </button>
-                );
-            })}
-
+            <p className="mt-2 text-[#8D8D8D]">
+                Search medicines above to create a prescription.
+            </p>
         </div>
     )}
 
-</div>
-
-                                    <div className="rounded-full bg-[#E8F8EA] px-4 py-1 text-xs font-medium text-[#2E7A46]">
-                                        In Stock
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                            <div className="my-6 border-t border-[#EFE4DD]" />
-
-                            {/* Details */}
-
-                            <div className="flex items-start justify-between">
-
-                                <div className="flex-1 space-y-6">
-                                    {/* Dosage */}
-
-                                    <div>
-
-                                        <p className="text-xs font-semibold uppercase tracking-wider text-[#B09C8F]">
-                                            Dosage
-                                        </p>
-
-                                        {editing ? (
-
-                                            <button
-                                                onClick={() => setDosagePopup(index)}
-                                                className="mt-2 flex items-center gap-2 rounded-xl border border-[#E7DBD3] bg-[#FFF8F2] px-4 py-3 font-medium text-[#4D2E23]"
-                                            >
-
-                                                <p className="
-                                                  mt-2
-                                                  text-[16px]
-                                                  font-medium
-                                                  text-[#4D2E23]
-                                              ">
-
-                                                    {medicine.dosage || "0 - 0 - 0 - 0"}
-
-                                                    {" • "}
-
-                                                    {medicine.food || "Before Food"}
-
-                                                </p>
-
-                                                <HiChevronDown size={18} />
-
-                                            </button>
-
-                                        ) : (
-
-                                            <p className="mt-2 text-[16px] font-medium text-[#4D2E23]">
-
-                                                {medicine.dosage} •{" "}
-                                                {(medicine.timeOfDay || []).join(", ")}
-                                                {medicine.food}
-
-                                            </p>
-
-                                        )}
-
-                                    </div>
-
-                                    {/* Duration */}
-
-                                    <div>
-
-                                        <p className="text-xs font-semibold uppercase tracking-wider text-[#B09C8F]">
-                                            Duration
-                                        </p>
-
-                                        {editing ? (
-
-                                            <button
-                                                onClick={() => setDurationPopup(index)}
-                                                className="mt-2 flex items-center gap-2 rounded-xl border border-[#E7DBD3] bg-[#FFF8F2] px-4 py-3 font-medium text-[#4D2E23]"
-                                            >
-
-                                                {medicine.duration}
-
-                                                <HiChevronDown size={18} />
-
-                                            </button>
-
-                                        ) : (
-
-                                            <p className="mt-2 text-[16px] font-medium text-[#4D2E23]">
-                                                {medicine.duration}
-                                            </p>
-
-                                        )}
-
-                                    </div>
-
-                                </div>
-
-                                {/* Right */}
-
-
-
-                            </div>
-
-                            {/* DOSAGE POPUP */}
-
-                            {/* ==========================================
-    DOSAGE POPUP
-========================================== */}
-
-                            {dosagePopup === index && (
-
-                                <div
-                                    className="
-            fixed
-            inset-0
-            z-[999]
-            flex
-            items-center
-            justify-center
-            bg-black/40
-            backdrop-blur-sm
-            p-4
-        "
-                                >
-
-                                    <div
-                                        className="
-                w-full
-                max-w-[620px]
-                rounded-[28px]
-                bg-white
+    {/* MEDICINES */}
+    {editableMedicines.map((medicine, index) => (
+        <div
+            key={
+                medicine.id ??
+                medicine.product_id ??
+                index
+            }
+            className="
+                border-b
+                border-[#ECE2DA]
                 p-7
-                shadow-2xl
+                last:border-b-0
             "
-                                    >
+        >
 
-                                        {/* ================================= */}
-                                        {/* HEADER */}
-                                        {/* ================================= */}
+            {/* ================================================= */}
+            {/* MEDICINE HEADER */}
+            {/* ================================================= */}
 
-                                        <h2
-                                            className="
-                    text-[26px]
-                    font-bold
-                    text-[#4D2E23]
-                "
-                                        >
-                                            Dosage
-                                        </h2>
+            <div className="flex items-start justify-between">
 
-                                        <p
-                                            className="
-                    mt-1
-                    text-[14px]
-                    text-[#85766D]
-                "
-                                        >
-                                            Select dosage for each session
-                                        </p>
+                {/* LEFT - MEDICINE */}
+                <div className="flex min-w-0 gap-5">
 
-
-                                        {/* ================================= */}
-                                        {/* DOSAGE GRID */}
-                                        {/* ================================= */}
-
-                                        <div
-                                            className="
-                    mt-7
-                    grid
-                    grid-cols-2
-                    gap-x-8
-                    gap-y-6
-                "
-                                        >
-
-                                            {/* ================================= */}
-                                            {/* MORNING */}
-                                            {/* ================================= */}
-
-                                            <div>
-
-                                                <p
-                                                    className="
-                            mb-3
-                            font-semibold
-                            text-[#4D2E23]
+                    <div
+                        className="
+                            h-20
+                            w-20
+                            flex-shrink-0
+                            overflow-hidden
+                            rounded-3xl
+                            bg-[#F7EFE8]
                         "
-                                                >
-                                                    Morning
-                                                </p>
+                    >
+                        {medicine.image_url ? (
+                            <img
+                                src={medicine.image_url}
+                                alt=""
+                                className="
+                                    h-full
+                                    w-full
+                                    object-cover
+                                "
+                            />
+                        ) : null}
+                    </div>
 
-                                                <div
-                                                    className="
-                            flex
-                            gap-2
-                        "
-                                                >
+                    <div className="min-w-0">
 
-                                                    {[0, 1, 2].map(
-                                                        (value) => (
+                        <h2
+                            className="
+                                text-[22px]
+                                font-bold
+                                text-[#4D2E23]
+                            "
+                        >
+                            {medicine.medicine_name}
+                        </h2>
 
-                                                            <button
-                                                                key={value}
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    updateMedicine(
-                                                                        index,
-                                                                        "morning",
-                                                                        value
-                                                                    )
-                                                                }
-                                                                className={`
-                                        flex
-                                        h-11
-                                        w-11
-                                        items-center
-                                        justify-center
-                                        rounded-xl
-                                        border
-                                        font-semibold
-                                        transition
+                        <div className="mt-2 flex items-center gap-3">
 
-                                        ${Number(
-                                                                    medicine.morning
-                                                                ) === value
-                                                                        ? `
-                                                    border-[#8A563B]
-                                                    bg-[#8A563B]
-                                                    text-white
-                                                `
-                                                                        : `
-                                                    border-[#DDD]
-                                                    bg-white
-                                                    text-[#4D2E23]
-                                                    hover:border-[#8A563B]
-                                                `
-                                                                    }
-                                    `}
-                                                            >
-                                                                {value}
-                                                            </button>
+                            <p className="text-[15px] text-[#7E7E7E]">
+                                {medicine.category}
+                            </p>
 
-                                                        )
-                                                    )}
+                            <span className="h-4 w-px bg-[#DCCFC6]" />
 
-                                                </div>
-
-                                            </div>
-
-
-                                            {/* ================================= */}
-                                            {/* AFTERNOON */}
-                                            {/* ================================= */}
-
-                                            <div>
-
-                                                <p
-                                                    className="
-                            mb-3
-                            font-semibold
-                            text-[#4D2E23]
-                        "
-                                                >
-                                                    Afternoon
-                                                </p>
-
-                                                <div
-                                                    className="
-                            flex
-                            gap-2
-                        "
-                                                >
-
-                                                    {[0, 1, 2].map(
-                                                        (value) => (
-
-                                                            <button
-                                                                key={value}
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    updateMedicine(
-                                                                        index,
-                                                                        "afternoon",
-                                                                        value
-                                                                    )
-                                                                }
-                                                                className={`
-                                        flex
-                                        h-11
-                                        w-11
-                                        items-center
-                                        justify-center
-                                        rounded-xl
-                                        border
-                                        font-semibold
-                                        transition
-
-                                        ${Number(
-                                                                    medicine.afternoon
-                                                                ) === value
-                                                                        ? `
-                                                    border-[#8A563B]
-                                                    bg-[#8A563B]
-                                                    text-white
-                                                `
-                                                                        : `
-                                                    border-[#DDD]
-                                                    bg-white
-                                                    text-[#4D2E23]
-                                                    hover:border-[#8A563B]
-                                                `
-                                                                    }
-                                    `}
-                                                            >
-                                                                {value}
-                                                            </button>
-
-                                                        )
-                                                    )}
-
-                                                </div>
-
-                                            </div>
-
-
-                                            {/* ================================= */}
-                                            {/* EVENING */}
-                                            {/* ================================= */}
-
-                                            <div>
-
-                                                <p
-                                                    className="
-                            mb-3
-                            font-semibold
-                            text-[#4D2E23]
-                        "
-                                                >
-                                                    Evening
-                                                </p>
-
-                                                <div
-                                                    className="
-                            flex
-                            gap-2
-                        "
-                                                >
-
-                                                    {[0, 1, 2].map(
-                                                        (value) => (
-
-                                                            <button
-                                                                key={value}
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    updateMedicine(
-                                                                        index,
-                                                                        "evening",
-                                                                        value
-                                                                    )
-                                                                }
-                                                                className={`
-                                        flex
-                                        h-11
-                                        w-11
-                                        items-center
-                                        justify-center
-                                        rounded-xl
-                                        border
-                                        font-semibold
-                                        transition
-
-                                        ${Number(
-                                                                    medicine.evening
-                                                                ) === value
-                                                                        ? `
-                                                    border-[#8A563B]
-                                                    bg-[#8A563B]
-                                                    text-white
-                                                `
-                                                                        : `
-                                                    border-[#DDD]
-                                                    bg-white
-                                                    text-[#4D2E23]
-                                                    hover:border-[#8A563B]
-                                                `
-                                                                    }
-                                    `}
-                                                            >
-                                                                {value}
-                                                            </button>
-
-                                                        )
-                                                    )}
-
-                                                </div>
-
-                                            </div>
-
-
-                                            {/* ================================= */}
-                                            {/* NIGHT */}
-                                            {/* ================================= */}
-
-                                            <div>
-
-                                                <p
-                                                    className="
-                            mb-3
-                            font-semibold
-                            text-[#4D2E23]
-                        "
-                                                >
-                                                    Night
-                                                </p>
-
-                                                <div
-                                                    className="
-                            flex
-                            gap-2
-                        "
-                                                >
-
-                                                    {[0, 1, 2].map(
-                                                        (value) => (
-
-                                                            <button
-                                                                key={value}
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    updateMedicine(
-                                                                        index,
-                                                                        "night",
-                                                                        value
-                                                                    )
-                                                                }
-                                                                className={`
-                                        flex
-                                        h-11
-                                        w-11
-                                        items-center
-                                        justify-center
-                                        rounded-xl
-                                        border
-                                        font-semibold
-                                        transition
-
-                                        ${Number(
-                                                                    medicine.night
-                                                                ) === value
-                                                                        ? `
-                                                    border-[#8A563B]
-                                                    bg-[#8A563B]
-                                                    text-white
-                                                `
-                                                                        : `
-                                                    border-[#DDD]
-                                                    bg-white
-                                                    text-[#4D2E23]
-                                                    hover:border-[#8A563B]
-                                                `
-                                                                    }
-                                    `}
-                                                            >
-                                                                {value}
-                                                            </button>
-
-                                                        )
-                                                    )}
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-
-                                        {/* ================================= */}
-                                        {/* FOOD */}
-                                        {/* ================================= */}
-
-                                        <div className="mt-7">
-
-                                            <p
-                                                className="
-                        mb-3
-                        font-semibold
-                        text-[#4D2E23]
-                    "
-                                            >
-                                                Food
-                                            </p>
-
-                                            <div
-                                                className="
-                        flex
-                        gap-3
-                    "
-                                            >
-
-                                                {[
-                                                    "Before Food",
-                                                    "After Food",
-                                                ].map(
-                                                    (food) => (
-
-                                                        <button
-                                                            key={food}
-                                                            type="button"
-                                                            onClick={() =>
-                                                                updateMedicine(
-                                                                    index,
-                                                                    "food",
-                                                                    food
-                                                                )
-                                                            }
-                                                            className={`
-                                    rounded-full
-                                    border
-                                    px-5
-                                    py-2
-                                    text-sm
-                                    transition
-
-                                    ${medicine.food === food
-                                                                    ? `
-                                                border-[#8A563B]
-                                                bg-[#8A563B]
-                                                text-white
-                                            `
-                                                                    : `
-                                                border-[#DDD]
-                                                bg-white
-                                                text-[#4D2E23]
-                                                hover:border-[#8A563B]
-                                            `
-                                                                }
-                                `}
-                                                        >
-                                                            {food}
-                                                        </button>
-
-                                                    )
-                                                )}
-
-                                            </div>
-
-                                        </div>
-
-
-                                        {/* ================================= */}
-                                        {/* SAVE */}
-                                        {/* ================================= */}
-
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-
-                                                const dosage =
-                                                    `${medicine.morning} - ` +
-                                                    `${medicine.afternoon} - ` +
-                                                    `${medicine.evening} - ` +
-                                                    `${medicine.night}`;
-
-                                                updateMedicine(
-                                                    index,
-                                                    "dosage",
-                                                    dosage
-                                                );
-
-                                                setDosagePopup(null);
-
-                                            }}
-                                            className="
-                    mt-8
-                    h-13
-                    w-full
-                    rounded-xl
-                    bg-[#8A563B]
-                    py-3.5
-                    font-semibold
-                    text-white
-                    transition
-                    hover:bg-[#74452E]
-                "
-                                        >
-                                            Save
-                                        </button>
-
-                                    </div>
-
-                                </div>
-
-                            )}
+                            <p className="text-[15px] text-[#7E7E7E]">
+                                {medicine.brand ||
+                                    medicine.manufacturer ||
+                                    "Ayurvedic Medicine"}
+                            </p>
 
                         </div>
 
-                    ))}
+                    </div>
+
+                </div>
 
 
-                <div className="flex items-center justify-between border-t border-[#ECE2DA] px-7 py-7">
+                {/* RIGHT - DOCTOR + STOCK */}
+                <div className="flex flex-col items-end gap-3">
 
-                    <h2 className="text-[24px] font-bold text-[#4D2E23]">
-                        Total
-                    </h2>
+                    {/* DOCTOR DROPDOWN */}
+                    <div className="relative w-[220px]">
 
-                    <h2 className="text-[15px] font-bold text-[#824c39]">
+                        <button
+                            type="button"
+                            disabled={!editing}
+                            onClick={() =>
+                                setOpenDoctorDropdown(
+                                    openDoctorDropdown === index
+                                        ? null
+                                        : index
+                                )
+                            }
+                            className="
+                                flex
+                                h-[48px]
+                                w-full
+                                items-center
+                                justify-between
+                                rounded-xl
+                                border
+                                border-[#E7DBD3]
+                                bg-white
+                                px-4
+                                text-left
+                                transition
+                                hover:border-[#CDB5A6]
+                                disabled:cursor-not-allowed
+                                disabled:bg-[#FAF7F4]
+                            "
+                        >
 
-                        ₹{total.toFixed(2)}
+                            <div className="min-w-0">
 
-                    </h2>
+                                {medicine.doctor_name ? (
+                                    <p
+                                        className="
+                                            truncate
+                                            text-[13px]
+                                            font-semibold
+                                            text-[#4D2E23]
+                                        "
+                                    >
+                                        {medicine.doctor_name}
+                                    </p>
+                                ) : (
+                                    <p
+                                        className="
+                                            text-[13px]
+                                            font-medium
+                                            text-[#9A8D84]
+                                        "
+                                    >
+                                        Select Doctor
+                                    </p>
+                                )}
+
+                            </div>
+
+                            <HiChevronDown
+                                size={18}
+                                className={`
+                                    ml-2
+                                    flex-shrink-0
+                                    text-[#7B665A]
+                                    transition-transform
+                                    ${
+                                        openDoctorDropdown === index
+                                            ? "rotate-180"
+                                            : ""
+                                    }
+                                `}
+                            />
+
+                        </button>
+
+
+                        {/* DOCTOR DROPDOWN MENU */}
+                        {editing &&
+                            openDoctorDropdown === index && (
+                                <div
+                                    className="
+                                        absolute
+                                        right-0
+                                        top-[54px]
+                                        z-[100]
+                                        w-[320px]
+                                        max-h-[300px]
+                                        overflow-y-auto
+                                        rounded-2xl
+                                        border
+                                        border-[#E7DBD3]
+                                        bg-white
+                                        shadow-xl
+                                    "
+                                >
+
+                                    {/* DEFAULT */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            updateMedicine(
+                                                index,
+                                                "doctor_name",
+                                                ""
+                                            );
+
+                                            setOpenDoctorDropdown(
+                                                null
+                                            );
+                                        }}
+                                        className="
+                                            flex
+                                            w-full
+                                            items-center
+                                            border-b
+                                            border-[#F0E7E1]
+                                            px-4
+                                            py-3
+                                            text-left
+                                            hover:bg-[#FFF8F2]
+                                        "
+                                    >
+                                        <span className="text-[12px] text-[#9A8D84]">
+                                            Select Doctor
+                                        </span>
+                                    </button>
+
+
+                                    {/* ASSOCIATED DOCTORS */}
+                                    {(associateDoctors || []).map(
+                                        (doctor) => {
+
+                                            const doctorId =
+                                                doctor.doctor_id ||
+                                                doctor.id;
+
+                                            const doctorName =
+                                                doctor.doctor_name ||
+                                                doctor.name ||
+                                                doctor.select_doctor ||
+                                                "";
+
+                                            const doctorCategory =
+                                                doctor.category || "";
+
+                                            const isSelected =
+                                                medicine.doctor_name ===
+                                                doctorName;
+
+                                            return (
+                                                <button
+                                                    key={doctorId}
+                                                    type="button"
+                                                    onClick={() => {
+
+                                                        updateMedicine(
+                                                            index,
+                                                            "doctor_name",
+                                                            doctorName
+                                                        );
+
+                                                        setOpenDoctorDropdown(
+                                                            null
+                                                        );
+
+                                                    }}
+                                                    className={`
+                                                        flex
+                                                        w-full
+                                                        items-center
+                                                        justify-between
+                                                        border-b
+                                                        border-[#F2E8E2]
+                                                        px-4
+                                                        py-3
+                                                        text-left
+                                                        transition
+                                                        last:border-b-0
+                                                        hover:bg-[#FFF8F2]
+                                                        ${
+                                                            isSelected
+                                                                ? "bg-[#FFF8F2]"
+                                                                : "bg-white"
+                                                        }
+                                                    `}
+                                                >
+
+                                                    <div className="min-w-0">
+
+                                                        <p
+                                                            className="
+                                                                truncate
+                                                                text-[13px]
+                                                                font-semibold
+                                                                text-[#4D2E23]
+                                                            "
+                                                        >
+                                                            {doctorName}
+                                                        </p>
+
+                                                        {doctorCategory && (
+                                                            <p
+                                                                className="
+                                                                    mt-1
+                                                                    truncate
+                                                                    text-[11px]
+                                                                    text-[#8D8179]
+                                                                "
+                                                            >
+                                                                {
+                                                                    doctorCategory
+                                                                }
+                                                            </p>
+                                                        )}
+
+                                                    </div>
+
+                                                    {isSelected && (
+                                                        <span
+                                                            className="
+                                                                ml-3
+                                                                flex-shrink-0
+                                                                text-[12px]
+                                                                font-semibold
+                                                                text-[#8A563B]
+                                                            "
+                                                        >
+                                                            ✓
+                                                        </span>
+                                                    )}
+
+                                                </button>
+                                            );
+                                        }
+                                    )}
+
+                                </div>
+                            )}
+
+                    </div>
+
+
+                    {/* STOCK */}
+                    <div
+                        className="
+                            rounded-full
+                            bg-[#E8F8EA]
+                            px-4
+                            py-1
+                            text-xs
+                            font-medium
+                            text-[#2E7A46]
+                        "
+                    >
+                        In Stock
+                    </div>
 
                 </div>
 
             </div>
+
+
+            {/* ================================================= */}
+            {/* DIVIDER */}
+            {/* ================================================= */}
+
+            <div className="my-6 border-t border-[#EFE4DD]" />
+
+
+            {/* ================================================= */}
+            {/* DOSAGE + DURATION */}
+            {/* ================================================= */}
+
+            <div className="grid grid-cols-2 gap-8">
+
+                {/* ================================================= */}
+                {/* DOSAGE */}
+                {/* ================================================= */}
+
+                <div>
+
+                    <p
+                        className="
+                            text-[17px]
+                            font-semibold
+                            text-[#4D2E23]
+                        "
+                    >
+                        Dosage
+                    </p>
+
+                    <div className="mt-3 flex items-center gap-2">
+
+                        {/* MORNING */}
+                        <input
+                            type="number"
+                            min="0"
+                            max="9"
+                            value={
+                                medicine.morning ??
+                                0
+                            }
+                            disabled={!editing}
+                            onChange={(e) =>
+                                updateMedicine(
+                                    index,
+                                    "morning",
+                                    e.target.value
+                                )
+                            }
+                            className="
+                                h-11
+                                w-12
+                                pl-4
+                                rounded-xl
+                                border
+                                border-[#E7DBD3]
+                                bg-white
+                                text-center
+                                text-[15px]
+                                font-medium
+                                text-[#4D2E23]
+                                outline-none
+                                focus:border-[#8A563B]
+                                disabled:bg-[#FAF7F4]
+                                disabled:text-[#6F6863]
+                            "
+                        />
+
+                        <span className="text-[#9A8D84]">
+                            -
+                        </span>
+
+
+                        {/* AFTERNOON */}
+                        <input
+                            type="number"
+                            min="0"
+                            max="9"
+                            value={
+                                medicine.afternoon ??
+                                0
+                            }
+                            disabled={!editing}
+                            onChange={(e) =>
+                                updateMedicine(
+                                    index,
+                                    "afternoon",
+                                    e.target.value
+                                )
+                            }
+                            className="
+                                h-11
+                                w-12
+                                pl-4
+                                rounded-xl
+                                border
+                                border-[#E7DBD3]
+                                bg-white
+                                text-center
+                                text-[15px]
+                                font-medium
+                                text-[#4D2E23]
+                                outline-none
+                                focus:border-[#8A563B]
+                                disabled:bg-[#FAF7F4]
+                                disabled:text-[#6F6863]
+                            "
+                        />
+
+                        <span className="text-[#9A8D84]">
+                            -
+                        </span>
+
+
+                        {/* EVENING */}
+                        <input
+                            type="number"
+                            min="0"
+                            max="9"
+                            value={
+                                medicine.evening ??
+                                0
+                            }
+                            disabled={!editing}
+                            onChange={(e) =>
+                                updateMedicine(
+                                    index,
+                                    "evening",
+                                    e.target.value
+                                )
+                            }
+                            className="
+                                h-11
+                                w-12
+                                pl-4
+                                rounded-xl
+                                border
+                                border-[#E7DBD3]
+                                bg-white
+                                text-center
+                                text-[15px]
+                                font-medium
+                                text-[#4D2E23]
+                                outline-none
+                                focus:border-[#8A563B]
+                                disabled:bg-[#FAF7F4]
+                                disabled:text-[#6F6863]
+                            "
+                        />
+
+                        <span className="text-[#9A8D84]">
+                            -
+                        </span>
+
+
+                        {/* NIGHT */}
+                        <input
+                            type="number"
+                            min="0"
+                            max="9"
+                            value={
+                                medicine.night ??
+                                0
+                            }
+                            disabled={!editing}
+                            onChange={(e) =>
+                                updateMedicine(
+                                    index,
+                                    "night",
+                                    e.target.value
+                                )
+                            }
+                            className="
+                                h-11
+                                w-12
+                                pl-4
+                                rounded-xl
+                                border
+                                border-[#E7DBD3]
+                                bg-white
+                                text-center
+                                text-[15px]
+                                font-medium
+                                text-[#4D2E23]
+                                outline-none
+                                focus:border-[#8A563B]
+                                disabled:bg-[#FAF7F4]
+                                disabled:text-[#6F6863]
+                            "
+                        />
+
+                    </div>
+
+
+                    {/* DOSAGE LABELS */}
+
+                    <div className="mt-1 flex gap-6">
+
+                        <span className="w-12 text-center text-[10px] text-[#A4968D]">
+                            Morning
+                        </span>
+
+                        <span className="w-12 text-center text-[10px] text-[#A4968D]">
+                            Afternoon
+                        </span>
+
+                        <span className="w-12 text-center text-[10px] text-[#A4968D]">
+                            Evening
+                        </span>
+
+                        <span className="w-12 text-center text-[10px] text-[#A4968D]">
+                            Night
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                {/* ================================================= */}
+                {/* DURATION */}
+                {/* ================================================= */}
+
+                <div>
+
+                    <p
+                        className="
+                            text-[17px]
+                            font-semibold
+                            text-[#4D2E23]
+                        "
+                    >
+                        Duration
+                    </p>
+
+                    <div className="relative mt-3 w-[180px]">
+
+                        <select
+                            value={
+                                medicine.duration ||
+                                "30 Days"
+                            }
+                            disabled={!editing}
+                            onChange={(e) =>
+                                updateMedicine(
+                                    index,
+                                    "duration",
+                                    e.target.value
+                                )
+                            }
+                            className="
+                                h-11
+                                w-full
+                                appearance-none
+                                rounded-xl
+                                border
+                                border-[#E7DBD3]
+                                bg-white
+                                px-4
+                                pr-10
+                                text-[14px]
+                                font-medium
+                                text-[#4D2E23]
+                                outline-none
+                                focus:border-[#8A563B]
+                                disabled:bg-[#FAF7F4]
+                                disabled:text-[#6F6863]
+                            "
+                        >
+
+                            {durationOptions.map(
+                                (duration) => (
+                                    <option
+                                        key={duration}
+                                        value={duration}
+                                    >
+                                        {duration}
+                                    </option>
+                                )
+                            )}
+
+                        </select>
+
+                        <HiChevronDown
+                            size={17}
+                            className="
+                                pointer-events-none
+                                absolute
+                                right-3
+                                top-1/2
+                                -translate-y-1/2
+                                text-[#7B665A]
+                            "
+                        />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* FOOD */}
+            {/* ================================================= */}
+
+            <div className="mt-6">
+
+                <p
+                    className="
+                        mb-2
+                        text-[17px]
+                        font-semibold
+                        text-[#4D2E23]
+                    "
+                >
+                    Food
+                </p>
+
+                <div className="relative w-[190px]">
+
+                    <select
+                        value={
+                            medicine.food ||
+                            "Before Food"
+                        }
+                        disabled={!editing}
+                        onChange={(e) =>
+                            updateMedicine(
+                                index,
+                                "food",
+                                e.target.value
+                            )
+                        }
+                        className="
+                            h-11
+                            w-full
+                            appearance-none
+                            rounded-xl
+                            border
+                            border-[#E7DBD3]
+                            bg-white
+                            px-4
+                            pr-10
+                            text-[14px]
+                            font-medium
+                            text-[#4D2E23]
+                            outline-none
+                            focus:border-[#8A563B]
+                            disabled:bg-[#FAF7F4]
+                            disabled:text-[#6F6863]
+                        "
+                    >
+
+                        <option value="Before Food">
+                            Before Food
+                        </option>
+
+                        <option value="After Food">
+                            After Food
+                        </option>
+
+                    </select>
+
+                    <HiChevronDown
+                        size={17}
+                        className="
+                            pointer-events-none
+                            absolute
+                            right-3
+                            top-1/2
+                            -translate-y-1/2
+                            text-[#7B665A]
+                        "
+                    />
+
+                </div>
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* MEDICINE NOTES */}
+            {/* ================================================= */}
+
+            <div className="mt-6">
+
+                <div
+                    className="
+                        relative
+                        rounded-[18px]
+                        border
+                        border-[#E7DBD3]
+                        bg-white
+                    "
+                >
+
+                    <textarea
+                        maxLength={200}
+                        rows={4}
+                        value={
+                            medicine.notes ||
+                            ""
+                        }
+                        disabled={!editing}
+                        onChange={(e) =>
+                            updateMedicine(
+                                index,
+                                "notes",
+                                e.target.value
+                            )
+                        }
+                        placeholder="Enter Special Instructions"
+                        className="
+                            w-full
+                            resize-none
+                            rounded-[18px]
+                            bg-transparent
+                            px-5
+                            py-4
+                            text-[14px]
+                            text-[#4D2E23]
+                            outline-none
+                            placeholder:text-[#8D8179]
+                            disabled:bg-[#FAF7F4]
+                            disabled:text-[#6F6863]
+                        "
+                    />
+
+                    <div
+                        className="
+                            flex
+                            justify-end
+                            px-5
+                            pb-4
+                            text-[13px]
+                            text-[#6F6863]
+                        "
+                    >
+                        {(medicine.notes || "").length}/200
+                        {" "}
+                        Characters
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    ))}
+
+
+    {/* ========================================================= */}
+    {/* TOTAL */}
+    {/* ========================================================= */}
+
+    <div
+        className="
+            flex
+            items-center
+            justify-between
+            border-t
+            border-[#ECE2DA]
+            px-7
+            py-7
+        "
+    >
+
+        <h2
+            className="
+                text-[24px]
+                font-bold
+                text-[#4D2E23]
+            "
+        >
+            Total
+        </h2>
+
+        <h2
+            className="
+                text-[15px]
+                font-bold
+                text-[#824C39]
+            "
+        >
+            ₹{total.toFixed(2)}
+        </h2>
+
+    </div>
+
+</div>
 
 
 
