@@ -305,11 +305,19 @@ export const updatePrescriptionThunk =
     "consultation/updatePrescription",
 
     async (
-      { consultationId, payload },
+      arg,
       { rejectWithValue }
     ) => {
 
       try {
+        const consultationId =
+          arg?.consultationId ||
+          arg?.prescriptionId;
+        const payload = arg?.payload;
+
+        if (!consultationId) {
+          throw new Error("Missing consultationId for updatePrescription");
+        }
 
         return await editPrescription(
           consultationId,
