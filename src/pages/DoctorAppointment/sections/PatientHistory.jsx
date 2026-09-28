@@ -15,7 +15,6 @@ import {
 import {
   loadPatientHistory,
 } from "../../../redux/consultation/consultationThunk";
-import ConsultationTimer from "../components/ConsultationTimer";
 
 
 const PatientHistory = ({
@@ -23,8 +22,6 @@ const PatientHistory = ({
   appointment,
   onBack,
   onViewReport,
-  consultationTimerStarted,
-  consultationTimeLeft
 }) => {
 
   const dispatch = useDispatch();
@@ -271,13 +268,7 @@ const PatientHistory = ({
             View consultation history of patient
           </p>
         </div>
-        {consultationTimerStarted && (
-          <ConsultationTimer
-            timeLeft={
-              consultationTimeLeft
-            }
-          />
-        )}
+        
       </div>
 
 

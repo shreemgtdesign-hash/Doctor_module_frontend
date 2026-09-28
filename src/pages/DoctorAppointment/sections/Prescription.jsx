@@ -765,13 +765,7 @@ useEffect(() => {
                 </p>
                 </div>
 
-                {consultationTimerStarted && (
-                    <ConsultationTimer
-                        timeLeft={
-                            consultationTimeLeft
-                        }
-                    />
-                )}
+                
             </div>
 
             {/* Search */}

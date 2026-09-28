@@ -225,7 +225,30 @@ const FrontOfficeDashboard = () => {
         {/* ================================= */}
         {/* INSURANCE + PACKAGES */}
         {/* ================================= */}
+        <div
+          className="
+            mt-4
+            grid
+            grid-cols-[1.6fr_1fr]
+            gap-4
+          "
+        >
 
+          <RecentTransactions />
+
+          <PendingActions />
+
+        </div>
+
+         <div className="mt-4">
+
+          <BillingDetails />
+
+        </div>
+
+        <div className="mt-4">
+          <SalesDetails />
+        </div>
         <div
           className="
             mt-4
@@ -240,6 +263,8 @@ const FrontOfficeDashboard = () => {
           <Packages />
 
         </div>
+
+         
 
 
         {/* ================================= */}
@@ -266,35 +291,14 @@ const FrontOfficeDashboard = () => {
         {/* BILLING */}
         {/* ================================= */}
 
-        <div className="mt-4">
-
-          <BillingDetails />
-
-        </div>
-
-        <div className="mt-4">
-          <SalesDetails />
-        </div>
+        
 
 
         {/* ================================= */}
         {/* RECENT + PENDING */}
         {/* ================================= */}
 
-        <div
-          className="
-            mt-4
-            grid
-            grid-cols-[1.6fr_1fr]
-            gap-4
-          "
-        >
-
-          <RecentTransactions />
-
-          <PendingActions />
-
-        </div>
+       
 
 
         {/* ================================= */}

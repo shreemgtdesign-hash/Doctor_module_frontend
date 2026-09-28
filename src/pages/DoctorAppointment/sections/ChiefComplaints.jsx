@@ -13,7 +13,7 @@ import {
   loadChiefComplaints,
   saveChiefComplaintsThunk,
 } from "../../../redux/consultation/consultationThunk";
-import ConsultationTimer from "../components/ConsultationTimer";
+import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
 
 const symptoms = [
   "back ache",
@@ -47,8 +47,7 @@ const ChiefComplaints = ({
   onBack,
   appointmentId,
   setActiveSection,
-  consultationTimerStarted,
-  consultationTimeLeft
+
 
 }) => {
   const dispatch = useDispatch();
@@ -210,7 +209,7 @@ const ChiefComplaints = ({
     const allergiesChanged =
       JSON.stringify(currentAllergies) !==
       JSON.stringify(savedAllergies);
-     
+
     return (
       symptomsChanged ||
       notesChanged ||
@@ -391,9 +390,9 @@ const ChiefComplaints = ({
 
     setShowUnsavedModal(false);
     if (onBack) {
-    onBack();
-    return;
-  }
+      onBack();
+      return;
+    }
 
     setActiveSection("overview");
   };
@@ -416,9 +415,9 @@ const ChiefComplaints = ({
       return;
     }
     if (onContinue) {
-    onContinue();
-    return;
-  }
+      onContinue();
+      return;
+    }
 
     // Move to Diagnosis after successful save
     setActiveSection("history");
@@ -450,13 +449,7 @@ const ChiefComplaints = ({
             </p>
           </div>
 
-          {consultationTimerStarted && (
-            <ConsultationTimer
-              timeLeft={
-                consultationTimeLeft
-              }
-            />
-          )}
+
         </div>
 
         {/* ================================================= */}
@@ -622,38 +615,34 @@ const ChiefComplaints = ({
             </span>
           </label>
 
-          <textarea
+          <SpeechToTextTextarea
             rows={5}
             value={notes}
             onChange={(e) => {
+
               setNotes(e.target.value);
 
               if (e.target.value.trim()) {
-                setValidationErrors(
-                  (prev) => ({
-                    ...prev,
-                    notes: "",
-                  })
-                );
+
+                setValidationErrors((prev) => ({
+                  ...prev,
+                  notes: "",
+                }));
+
               }
+
             }}
             placeholder="Enter Complaints"
             className={`
-              w-full
-              resize-none
-              rounded-[22px]
-              border
-              p-5
-              text-base
-              outline-none
-              placeholder:text-[#8E8E8E]
+    w-full
 
-              ${validationErrors.notes
-                ? "border-red-500 focus:border-red-500"
-                : "border-[#D9C8BE] focus:border-[#8B573D]"
+    ${validationErrors.notes
+                ? "border-red-500"
+                : ""
               }
-            `}
+  `}
           />
+
 
           {validationErrors.notes && (
             <p className="mt-2 text-sm font-medium text-red-500">

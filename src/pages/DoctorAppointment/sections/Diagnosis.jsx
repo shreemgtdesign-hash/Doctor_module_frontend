@@ -17,14 +17,13 @@ import {
 } from "../../../redux/consultation/consultationThunk";
 
 import { searchDiagnosisCategoriesThunk } from "../../../redux/appointment/appointmentThunk";
-import ConsultationTimer from "../components/ConsultationTimer";
+import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
 
 const Diagnosis = ({
   appointmentId,
   onContinue,
   onBack,
-  consultationTimerStarted,
-  consultationTimeLeft
+
 }) => {
   const dispatch = useDispatch();
 
@@ -536,13 +535,7 @@ const Diagnosis = ({
             </p>
           </div>
 
-          {consultationTimerStarted && (
-            <ConsultationTimer
-              timeLeft={
-                consultationTimeLeft
-              }
-            />
-          )}
+
         </div>
 
         {/* ================================================= */}
@@ -551,10 +544,11 @@ const Diagnosis = ({
 
         <div className="mt-8">
 
-          <textarea
+          <SpeechToTextTextarea
             rows={6}
             value={notes}
             onChange={(e) => {
+
               setNotes(e.target.value);
 
               if (e.target.value.trim()) {
@@ -563,25 +557,24 @@ const Diagnosis = ({
                   notes: "",
                 }));
               }
+
             }}
             placeholder="Enter diagnosis notes..."
-            className={`
-              w-full
-              resize-none
-              rounded-[22px]
-              border
-              bg-white
-              p-5
-              text-[16px]
-              text-[#4D2E23]
-              outline-none
-              placeholder:text-[#8B7A70]
 
-              ${validationErrors.notes
+            textareaClassName={`
+    rounded-[22px]
+    border
+    bg-white
+    p-5
+    text-[16px]
+    text-[#4D2E23]
+    placeholder:text-[#8B7A70]
+
+    ${validationErrors.notes
                 ? "border-red-500 focus:border-red-500"
                 : "border-[#DDD0C8] focus:border-[#8B573D]"
               }
-            `}
+  `}
           />
 
           {validationErrors.notes && (
@@ -602,30 +595,27 @@ const Diagnosis = ({
             Differential Diagnosis
           </h3>
 
-          <textarea
+          <SpeechToTextTextarea
             rows={5}
             value={differentialDiagnosis}
             onChange={(e) =>
-              setDifferentialDiagnosis(
-                e.target.value
-              )
+              setDifferentialDiagnosis(e.target.value)
             }
             placeholder="Enter Diagnosis Notes"
-            className="
-              mt-5
-              w-full
-              resize-none
-              rounded-[22px]
-              border
-              border-[#DDD0C8]
-              bg-white
-              p-5
-              text-[16px]
-              text-[#4D2E23]
-              outline-none
-              placeholder:text-[#8B7A70]
-              focus:border-[#8B573D]
-            "
+
+            className="mt-5"
+
+            textareaClassName="
+    rounded-[22px]
+    border
+    border-[#DDD0C8]
+    bg-white
+    p-5
+    text-[16px]
+    text-[#4D2E23]
+    placeholder:text-[#8B7A70]
+    focus:border-[#8B573D]
+  "
           />
 
           {/* Edit / Save - matching the existing design style */}

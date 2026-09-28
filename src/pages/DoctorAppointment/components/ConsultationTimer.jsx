@@ -25,19 +25,34 @@ const ConsultationTimer = ({
     );
 
   return (
-    <div className="relative w-[112px] h-[70px]">
+    <div
+      className="
+        sticky
+        top-14
+        ml-auto
+        z-50
+        w-[112px]
+        h-[70px]
+        -mb-[70px]
+      "
+    >
 
       {/* ========================================
-          BACKGROUND BORDER
+          BACKGROUND + PROGRESS BORDER
       ======================================== */}
 
       <svg
-        className="absolute inset-0 w-full h-full"
+        className="
+          absolute
+          inset-0
+          w-full
+          h-full
+        "
         viewBox="0 0 112 70"
         fill="none"
       >
 
-        {/* Light background border */}
+        {/* Background */}
 
         <rect
           x="4"
@@ -49,9 +64,7 @@ const ConsultationTimer = ({
           strokeWidth="6"
         />
 
-        {/* ======================================
-            BROWN COUNTDOWN BORDER
-        ====================================== */}
+        {/* Progress */}
 
         <rect
           x="4"
@@ -64,7 +77,9 @@ const ConsultationTimer = ({
           strokeWidth="6"
           strokeLinecap="round"
           strokeDasharray="100"
-          strokeDashoffset={100 - progress}
+          strokeDashoffset={
+            100 - progress
+          }
           className="
             transition-[stroke-dashoffset]
             duration-1000

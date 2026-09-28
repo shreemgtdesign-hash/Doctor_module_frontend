@@ -19,6 +19,7 @@ import Therapy from "../sections/Therapy";
 import Reports from "../sections/Reports";
 import PatientHistory from "../sections/PatientHistory";
 import ViewReport from "../sections/ViewReport";
+import ConsultationTimer from "./ConsultationTimer";
 
 // ==========================================
 // CONSULTATION TIMER
@@ -540,6 +541,7 @@ const PatientProfile = forwardRef(
         {/* ================================= */}
         {/* PATIENT HEADER */}
         {/* ================================= */}
+
 
         <div
           ref={profileTopRef}
