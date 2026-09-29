@@ -1,15 +1,12 @@
-import {
-    useEffect,
-    useRef,
-    useState,
-} from "react";
+
 
 import {
     useDispatch,
     useSelector,
 } from "react-redux";
-import ConsultationTimer
-    from "../../DoctorAppointment/components/ConsultationTimer";
+import { useEffect, useRef, useState } from "react";
+import JuniorDoctorConsultationTimer
+    from "./JuniorDoctorConsultationTimer";
 import {
     HiOutlineArrowRightOnRectangle,
 } from "react-icons/hi2";
@@ -46,6 +43,21 @@ const JuniorPatientProfile = ({
     activeSection,
     setActiveSection,
 }) => {
+
+    const JUNIOR_DOCTOR_DURATION = 15 * 60;
+
+    const [
+        juniorDoctorTimeLeft,
+        setJuniorDoctorTimeLeft,
+    ] = useState(JUNIOR_DOCTOR_DURATION);
+
+    const [
+        juniorDoctorTimerStarted,
+        setJuniorDoctorTimerStarted,
+    ] = useState(false);
+
+    const juniorDoctorTimerRef =
+        useRef(null);
 
     const {
         selectedPatient,
@@ -101,22 +113,16 @@ const JuniorPatientProfile = ({
         }
 
         if (
-            consultationTimerStarted
+            juniorDoctorTimerStarted
         ) {
             return;
         }
 
-        console.log(
-            "⏱️ Junior Doctor consultation timer started from Chief Complaints"
-        );
-
-        setConsultationTimerStarted(
-            true
-        );
+        setJuniorDoctorTimerStarted(true);
 
     }, [
         activeSection,
-        consultationTimerStarted,
+        juniorDoctorTimerStarted,
     ]);
     // =====================================================
     // CONSULTATION TIMER COUNTDOWN
@@ -124,30 +130,24 @@ const JuniorPatientProfile = ({
 
     useEffect(() => {
 
-        if (
-            !consultationTimerStarted
-        ) {
+        if (!juniorDoctorTimerStarted) {
             return;
         }
 
-        if (
-            consultationTimeLeft <= 0
-        ) {
+        if (juniorDoctorTimeLeft <= 0) {
             return;
         }
 
-        consultationTimerRef.current =
+        juniorDoctorTimerRef.current =
             setInterval(() => {
 
-                setConsultationTimeLeft(
+                setJuniorDoctorTimeLeft(
                     (previousTime) => {
 
-                        if (
-                            previousTime <= 1
-                        ) {
+                        if (previousTime <= 1) {
 
                             clearInterval(
-                                consultationTimerRef.current
+                                juniorDoctorTimerRef.current
                             );
 
                             return 0;
@@ -163,11 +163,11 @@ const JuniorPatientProfile = ({
         return () => {
 
             if (
-                consultationTimerRef.current
+                juniorDoctorTimerRef.current
             ) {
 
                 clearInterval(
-                    consultationTimerRef.current
+                    juniorDoctorTimerRef.current
                 );
 
             }
@@ -175,15 +175,17 @@ const JuniorPatientProfile = ({
         };
 
     }, [
-        consultationTimerStarted,
-        consultationTimeLeft,
+        juniorDoctorTimerStarted,
+        juniorDoctorTimeLeft,
     ]);
 
     // =====================================================
     // RESET TIMER FOR NEW PATIENT
     // =====================================================
 
-    const previousPatientIdRef =
+
+
+    const previousJuniorPatientIdRef =
         useRef(null);
 
     useEffect(() => {
@@ -196,33 +198,29 @@ const JuniorPatientProfile = ({
         }
 
         if (
-            previousPatientIdRef.current ===
+            previousJuniorPatientIdRef.current ===
             currentPatientId
         ) {
             return;
         }
 
-        previousPatientIdRef.current =
+        previousJuniorPatientIdRef.current =
             currentPatientId;
 
-
         if (
-            consultationTimerRef.current
+            juniorDoctorTimerRef.current
         ) {
 
             clearInterval(
-                consultationTimerRef.current
+                juniorDoctorTimerRef.current
             );
 
         }
 
+        setJuniorDoctorTimerStarted(false);
 
-        setConsultationTimerStarted(
-            false
-        );
-
-        setConsultationTimeLeft(
-            CONSULTATION_DURATION
+        setJuniorDoctorTimeLeft(
+            JUNIOR_DOCTOR_DURATION
         );
 
     }, [
@@ -470,6 +468,17 @@ const JuniorPatientProfile = ({
                     }
                 />
 
+{/* ============================================= */}
+{/* JUNIOR DOCTOR CONSULTATION TIMER */}
+{/* ============================================= */}
+
+{juniorDoctorTimerStarted && (
+    <JuniorDoctorConsultationTimer
+        timeLeft={
+            juniorDoctorTimeLeft
+        }
+    />
+)}
 
                 {/* ============================================= */}
                 {/* OVERVIEW */}
@@ -529,11 +538,11 @@ const JuniorPatientProfile = ({
                             }
 
                             consultationTimerStarted={
-                                consultationTimerStarted
+                                juniorDoctorTimerStarted
                             }
 
                             consultationTimeLeft={
-                                consultationTimeLeft
+                                juniorDoctorTimeLeft
                             }
 
                             setActiveSection={
@@ -571,12 +580,13 @@ const JuniorPatientProfile = ({
                                 patientProfile
                             }
 
-                            consultationTimeLeft={
-                                consultationTimeLeft
+                   
+                            consultationTimerStarted={
+                                juniorDoctorTimerStarted
                             }
 
-                            consultationTimerStarted={
-                                consultationTimerStarted
+                            consultationTimeLeft={
+                                juniorDoctorTimeLeft
                             }
 
                             appointment={
@@ -623,12 +633,13 @@ const JuniorPatientProfile = ({
                                 patientProfile
                             }
 
-                            consultationTimeLeft={
-                                consultationTimeLeft
+                  
+                            consultationTimerStarted={
+                                juniorDoctorTimerStarted
                             }
 
-                            consultationTimerStarted={
-                                consultationTimerStarted
+                            consultationTimeLeft={
+                                juniorDoctorTimeLeft
                             }
 
                             appointment={
@@ -666,12 +677,13 @@ const JuniorPatientProfile = ({
                                 patientProfile
                             }
 
-                            consultationTimeLeft={
-                                consultationTimeLeft
+                    
+                            consultationTimerStarted={
+                                juniorDoctorTimerStarted
                             }
 
-                            consultationTimerStarted={
-                                consultationTimerStarted
+                            consultationTimeLeft={
+                                juniorDoctorTimeLeft
                             }
 
                             appointmentId={

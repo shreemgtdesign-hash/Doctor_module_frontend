@@ -830,7 +830,7 @@ const ViewReport = ({
                         "
                       >
                         {therapy.description ||
-                          "No description available"}
+                          ""}
                       </p>
 
                       <div

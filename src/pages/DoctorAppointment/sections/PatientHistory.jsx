@@ -22,6 +22,8 @@ const PatientHistory = ({
   appointment,
   onBack,
   onViewReport,
+  consultationTimerStarted,
+  consultationTimeLeft
 }) => {
 
   const dispatch = useDispatch();
@@ -270,7 +272,7 @@ const PatientHistory = ({
         </div>
         
       </div>
-
+    
 
       {/* ================================= */}
       {/* EMPTY */}

@@ -29,6 +29,7 @@ import {
 
 } from "../../../redux/consultation/consultationThunk";
 import ConsultationTimer from "../components/ConsultationTimer";
+import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
 
 
 
@@ -767,6 +768,13 @@ useEffect(() => {
 
                 
             </div>
+             {consultationTimerStarted && (
+                    <ConsultationTimer
+                        timeLeft={
+                            consultationTimeLeft
+                        }
+                    />
+                )}
 
             {/* Search */}
 
@@ -1714,37 +1722,25 @@ useEffect(() => {
                     "
                 >
 
-                    <textarea
-                        maxLength={200}
-                        rows={4}
-                        value={
-                            medicine.notes ||
-                            ""
-                        }
-                        disabled={!editing}
-                        onChange={(e) =>
-                            updateMedicine(
-                                index,
-                                "notes",
-                                e.target.value
-                            )
-                        }
-                        placeholder="Enter Special Instructions"
-                        className="
-                            w-full
-                            resize-none
-                            rounded-[18px]
-                            bg-transparent
-                            px-5
-                            py-4
-                            text-[14px]
-                            text-[#4D2E23]
-                            outline-none
-                            placeholder:text-[#8D8179]
-                            disabled:bg-[#FAF7F4]
-                            disabled:text-[#6F6863]
-                        "
-                    />
+                    <SpeechToTextTextarea
+            value={medicine.notes || ""}
+            onChange={(value) => {
+
+                setEditableMedicines((prev) =>
+                    prev.map((item, i) =>
+                        i === index
+                            ? {
+                                ...item,
+                                notes: value,
+                            }
+                            : item
+                    )
+                );
+
+            }}
+            placeholder="Enter medicine notes..."
+            rows={4}
+        />
 
                     <div
                         className="
@@ -1817,21 +1813,15 @@ useEffect(() => {
                     Special Instructions
                 </label>
 
-                <textarea
-
-                    rows={5}
-
-                    value={specialInstructions}
-
-                    onChange={(e) =>
-                        setSpecialInstructions(e.target.value)
-                    }
-
-                    placeholder="Write special instructions..."
-
-                    className="w-full rounded-[24px] border border-[#E7DBD3] bg-white p-5 outline-none focus:border-[#8A563B]"
-
-                />
+                <SpeechToTextTextarea
+    value={specialInstructions}
+    onChange={(value) => {
+        setSpecialInstructions(value);
+    }}
+    placeholder="Write special instructions..."
+    rows={5}
+    className="w-full"
+/>
 
             </div>
 

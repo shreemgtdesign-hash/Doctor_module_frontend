@@ -27,6 +27,7 @@ import {
   loadAssociateDoctors,
 } from "../../../redux/consultation/consultationThunk";
 import ConsultationTimer from "../components/ConsultationTimer";
+import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
 
 
 const Therapy = ({
@@ -265,7 +266,7 @@ const addTherapy = async (selectedTherapy) => {
 
       description:
         selectedTherapy.notes ||
-        "No description available",
+        "",
 
       image_url:
         selectedTherapy.image_url || "",
@@ -1438,7 +1439,7 @@ const addTherapy = async (selectedTherapy) => {
                         {
                           item.description ||
                           item.notes ||
-                          "No description available"
+                          ""
                         }
                       </p>
 
@@ -1680,36 +1681,20 @@ const addTherapy = async (selectedTherapy) => {
                 {/* NOTES */}
 
                 {editing && (
-
-                  <textarea
-                    value={
-                      item.notes || ""
-                    }
-
-                    onChange={(e) =>
-                      updateTherapy(
-                        index,
-                        "notes",
-                        e.target.value
-                      )
-                    }
-
-                    placeholder="Add notes..."
-
-                    className="
-                      mt-6
-                      w-full
-                      rounded-2xl
-                      border
-                      border-[#E7DBD3]
-                      p-4
-                      outline-none
-                    "
-
-                    rows={3}
-                  />
-
-                )}
+    <SpeechToTextTextarea
+        value={item.notes || ""}
+        onChange={(value) =>
+            updateTherapy(
+                index,
+                "notes",
+                value
+            )
+        }
+        placeholder="Add notes..."
+        rows={3}
+        className="mt-6"
+    />
+)}
 
               </div>
 

@@ -18,15 +18,13 @@ import {
 import ViewXrayReport from "./ViewXrayReport";
 import { loadPatientReports } from "../../../redux/consultation/consultationThunk";
 import { selectPatientReports, selectPatientReportsLoading } from "../../../redux/consultation/consultationSlice";
-import ConsultationTimer from "../components/ConsultationTimer";
 
 
 const Reports = ({
     patient,
     onBack,
     onContinue,
-    consultationTimerStarted,
-    consultationTimeLeft
+
 }) => {
 
     const dispatch = useDispatch();
@@ -290,13 +288,7 @@ const Reports = ({
                     </p>
                     </div>
 
-                     {consultationTimerStarted && (
-          <ConsultationTimer
-            timeLeft={
-              consultationTimeLeft
-            }
-          />
-        )}
+                   
 
                 </div>
 

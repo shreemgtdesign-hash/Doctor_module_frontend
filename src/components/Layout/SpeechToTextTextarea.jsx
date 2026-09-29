@@ -10,12 +10,19 @@ const SpeechToTextTextarea = ({
 }) => {
 
     const recognitionRef = useRef(null);
+    const valueRef = useRef(value);
 
     const [isListening, setIsListening] =
         useState(false);
 
     const [isSupported, setIsSupported] =
         useState(true);
+
+
+    // Keep latest value without recreating recognition
+    useEffect(() => {
+        valueRef.current = value;
+    }, [value]);
 
 
     // ==========================================
@@ -37,9 +44,7 @@ const SpeechToTextTextarea = ({
             new SpeechRecognition();
 
         recognition.continuous = true;
-        recognition.interimResults = true;
-
-        // Change this if you need Tamil
+        recognition.interimResults = false;
         recognition.lang = "en-IN";
 
 
@@ -57,29 +62,39 @@ const SpeechToTextTextarea = ({
                 i++
             ) {
 
-                const transcript =
-                    event.results[i][0].transcript;
-
                 if (
                     event.results[i].isFinal
                 ) {
-                    finalText += transcript;
+
+                    finalText +=
+                        event.results[i][0].transcript;
+
                 }
+
             }
+
 
             if (finalText.trim()) {
 
+                const currentValue =
+                    valueRef.current?.trim() || "";
+
                 const newValue =
-                    value
-                        ? `${value.trim()} ${finalText.trim()}`
+                    currentValue
+                        ? `${currentValue} ${finalText.trim()}`
                         : finalText.trim();
 
-                onChange({
-                    target: {
-                        value: newValue,
-                    },
-                });
+
+                valueRef.current =
+                    newValue;
+
+
+                // IMPORTANT:
+                // return string, not event object
+                onChange?.(newValue);
+
             }
+
         };
 
 
@@ -88,12 +103,25 @@ const SpeechToTextTextarea = ({
         // ======================================
 
         recognition.onend = () => {
+
             setIsListening(false);
+
         };
 
 
-        recognition.onerror = () => {
+        // ======================================
+        // ERROR
+        // ======================================
+
+        recognition.onerror = (event) => {
+
+            console.error(
+                "Speech recognition error:",
+                event.error
+            );
+
             setIsListening(false);
+
         };
 
 
@@ -110,21 +138,25 @@ const SpeechToTextTextarea = ({
 
         };
 
-    }, [value, onChange]);
+    }, []);
 
 
     // ==========================================
-    // TOGGLE MICROPHONE
+    // TOGGLE
     // ==========================================
 
     const toggleListening = () => {
 
         if (!isSupported) {
+
             alert(
                 "Speech recognition is not supported in this browser."
             );
+
             return;
+
         }
+
 
         if (isListening) {
 
@@ -133,6 +165,7 @@ const SpeechToTextTextarea = ({
             setIsListening(false);
 
             return;
+
         }
 
 
@@ -145,11 +178,12 @@ const SpeechToTextTextarea = ({
         } catch (error) {
 
             console.error(
-                "Speech recognition error:",
+                "Speech recognition start error:",
                 error
             );
 
         }
+
     };
 
 
@@ -164,7 +198,9 @@ const SpeechToTextTextarea = ({
 
             <textarea
                 value={value}
-                onChange={onChange}
+                onChange={(e) =>
+                    onChange?.(e.target.value)
+                }
                 placeholder={placeholder}
                 rows={rows}
                 className="
@@ -187,10 +223,6 @@ const SpeechToTextTextarea = ({
                 "
             />
 
-
-            {/* ======================================
-                MICROPHONE BUTTON
-            ====================================== */}
 
             {isSupported && (
 

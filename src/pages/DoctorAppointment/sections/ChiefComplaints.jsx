@@ -616,31 +616,21 @@ const ChiefComplaints = ({
           </label>
 
           <SpeechToTextTextarea
-            rows={5}
             value={notes}
-            onChange={(e) => {
+            onChange={(value) => {
 
-              setNotes(e.target.value);
+              setNotes(value);
 
-              if (e.target.value.trim()) {
-
+              if (value.trim()) {
                 setValidationErrors((prev) => ({
                   ...prev,
                   notes: "",
                 }));
-
               }
 
             }}
             placeholder="Enter Complaints"
-            className={`
-    w-full
-
-    ${validationErrors.notes
-                ? "border-red-500"
-                : ""
-              }
-  `}
+            rows={5}
           />
 
 
