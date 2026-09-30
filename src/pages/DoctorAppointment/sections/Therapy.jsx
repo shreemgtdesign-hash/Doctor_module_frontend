@@ -28,6 +28,7 @@ import {
 } from "../../../redux/consultation/consultationThunk";
 import ConsultationTimer from "../components/ConsultationTimer";
 import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
+import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
 
 const Therapy = ({
@@ -35,7 +36,8 @@ const Therapy = ({
   onBack,
   onContinue,
   consultationTimeLeft,
-  consultationTimerStarted
+  consultationTimerStarted,
+  activeSection,setActiveSection,
 }) => {
 
   const dispatch = useDispatch();
@@ -557,7 +559,10 @@ const addTherapy = async (selectedTherapy) => {
 
     <div className="mt-6">
 
-
+      <ConsultationSectionNav
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+      />
       {/* ===================================== */}
       {/* HEADER */}
       {/* ===================================== */}

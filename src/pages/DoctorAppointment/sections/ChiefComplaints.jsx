@@ -14,6 +14,7 @@ import {
   saveChiefComplaintsThunk,
 } from "../../../redux/consultation/consultationThunk";
 import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
+import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
 const symptoms = [
   "back ache",
@@ -43,6 +44,7 @@ const symptoms = [
 ];
 
 const ChiefComplaints = ({
+  activeSection,
   onContinue,
   onBack,
   appointmentId,
@@ -429,6 +431,10 @@ const ChiefComplaints = ({
 
   return (
     <>
+     <ConsultationSectionNav
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+      />
       <div className="mt-6">
 
         {/* ================================================= */}

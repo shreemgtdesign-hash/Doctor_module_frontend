@@ -6,20 +6,81 @@ const ConsultationCard = ({
 }) => {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className={`group rounded-3xl border p-6 transition ${
-        active
-          ? "border-[#6A3F2D] bg-[#FFF8F2]"
-          : "border-[#E8DDD4] bg-white hover:border-[#6A3F2D] hover:bg-[#FFF8F2]"
-      }`}
+      className={`
+        group
+        flex
+        h-[64px]
+        w-full
+        items-center
+        rounded-[18px]
+        border
+        px-2
+        text-left
+        transition-all
+        duration-200
+
+        ${
+          active
+            ? `
+              border-[#7A4933]
+              bg-[#FFF7F0]
+              shadow-[0_2px_6px_rgba(90,50,35,0.08)]
+            `
+            : `
+              border-[#E7DBD3]
+              bg-white
+              hover:border-[#C9A995]
+              hover:bg-[#FFF9F5]
+            `
+        }
+      `}
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFEAD8] text-[#6A3F2D]">
-        {icon}
+      {/* ICON */}
+
+      <div
+        className={`
+          flex
+          h-[46px]
+          w-[46px]
+          shrink-0
+          items-center
+          justify-center
+          rounded-[15px]
+
+          ${
+            active
+              ? `
+                bg-[#FFE9D7]
+                text-[#75452F]
+              `
+              : `
+                bg-[#FFF0E3]
+                text-[#75452F]
+              `
+          }
+        `}
+      >
+        <span className="text-[23px]">
+          {icon}
+        </span>
       </div>
 
-      <h3 className="mt-5 text-lg font-semibold text-[#4D2E23]">
+
+      {/* TITLE */}
+
+      <span
+        className="
+          ml-3
+          text-[16px]
+          font-semibold
+          leading-[20px]
+          text-[#59352C]
+        "
+      >
         {title}
-      </h3>
+      </span>
     </button>
   );
 };

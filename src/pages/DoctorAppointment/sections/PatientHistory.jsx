@@ -15,6 +15,7 @@ import {
 import {
   loadPatientHistory,
 } from "../../../redux/consultation/consultationThunk";
+import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
 
 const PatientHistory = ({
@@ -22,8 +23,9 @@ const PatientHistory = ({
   appointment,
   onBack,
   onViewReport,
-  consultationTimerStarted,
-  consultationTimeLeft
+
+  setActiveSection,
+  activeSection
 }) => {
 
   const dispatch = useDispatch();
@@ -244,6 +246,10 @@ const PatientHistory = ({
 
   return (
     <div className="mt-6">
+      <ConsultationSectionNav
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+      />
 
       {/* ================================= */}
       {/* HEADER */}

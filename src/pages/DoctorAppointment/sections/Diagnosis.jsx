@@ -18,11 +18,15 @@ import {
 
 import { searchDiagnosisCategoriesThunk } from "../../../redux/appointment/appointmentThunk";
 import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
+import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
 const Diagnosis = ({
   appointmentId,
   onContinue,
   onBack,
+  activeSection,
+  setActiveSection,
+  
 
 }) => {
   const dispatch = useDispatch();
@@ -520,7 +524,10 @@ const Diagnosis = ({
         {/* ================================================= */}
         {/* Header */}
         {/* ================================================= */}
-
+         <ConsultationSectionNav
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
+              />
         <div className="flex justify-between">
           <div >
             <h2 className="text-[24px] font-bold text-[#4D2E23]">

@@ -600,8 +600,8 @@ const PatientProfile = forwardRef(
                 appointmentId={selectedPatient?.id}
                 consultationTimeLeft={consultationTimeLeft}
                 consultationTimerStarted={consultationTimerStarted}
+                activeSection={activeSection}
                 setActiveSection={setActiveSection}
-
                 onBack={() =>
                   goToSection(
                     "overview",
@@ -654,6 +654,8 @@ const PatientProfile = forwardRef(
                     "section"
                   )
                 }
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
               />
 
             )}
@@ -673,6 +675,8 @@ const PatientProfile = forwardRef(
                 consultationTimeLeft={
                   consultationTimeLeft
                 }
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
 
                 consultationTimerStarted={
                   consultationTimerStarted
@@ -753,6 +757,9 @@ const PatientProfile = forwardRef(
                     "section"
                   )
                 }
+
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
               />
 
             )}
@@ -800,6 +807,8 @@ const PatientProfile = forwardRef(
                     "section"
                   )
                 }
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
               />
 
             )}
@@ -839,6 +848,8 @@ const PatientProfile = forwardRef(
                     "section"
                   )
                 }
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
               />
 
             )}
@@ -872,6 +883,8 @@ const PatientProfile = forwardRef(
                     "section"
                   )
                 }
+                activeSection={activeSection}
+                setActiveSection={setActiveSection}
               />
 
             )}

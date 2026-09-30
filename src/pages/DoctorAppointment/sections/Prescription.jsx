@@ -30,6 +30,7 @@ import {
 } from "../../../redux/consultation/consultationThunk";
 import ConsultationTimer from "../components/ConsultationTimer";
 import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
+import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
 
 
@@ -49,6 +50,8 @@ const Prescription = ({
     consultationTimeLeft,
     appointment,
     onBack,
+    activeSection,
+    setActiveSection,
 }) => {
 
     const dispatch = useDispatch();
@@ -753,6 +756,10 @@ useEffect(() => {
         <div className="mt-6 space-y-8">
 
             {/* Header */}
+            <ConsultationSectionNav
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+      />
 
             <div className="flex items-center justify-between">
                 <div>
