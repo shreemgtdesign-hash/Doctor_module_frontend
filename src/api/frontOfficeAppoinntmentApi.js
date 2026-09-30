@@ -348,3 +348,21 @@ export const getOnlineMedicineOrderDetails = (
     api.get(
         `/frontoffice/pending-actions/online-orders/${orderId}`
     );
+
+
+// ==========================================
+// CHECK-IN / CHECK-OUT APPOINTMENT APIs
+// ==========================================
+
+// Check In Patient
+export const checkInAppointment = (appointmentId) =>
+    api.post(
+        `/frontoffice/upcoming-appointments/${appointmentId}/checkin`
+    );
+
+
+// Check Out Patient
+export const checkOutAppointment = (appointmentId) =>
+    api.post(
+        `/frontoffice/upcoming-appointments/${appointmentId}/checkout`
+    );

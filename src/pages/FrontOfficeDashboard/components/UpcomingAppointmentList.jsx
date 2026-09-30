@@ -17,12 +17,15 @@ import {
     HiChevronDown,
     HiChevronLeft,
     HiChevronRight,
-  
     HiOutlineCheck,
+    HiOutlineArrowPath,
+    HiArrowLeft,
 } from "react-icons/hi2";
 
 import {
     loadFrontOfficeUpcomingAppointments,
+    checkInFrontOfficeAppointment,
+    checkOutFrontOfficeAppointment,
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 
 import {
@@ -33,9 +36,20 @@ import {
     selectFrontOfficeUpcomingAppointmentsTotal,
     selectFrontOfficeUpcomingAppointmentsTotalPages,
     selectFrontOfficeUpcomingAppointmentsShowing,
+
+    // CHECK-IN / CHECK-OUT
+    selectCheckingInAppointment,
+    selectCheckingOutAppointment,
+    selectCheckInAppointmentId,
+    selectCheckOutAppointmentId,
 } from "../../../redux/frontOffice/frontOfficeAppointmentSlice";
+
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 
+
+// ======================================================
+// MAIN COMPONENT
+// ======================================================
 
 const UpcomingAppointmentsList = () => {
 
@@ -44,9 +58,9 @@ const UpcomingAppointmentsList = () => {
     const navigate = useNavigate();
 
 
-    // ==========================================
+    // ==================================================
     // REDUX DATA
-    // ==========================================
+    // ==================================================
 
     const appointments =
         useSelector(
@@ -84,9 +98,34 @@ const UpcomingAppointmentsList = () => {
         );
 
 
-    // ==========================================
+    // ==================================================
+    // CHECK-IN / CHECK-OUT REDUX STATE
+    // ==================================================
+
+    const checkingInAppointment =
+        useSelector(
+            selectCheckingInAppointment
+        );
+
+    const checkingOutAppointment =
+        useSelector(
+            selectCheckingOutAppointment
+        );
+
+    const checkInAppointmentId =
+        useSelector(
+            selectCheckInAppointmentId
+        );
+
+    const checkOutAppointmentId =
+        useSelector(
+            selectCheckOutAppointmentId
+        );
+
+
+    // ==================================================
     // PERIOD
-    // ==========================================
+    // ==================================================
 
     const [
         selectedPeriod,
@@ -100,9 +139,9 @@ const UpcomingAppointmentsList = () => {
     ] = useState(false);
 
 
-    // ==========================================
+    // ==================================================
     // LOAD APPOINTMENTS
-    // ==========================================
+    // ==================================================
 
     useEffect(() => {
 
@@ -120,9 +159,9 @@ const UpcomingAppointmentsList = () => {
     ]);
 
 
-    // ==========================================
+    // ==================================================
     // PERIOD LABEL
-    // ==========================================
+    // ==================================================
 
     const getPeriodLabel = () => {
 
@@ -142,9 +181,9 @@ const UpcomingAppointmentsList = () => {
     };
 
 
-    // ==========================================
+    // ==================================================
     // PERIOD CHANGE
-    // ==========================================
+    // ==================================================
 
     const handlePeriodChange = (
         period
@@ -160,9 +199,9 @@ const UpcomingAppointmentsList = () => {
     };
 
 
-    // ==========================================
+    // ==================================================
     // PREVIOUS PAGE
-    // ==========================================
+    // ==================================================
 
     const handlePreviousPage = () => {
 
@@ -172,7 +211,6 @@ const UpcomingAppointmentsList = () => {
         ) {
             return;
         }
-
 
         dispatch(
             loadFrontOfficeUpcomingAppointments({
@@ -184,9 +222,9 @@ const UpcomingAppointmentsList = () => {
     };
 
 
-    // ==========================================
+    // ==================================================
     // NEXT PAGE
-    // ==========================================
+    // ==================================================
 
     const handleNextPage = () => {
 
@@ -196,7 +234,6 @@ const UpcomingAppointmentsList = () => {
         ) {
             return;
         }
-
 
         dispatch(
             loadFrontOfficeUpcomingAppointments({
@@ -208,9 +245,9 @@ const UpcomingAppointmentsList = () => {
     };
 
 
-    // ==========================================
+    // ==================================================
     // ADD VITALS
-    // ==========================================
+    // ==================================================
 
     const handleAddVitals = (
         appointment
@@ -220,11 +257,9 @@ const UpcomingAppointmentsList = () => {
             appointment?.appointment_id ||
             appointment?.id;
 
-
         if (!appointmentId) {
             return;
         }
-
 
         navigate(
             `/frontoffice/upcoming-appointments/${appointmentId}`
@@ -232,16 +267,141 @@ const UpcomingAppointmentsList = () => {
     };
 
 
-    // ==========================================
+    // ==================================================
+    // CHECK IN
+    // ==================================================
+
+    const handleCheckIn = async (
+        appointment
+    ) => {
+
+        const appointmentId =
+            appointment?.appointment_id ||
+            appointment?.id;
+
+        if (!appointmentId) {
+            return;
+        }
+
+
+        // Already checked in
+        if (
+            appointment?.checkin === true
+        ) {
+            return;
+        }
+
+
+        // Another check-in request is running
+        if (
+            checkingInAppointment
+        ) {
+            return;
+        }
+
+
+        try {
+
+            await dispatch(
+                checkInFrontOfficeAppointment(
+                    appointmentId
+                )
+            ).unwrap();
+
+
+            // Refresh appointment list
+            await dispatch(
+                loadFrontOfficeUpcomingAppointments({
+                    period: selectedPeriod,
+                    page,
+                    limit: 12,
+                })
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Check-in failed:",
+                error
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
+    // CHECK OUT
+    // ==================================================
+
+    const handleCheckOut = async (
+        appointment
+    ) => {
+
+        const appointmentId =
+            appointment?.appointment_id ||
+            appointment?.id;
+
+        if (!appointmentId) {
+            return;
+        }
+
+
+        // Already checked out
+        if (
+            appointment?.checkout === true
+        ) {
+            return;
+        }
+
+
+        // Another checkout request is running
+        if (
+            checkingOutAppointment
+        ) {
+            return;
+        }
+
+
+        try {
+
+            await dispatch(
+                checkOutFrontOfficeAppointment(
+                    appointmentId
+                )
+            ).unwrap();
+
+
+            // Refresh appointment list
+            await dispatch(
+                loadFrontOfficeUpcomingAppointments({
+                    period: selectedPeriod,
+                    page,
+                    limit: 12,
+                })
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Check-out failed:",
+                error
+            );
+
+        }
+
+    };
+
+
+    // ==================================================
     // SHOWING TEXT
-    // ==========================================
+    // ==================================================
 
     const getShowingText = () => {
 
         if (showing) {
             return showing;
         }
-
 
         if (!appointments?.length) {
             return `Showing 0 of ${total}`;
@@ -259,206 +419,483 @@ const UpcomingAppointmentsList = () => {
             );
 
 
-        return `Showing ${start} - ${end} of ${total}`;
+        return `Showing Appointments ${start} - ${end} of ${total}`;
     };
 
 
+    // ==================================================
+    // UI
+    // ==================================================
+
     return (
+
         <DashboardLayout role="frontoffice">
-
-        <div
-            className="
-                min-h-screen
-                bg-[#FFFCF9]
-                px-6
-                py-5
-            "
-        >
-
-            {/* ====================================== */}
-            {/* HEADER */}
-            {/* ====================================== */}
 
             <div
                 className="
-                    flex
-                    items-start
-                    justify-between
+                    min-h-screen
+                    bg-[#FFFCF9]
+                    px-6
+                    py-5
                 "
             >
 
-                <div>
+                {/* ==========================================
+                    HEADER
+                ========================================== */}
 
-                    <div
-                        className="
-                            flex
-                            items-center
-                            gap-3
-                        "
-                    >
+                <div
+                    className="
+                        flex
+                        items-start
+                        justify-between
+                    "
+                >
 
-                        {/* BACK BUTTON */}
+                    <div>
 
-                        <button
-                            type="button"
-                            onClick={() =>
-                                navigate(-1)
-                            }
+                        <div
                             className="
-                                text-[22px]
-                                leading-none
-                                text-[#4B2E2A]
-                                transition
-                                hover:text-[#8A4F32]
+                                flex
+                                items-center
+                                gap-3
                             "
                         >
-                            ←
-                        </button>
+
+                            {/* BACK BUTTON */}
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    navigate(-1)
+                                }
+                                className="
+                                    flex
+                                    h-8
+                                    w-8
+                                    items-center
+                                    justify-center
+                                    rounded-full
+                                    text-[#4B2E2A]
+                                    transition
+                                    hover:bg-[#FFF0E5]
+                                "
+                                title="Go back"
+                            >
+
+                                <HiArrowLeft
+                                    size={20}
+                                />
+
+                            </button>
 
 
-                        {/* TITLE */}
+                            <h1
+                                className="
+                                    text-[24px]
+                                    font-semibold
+                                    text-[#3F2923]
+                                "
+                            >
+                                Appointments
+                            </h1>
 
-                        <h1
+                        </div>
+
+
+                        <p
                             className="
-                                text-[22px]
-                                font-semibold
-                                text-[#2F2926]
+                                mt-2
+                                text-[15px]
+                                text-[#7D716B]
                             "
                         >
-                            Appointments
-                        </h1>
+                            {total} Total Consultations
+                        </p>
 
                     </div>
 
 
-                    {/* TOTAL CONSULTATIONS */}
+                    {/* ======================================
+                        PERIOD DROPDOWN
+                    ====================================== */}
 
-                    <p
+                    <div
                         className="
-                            mt-2
-                            ml-9
-                            text-[13px]
-                            text-[#81756E]
+                            relative
                         "
                     >
-                        {Number(
-                            total
-                        ).toLocaleString()}{" "}
-                        Total Consultations
-                    </p>
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setShowPeriodMenu(
+                                    (previous) =>
+                                        !previous
+                                )
+                            }
+                            className="
+                                flex
+                                h-9
+                                items-center
+                                gap-2
+                                rounded-lg
+                                border
+                                border-[#E7DBD3]
+                                bg-white
+                                px-3
+                                text-[12px]
+                                font-medium
+                                text-[#4B2E2A]
+                                transition
+                                hover:bg-[#FFF9F4]
+                            "
+                        >
+
+                            <HiOutlineCalendarDays
+                                size={15}
+                            />
+
+                            {getPeriodLabel()}
+
+                            <HiChevronDown
+                                size={15}
+                            />
+
+                        </button>
+
+
+                        {/* PERIOD MENU */}
+
+                        {showPeriodMenu && (
+
+                            <div
+                                className="
+                                    absolute
+                                    right-0
+                                    top-11
+                                    z-50
+                                    w-[140px]
+                                    overflow-hidden
+                                    rounded-xl
+                                    border
+                                    border-[#E7DBD3]
+                                    bg-white
+                                    py-1
+                                    shadow-lg
+                                "
+                            >
+
+                                <PeriodButton
+                                    label="Today"
+                                    value="today"
+                                    selected={
+                                        selectedPeriod ===
+                                        "today"
+                                    }
+                                    onClick={
+                                        handlePeriodChange
+                                    }
+                                />
+
+                                <PeriodButton
+                                    label="This Week"
+                                    value="week"
+                                    selected={
+                                        selectedPeriod ===
+                                        "week"
+                                    }
+                                    onClick={
+                                        handlePeriodChange
+                                    }
+                                />
+
+                                <PeriodButton
+                                    label="This Month"
+                                    value="month"
+                                    selected={
+                                        selectedPeriod ===
+                                        "month"
+                                    }
+                                    onClick={
+                                        handlePeriodChange
+                                    }
+                                />
+
+                            </div>
+
+                        )}
+
+                    </div>
 
                 </div>
 
 
-                {/* ================================= */}
-                {/* PERIOD DROPDOWN */}
-                {/* ================================= */}
+                {/* ==========================================
+                    ERROR
+                ========================================== */}
 
-                <div
-                    className="
-                        relative
-                    "
-                >
+                {error && (
 
-                    <button
-                        type="button"
-                        onClick={() =>
-                            setShowPeriodMenu(
-                                (previous) =>
-                                    !previous
-                            )
-                        }
+                    <div
                         className="
-                            flex
-                            h-9
-                            items-center
-                            gap-2
-                            rounded-lg
+                            mt-5
+                            rounded-xl
                             border
-                            border-[#E7DBD3]
-                            bg-white
-                            px-3
+                            border-red-200
+                            bg-red-50
+                            px-4
+                            py-3
                             text-[12px]
-                            font-medium
-                            text-[#4B2E2A]
-                            transition
-                            hover:bg-[#FFF9F4]
+                            text-red-600
                         "
                     >
 
-                        <HiOutlineCalendarDays
-                            size={15}
-                        />
+                        {typeof error === "string"
+                            ? error
+                            : error?.message ||
+                              "Failed to load appointments."
+                        }
 
-                        {getPeriodLabel()}
+                    </div>
 
-                        <HiChevronDown
-                            size={15}
+                )}
+
+
+                {/* ==========================================
+                    PAGINATION
+                ========================================== */}
+
+                <div
+                    className="
+                        mt-7
+                        flex
+                        items-center
+                        justify-end
+                        gap-4
+                    "
+                >
+
+                    <span
+                        className="
+                            text-[12px]
+                            text-[#6D625C]
+                        "
+                    >
+                        {getShowingText()}
+                    </span>
+
+
+                    {/* PREVIOUS */}
+
+                    <button
+                        type="button"
+                        disabled={
+                            loading ||
+                            page <= 1
+                        }
+                        onClick={
+                            handlePreviousPage
+                        }
+                        className="
+                            text-[#4B2E2A]
+                            transition
+                            hover:text-[#8A4F32]
+                            disabled:cursor-not-allowed
+                            disabled:opacity-30
+                        "
+                    >
+
+                        <HiChevronLeft
+                            size={18}
                         />
 
                     </button>
 
 
-                    {/* PERIOD MENU */}
+                    {/* NEXT */}
 
-                    {showPeriodMenu && (
+                    <button
+                        type="button"
+                        disabled={
+                            loading ||
+                            page >= totalPages
+                        }
+                        onClick={
+                            handleNextPage
+                        }
+                        className="
+                            text-[#4B2E2A]
+                            transition
+                            hover:text-[#8A4F32]
+                            disabled:cursor-not-allowed
+                            disabled:opacity-30
+                        "
+                    >
+
+                        <HiChevronRight
+                            size={18}
+                        />
+
+                    </button>
+
+                </div>
+
+
+                {/* ==========================================
+                    TABLE
+                ========================================== */}
+
+                <div
+                    className="
+                        mt-5
+                        w-full
+                        overflow-hidden
+                        rounded-[15px]
+                        border
+                        border-[#E8DDD6]
+                        bg-white
+                    "
+                >
+
+                    {/* ======================================
+                        TABLE HEADER
+                    ====================================== */}
+
+                    <div
+                        className="
+                            grid
+                            grid-cols-[1.45fr_1.25fr_1.3fr_1.1fr_.65fr_.6fr_.95fr_.6fr]
+                            border-b
+                            border-[#E8DDD6]
+                            bg-[#FFF9F4]
+                        "
+                    >
+
+                        <TableHeader>
+                            Patient Details
+                        </TableHeader>
+
+                        <TableHeader>
+                            Doctor
+                        </TableHeader>
+
+                        <TableHeader>
+                            Date and Time
+                        </TableHeader>
+
+                        <TableHeader>
+                            Appointment Type
+                        </TableHeader>
+
+                        <TableHeader>
+                            Price
+                        </TableHeader>
+
+                        <TableHeader center>
+                            Checked
+                            <br />
+                            in
+                        </TableHeader>
+
+                        <TableHeader center>
+                            Actions
+                        </TableHeader>
+
+                        <TableHeader
+                            center
+                            last
+                        >
+                            Checked
+                            <br />
+                            out
+                        </TableHeader>
+
+                    </div>
+
+
+                    {/* ======================================
+                        LOADING
+                    ====================================== */}
+
+                    {loading ? (
 
                         <div
                             className="
-                                absolute
-                                right-0
-                                top-11
-                                z-50
-                                w-[140px]
-                                overflow-hidden
-                                rounded-xl
-                                border
-                                border-[#E7DBD3]
-                                bg-white
-                                py-1
-                                shadow-lg
+                                py-16
+                                text-center
+                                text-[13px]
+                                text-[#81756E]
                             "
                         >
-
-                            <PeriodButton
-                                label="Today"
-                                value="today"
-                                selected={
-                                    selectedPeriod ===
-                                    "today"
-                                }
-                                onClick={
-                                    handlePeriodChange
-                                }
-                            />
-
-
-                            <PeriodButton
-                                label="This Week"
-                                value="week"
-                                selected={
-                                    selectedPeriod ===
-                                    "week"
-                                }
-                                onClick={
-                                    handlePeriodChange
-                                }
-                            />
-
-
-                            <PeriodButton
-                                label="This Month"
-                                value="month"
-                                selected={
-                                    selectedPeriod ===
-                                    "month"
-                                }
-                                onClick={
-                                    handlePeriodChange
-                                }
-                            />
-
+                            Loading appointments...
                         </div>
+
+                    ) : appointments?.length === 0 ? (
+
+                        <div
+                            className="
+                                py-16
+                                text-center
+                                text-[13px]
+                                text-[#81756E]
+                            "
+                        >
+                            No appointments found.
+                        </div>
+
+                    ) : (
+
+                        appointments.map(
+                            (
+                                appointment,
+                                index
+                            ) => (
+
+                                <AppointmentRow
+                                    key={
+                                        appointment?.appointment_id ||
+                                        appointment?.id ||
+                                        index
+                                    }
+
+                                    appointment={
+                                        appointment
+                                    }
+
+                                    onAddVitals={
+                                        handleAddVitals
+                                    }
+
+                                    onCheckIn={
+                                        handleCheckIn
+                                    }
+
+                                    onCheckOut={
+                                        handleCheckOut
+                                    }
+
+                                    checkInLoading={
+                                        checkingInAppointment &&
+                                        checkInAppointmentId ===
+                                            (
+                                                appointment?.appointment_id ||
+                                                appointment?.id
+                                            )
+                                    }
+
+                                    checkOutLoading={
+                                        checkingOutAppointment &&
+                                        checkOutAppointmentId ===
+                                            (
+                                                appointment?.appointment_id ||
+                                                appointment?.id
+                                            )
+                                    }
+                                />
+
+                            )
+                        )
 
                     )}
 
@@ -466,263 +903,43 @@ const UpcomingAppointmentsList = () => {
 
             </div>
 
-
-            {/* ====================================== */}
-            {/* ERROR */}
-            {/* ====================================== */}
-
-            {error && (
-
-                <div
-                    className="
-                        mt-5
-                        rounded-xl
-                        border
-                        border-red-200
-                        bg-red-50
-                        px-4
-                        py-3
-                        text-[12px]
-                        text-red-600
-                    "
-                >
-                    {typeof error === "string"
-                        ? error
-                        : error?.message ||
-                          "Failed to load appointments."}
-                </div>
-
-            )}
-
-
-            {/* ====================================== */}
-            {/* TOP PAGINATION */}
-            {/* ====================================== */}
-
-            <div
-                className="
-                    mt-7
-                    flex
-                    items-center
-                    justify-end
-                    gap-4
-                "
-            >
-
-                {/* SHOWING */}
-
-                <span
-                    className="
-                        text-[12px]
-                        text-[#6D625C]
-                    "
-                >
-                    {getShowingText()}
-                </span>
-
-
-                {/* PREVIOUS */}
-
-                <button
-                    type="button"
-                    disabled={
-                        loading ||
-                        page <= 1
-                    }
-                    onClick={
-                        handlePreviousPage
-                    }
-                    className="
-                        text-[#4B2E2A]
-                        transition
-                        hover:text-[#8A4F32]
-                        disabled:cursor-not-allowed
-                        disabled:opacity-30
-                    "
-                >
-                    <HiChevronLeft
-                        size={18}
-                    />
-                </button>
-
-
-                {/* NEXT */}
-
-                <button
-                    type="button"
-                    disabled={
-                        loading ||
-                        page >= totalPages
-                    }
-                    onClick={
-                        handleNextPage
-                    }
-                    className="
-                        text-[#4B2E2A]
-                        transition
-                        hover:text-[#8A4F32]
-                        disabled:cursor-not-allowed
-                        disabled:opacity-30
-                    "
-                >
-                    <HiChevronRight
-                        size={18}
-                    />
-                </button>
-
-            </div>
-
-
-            {/* ====================================== */}
-            {/* TABLE */}
-            {/* ====================================== */}
-
-            <div
-                className="
-                    mt-5
-                    overflow-hidden
-                    rounded-[15px]
-                    border
-                    border-[#E8DDD6]
-                    bg-white
-                "
-            >
-
-                {/* ================================== */}
-                {/* TABLE HEADER */}
-                {/* ================================== */}
-
-                <div
-                    className="
-                        grid
-                        grid-cols-[1.35fr_1.25fr_1.25fr_1.05fr_.7fr_.75fr_1fr]
-                        border-b
-                        border-[#E8DDD6]
-                        bg-[#FFF9F4]
-                    "
-                >
-
-                    <TableHeader>
-                        Patient Details
-                    </TableHeader>
-
-
-                    <TableHeader>
-                        Doctor
-                    </TableHeader>
-
-
-                    <TableHeader>
-                        Date and Time
-                    </TableHeader>
-
-
-                    <TableHeader>
-                        Appointment Type
-                    </TableHeader>
-
-
-                    <TableHeader>
-                        Price
-                    </TableHeader>
-
-
-                    <TableHeader>
-                        Status
-                    </TableHeader>
-
-
-                    <TableHeader last>
-                        Actions
-                    </TableHeader>
-
-                </div>
-
-
-                {/* ================================== */}
-                {/* LOADING */}
-                {/* ================================== */}
-
-                {loading ? (
-
-                    <div
-                        className="
-                            py-16
-                            text-center
-                            text-[13px]
-                            text-[#81756E]
-                        "
-                    >
-                        Loading appointments...
-                    </div>
-
-                ) : appointments?.length === 0 ? (
-
-                    <div
-                        className="
-                            py-16
-                            text-center
-                            text-[13px]
-                            text-[#81756E]
-                        "
-                    >
-                        No appointments found.
-                    </div>
-
-                ) : (
-
-                    appointments.map(
-                        (
-                            appointment,
-                            index
-                        ) => (
-
-                            <AppointmentRow
-                                key={
-                                    appointment?.appointment_id ||
-                                    appointment?.id ||
-                                    index
-                                }
-                                appointment={
-                                    appointment
-                                }
-                                onAddVitals={
-                                    handleAddVitals
-                                }
-                            />
-
-                        )
-                    )
-
-                )}
-
-            </div>
-
-        </div>
         </DashboardLayout>
 
     );
+
 };
 
 
-// ==========================================
+
+// ======================================================
 // TABLE HEADER
-// ==========================================
+// ======================================================
 
 const TableHeader = ({
     children,
     last = false,
+    center = false,
 }) => {
 
     return (
 
         <div
             className={`
+                flex
+                min-h-[62px]
+                items-center
                 px-4
                 py-3
                 text-[11px]
                 font-medium
+                leading-4
                 text-[#4B2E2A]
+
+                ${
+                    center
+                        ? "justify-center text-center"
+                        : ""
+                }
 
                 ${
                     !last
@@ -731,58 +948,80 @@ const TableHeader = ({
                 }
             `}
         >
+
             {children}
+
         </div>
 
     );
+
 };
 
 
-// ==========================================
+
+// ======================================================
 // APPOINTMENT ROW
-// ==========================================
+// ======================================================
 
 const AppointmentRow = ({
     appointment,
     onAddVitals,
+    onCheckIn,
+    onCheckOut,
+    checkInLoading,
+    checkOutLoading,
 }) => {
 
-    // ==========================================
+
+    // ==================================================
+    // APPOINTMENT ID
+    // ==================================================
+
+    const appointmentId =
+        appointment?.appointment_id ||
+        appointment?.id;
+
+
+    // ==================================================
     // PATIENT
-    // ==========================================
+    // ==================================================
 
     const patientName =
         appointment?.patient_name ||
+        appointment?.personal_information?.full_name ||
         "-";
 
 
     const patientId =
         appointment?.patient_id ||
         appointment?.patient_code ||
+        appointment?.personal_information?.patient_id ||
         "-";
 
 
-    // ==========================================
+    // ==================================================
     // DOCTOR
-    // ==========================================
+    // ==================================================
 
     const doctorName =
         appointment?.doctor_name ||
+        appointment?.doctor?.name ||
         "-";
 
 
-    // ==========================================
+    // ==================================================
     // DATE
-    // ==========================================
+    // ==================================================
 
     const appointmentDate =
+        appointment?.formatted_date ||
         appointment?.date ||
         "-";
 
 
-    // ==========================================
+    // ==================================================
     // TIME
-    // ==========================================
+    // ==================================================
 
     const appointmentTime =
         appointment?.time ||
@@ -790,68 +1029,81 @@ const AppointmentRow = ({
         "-";
 
 
-    // ==========================================
+    // ==================================================
     // TYPE
-    // ==========================================
+    // ==================================================
 
     const appointmentType =
+        appointment?.appointment_type ||
         appointment?.type ||
         appointment?.medium ||
         "-";
 
 
-    // ==========================================
+    // ==================================================
     // CATEGORY
-    // ==========================================
+    // ==================================================
 
     const appointmentCategory =
         appointment?.category ||
         appointment?.booking_category ||
+        appointment?.appointment_category ||
         "";
 
 
-    // ==========================================
+    // ==================================================
     // PRICE
-    // ==========================================
+    // ==================================================
+
+    const rawPrice =
+        appointment?.price ??
+        appointment?.fee ??
+        appointment?.amount;
+
 
     const price =
         appointment?.price_display ||
         (
-            appointment?.price !== undefined &&
-            appointment?.price !== null &&
-            appointment?.price !== ""
-                ? `₹${appointment.price}`
+            rawPrice !== undefined &&
+            rawPrice !== null &&
+            rawPrice !== ""
+                ? `₹${rawPrice}`
                 : "-"
         );
 
 
-    // ==========================================
-    // STATUS
-    // ==========================================
+    // ==================================================
+    // CHECK-IN
+    // ==================================================
+
+    const isCheckedIn =
+        appointment?.checkin === true ||
+        appointment?.checked_in === true ||
+        appointment?.check_in === true;
 
 
-    const isCompleted =
-     
+    // ==================================================
+    // CHECK-OUT
+    // ==================================================
+
+    const isCheckedOut =
+        appointment?.checkout === true ||
+        appointment?.checked_out === true ||
+        appointment?.check_out === true;
+
+
+    // ==================================================
+    // VITALS
+    // ==================================================
+
+    const isVitalsAdded =
         appointment?.has_vitals === true ||
         appointment?.vitals_status === "completed";
 
 
-    const statusLabel =
-       appointment?.status
-
-
-    // ==========================================
-    // ACTION
-    // ==========================================
-
-    const isVitalsAdded =
-        appointment?.has_vitals === true ||
-        appointment?.vitals_status === "completed"
-
-
     const actionLabel =
         isVitalsAdded
-            ? "Vitals Added"
+            ? "Added Vitals"
             : appointment?.action_label ||
               "+ Add Vitals";
 
@@ -861,29 +1113,29 @@ const AppointmentRow = ({
         <div
             className="
                 grid
-                grid-cols-[1.35fr_1.25fr_1.25fr_1.05fr_.7fr_.75fr_1fr]
+                grid-cols-[1.45fr_1.25fr_1.3fr_1.1fr_.65fr_.6fr_.95fr_.6fr]
                 border-b
                 border-[#EEE4DD]
                 last:border-b-0
             "
         >
 
-            {/* ================================= */}
-            {/* PATIENT DETAILS */}
-            {/* ================================= */}
+            {/* ==========================================
+                PATIENT DETAILS
+            ========================================== */}
 
             <div
                 className="
                     border-r
                     border-[#EEE4DD]
                     px-4
-                    py-3
+                    py-4
                 "
             >
 
                 <p
                     className="
-                        text-[11px]
+                        text-[12px]
                         font-semibold
                         text-[#4B2E2A]
                     "
@@ -891,11 +1143,10 @@ const AppointmentRow = ({
                     {patientName}
                 </p>
 
-
                 <p
                     className="
                         mt-1
-                        text-[9px]
+                        text-[10px]
                         text-[#81756E]
                     "
                 >
@@ -905,9 +1156,9 @@ const AppointmentRow = ({
             </div>
 
 
-            {/* ================================= */}
-            {/* DOCTOR */}
-            {/* ================================= */}
+            {/* ==========================================
+                DOCTOR
+            ========================================== */}
 
             <div
                 className="
@@ -916,13 +1167,13 @@ const AppointmentRow = ({
                     border-r
                     border-[#EEE4DD]
                     px-4
-                    py-3
+                    py-4
                 "
             >
 
                 <span
                     className="
-                        text-[11px]
+                        text-[12px]
                         font-semibold
                         text-[#4B2E2A]
                     "
@@ -933,9 +1184,9 @@ const AppointmentRow = ({
             </div>
 
 
-            {/* ================================= */}
-            {/* DATE AND TIME */}
-            {/* ================================= */}
+            {/* ==========================================
+                DATE AND TIME
+            ========================================== */}
 
             <div
                 className="
@@ -945,13 +1196,13 @@ const AppointmentRow = ({
                     border-r
                     border-[#EEE4DD]
                     px-4
-                    py-3
+                    py-4
                 "
             >
 
                 <p
                     className="
-                        text-[11px]
+                        text-[12px]
                         font-semibold
                         text-[#4B2E2A]
                     "
@@ -959,11 +1210,10 @@ const AppointmentRow = ({
                     {appointmentDate}
                 </p>
 
-
                 <p
                     className="
                         mt-1
-                        text-[9px]
+                        text-[10px]
                         text-[#81756E]
                     "
                 >
@@ -973,9 +1223,9 @@ const AppointmentRow = ({
             </div>
 
 
-            {/* ================================= */}
-            {/* APPOINTMENT TYPE */}
-            {/* ================================= */}
+            {/* ==========================================
+                APPOINTMENT TYPE
+            ========================================== */}
 
             <div
                 className="
@@ -985,13 +1235,13 @@ const AppointmentRow = ({
                     border-r
                     border-[#EEE4DD]
                     px-4
-                    py-3
+                    py-4
                 "
             >
 
                 <p
                     className="
-                        text-[11px]
+                        text-[12px]
                         font-semibold
                         text-[#4B2E2A]
                     "
@@ -999,13 +1249,12 @@ const AppointmentRow = ({
                     {appointmentType}
                 </p>
 
-
                 {appointmentCategory && (
 
                     <p
                         className="
                             mt-1
-                            text-[9px]
+                            text-[10px]
                             text-[#81756E]
                         "
                     >
@@ -1017,9 +1266,9 @@ const AppointmentRow = ({
             </div>
 
 
-            {/* ================================= */}
-            {/* PRICE */}
-            {/* ================================= */}
+            {/* ==========================================
+                PRICE
+            ========================================== */}
 
             <div
                 className="
@@ -1028,67 +1277,72 @@ const AppointmentRow = ({
                     border-r
                     border-[#EEE4DD]
                     px-4
-                    py-3
-                    text-[11px]
+                    py-4
+                    text-[12px]
                     font-semibold
                     text-[#4B2E2A]
                 "
             >
+
                 {price}
-            </div>
-
-
-            {/* ================================= */}
-            {/* STATUS */}
-            {/* ================================= */}
-
-            <div
-                className="
-                    flex
-                    items-center
-                    border-r
-                    border-[#EEE4DD]
-                    px-3
-                    py-3
-                "
-            >
-
-                <span
-                    className={`
-                        inline-flex
-                        items-center
-                        justify-center
-                        rounded-md
-                        px-2.5
-                        py-1
-                        text-[9px]
-                        font-medium
-                        whitespace-nowrap
-
-                        ${
-                            isCompleted
-                                ? "bg-[#E8F8EF] text-[#17824A]"
-                                : "bg-[#FFF3E5] text-[#8A5A2B]"
-                        }
-                    `}
-                >
-                    {statusLabel}
-                </span>
 
             </div>
 
 
-            {/* ================================= */}
-            {/* ACTIONS */}
-            {/* ================================= */}
+            {/* ==========================================
+                CHECKED IN
+            ========================================== */}
 
             <div
                 className="
                     flex
                     items-center
                     justify-center
+                    border-r
+                    border-[#EEE4DD]
+                    px-2
+                    py-4
+                "
+            >
+
+                <CheckButton
+                    checked={
+                        isCheckedIn
+                    }
+
+                    loading={
+                        checkInLoading
+                    }
+
+                    onClick={() =>
+                        onCheckIn(
+                            appointment
+                        )
+                    }
+
+                    label={
+                        isCheckedIn
+                            ? "Checked in"
+                            : "Check in"
+                    }
+                />
+
+            </div>
+
+
+            {/* ==========================================
+                ACTIONS
+            ========================================== */}
+
+            <div
+                className="
+                    flex
+                    items-center
+                    justify-center
+                    border-r
+                    border-[#EEE4DD]
                     px-3
-                    py-3
+                    py-4
                 "
             >
 
@@ -1108,18 +1362,17 @@ const AppointmentRow = ({
                         rounded-full
                         border
                         px-3
-                        py-1.5
-                        text-[9px]
+                        py-2
+                        text-[10px]
                         font-medium
                         transition
 
                         ${
                             isVitalsAdded
                                 ? `
-                                    border-[#E7DBD3]
+                                    border-[#EEE4DD]
                                     bg-white
                                     text-[#B7AAA3]
-                                    cursor-default
                                 `
                                 : `
                                     border-[#E7DBD3]
@@ -1131,14 +1384,13 @@ const AppointmentRow = ({
                     `}
                 >
 
-                    {isVitalsAdded ?? (
+                    {isVitalsAdded && (
 
                         <HiOutlineCheck
-                            size={12}
+                            size={13}
                         />
 
-                    ) }
-
+                    )}
 
                     {actionLabel}
 
@@ -1146,15 +1398,141 @@ const AppointmentRow = ({
 
             </div>
 
+
+            {/* ==========================================
+                CHECKED OUT
+            ========================================== */}
+
+            <div
+                className="
+                    flex
+                    items-center
+                    justify-center
+                    px-2
+                    py-4
+                "
+            >
+
+                <CheckButton
+                    checked={
+                        isCheckedOut
+                    }
+
+                    loading={
+                        checkOutLoading
+                    }
+
+                    onClick={() =>
+                        onCheckOut(
+                            appointment
+                        )
+                    }
+
+                    label={
+                        isCheckedOut
+                            ? "Checked out"
+                            : "Check out"
+                    }
+                />
+
+            </div>
+
         </div>
 
     );
+
 };
 
 
-// ==========================================
+
+// ======================================================
+// CHECK BUTTON
+// ======================================================
+
+const CheckButton = ({
+    checked,
+    loading,
+    onClick,
+    label,
+}) => {
+
+    return (
+
+        <button
+            type="button"
+            onClick={onClick}
+            disabled={
+                checked ||
+                loading
+            }
+            title={label}
+            aria-label={label}
+            className={`
+                flex
+                h-[22px]
+                w-[22px]
+                items-center
+                justify-center
+                rounded-[3px]
+                border
+                transition
+
+                ${
+                    checked
+                        ? `
+                            border-[#542C23]
+                            bg-[#542C23]
+                            text-white
+                        `
+                        : `
+                            border-[#542C23]
+                            bg-white
+                            text-transparent
+                            hover:bg-[#FFF5ED]
+                        `
+                }
+
+                ${
+                    loading
+                        ? "cursor-wait opacity-60"
+                        : ""
+                }
+
+                ${
+                    checked
+                        ? "cursor-default"
+                        : ""
+                }
+            `}
+        >
+
+            {loading ? (
+
+                <HiOutlineArrowPath
+                    size={13}
+                    className="animate-spin"
+                />
+
+            ) : checked ? (
+
+                <HiOutlineCheck
+                    size={14}
+                    strokeWidth={3}
+                />
+
+            ) : null}
+
+        </button>
+
+    );
+
+};
+
+
+
+// ======================================================
 // PERIOD BUTTON
-// ==========================================
+// ======================================================
 
 const PeriodButton = ({
     label,
@@ -1187,17 +1565,14 @@ const PeriodButton = ({
                 }
             `}
         >
+
             {label}
+
         </button>
 
     );
+
 };
-
-
-// ==========================================
-// CAPITALIZE FIRST LETTER
-// ==========================================
-
 
 
 export default UpcomingAppointmentsList;

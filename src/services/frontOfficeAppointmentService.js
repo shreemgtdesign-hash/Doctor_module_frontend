@@ -35,7 +35,9 @@ import {
     getAppointmentReminders,
     createMedicalCamp,
     getOnlineMedicineOrderDetails,
-    getOnlineMedicineOrders
+    getOnlineMedicineOrders,
+    checkOutAppointment,
+    checkInAppointment
 
 } from "../api/frontOfficeAppoinntmentApi";
 import { getMedicalCampDetails } from "../api/frontOfficeDashboardApi";
@@ -547,3 +549,36 @@ export const fetchOnlineMedicineOrderDetails =
 
         return response.data;
     };
+
+    // ==========================================
+// CHECK-IN APPOINTMENT
+// ==========================================
+
+export const fetchCheckInAppointment = async (
+    appointmentId
+) => {
+
+    const response =
+        await checkInAppointment(
+            appointmentId
+        );
+
+    return response.data;
+};
+
+
+// ==========================================
+// CHECK-OUT APPOINTMENT
+// ==========================================
+
+export const fetchCheckOutAppointment = async (
+    appointmentId
+) => {
+
+    const response =
+        await checkOutAppointment(
+            appointmentId
+        );
+
+    return response.data;
+};

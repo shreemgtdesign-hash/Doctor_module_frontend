@@ -38,6 +38,8 @@ import {
     fetchCreateMedicalCamp,
     fetchOnlineMedicineOrderDetails,
     fetchOnlineMedicineOrders,
+    fetchCheckOutAppointment,
+    fetchCheckInAppointment,
 } from "../../services/frontOfficeAppointmentService";
 import { fetchAppointmentConfirmationList } from "../../services/therapistAppointmentsService";
 import { fetchPatientReports } from "../../services/doctorAppointmentService";
@@ -1226,4 +1228,73 @@ export const loadOnlineMedicineOrderDetails =
             }
 
         }
+    );
+
+// ==========================================
+// CHECK-IN APPOINTMENT
+// ==========================================
+
+export const checkInFrontOfficeAppointment =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/checkIn",
+
+        async (
+            appointmentId,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchCheckInAppointment(
+                    appointmentId
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to check in patient."
+                );
+
+            }
+
+        }
+
+    );
+
+
+// ==========================================
+// CHECK-OUT APPOINTMENT
+// ==========================================
+
+export const checkOutFrontOfficeAppointment =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/checkOut",
+
+        async (
+            appointmentId,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchCheckOutAppointment(
+                    appointmentId
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to check out patient."
+                );
+
+            }
+
+        }
+
     );

@@ -38,6 +38,8 @@ import {
     createFrontOfficeMedicalCamp,
     loadOnlineMedicineOrderDetails,
     loadOnlineMedicineOrders,
+    checkOutFrontOfficeAppointment,
+    checkInFrontOfficeAppointment,
 } from "./frontOfficeAppointmentThunk";
 import { loadAssociateDoctorPayoutDetails, loadAssociateDoctorPayouts, loadVisitingDoctorPayoutDetails, loadVisitingDoctorPayouts } from "./frontOfficeBillingThunk";
 
@@ -68,6 +70,18 @@ const initialState = {
     confirmationLoading: false,
     confirmationError: null,
 
+    // ==========================================
+    // CHECK-IN / CHECK-OUT
+    // ==========================================
+
+    checkingInAppointment: false,
+    checkingOutAppointment: false,
+
+    checkInAppointmentId: null,
+    checkOutAppointmentId: null,
+
+    checkInError: null,
+    checkOutError: null,
 
     // ==========================================
     // THERAPY CONFIRMATION
@@ -382,145 +396,268 @@ const frontOfficeAppointmentSlice = createSlice({
         // CONFIRM / LOAD APPOINTMENT CONFIRMATION
         // ==========================================
         // ==========================================
-// ONLINE MEDICINE ORDERS
-// ==========================================
+        // ONLINE MEDICINE ORDERS
+        // ==========================================
 
-builder
+        builder
 
-    .addCase(
-        loadOnlineMedicineOrders.pending,
-        (state) => {
+            .addCase(
+                loadOnlineMedicineOrders.pending,
+                (state) => {
 
-            state.onlineMedicineOrdersLoading = true;
-            state.onlineMedicineOrdersError = null;
+                    state.onlineMedicineOrdersLoading = true;
+                    state.onlineMedicineOrdersError = null;
 
-        }
-    )
+                }
+            )
 
-    .addCase(
-        loadOnlineMedicineOrders.fulfilled,
-        (state, action) => {
+            .addCase(
+                loadOnlineMedicineOrders.fulfilled,
+                (state, action) => {
 
-            state.onlineMedicineOrdersLoading = false;
+                    state.onlineMedicineOrdersLoading = false;
 
-            const response =
-                action.payload || {};
+                    const response =
+                        action.payload || {};
 
-            state.onlineMedicineOrders =
-                Array.isArray(response.data)
-                    ? response.data
-                    : [];
+                    state.onlineMedicineOrders =
+                        Array.isArray(response.data)
+                            ? response.data
+                            : [];
 
-            state.onlineMedicineOrdersTotal =
-                response.total_records ??
-                response.count ??
-                0;
+                    state.onlineMedicineOrdersTotal =
+                        response.total_records ??
+                        response.count ??
+                        0;
 
-            state.onlineMedicineOrdersPagination = {
-                current_page:
-                    response.page || 1,
+                    state.onlineMedicineOrdersPagination = {
+                        current_page:
+                            response.page || 1,
 
-                per_page:
-                    response.limit || 8,
+                        per_page:
+                            response.limit || 8,
 
-                total_items:
-                    response.total_records ??
-                    response.count ??
-                    0,
-
-                total_pages: Math.max(
-                    1,
-                    Math.ceil(
-                        (
+                        total_items:
                             response.total_records ??
                             response.count ??
-                            0
-                        ) /
-                        (
-                            response.limit ||
-                            8
-                        )
-                    )
-                ),
-            };
+                            0,
 
-            state.onlineMedicineOrdersError =
-                null;
+                        total_pages: Math.max(
+                            1,
+                            Math.ceil(
+                                (
+                                    response.total_records ??
+                                    response.count ??
+                                    0
+                                ) /
+                                (
+                                    response.limit ||
+                                    8
+                                )
+                            )
+                        ),
+                    };
 
-        }
-    )
+                    state.onlineMedicineOrdersError =
+                        null;
 
-    .addCase(
-        loadOnlineMedicineOrders.rejected,
-        (state, action) => {
+                }
+            )
 
-            state.onlineMedicineOrdersLoading = false;
+            .addCase(
+                loadOnlineMedicineOrders.rejected,
+                (state, action) => {
 
-            state.onlineMedicineOrdersError =
-                action.payload ||
-                "Failed to load online medicine orders.";
+                    state.onlineMedicineOrdersLoading = false;
 
-            state.onlineMedicineOrders = [];
+                    state.onlineMedicineOrdersError =
+                        action.payload ||
+                        "Failed to load online medicine orders.";
 
-        }
-    );
+                    state.onlineMedicineOrders = [];
+
+                }
+            );
+
+        // ==========================================
+        // CHECK-IN APPOINTMENT
+        // ==========================================
+
+        builder
+
+            .addCase(
+                checkInFrontOfficeAppointment.pending,
+                (
+                    state,
+                    action
+                ) => {
+
+                    state.checkingInAppointment =
+                        true;
+
+                    state.checkInAppointmentId =
+                        action.meta.arg;
+
+                    state.checkInError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                checkInFrontOfficeAppointment.fulfilled,
+                (
+                    state
+                ) => {
+
+                    state.checkingInAppointment =
+                        false;
+
+                    state.checkInAppointmentId =
+                        null;
+
+                    state.checkInError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                checkInFrontOfficeAppointment.rejected,
+                (
+                    state,
+                    action
+                ) => {
+
+                    state.checkingInAppointment =
+                        false;
+
+                    state.checkInAppointmentId =
+                        null;
+
+                    state.checkInError =
+                        action.payload ||
+                        "Failed to check in patient.";
+
+                }
+            )
 
 
-// ==========================================
-// ONLINE MEDICINE ORDER DETAILS
-// ==========================================
+            // ==========================================
+            // CHECK-OUT APPOINTMENT
+            // ==========================================
 
-builder
+            .addCase(
+                checkOutFrontOfficeAppointment.pending,
+                (
+                    state,
+                    action
+                ) => {
 
-    .addCase(
-        loadOnlineMedicineOrderDetails.pending,
-        (state) => {
+                    state.checkingOutAppointment =
+                        true;
 
-            state.onlineMedicineOrderDetailsLoading =
-                true;
+                    state.checkOutAppointmentId =
+                        action.meta.arg;
 
-            state.onlineMedicineOrderDetailsError =
-                null;
+                    state.checkOutError =
+                        null;
 
-            state.onlineMedicineOrderDetails =
-                null;
+                }
+            )
 
-        }
-    )
+            .addCase(
+                checkOutFrontOfficeAppointment.fulfilled,
+                (
+                    state
+                ) => {
 
-    .addCase(
-        loadOnlineMedicineOrderDetails.fulfilled,
-        (state, action) => {
+                    state.checkingOutAppointment =
+                        false;
 
-            state.onlineMedicineOrderDetailsLoading =
-                false;
+                    state.checkOutAppointmentId =
+                        null;
 
-            state.onlineMedicineOrderDetails =
-                action.payload?.data ||
-                null;
+                    state.checkOutError =
+                        null;
 
-            state.onlineMedicineOrderDetailsError =
-                null;
+                }
+            )
 
-        }
-    )
+            .addCase(
+                checkOutFrontOfficeAppointment.rejected,
+                (
+                    state,
+                    action
+                ) => {
 
-    .addCase(
-        loadOnlineMedicineOrderDetails.rejected,
-        (state, action) => {
+                    state.checkingOutAppointment =
+                        false;
 
-            state.onlineMedicineOrderDetailsLoading =
-                false;
+                    state.checkOutAppointmentId =
+                        null;
 
-            state.onlineMedicineOrderDetailsError =
-                action.payload ||
-                "Failed to load medicine order details.";
+                    state.checkOutError =
+                        action.payload ||
+                        "Failed to check out patient.";
 
-            state.onlineMedicineOrderDetails =
-                null;
+                }
+            );
+        // ==========================================
+        // ONLINE MEDICINE ORDER DETAILS
+        // ==========================================
 
-        }
-    )
+        builder
+
+            .addCase(
+                loadOnlineMedicineOrderDetails.pending,
+                (state) => {
+
+                    state.onlineMedicineOrderDetailsLoading =
+                        true;
+
+                    state.onlineMedicineOrderDetailsError =
+                        null;
+
+                    state.onlineMedicineOrderDetails =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                loadOnlineMedicineOrderDetails.fulfilled,
+                (state, action) => {
+
+                    state.onlineMedicineOrderDetailsLoading =
+                        false;
+
+                    state.onlineMedicineOrderDetails =
+                        action.payload?.data ||
+                        null;
+
+                    state.onlineMedicineOrderDetailsError =
+                        null;
+
+                }
+            )
+
+            .addCase(
+                loadOnlineMedicineOrderDetails.rejected,
+                (state, action) => {
+
+                    state.onlineMedicineOrderDetailsLoading =
+                        false;
+
+                    state.onlineMedicineOrderDetailsError =
+                        action.payload ||
+                        "Failed to load medicine order details.";
+
+                    state.onlineMedicineOrderDetails =
+                        null;
+
+                }
+            )
         builder
 
             .addCase(
@@ -2881,4 +3018,44 @@ export const selectHomevisitConfirmationListError =
     (state) =>
         state.frontOfficeAppointment
             ?.homevisitConfirmationListError || null;
+
+
+// ==========================================
+// CHECK-IN / CHECK-OUT SELECTORS
+// ==========================================
+
+export const selectCheckingInAppointment =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.checkingInAppointment || false;
+
+
+export const selectCheckingOutAppointment =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.checkingOutAppointment || false;
+
+
+export const selectCheckInAppointmentId =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.checkInAppointmentId || null;
+
+
+export const selectCheckOutAppointmentId =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.checkOutAppointmentId || null;
+
+
+export const selectCheckInError =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.checkInError || null;
+
+
+export const selectCheckOutError =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.checkOutError || null;
 export default frontOfficeAppointmentSlice.reducer;
