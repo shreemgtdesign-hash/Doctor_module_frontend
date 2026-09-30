@@ -9,7 +9,7 @@ import {
     HiOutlineUserCircle,
 } from "react-icons/hi";
 
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 import {
@@ -90,6 +90,14 @@ const therapistMenu = [
     },
 ];
 
+const dutyDoctorMenu = [
+    {
+        name: "Dashboard",
+        icon: HiHome,
+        path: "/duty-doctor/dashboard",
+    },
+];
+
 
 // ==========================================
 // DOCTOR MENU
@@ -101,56 +109,56 @@ const doctorMenu = [
         icon: HiHome,
         path: "/doctordashboard",
     },
-    {
-        name: "MIS",
-        icon: FaChartBar,
-        path: "/doctor/mis",
-    },
+    // {
+    //     name: "MIS",
+    //     icon: FaChartBar,
+    //     path: "/doctor/mis",
+    // },
     {
         name: "Appointment",
         icon: HiOutlineCalendar,
         path: "/doctor/appointments",
     },
-    {
-        name: "OP",
-        icon: FaUserFriends,
-        path: "/doctor/op",
-    },
-    {
-        name: "IP",
-        icon: FaBed,
-        path: "/doctor/ip",
-    },
-    {
-        name: "My IP",
-        icon: FaHospital,
-        path: "/doctor/my-ip",
-    },
-    {
-        name: "Emergency",
-        icon: FaAmbulance,
-        path: "/doctor/emergency",
-    },
-    {
-        name: "My Emergency",
-        icon: FaExclamationTriangle,
-        path: "/doctor/my-emergency",
-    },
-    {
-        name: "Discharge",
-        icon: FaNotesMedical,
-        path: "/doctor/discharge",
-    },
-    {
-        name: "Support",
-        icon: HiOutlineSupport,
-        path: "/doctor/support",
-    },
-    {
-        name: "Settings",
-        icon: HiOutlineCog,
-        path: "/doctor/settings",
-    },
+    // {
+    //     name: "OP",
+    //     icon: FaUserFriends,
+    //     path: "/doctor/op",
+    // },
+    // {
+    //     name: "IP",
+    //     icon: FaBed,
+    //     path: "/doctor/ip",
+    // },
+    // {
+    //     name: "My IP",
+    //     icon: FaHospital,
+    //     path: "/doctor/my-ip",
+    // },
+    // {
+    //     name: "Emergency",
+    //     icon: FaAmbulance,
+    //     path: "/doctor/emergency",
+    // },
+    // {
+    //     name: "My Emergency",
+    //     icon: FaExclamationTriangle,
+    //     path: "/doctor/my-emergency",
+    // },
+    // {
+    //     name: "Discharge",
+    //     icon: FaNotesMedical,
+    //     path: "/doctor/discharge",
+    // },
+    // {
+    //     name: "Support",
+    //     icon: HiOutlineSupport,
+    //     path: "/doctor/support",
+    // },
+    // {
+    //     name: "Settings",
+    //     icon: HiOutlineCog,
+    //     path: "/doctor/settings",
+    // },
 ];
 
 
@@ -187,7 +195,7 @@ const frontOfficeMenu = [
     {
         name: "Therapies",
         icon: FaHandHoldingMedical,
-        path: "/frontoffice/therapies",
+        path: "/frontoffice/pending-action/therapy-confirmations",
     },
     {
         name: "Referrals",
@@ -209,26 +217,26 @@ const frontOfficeMenu = [
         icon: FaHospital,
         path: "/frontoffice/medcamp-calender",
     },
-    {
-        name: "Medicines",
-        icon: FaMedkit,
-        path: "/frontoffice/medicines",
-    },
-    {
-        name: "Support",
-        icon: HiOutlineSupport,
-        path: "/frontoffice/support",
-    },
-    {
-        name: "Profile",
-        icon: HiOutlineUserCircle,
-        path: "/frontoffice/profile",
-    },
-    {
-        name: "Settings",
-        icon: HiOutlineCog,
-        path: "/frontoffice/settings",
-    },
+    // {
+    //     name: "Medicines",
+    //     icon: FaMedkit,
+    //     path: "/frontoffice/medicines",
+    // },
+    // {
+    //     name: "Support",
+    //     icon: HiOutlineSupport,
+    //     path: "/frontoffice/support",
+    // },
+    // {
+    //     name: "Profile",
+    //     icon: HiOutlineUserCircle,
+    //     path: "/frontoffice/profile",
+    // },
+    // {
+    //     name: "Settings",
+    //     icon: HiOutlineCog,
+    //     path: "/frontoffice/settings",
+    // },
 ];
 
 
@@ -244,6 +252,7 @@ const Sidebar = ({
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
 
 
     // ==========================================
@@ -252,19 +261,35 @@ const Sidebar = ({
 
     let currentMenu = doctorMenu;
 
-    if (role === "frontoffice") {
-        currentMenu = frontOfficeMenu;
-    }
-
-    if (role === "pharmacist") {
-        currentMenu = pharmacistMenu;
-    }
-
-    if (role === "therapist") {
-        currentMenu = therapistMenu;
-    }
-    if (role === "junior-doctor") {
+    if (
+        role === "duty-doctor" ||
+        role === "duty_doctor" ||
+        role === "dutydoctor" ||
+        location.pathname.startsWith("/duty-doctor")
+    ) {
+        currentMenu = dutyDoctorMenu;
+    } else if (
+        role === "junior-doctor" ||
+        role === "junior_doctor" ||
+        role === "juniordoctor" ||
+        location.pathname.startsWith("/junior-doctor")
+    ) {
         currentMenu = juniorDoctor;
+    } else if (
+        role === "frontoffice" ||
+        location.pathname.startsWith("/frontoffice")
+    ) {
+        currentMenu = frontOfficeMenu;
+    } else if (
+        role === "pharmacist" ||
+        location.pathname.startsWith("/pharmacist")
+    ) {
+        currentMenu = pharmacistMenu;
+    } else if (
+        role === "therapist" ||
+        location.pathname.startsWith("/therapist")
+    ) {
+        currentMenu = therapistMenu;
     }
 
 
@@ -354,7 +379,7 @@ const Sidebar = ({
                         className="
                             flex
                             h-[60px]
-                            w-[180px]
+                            w-[230px]
                             shrink-0
                             items-center
                             overflow-hidden
