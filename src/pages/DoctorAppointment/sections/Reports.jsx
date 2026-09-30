@@ -250,7 +250,7 @@ const Reports = ({
                     min-h-0
                     flex-1
                     overflow-y-auto
-                    px-7
+                    
                     
                     scrollbar-thin
                     scrollbar-thumb-[#E7D8CE]

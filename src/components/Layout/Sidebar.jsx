@@ -167,7 +167,7 @@ const frontOfficeMenu = [
     {
         name: "Appointments",
         icon: HiOutlineCalendar,
-        path: "/frontoffice/appointments",
+        path: "/frontoffice/upcoming-appointments",
     },
     {
         name: "Patients",
@@ -364,8 +364,7 @@ const Sidebar = ({
                             src={hospitalLogo}
                             alt="Shree Ayurvedic Hospital"
                             className="
-                                h-full
-                                w-full
+
                                 object-contain
                             "
                         />

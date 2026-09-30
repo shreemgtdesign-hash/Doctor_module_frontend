@@ -16,6 +16,8 @@ import {
     showSuccessToast,
     showErrorToast,
 } from "../../../../utils/showToast";
+import { HiOutlineArrowLeft } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -96,7 +98,7 @@ const AppointmentReminders = () => {
             showSuccessToast(
                 "Reminder Sent",
                 response?.message ||
-                    "Appointment reminder sent successfully!"
+                "Appointment reminder sent successfully!"
             );
 
         } catch (error) {
@@ -109,8 +111,8 @@ const AppointmentReminders = () => {
             showErrorToast(
                 "Reminder Failed",
                 error?.message ||
-                    error?.detail ||
-                    "Failed to send appointment reminder."
+                error?.detail ||
+                "Failed to send appointment reminder."
             );
         }
     };
@@ -141,7 +143,7 @@ const AppointmentReminders = () => {
 
     };
 
-
+    const navigate = useNavigate()
     // ==========================================
     // FORMAT DATE
     // ==========================================
@@ -189,41 +191,42 @@ const AppointmentReminders = () => {
                 {/* BREADCRUMB */}
                 {/* ================================= */}
 
-                <div
-                    className="
-                        mb-5
-                        flex
-                        items-center
-                        gap-2
-                        text-[14px]
-                    "
-                >
+                <div className="mb-5 flex items-center gap-3">
 
-                    <span
+                    <button
+                        type="button"
+                        onClick={() => navigate("/frontoffice/dashboard")}
                         className="
-                            font-medium
-                            text-[#8A7A72]
-                        "
+      flex
+      h-10
+      w-10
+      items-center
+      justify-center
+      rounded-xl
+      border
+      border-[#E7DBD3]
+      bg-white
+      text-[#59352C]
+      transition
+      hover:bg-[#FFF3E8]
+      hover:border-[#C9A995]
+    "
+                        title="Back"
+                    >
+                        <HiOutlineArrowLeft
+                            size={20}
+                        />
+                    </button>
+
+                    <h2
+                        className="
+      text-[20px]
+      font-semibold
+      text-[#4B2E2A]
+    "
                     >
                         Pending Actions
-                    </span>
-
-                    <span
-                        className="
-                            text-[#B5A9A3]
-                        "
-                    >
-                        /
-                    </span>
-
-                    <span
-                        className="
-                            font-semibold
-                            text-[#4B2E2A]
-                        "
-                    >
-                        Appointment Reminders
-                    </span>
+                    </h2>
 
                 </div>
 
@@ -308,7 +311,7 @@ const AppointmentReminders = () => {
 
                                 {Math.min(
                                     startIndex +
-                                        ITEMS_PER_PAGE,
+                                    ITEMS_PER_PAGE,
                                     totalItems
                                 )}
 
@@ -464,8 +467,8 @@ const AppointmentReminders = () => {
                         {!appointmentRemindersLoading &&
                             appointmentRemindersError && (
 
-                            <div
-                                className="
+                                <div
+                                    className="
                                     flex
                                     h-[300px]
                                     items-center
@@ -473,11 +476,11 @@ const AppointmentReminders = () => {
                                     text-[13px]
                                     text-red-500
                                 "
-                            >
-                                Failed to load appointment reminders.
-                            </div>
+                                >
+                                    Failed to load appointment reminders.
+                                </div>
 
-                        )}
+                            )}
 
 
                         {/* ================================= */}
@@ -488,8 +491,8 @@ const AppointmentReminders = () => {
                             !appointmentRemindersError &&
                             currentItems.length === 0 && (
 
-                            <div
-                                className="
+                                <div
+                                    className="
                                     flex
                                     h-[300px]
                                     items-center
@@ -497,11 +500,11 @@ const AppointmentReminders = () => {
                                     text-[13px]
                                     text-[#8A7A72]
                                 "
-                            >
-                                No appointment reminders found.
-                            </div>
+                                >
+                                    No appointment reminders found.
+                                </div>
 
-                        )}
+                            )}
 
 
                         {/* ================================= */}
@@ -522,11 +525,11 @@ const AppointmentReminders = () => {
                                     const isSending =
                                         sendingReminder &&
                                         sendingReminderType ===
-                                            "appointment" &&
+                                        "appointment" &&
                                         String(
                                             sendingReminderId
                                         ) ===
-                                            String(item.id);
+                                        String(item.id);
 
 
                                     return (
@@ -689,8 +692,8 @@ const AppointmentReminders = () => {
                                                     {isSending
                                                         ? "Sending..."
                                                         : isCompleted
-                                                        ? "Sent"
-                                                        : "Send"}
+                                                            ? "Sent"
+                                                            : "Send"}
                                                 </button>
 
                                             </div>
@@ -752,10 +755,9 @@ const StatusBadge = ({
             py-1
             text-[10px]
             font-medium
-            ${
-                completed
-                    ? "bg-[#E8F7EC] text-[#28723D]"
-                    : "bg-[#FFF1E5] text-[#94613E]"
+            ${completed
+                ? "bg-[#E8F7EC] text-[#28723D]"
+                : "bg-[#FFF1E5] text-[#94613E]"
             }
         `}
     >

@@ -110,7 +110,7 @@ const Referrals = () => {
             "
             onClick={() =>
                 navigate(
-                    "/frontoffice/insurance-list"
+                    "/frontoffice/referral-list"
                 )
             }
         >

@@ -341,7 +341,7 @@ const Header = ({
         flex
         border-b
         border-[#E4D9C580]
-        h-18
+        h-16
         sm:h-20
         lg:h-24
         items-center

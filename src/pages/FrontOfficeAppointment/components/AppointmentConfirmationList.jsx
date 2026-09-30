@@ -12,6 +12,7 @@ import {
 } from "react-router-dom";
 
 import {
+    HiOutlineArrowLeft,
     HiOutlineArrowRight,
     HiOutlineClock,
 } from "react-icons/hi2";
@@ -89,59 +90,98 @@ const AppointmentConfirmationList = () => {
                 {/* HEADER */}
                 {/* ========================================= */}
 
-                <div
-                    className="
-                        mb-5
-                        flex
-                        items-center
-                        justify-between
-                    "
-                >
+                {/* ========================================= */}
+{/* HEADER */}
+{/* ========================================= */}
 
-                    <div>
+<div
+    className="
+        mb-5
+        flex
+        items-center
+        justify-between
+    "
+>
 
-                        <div
-                            className="
-                                flex
-                                items-center
-                                gap-3
-                            "
-                        >
+    <div>
 
-                            <h1
-                                className="
-                                    text-[21px]
-                                    font-semibold
-                                    text-[#2F2926]
-                                "
-                            >
-                                Pending Actions
-                            </h1>
+        <div
+            className="
+                flex
+                items-center
+                gap-3
+            "
+        >
 
-                            <span
-                                className="
-                                    text-[22px]
-                                    text-[#8A817B]
-                                "
-                            >
-                                ›
-                            </span>
+            {/* BACK BUTTON */}
 
-                            <h2
-                                className="
-                                    text-[21px]
-                                    font-semibold
-                                    text-[#2F2926]
-                                "
-                            >
-                                Appointment Confirmation
-                            </h2>
+            <button
+                type="button"
+                onClick={() => navigate("/frontoffice/dashboard")}
+                className="
+                    flex
+                    h-9
+                    w-9
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-[#E7D7C8]
+                    bg-white
+                    text-[#59352C]
+                    transition
+                    hover:bg-[#FFF4EA]
+                    hover:border-[#C9A995]
+                "
+                title="Back"
+            >
 
-                        </div>
+                <HiOutlineArrowLeft
+                    size={18}
+                />
 
-                    </div>
+            </button>
 
-                </div>
+
+            {/* TITLE */}
+
+            <h1
+                className="
+                    text-[21px]
+                    font-semibold
+                    text-[#2F2926]
+                "
+            >
+                Pending Actions
+            </h1>
+
+
+            <span
+                className="
+                    text-[22px]
+                    text-[#8A817B]
+                "
+            >
+                ›
+            </span>
+
+
+            <h2
+                className="
+                    text-[21px]
+                    font-semibold
+                    text-[#2F2926]
+                "
+            >
+                Appointment Confirmation
+            </h2>
+
+        </div>
+
+    </div>
+
+</div>
 
 
                 {/* ========================================= */}

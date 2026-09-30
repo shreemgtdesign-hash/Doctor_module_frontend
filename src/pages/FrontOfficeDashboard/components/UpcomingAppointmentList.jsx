@@ -34,6 +34,7 @@ import {
     selectFrontOfficeUpcomingAppointmentsTotalPages,
     selectFrontOfficeUpcomingAppointmentsShowing,
 } from "../../../redux/frontOffice/frontOfficeAppointmentSlice";
+import DashboardLayout from "../../../components/Layout/DashboardLayout";
 
 
 const UpcomingAppointmentsList = () => {
@@ -263,6 +264,7 @@ const UpcomingAppointmentsList = () => {
 
 
     return (
+        <DashboardLayout role="frontoffice">
 
         <div
             className="
@@ -697,6 +699,7 @@ const UpcomingAppointmentsList = () => {
             </div>
 
         </div>
+        </DashboardLayout>
 
     );
 };

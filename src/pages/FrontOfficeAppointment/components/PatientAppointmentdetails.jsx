@@ -25,6 +25,7 @@ import {
     createFrontOfficePatientReport,
     
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
+import DashboardLayout from "../../../components/Layout/DashboardLayout";
 
 
 const PatientAppointmentDetails = () => {
@@ -690,7 +691,7 @@ const PatientAppointmentDetails = () => {
     // ==========================================
 
     return (
-
+<DashboardLayout role="frontoffice">
         <div
             className="
                 min-h-screen
@@ -1274,6 +1275,7 @@ const PatientAppointmentDetails = () => {
             </Section>
 
         </div>
+        </DashboardLayout>
 
     );
 };
