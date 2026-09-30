@@ -154,7 +154,13 @@ const DoctorAppointment = () => {
             <div className="
                 min-h-screen
                 bg-[#F7F7F7]
-                p-8
+                px-4
+                sm:px-6
+                lg:px-8
+                py-6
+                w-full
+                max-w-[1720px]
+                mx-auto
             ">
 
                 {/* ================================= */}
@@ -177,7 +183,9 @@ const DoctorAppointment = () => {
                 <div className="
                     mt-6
                     grid
-                    grid-cols-[430px_1fr]
+                    grid-cols-1
+                    lg:grid-cols-[390px_1fr]
+                    xl:grid-cols-[430px_1fr]
                     gap-5
                 ">
 

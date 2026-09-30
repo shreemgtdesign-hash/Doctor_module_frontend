@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from "framer-motion";
 
 import {
     HiHome,
@@ -289,323 +288,251 @@ const Sidebar = ({
 
 
     return (
-
-        <AnimatePresence>
-
+        <>
+            {/* ================================= */}
+            {/* OVERLAY (Mobile/Tablet only) */}
+            {/* ================================= */}
             {isOpen && (
+                <div
+                    onClick={() => setIsOpen(false)}
+                    className="
+                        fixed
+                        inset-0
+                        z-40
+                        bg-black/40
+                        backdrop-blur-[2px]
+                        transition-opacity
+                        duration-300
+                        lg:hidden
+                    "
+                />
+            )}
 
-                <>
+            {/* ================================= */}
+            {/* FIXED SIDEBAR */}
+            {/* ================================= */}
+            <aside
+                className={`
+                    fixed
+                    left-0
+                    top-0
+                    bottom-0
+                    z-50
+                    flex
+                    h-screen
+                    w-[280px]
+                    flex-col
+                    bg-white
+                    border-r
+                    border-[#EFE4DC]
+                    shadow-[4px_0_24px_rgba(70,40,25,0.06)]
+                    transition-transform
+                    duration-300
+                    ease-in-out
+                    ${isOpen ? "translate-x-0" : "-translate-x-full"}
+                `}
+            >
 
-                    {/* ================================= */}
-                    {/* OVERLAY */}
-                    {/* ================================= */}
+                {/* ================================= */}
+                {/* LOGO + CLOSE BUTTON */}
+                {/* ================================= */}
+                <div
+                    className="
+                        relative
+                        flex
+                        h-[88px]
+                        shrink-0
+                        items-center
+                        justify-between
+                        px-4
+                        border-b
+                        border-[#EFE4DC]
+                    "
+                >
 
-                    <motion.div
-                        onClick={() =>
-                            setIsOpen(false)
-                        }
-                        initial={{
-                            opacity: 0,
-                        }}
-                        animate={{
-                            opacity: 0.45,
-                        }}
-                        exit={{
-                            opacity: 0,
-                        }}
-                        transition={{
-                            duration: 0.25,
-                        }}
+                    <div
                         className="
-                            fixed
-                            inset-0
-                            z-40
-                            bg-black/30
-                        "
-                    />
-
-
-                    {/* ================================= */}
-                    {/* SIDEBAR */}
-                    {/* ================================= */}
-
-                    <motion.aside
-                        initial={{
-                            x: -420,
-                        }}
-                        animate={{
-                            x: 0,
-                        }}
-                        exit={{
-                            x: -420,
-                        }}
-                        transition={{
-                            duration: 0.35,
-                            ease: "easeOut",
-                        }}
-                        className="
-                            fixed
-                            left-0
-                            top-0
-                            z-50
                             flex
-                            h-screen
-                            w-[360px]
-                            flex-col
+                            h-[60px]
+                            w-[180px]
+                            shrink-0
+                            items-center
                             overflow-hidden
-                            rounded-tr-[34px]
-                            rounded-br-[34px]
-                            bg-white
-                            shadow-[0_10px_35px_rgba(0,0,0,0.12)]
+                        "
+                    >
+                        <img
+                            src={hospitalLogo}
+                            alt="Shree Ayurvedic Hospital"
+                            className="
+                                h-full
+                                w-full
+                                object-contain
+                            "
+                        />
+                    </div>
+
+                    {/* CLOSE BUTTON */}
+                    {/* <button
+                        type="button"
+                        onClick={() => setIsOpen(false)}
+                        aria-label="Close Sidebar"
+                        title="Close Sidebar"
+                        className="
+                            flex
+                            h-9
+                            w-9
+                            items-center
+                            justify-center
+                            rounded-xl
+                            bg-[#FFF6F1]
+                            text-[#6A3F2D]
+                            hover:bg-[#FFEADA]
+                            transition-colors
+                        "
+                    >
+                        <HiChevronLeft size={20} />
+                    </button> */}
+
+                </div>
+
+
+                {/* ================================= */}
+                {/* MENU */}
+                {/* ================================= */}
+                <div
+                    className="
+                        flex-1
+                        overflow-y-auto
+                        px-3
+                        py-4
+                        hide-scrollbar
+                    "
+                >
+
+                    <nav
+                        className="
+                            flex
+                            flex-col
+                            gap-1.5
                         "
                     >
 
-                        {/* ================================= */}
-                        {/* LOGO */}
-                        {/* ================================= */}
+                        {currentMenu.map((item) => {
+                            const Icon = item.icon;
 
-                        <div
-                            className="
-                                relative
-                                flex
-                                h-[105px]
-                                shrink-0
-                                items-center
-                                px-2
-                            "
-                        >
-
-                            <div
-                                className="
-                                    flex
-                                    h-[105px]
-                                    w-[230px]
-                                    shrink-0
-                                    items-center
-                                    justify-center
-                                    overflow-hidden
-                                    rounded-lg
-                                    bg-white
-                                "
-                            >
-
-                                <img
-                                    src={hospitalLogo}
-                                    alt="Shree Ayurvedic Hospital"
-                                    className="
-                                        h-full
-                                        w-full
-                                        object-contain
-                                    "
-                                />
-
-                            </div>
-
-
-                            {/* CLOSE */}
-
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setIsOpen(false)
-                                }
-                                className="
-                                    absolute
-                                    right-0
-                                    top-0
-                                    flex
-                                    h-[72px]
-                                    w-[72px]
-                                    items-center
-                                    justify-center
-                                    rounded-bl-[30px]
-                                    bg-[#FFF6F1]
-                                "
-                            >
-
-                                <HiChevronLeft
-                                    size={24}
-                                    className="
-                                        text-[#6A3F2D]
-                                    "
-                                />
-
-                            </button>
-
-                        </div>
-
-
-                        {/* ================================= */}
-                        {/* MENU */}
-                        {/* ================================= */}
-
-                        <div
-                            className="
-                                flex-1
-                                overflow-y-auto
-                                px-7
-                                pt-6
-                                pb-4
-                                hide-scrollbar
-                            "
-                        >
-
-                            <nav
-                                className="
-                                    flex
-                                    flex-col
-                                "
-                            >
-
-                                {currentMenu.map(
-                                    (item) => {
-
-                                        const Icon =
-                                            item.icon;
-
-                                        return (
-
-                                            <NavLink
-                                                key={
-                                                    item.name
-                                                }
-                                                to={
-                                                    item.path
-                                                }
-                                                onClick={() =>
-                                                    setIsOpen(
-                                                        false
-                                                    )
-                                                }
-                                            >
-
-                                                {({
-                                                    isActive,
-                                                }) => (
-
-                                                    <div
-                                                        className={`
-                                                            mb-4
-                                                            flex
-                                                            h-14
-                                                            w-full
-                                                            items-center
-                                                            rounded-[20px]
-                                                            px-5
-                                                            transition-all
-                                                            duration-200
-
-                                                            ${
-                                                                isActive
-                                                                    ? "border border-[#6A3F2D] bg-[#FFF9F5]"
-                                                                    : "hover:bg-[#FAF7F4]"
-                                                            }
-                                                        `}
-                                                    >
-
-                                                        <Icon
-                                                            size={
-                                                                24
-                                                            }
-                                                            className="
-                                                                shrink-0
-                                                                text-[#6A3F2D]
-                                                            "
-                                                        />
-
-
-                                                        <span
-                                                            className="
-                                                                ml-4
-                                                                text-[18px]
-                                                                font-medium
-                                                                text-[#4D2E23]
-                                                            "
-                                                        >
-                                                            {
-                                                                item.name
-                                                            }
-                                                        </span>
-
-                                                    </div>
-
-                                                )}
-
-                                            </NavLink>
-
-                                        );
-
-                                    }
-                                )}
-
-                            </nav>
-
-                        </div>
-
-
-                        {/* ================================= */}
-                        {/* LOGOUT */}
-                        {/* ================================= */}
-
-                        <div
-                            className="
-                                shrink-0
-                                border-t
-                                border-[#EFE4DC]
-                                bg-white
-                                px-7
-                                py-5
-                            "
-                        >
-
-                            <button
-                                type="button"
-                                onClick={
-                                    handleLogout
-                                }
-                                className="
-                                    flex
-                                    h-14
-                                    w-full
-                                    items-center
-                                    rounded-[20px]
-                                    px-5
-                                    text-[#B42318]
-                                    transition-all
-                                    duration-200
-                                    hover:bg-[#FFF1F0]
-                                "
-                            >
-
-                                <HiOutlineLogout
-                                    size={24}
-                                    className="
-                                        text-[#B42318]
-                                    "
-                                />
-
-                                <span
-                                    className="
-                                        ml-4
-                                        text-[18px]
-                                        font-medium
-                                    "
+                            return (
+                                <NavLink
+                                    key={item.name}
+                                    to={item.path}
+                                    onClick={() => {
+                                        if (
+                                            typeof window !== "undefined" &&
+                                            window.innerWidth < 1024
+                                        ) {
+                                            setIsOpen(false);
+                                        }
+                                    }}
                                 >
-                                    Logout
-                                </span>
+                                    {({ isActive }) => (
+                                        <div
+                                            className={`
+                                                flex
+                                                h-11
+                                                w-full
+                                                items-center
+                                                rounded-xl
+                                                px-3.5
+                                                transition-all
+                                                duration-200
+                                                ${
+                                                    isActive
+                                                        ? "border border-[#7A4933] bg-[#FFF5ED] text-[#7A4933] font-semibold shadow-xs"
+                                                        : "text-[#5B3428] hover:bg-[#FAF4EF] font-medium"
+                                                }
+                                            `}
+                                        >
+                                            <Icon
+                                                size={20}
+                                                className={`
+                                                    shrink-0
+                                                    ${
+                                                        isActive
+                                                            ? "text-[#7A4933]"
+                                                            : "text-[#7D6B63]"
+                                                    }
+                                                `}
+                                            />
 
-                            </button>
+                                            <span
+                                                className="
+                                                    ml-3
+                                                    text-[14px]
+                                                    truncate
+                                                "
+                                            >
+                                                {item.name}
+                                            </span>
+                                        </div>
+                                    )}
+                                </NavLink>
+                            );
+                        })}
 
-                        </div>
+                    </nav>
 
-                    </motion.aside>
+                </div>
 
-                </>
 
-            )}
+                {/* ================================= */}
+                {/* LOGOUT */}
+                {/* ================================= */}
+                <div
+                    className="
+                        shrink-0
+                        border-t
+                        border-[#EFE4DC]
+                        bg-white
+                        px-3
+                        py-3.5
+                    "
+                >
 
-        </AnimatePresence>
+                    <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="
+                            flex
+                            h-11
+                            w-full
+                            items-center
+                            rounded-xl
+                            px-3.5
+                            text-[#B42318]
+                            transition-all
+                            duration-200
+                            hover:bg-[#FFF1F0]
+                            font-medium
+                        "
+                    >
+                        <HiOutlineLogout
+                            size={20}
+                            className="shrink-0 text-[#B42318]"
+                        />
 
+                        <span
+                            className="
+                                ml-3
+                                text-[14px]
+                            "
+                        >
+                            Logout
+                        </span>
+                    </button>
+
+                </div>
+
+            </aside>
+        </>
     );
 };
 

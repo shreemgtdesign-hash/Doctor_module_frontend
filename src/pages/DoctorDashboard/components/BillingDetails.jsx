@@ -35,21 +35,21 @@ const BillingDetails = () => {
   };
 
   return (
-    <DashboardCard className="p-6">
+    <DashboardCard className="p-5 sm:p-6 hover:shadow-md transition-all">
 
       {/* ===================================== */}
       {/* HEADER */}
       {/* ===================================== */}
 
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-5 sm:mb-6 flex items-center justify-between">
 
         <div>
 
-          <h2 className="text-[28px] font-semibold text-[#4B2E2A]">
+          <h2 className="text-[18px] sm:text-[20px] font-semibold text-[#4B2E2A] tracking-tight">
             Billing Details
           </h2>
 
-          <p className="mt-1 text-[15px] text-[#8A756B]">
+          <p className="mt-1 text-[12px] sm:text-[13px] text-[#8A756B]">
             Weekly Revenue Summary
           </p>
 
@@ -58,17 +58,24 @@ const BillingDetails = () => {
         <div
           className="
             flex
-            h-14
-            w-14
+            h-12
+            w-12
+            sm:h-13
+            sm:w-13
             items-center
             justify-center
             rounded-2xl
             bg-[#FFF4EB]
+            border
+            border-[#FFE8D6]
+            text-[#D48A43]
+            shrink-0
           "
         >
 
           <FaWallet
-            className="text-2xl text-[#D48A43]"
+            size={22}
+            className="text-[#D48A43]"
           />
 
         </div>

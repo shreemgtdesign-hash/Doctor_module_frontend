@@ -7,12 +7,13 @@ const DashboardCard = ({
         <div
             onClick={onClick}
             className={`
-                m-2
-                rounded-[22px]
+                rounded-[20px]
                 border
                 border-[#E8D7CC]
                 bg-white
-                shadow-[0_2px_10px_rgba(0,0,0,0.03)]
+                shadow-[0_2px_12px_rgba(90,50,35,0.04)]
+                transition-all
+                duration-200
                 ${className}
             `}
         >

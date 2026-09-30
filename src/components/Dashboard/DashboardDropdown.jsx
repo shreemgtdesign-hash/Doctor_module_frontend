@@ -104,11 +104,14 @@ const DashboardDropdown = ({
                 }
                 className="
                     flex
-                    h-[40px]
-                    min-w-[145px]
+                    h-[36px]
+                    sm:h-[40px]
+                    min-w-[115px]
+                    sm:min-w-[140px]
                     items-center
                     justify-between
-                    gap-2
+                    gap-1.5
+                    sm:gap-2
 
                     rounded-[12px]
 
@@ -117,9 +120,11 @@ const DashboardDropdown = ({
 
                     bg-[#FFFCF9]
 
-                    px-4
+                    px-2.5
+                    sm:px-4
 
-                    text-[13px]
+                    text-[12px]
+                    sm:text-[13px]
                     font-medium
                     text-[#59352C]
 

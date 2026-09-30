@@ -193,9 +193,9 @@ const AilmentsAddressed = () => {
       onClick={() =>
         navigate("/doctor/ailments-addressed")
       }
-      className="cursor-pointer"
+      className="cursor-pointer h-full"
     >
-      <DashboardCard className="p-5">
+      <DashboardCard className="p-5 sm:p-6 hover:shadow-md transition-all h-full flex flex-col justify-between">
 
         {/* ======================================
             HEADER
@@ -203,36 +203,38 @@ const AilmentsAddressed = () => {
 
         <div className="flex items-center justify-between">
 
-          <h2 className="text-[18px] font-semibold text-[#4B2E2A]">
+          <h2 className="text-[17px] sm:text-[18px] font-semibold text-[#4B2E2A] tracking-tight">
             Ailments Addressed
           </h2>
 
-          <DashboardDropdown
-            value={period}
-            options={[
-              {
-                label: "Today",
-                value: "today",
-              },
-              {
-                label: "This Week",
-                value: "week",
-              },
-              {
-                label: "This Month",
-                value: "month",
-              },
-            ]}
-            onChange={setPeriod}
-          />
+          <div onClick={(e) => e.stopPropagation()}>
+            <DashboardDropdown
+              value={period}
+              options={[
+                {
+                  label: "Today",
+                  value: "today",
+                },
+                {
+                  label: "This Week",
+                  value: "week",
+                },
+                {
+                  label: "This Month",
+                  value: "month",
+                },
+              ]}
+              onChange={setPeriod}
+            />
+          </div>
 
         </div>
 
         {/* ======================================
-            CARDS
+            CARDS GRID
         ====================================== */}
 
-        <div className="mt-5 grid grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-2.5 sm:gap-3 flex-1">
 
           {ailmentsList.map((item) => {
 
@@ -244,24 +246,32 @@ const AilmentsAddressed = () => {
                 key={item.key}
                 className="
                   relative
-                  h-[128px]
-                  rounded-[18px]
+                  min-h-[105px]
+                  sm:min-h-[114px]
+                  rounded-2xl
                   border
                   border-[#EFE4DC]
-                  bg-white
-                  p-4
+                  bg-[#FDFAF7]
+                  hover:bg-[#FFF8F2]
+                  hover:border-[#DFC4B2]
+                  transition-all
+                  p-3
+                  sm:p-3.5
+                  flex
+                  flex-col
+                  justify-between
                 "
               >
 
                 {/* Name */}
 
-                <p className="text-[15px] font-medium text-[#4D2E23]">
+                <p className="text-[13px] sm:text-[14px] font-semibold text-[#5B3428] truncate pr-2">
                   {item.title}
                 </p>
 
                 {/* Count */}
 
-                <p className="mt-3 text-[28px] font-bold leading-none text-[#4D2E23]">
+                <p className="text-[24px] sm:text-[26px] font-bold leading-none text-[#4A2818]">
                   {count}
                 </p>
 
@@ -273,12 +283,15 @@ const AilmentsAddressed = () => {
                     bottom-3
                     right-3
                     flex
-                    h-11
-                    w-11
+                    h-9
+                    w-9
+                    sm:h-10
+                    sm:w-10
                     items-center
                     justify-center
-                    rounded-[13px]
+                    rounded-xl
                     bg-[#FFF0E3]
+                    text-[#6A3F2D]
                   "
                 >
                   {item.icon}

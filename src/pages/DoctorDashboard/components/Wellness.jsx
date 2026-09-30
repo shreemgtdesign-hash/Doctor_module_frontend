@@ -43,7 +43,7 @@ const Wellness = () => {
       }
       className="cursor-pointer"
     >
-      <DashboardCard className="px-5 pt-5 pb-4 hover:shadow-md transition-all">
+      <DashboardCard className="p-5 sm:p-6 hover:shadow-md transition-all">
 
         {/* ================================= */}
         {/* HEADER */}
@@ -51,7 +51,7 @@ const Wellness = () => {
 
         <div className="flex items-center justify-between">
 
-          <h2 className="text-[18px] font-semibold text-[#4B2E2A]">
+          <h2 className="text-[17px] sm:text-[18px] font-semibold text-[#4B2E2A] tracking-tight">
             Wellness
           </h2>
 
@@ -92,15 +92,15 @@ const Wellness = () => {
         {/* CONTENT */}
         {/* ================================= */}
 
-        <div className="mt-5 flex items-start justify-between">
+        <div className="mt-4 flex items-center justify-between">
 
           <div>
 
-            <h1 className="text-[28px] font-bold leading-none text-[#4B2E2A]">
+            <h1 className="text-[28px] sm:text-[32px] font-bold leading-none text-[#4B2E2A]">
               {wellness?.total_consultations ?? 0}
             </h1>
 
-            <p className="mt-2 text-[12px] text-[#7D726B]">
+            <p className="mt-1.5 text-[12px] sm:text-[13px] font-medium text-[#7D726B]">
               Total Consultations{" "}
               {wellness?.period
                 ? ` - ${wellness.period}`
@@ -109,13 +109,13 @@ const Wellness = () => {
 
           </div>
 
-          {/* Wellness Icon */}
+          {/* Wellness Icon Badge */}
 
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#FFF4EC]">
+          <div className="flex h-12 w-12 sm:h-13 sm:w-13 items-center justify-center rounded-2xl bg-[#FFF4EB] border border-[#FFE8D6] text-[#D48A43] shrink-0">
 
             <HiOutlineHeart
-              size={40}
-              className="text-[#E4C08D]"
+              size={26}
+              className="text-[#D48A43]"
             />
 
           </div>

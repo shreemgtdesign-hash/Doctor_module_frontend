@@ -29,7 +29,7 @@ useEffect(() => {
 
 }, [dispatch, period]);
   return (
-    <DashboardCard className="px-5 pt-5 pb-3">
+    <DashboardCard className="p-5 sm:p-6 hover:shadow-md transition-all">
 
       <div
         onClick={() => navigate("/doctor/appointments")}
@@ -39,43 +39,45 @@ useEffect(() => {
 
         <div className="flex items-center justify-between">
 
-          <h2 className="text-[18px] font-semibold text-[#4B2E2A]">
+          <h2 className="text-[17px] sm:text-[18px] font-semibold text-[#4B2E2A] tracking-tight">
             Schedule Overview
           </h2>
 
-          <DashboardDropdown
-            value={period}
-            options={[
-              { label: "Today", value: "today" },
-              { label: "This Week", value: "week" },
-              { label: "This Month", value: "month" },
-            ]}
-            onChange={setPeriod}
-          />
+          <div onClick={(e) => e.stopPropagation()}>
+            <DashboardDropdown
+              value={period}
+              options={[
+                { label: "Today", value: "today" },
+                { label: "This Week", value: "week" },
+                { label: "This Month", value: "month" },
+              ]}
+              onChange={setPeriod}
+            />
+          </div>
 
         </div>
 
-        {/* Main */}
+        {/* Main KPI */}
 
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between">
 
           <div>
 
-            <h1 className="text-[28px] font-bold leading-none text-[#4B2E2A]">
+            <h1 className="text-[28px] sm:text-[32px] font-bold leading-none text-[#4B2E2A]">
               {overview?.total_appointments ?? 0}
             </h1>
 
-            <p className="mt-1 text-[12px] text-[#7D726B]">
+            <p className="mt-1.5 text-[12px] sm:text-[13px] font-medium text-[#7D726B]">
               Total Appointments
             </p>
 
           </div>
 
-          <div className="flex h-10 w-10 items-center justify-center">
+          <div className="flex h-12 w-12 sm:h-13 sm:w-13 items-center justify-center rounded-2xl bg-[#FFF4EB] border border-[#FFE8D6] text-[#D48A43] shrink-0">
 
             <FaRegCalendarAlt
-              size={26}
-              className="text-[#E4C08D]"
+              size={24}
+              className="text-[#D48A43]"
             />
 
           </div>
@@ -84,32 +86,43 @@ useEffect(() => {
 
         {/* Divider */}
 
-        <div className="my-2 border-t border-[#EFE4DC]" />
+        <div className="my-3 sm:my-3.5 border-t border-[#EFE4DC]" />
 
-        {/* Stats */}
+        {/* Stats Breakdown */}
 
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-3 sm:gap-y-0">
 
-          <StatsCard
-            title="In-Person"
-            value={overview?.in_person ?? 0}
-          />
+          <div className="border-r border-[#EFE4DC]">
+            <StatsCard
+              title="In-Person"
+              value={overview?.in_person ?? 0}
+              border={false}
+            />
+          </div>
 
-          <StatsCard
-            title="Video Appts."
-            value={overview?.video_appts ?? 0}
-          />
+          <div className="sm:border-r border-[#EFE4DC]">
+            <StatsCard
+              title="Video Appts."
+              value={overview?.video_appts ?? 0}
+              border={false}
+            />
+          </div>
 
-          <StatsCard
-            title="Home Visits"
-            value={overview?.home_visits ?? 0}
-          />
+          <div className="border-r border-[#EFE4DC]">
+            <StatsCard
+              title="Home Visits"
+              value={overview?.home_visits ?? 0}
+              border={false}
+            />
+          </div>
 
-          <StatsCard
-            title="Follow-Ups"
-            value={overview?.follow_ups ?? 0}
-            border={false}
-          />
+          <div>
+            <StatsCard
+              title="Follow-Ups"
+              value={overview?.follow_ups ?? 0}
+              border={false}
+            />
+          </div>
 
         </div>
 

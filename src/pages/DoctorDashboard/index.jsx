@@ -18,9 +18,12 @@ const DoctorDashboard = () => {
     return (
         <DashboardLayout role="doctor">
 
-            <div className="space-y-6">
+            <div className="w-full px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 max-w-[1680px] mx-auto">
 
-                <div className="m-5 grid grid-cols-2 gap-5">
+                {/* ================================= */}
+                {/* TOP CARDS: SCHEDULE, CONSULTATION, WELLNESS, BEAUTY */}
+                {/* ================================= */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 lg:gap-6">
 
                     <ScheduleOverview
                         period={period}
@@ -39,11 +42,18 @@ const DoctorDashboard = () => {
                         period={period}
                     />
 
+                </div>
+
+                {/* ================================= */}
+                {/* AILMENTS & THERAPIES/MEDICINES */}
+                {/* ================================= */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 lg:gap-6 items-stretch">
+
                     <AilmentsAddressed
                         period={period}
                     />
 
-                    <div className="space-y-4">
+                    <div className="flex flex-col gap-4 sm:gap-5 lg:gap-6 justify-between">
 
                         <TherapiesPrescribed
                             period={period}
@@ -57,7 +67,12 @@ const DoctorDashboard = () => {
 
                 </div>
 
-                <BillingDetails />
+                {/* ================================= */}
+                {/* BILLING DETAILS */}
+                {/* ================================= */}
+                <div className="w-full">
+                    <BillingDetails />
+                </div>
 
             </div>
 

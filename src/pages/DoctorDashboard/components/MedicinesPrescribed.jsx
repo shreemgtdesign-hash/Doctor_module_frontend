@@ -78,7 +78,7 @@ const MedicinesPrescribed = () => {
       }
       className="cursor-pointer"
     >
-      <DashboardCard className="px-5 pt-5 pb-3">
+      <DashboardCard className="p-5 sm:p-6 hover:shadow-md transition-all">
 
         {/* ================================= */}
         {/* HEADER */}
@@ -86,32 +86,30 @@ const MedicinesPrescribed = () => {
 
         <div className="flex items-center justify-between">
 
-          <h2 className="
-            text-[18px]
-            font-semibold
-            text-[#4B2E2A]
-          ">
+          <h2 className="text-[17px] sm:text-[18px] font-semibold text-[#4B2E2A] tracking-tight">
             Medicines Prescribed
           </h2>
 
-          <DashboardDropdown
-            value={period}
-            options={[
-              {
-                label: "Today",
-                value: "today",
-              },
-              {
-                label: "This Week",
-                value: "week",
-              },
-              {
-                label: "This Month",
-                value: "month",
-              },
-            ]}
-            onChange={setPeriod}
-          />
+          <div onClick={(e) => e.stopPropagation()}>
+            <DashboardDropdown
+              value={period}
+              options={[
+                {
+                  label: "Today",
+                  value: "today",
+                },
+                {
+                  label: "This Week",
+                  value: "week",
+                },
+                {
+                  label: "This Month",
+                  value: "month",
+                },
+              ]}
+              onChange={setPeriod}
+            />
+          </div>
 
         </div>
 
@@ -120,29 +118,15 @@ const MedicinesPrescribed = () => {
         {/* TOTAL MEDICINES */}
         {/* ================================= */}
 
-        <div className="
-          mt-4
-          flex
-          items-start
-          justify-between
-        ">
+        <div className="mt-4 flex items-center justify-between">
 
           <div>
 
-            <h1 className="
-              text-[28px]
-              font-bold
-              leading-none
-              text-[#4B2E2A]
-            ">
+            <h1 className="text-[28px] sm:text-[32px] font-bold leading-none text-[#4B2E2A]">
               {totalMedicines}
             </h1>
 
-            <p className="
-              mt-2
-              text-[12px]
-              text-[#7D726B]
-            ">
+            <p className="mt-1.5 text-[12px] sm:text-[13px] font-medium text-[#7D726B]">
               Total Medicines
             </p>
 
@@ -151,18 +135,11 @@ const MedicinesPrescribed = () => {
 
           {/* MEDICINE ICON */}
 
-          <div className="
-            flex
-            h-[76px]
-            w-[76px]
-            items-center
-            justify-center
-            mr-1
-          ">
+          <div className="flex h-12 w-12 sm:h-13 sm:w-13 items-center justify-center rounded-2xl bg-[#FFF4EB] border border-[#FFE8D6] text-[#D48A43] shrink-0">
 
             <FaCapsules
-              size={48}
-              className="text-[#E4C08D]"
+              size={24}
+              className="text-[#D48A43]"
             />
 
           </div>
@@ -174,22 +151,14 @@ const MedicinesPrescribed = () => {
         {/* DIVIDER */}
         {/* ================================= */}
 
-        <div className="
-          mt-4
-          border-t
-          border-[#EFE4DC]
-        " />
+        <div className="my-3 sm:my-3.5 border-t border-[#EFE4DC]" />
 
 
         {/* ================================= */}
         {/* MANUFACTURER BREAKDOWN */}
         {/* ================================= */}
 
-        <div className="
-          mt-3
-          grid
-          grid-cols-2
-        ">
+        <div className="grid grid-cols-2">
 
           {/* IN-HOUSE */}
 
@@ -201,23 +170,27 @@ const MedicinesPrescribed = () => {
             border-r
             border-[#EFE4DC]
             pr-4
-            mt-4
+            py-1
           ">
 
             <p className="
               text-center
-              text-[17px]
-              font-medium
-              text-[#4B2E2A]
+              text-[11px]
+              sm:text-[12px]
+              font-semibold
+              uppercase
+              tracking-wider
+              text-[#7D6B63]
             ">
               In-house Manufactures
             </p>
 
             <p className="
-              mt-2
-              text-[16px]
+              mt-1
+              text-[18px]
+              sm:text-[20px]
               font-bold
-              leading-none
+              leading-tight
               text-[#4B2E2A]
             ">
               {inHouseManufactures}
@@ -234,22 +207,27 @@ const MedicinesPrescribed = () => {
             items-center
             justify-center
             pl-4
+            py-1
           ">
 
             <p className="
               text-center
-              text-[17px]
-              font-medium
-              text-[#4B2E2A]
+              text-[11px]
+              sm:text-[12px]
+              font-semibold
+              uppercase
+              tracking-wider
+              text-[#7D6B63]
             ">
               Other Manufacturers
             </p>
 
             <p className="
-              mt-2
-              text-[16px]
+              mt-1
+              text-[18px]
+              sm:text-[20px]
               font-bold
-              leading-none
+              leading-tight
               text-[#4B2E2A]
             ">
               {otherManufacturers}

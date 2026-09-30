@@ -7,7 +7,7 @@ import {
 import {
   HiOutlineBell,
   HiOutlineChevronRight,
-
+  HiOutlineChevronLeft,
 } from "react-icons/hi";
 
 import {
@@ -23,6 +23,7 @@ import { isNotificationForRole, getActiveRole } from "../../utils/notificationFi
 
 const Header = ({
   setSidebarOpen,
+  sidebarOpen,
   role,
 }) => {
 
@@ -338,14 +339,18 @@ const Header = ({
     <header
       className="
         flex
-        border
+        border-b
         border-[#E4D9C580]
-        h-24
+        h-18
+        sm:h-20
+        lg:h-24
         items-center
         justify-between
         bg-[#FFF8F2]
-        pr-5
+        pr-3
+        sm:pr-5
         shadow-sm
+        w-full
       "
     >
 
@@ -357,31 +362,54 @@ const Header = ({
         className="
           flex
           items-center
-          gap-5
+          gap-2.5
+          sm:gap-4
+          lg:gap-5
+          min-w-0
         "
       >
 
-        {/* Sidebar Button */}
+        {/* Sidebar Toggle Button */}
 
         <button
           type="button"
-          onClick={() =>
-            setSidebarOpen(true)
-          }
+          onClick={() => {
+            if (typeof setSidebarOpen === "function") {
+              setSidebarOpen((prev) => !prev);
+            }
+          }}
+          aria-label={sidebarOpen ? "Close Sidebar" : "Open Sidebar"}
+          title={sidebarOpen ? "Collapse Sidebar" : "Open Sidebar"}
           className="
             flex
-            h-14
-            w-14
+            h-10
+            w-10
+            sm:h-12
+            sm:w-12
+            shrink-0
             items-center
             justify-center
-            rounded-r-3xl
+            rounded-r-xl
+            sm:rounded-r-2xl
             bg-[#FFEAD8]
+            text-[#6A3F2D]
+            hover:bg-[#FFDFC4]
+            transition-colors
+            duration-200
           "
         >
 
-          <HiOutlineChevronRight
-            size={28}
-          />
+          {sidebarOpen ? (
+            <HiOutlineChevronLeft
+              size={20}
+              className="sm:w-6 sm:h-6"
+            />
+          ) : (
+            <HiOutlineChevronRight
+              size={20}
+              className="sm:w-6 sm:h-6"
+            />
+          )}
 
         </button>
 
@@ -394,7 +422,9 @@ const Header = ({
           className="
             flex
             items-center
-            gap-4
+            gap-2.5
+            sm:gap-4
+            min-w-0
           "
         >
 
@@ -402,8 +432,12 @@ const Header = ({
 
           <div
             className="
-              h-16
-              w-16
+              h-10
+              w-10
+              sm:h-12
+              sm:w-12
+              lg:h-14
+              lg:w-14
               shrink-0
               overflow-hidden
               rounded-full
@@ -459,13 +493,17 @@ const Header = ({
 
           {/* Header Text */}
 
-          <div>
+          <div className="min-w-0">
 
             <p
               className="
-                text-xs
+                hidden
+                md:block
+                text-[10px]
+                sm:text-xs
                 uppercase
-                tracking-[3px]
+                tracking-[2px]
+                sm:tracking-[3px]
                 text-gray-500
               "
             >
@@ -473,7 +511,20 @@ const Header = ({
             </p>
 
             <h1
-              className="text-3xl"
+              className="
+                text-sm
+                sm:text-lg
+                md:text-xl
+                lg:text-2xl
+                font-semibold
+                text-[#4B2E2A]
+                truncate
+                max-w-[160px]
+                xs:max-w-[220px]
+                sm:max-w-[320px]
+                md:max-w-[420px]
+                lg:max-w-none
+              "
               style={{
                 fontFamily:
                   "Playfair Display",
@@ -571,9 +622,13 @@ const Header = ({
             className="
               absolute
               right-0
-              top-[68px]
+              top-[56px]
+              sm:top-[64px]
               z-50
-              w-[420px]
+              w-[calc(100vw-24px)]
+              xs:w-[360px]
+              sm:w-[420px]
+              max-w-[420px]
               overflow-hidden
               rounded-2xl
               border
