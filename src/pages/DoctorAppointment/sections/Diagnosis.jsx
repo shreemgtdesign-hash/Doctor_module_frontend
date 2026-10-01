@@ -552,37 +552,28 @@ const Diagnosis = ({
         <div className="mt-8">
 
           <SpeechToTextTextarea
-            rows={6}
-            value={notes}
-            onChange={(e) => {
+    rows={6}
+    value={notes}
+    onChange={(value) => {
+        setNotes(value);
 
-              setNotes(e.target.value);
-
-              if (e.target.value.trim()) {
-                setValidationErrors((prev) => ({
-                  ...prev,
-                  notes: "",
-                }));
-              }
-
-            }}
-            placeholder="Enter diagnosis notes..."
-
-            textareaClassName={`
-    rounded-[22px]
-    border
-    bg-white
-    p-5
-    text-[16px]
-    text-[#4D2E23]
-    placeholder:text-[#8B7A70]
-
-    ${validationErrors.notes
-                ? "border-red-500 focus:border-red-500"
-                : "border-[#DDD0C8] focus:border-[#8B573D]"
-              }
-  `}
-          />
+        if (value.trim()) {
+            setValidationErrors((prev) => ({
+                ...prev,
+                notes: "",
+            }));
+        }
+    }}
+    placeholder="Enter diagnosis notes..."
+    className={`
+        w-full
+        ${
+            validationErrors.notes
+                ? "border-red-500"
+                : ""
+        }
+    `}
+/>
 
           {validationErrors.notes && (
             <p className="mt-2 text-sm font-medium text-red-500">
@@ -603,16 +594,14 @@ const Diagnosis = ({
           </h3>
 
           <SpeechToTextTextarea
-            rows={5}
-            value={differentialDiagnosis}
-            onChange={(e) =>
-              setDifferentialDiagnosis(e.target.value)
-            }
-            placeholder="Enter Diagnosis Notes"
-
-            className="mt-5"
-
-            textareaClassName="
+  rows={5}
+  value={differentialDiagnosis}
+  onChange={(value) =>
+    setDifferentialDiagnosis(value)
+  }
+  placeholder="Enter Diagnosis Notes"
+  className="mt-5"
+  textareaClassName="
     rounded-[22px]
     border
     border-[#DDD0C8]
@@ -623,7 +612,7 @@ const Diagnosis = ({
     placeholder:text-[#8B7A70]
     focus:border-[#8B573D]
   "
-          />
+/>
 
           {/* Edit / Save - matching the existing design style */}
 
