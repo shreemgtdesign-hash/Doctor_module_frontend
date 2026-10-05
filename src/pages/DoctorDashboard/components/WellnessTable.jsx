@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import {
   loadWellnessSummaryList,
 } from "../../../redux/dashboard/dashboardThunk";
+import DashboardLayout from "../../../components/Layout/DashboardLayout";
 
 
 const WellnessTable = () => {
@@ -111,7 +112,9 @@ const WellnessTable = () => {
 
 
   return (
-
+<>
+ <DashboardLayout role="doctor"
+  >
     <div
       className="
         min-h-screen
@@ -551,6 +554,8 @@ const WellnessTable = () => {
       </div>
 
     </div>
+    </DashboardLayout>
+    </>
 
   );
 };
@@ -594,7 +599,6 @@ const HeaderCell = ({
 const BodyCell = ({
   children,
 }) => (
-
   <div
     className="
       flex

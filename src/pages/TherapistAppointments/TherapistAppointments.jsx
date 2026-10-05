@@ -24,6 +24,7 @@ import {
     completeTherapistAppointments,
     updateTherapistAppointmentStatusThunk,
 } from "../../redux/therapist/therapistThunk";
+import DashboardLayout from "../../components/Layout/DashboardLayout";
 
 
 const TherapistAppointments = () => {
@@ -421,6 +422,8 @@ useEffect(() => {
     // ==========================================
 
     return (
+        <>
+        <DashboardLayout role="therapist">
 
         <div
             className="
@@ -1408,6 +1411,8 @@ useEffect(() => {
             </div>
 
         </div>
+        </DashboardLayout>
+        </>
 
     );
 

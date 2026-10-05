@@ -16,7 +16,7 @@ const tabs = [
     },
     {
         label: "Diagnosis Completed",
-        value: "basic_diagous_complete",
+        value: "basic_diagnosis_complete",
     },
 ];
 

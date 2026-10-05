@@ -616,104 +616,18 @@ const Diagnosis = ({
 
           {/* Edit / Save - matching the existing design style */}
 
-          <div className="mt-4 flex items-center justify-end gap-7">
-
-            <button
-              type="button"
-              onClick={() =>
-                setDifferentialDiagnosis(
-                  initialDifferentialDiagnosis
-                )
-              }
-              className="
-                flex
-                items-center
-                gap-2
-                text-[17px]
-                font-medium
-                text-[#8B573D]
-                hover:text-[#6F4632]
-              "
-            >
-              <span className="text-[20px]">
-                ✎
-              </span>
-
-              Edit
-            </button>
-
-            <button
-              type="button"
-              onClick={async () => {
-                if (!appointmentId) return;
-
-                try {
-                  setIsSaving(true);
-
-                  const payload = {
-                    diagnosis: notes,
-
-                    differential_diagnosis:
-                      differentialDiagnosis,
-
-                    category:
-                      selectedDiagnosis[0] || "",
-                  };
-
-                  await dispatch(
-                    saveDiagnosisThunk({
-                      appointmentId,
-                      payload,
-                    })
-                  ).unwrap();
-
-                  setInitialDiagnosis([
-                    ...selectedDiagnosis,
-                  ]);
-
-                  setInitialNotes(notes);
-
-                  setInitialDifferentialDiagnosis(
-                    differentialDiagnosis
-                  );
-                } catch (error) {
-                  console.error(
-                    "Failed to save differential diagnosis:",
-                    error
-                  );
-                } finally {
-                  setIsSaving(false);
-                }
-              }}
-              disabled={isSaving}
-              className="
-                flex
-                items-center
-                gap-2
-                text-[17px]
-                font-medium
-                text-[#B8A9A2]
-                hover:text-[#8B573D]
-                disabled:cursor-not-allowed
-                disabled:opacity-60
-              "
-            >
-              <span className="text-[20px]">
-                ▣
-              </span>
-
-              Save
-            </button>
-
-          </div>
+          
 
         </div>
 
         {/* ================================================= */}
         {/* Diagnosis Search */}
         {/* ================================================= */}
-
-        <div className="relative mt-8">
+          <h2 className="text-[24px] font-bold mt-2 text-[#4D2E23]">
+              Speciality
+             
+            </h2>
+        <div className="relative mt-6">
 
           <input
             value={search}

@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import {
   loadMedicinesPrescribedList,
 } from "../../../redux/dashboard/dashboardThunk";
+import DashboardLayout from "../../../components/Layout/DashboardLayout";
 
 
 const MedicinePrescribedTable = () => {
@@ -142,7 +143,7 @@ const MedicinePrescribedTable = () => {
   // ==========================================
 
   return (
-
+<DashboardLayout role="doctor">
     <div
       className="
         min-h-screen
@@ -738,6 +739,7 @@ const MedicinePrescribedTable = () => {
       </div>
 
     </div>
+    </DashboardLayout>
   );
 };
 

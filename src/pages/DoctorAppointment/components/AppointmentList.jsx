@@ -317,56 +317,71 @@ const AppointmentList = ({
   // ==========================================
   // AUTO SELECT FIRST PATIENT
   // ==========================================
+// ==========================================
+// AUTO SELECT FIRST PATIENT
+// ==========================================
 
-  useEffect(() => {
+useEffect(() => {
 
+    // Wait until the current API request finishes.
+    // This prevents selecting stale appointments
+    // from the previous period.
+    if (loading) {
+        return;
+    }
+
+    // No appointments for the current period.
     if (!appointments.length) {
-      return;
+        return;
     }
 
     const selectedStillExists =
-      appointments.some(
-        (patient) =>
-          patient.id ===
-          selectedPatient?.id
-      );
+        appointments.some(
+            (patient) =>
+                patient.id ===
+                selectedPatient?.id
+        );
 
-    // ========================================
-    // DON'T CHANGE CURRENT PATIENT
-    // ========================================
-
+    // Keep the current patient if they
+    // still exist in the current appointment list.
     if (selectedStillExists) {
-      return;
+        return;
     }
 
     // ========================================
-    // SELECT FIRST PATIENT
+    // AUTO SELECT FIRST PATIENT
     // ========================================
 
     const firstPatient =
-      appointments[0];
+        appointments[0];
 
     dispatch(
-      setSelectedPatient(
-        firstPatient
-      )
+        setSelectedPatient(
+            firstPatient
+        )
     );
+
+    // ========================================
+    // LOAD PATIENT DETAILS
+    // ========================================
 
     if (firstPatient.patient_id) {
 
-      dispatch(
-        loadPatientDetails(
-          firstPatient.patient_id
-        )
-      );
+        dispatch(
+            loadPatientDetails(
+                firstPatient.patient_id
+            )
+        );
 
     }
 
-  }, [
+}, [
     appointments,
+    loading,
     dispatch,
     selectedPatient?.id,
-  ]);
+]);
+
 
   // ==========================================
   // TOTAL DISPLAYED PATIENTS

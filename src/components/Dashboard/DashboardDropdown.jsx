@@ -106,25 +106,29 @@ const DashboardDropdown = ({
                     flex
                     h-[36px]
                     sm:h-[40px]
+
                     min-w-[115px]
                     sm:min-w-[140px]
+
                     items-center
                     justify-between
+
                     gap-1.5
                     sm:gap-2
 
                     rounded-[12px]
 
                     border
-                    border-[#E7D8CC]
+                    border-[#E4D9C5]
 
-                    bg-[#FFFCF9]
+                    bg-[linear-gradient(90deg,#FFFDFB_0%,#F8F2EB_70%,#E4D9C5_9x0%)]
 
                     px-2.5
                     sm:px-4
 
                     text-[12px]
                     sm:text-[13px]
+
                     font-medium
                     text-[#59352C]
 
@@ -132,9 +136,10 @@ const DashboardDropdown = ({
 
                     outline-none
 
-                    transition
+                    transition-all
+                    duration-200
 
-                    hover:bg-[#FFF6EE]
+                    hover:shadow-[0_2px_8px_rgba(90,50,35,0.08)]
                 "
             >
 
@@ -205,7 +210,7 @@ const DashboardDropdown = ({
                         rounded-[12px]
 
                         border
-                        border-[#E7D8CC]
+                        border-[#E4D9C5]
 
                         bg-white
 
@@ -228,6 +233,7 @@ const DashboardDropdown = ({
                                         item.value
                                     }
                                     type="button"
+
                                     onClick={() => {
 
                                         onChange(
@@ -239,6 +245,7 @@ const DashboardDropdown = ({
                                         );
 
                                     }}
+
                                     className={`
                                         block
                                         w-full
@@ -254,7 +261,7 @@ const DashboardDropdown = ({
                                         ${
                                             isActive
                                                 ? `
-                                                    bg-[#FFF0E2]
+                                                    bg-[linear-gradient(90deg,#FFFDFB_0%,#F8F2EB_40%,#E4D9C5_100%)]
                                                     font-semibold
                                                     text-[#59352C]
                                                 `
@@ -287,6 +294,5 @@ const DashboardDropdown = ({
 
     );
 };
-
 
 export default DashboardDropdown;

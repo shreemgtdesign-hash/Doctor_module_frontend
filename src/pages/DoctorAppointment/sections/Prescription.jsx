@@ -75,13 +75,11 @@ const Prescription = ({
     const [showSearch, setShowSearch] =
         useState(false);
 
-    const [editing, setEditing] =
-        useState(false);
+
 
     const [editableMedicines,
         setEditableMedicines] =
         useState([]);
-    const [backupMedicines, setBackupMedicines] = useState([]);
     const [hasExistingPrescription, setHasExistingPrescription] =
         useState(false);
 
@@ -155,7 +153,7 @@ const Prescription = ({
 
     // ALWAYS clear previous patient UI first
     setEditableMedicines([]);
-    setBackupMedicines([]);
+    
     setDeletedMedicines([]);
 
     setHasExistingPrescription(false);
@@ -201,7 +199,7 @@ const Prescription = ({
     // No consultation selected
     if (!activeConsultationId) {
         setEditableMedicines([]);
-        setBackupMedicines([]);
+        ([]);
         setHasExistingPrescription(false);
         setSpecialInstructions("");
         setReviewDate("");
@@ -221,7 +219,7 @@ const Prescription = ({
         );
 
         setEditableMedicines([]);
-        setBackupMedicines([]);
+        ([]);
         setDeletedMedicines([]);
 
         setHasExistingPrescription(false);
@@ -250,7 +248,7 @@ const Prescription = ({
         );
 
         setEditableMedicines([]);
-        setBackupMedicines([]);
+        ([]);
         setDeletedMedicines([]);
 
         setHasExistingPrescription(false);
@@ -342,7 +340,7 @@ const Prescription = ({
         JSON.parse(JSON.stringify(cloned))
     );
 
-    setBackupMedicines(
+    (
         JSON.parse(JSON.stringify(cloned))
     );
 
@@ -722,7 +720,7 @@ useEffect(() => {
                 )
             );
 
-            setEditing(false);
+           
 
             // Go to next section
             onContinue?.();
@@ -941,29 +939,6 @@ useEffect(() => {
                     Prescription List
                 </h2>
 
-                <button
-
-                    onClick={() => {
-                        if (!editing) {
-                            setBackupMedicines(
-                                JSON.parse(JSON.stringify(editableMedicines))
-                            );
-                            setEditing(true);
-                        } else {
-                            setEditableMedicines(
-                                JSON.parse(JSON.stringify(backupMedicines))
-                            );
-                            setEditing(false);
-                        }
-                    }}
-                    className={`flex items-center gap-2 text-[15px] font-semibold${hasExistingPrescription
-                        ? "text-[#4D2E23]"
-                        : "text-gray-400 cursor-not-allowed"}
-`}
-                >
-                    <HiOutlinePencilSquare size={18} />
-                    {editing ? "Cancel" : "Edit"}
-                </button>
 
             </div>
 
@@ -1075,7 +1050,7 @@ useEffect(() => {
 
                         <button
                             type="button"
-                            disabled={!editing}
+                           
                             onClick={() =>
                                 setOpenDoctorDropdown(
                                     openDoctorDropdown === index
@@ -1148,7 +1123,7 @@ useEffect(() => {
 
 
                         {/* DOCTOR DROPDOWN MENU */}
-                        {editing &&
+                        {
                             openDoctorDropdown === index && (
                                 <div
                                     className="
@@ -1373,7 +1348,7 @@ useEffect(() => {
                                 medicine.morning ??
                                 0
                             }
-                            disabled={!editing}
+                            
                             onChange={(e) =>
                                 updateMedicine(
                                     index,
@@ -1414,7 +1389,7 @@ useEffect(() => {
                                 medicine.afternoon ??
                                 0
                             }
-                            disabled={!editing}
+                            
                             onChange={(e) =>
                                 updateMedicine(
                                     index,
@@ -1455,7 +1430,7 @@ useEffect(() => {
                                 medicine.evening ??
                                 0
                             }
-                            disabled={!editing}
+                            
                             onChange={(e) =>
                                 updateMedicine(
                                     index,
@@ -1496,7 +1471,7 @@ useEffect(() => {
                                 medicine.night ??
                                 0
                             }
-                            disabled={!editing}
+                            
                             onChange={(e) =>
                                 updateMedicine(
                                     index,
@@ -1574,7 +1549,7 @@ useEffect(() => {
                                 medicine.duration ||
                                 "30 Days"
                             }
-                            disabled={!editing}
+                            
                             onChange={(e) =>
                                 updateMedicine(
                                     index,
@@ -1658,7 +1633,7 @@ useEffect(() => {
                             medicine.food ||
                             "Before Food"
                         }
-                        disabled={!editing}
+                        
                         onChange={(e) =>
                             updateMedicine(
                                 index,
