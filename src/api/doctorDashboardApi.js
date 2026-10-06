@@ -1,6 +1,6 @@
 import api from "./axios";
 
-// Schedule Overview
+// Appointments
 export const getScheduleOverview = (period) =>
   api.get(
     `/doctor-dashboard/schedule-overview?period=${period}`

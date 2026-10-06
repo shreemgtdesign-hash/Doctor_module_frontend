@@ -80,7 +80,7 @@ const JuniorDoctorScheduleOverview = () => {
             <div className="flex items-center justify-between">
 
                 <h2 className="text-[21px] font-semibold text-[#4B2E2A]">
-                    Schedule Overview
+                    Appointments
                 </h2>
 
                 <DashboardDropdown

@@ -40,7 +40,7 @@ useEffect(() => {
         <div className="flex items-center justify-between">
 
           <h2 className="text-[17px] sm:text-[18px] font-semibold text-[#4B2E2A] tracking-tight">
-            Schedule Overview
+            Appointments
           </h2>
 
           <div onClick={(e) => e.stopPropagation()}>

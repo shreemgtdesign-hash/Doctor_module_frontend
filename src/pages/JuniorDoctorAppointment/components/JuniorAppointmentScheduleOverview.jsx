@@ -94,7 +94,7 @@ const JuniorAppointmentScheduleOverview = ({
                         text-[#4B2E2A]
                     "
                 >
-                    Schedule Overview
+                    Appointments
                 </h2>
 
 

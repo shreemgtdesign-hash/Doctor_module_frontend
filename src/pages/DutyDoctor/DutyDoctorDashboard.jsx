@@ -529,7 +529,7 @@ const painAssessmentData = painAssessments || {};
                                 font-semibold
                                 text-[#4D2E23]
                             ">
-                                    Schedule Overview
+                                    Appointments
                                 </h2>
 
 

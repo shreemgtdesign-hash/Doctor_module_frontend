@@ -16,7 +16,7 @@ const ScheduleOverview = ({ overview, period, setPeriod, }) => {
             <div  className=" flex items-center justify-between">
 
                 <h2 className="text-[24px] font-bold text-[#4D2E23]">
-                    Schedule Overview
+                    Appointments
                 </h2>
 
                 <button
