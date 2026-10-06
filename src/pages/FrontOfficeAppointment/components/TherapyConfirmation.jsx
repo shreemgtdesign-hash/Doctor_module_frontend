@@ -31,6 +31,7 @@ import {
     loadFrontOfficeTherapyAppointmentConfirmation,
     loadTherapistList,
     selectFrontOfficeTherapist,
+    rescheduleFrontOfficeTherapyAppointment,
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 import { showErrorToast, showSuccessToast } from "../../../../utils/showToast";
 
@@ -91,6 +92,14 @@ const TherapyConfirmation = () => {
         selectedTherapists,
         setSelectedTherapists,
     ] = useState({});
+
+    // ==========================================
+    // DRAG AND DROP STATE
+    // ==========================================
+
+    const [draggedItem, setDraggedItem] = useState(null);
+    const [dragOverTime, setDragOverTime] = useState(null);
+    const [isReschedulingLocal, setIsReschedulingLocal] = useState(false);
 
     // ==========================================
     // LOAD THERAPY CONFIRMATION
@@ -203,6 +212,269 @@ const TherapyConfirmation = () => {
             })
         );
 
+    };
+
+
+    // ==========================================
+    // DRAG GRIP ICON
+    // ==========================================
+
+    const DragGripIcon = () => (
+        <div
+            className="mr-1 flex flex-shrink-0 cursor-grab items-center px-1 text-[#A8988B] transition-colors hover:text-[#4D2E23] active:cursor-grabbing"
+            title="Drag to reschedule appointment to another time"
+        >
+            <svg
+                width="8"
+                height="14"
+                viewBox="0 0 8 14"
+                fill="currentColor"
+                className="opacity-70 transition-opacity group-hover:opacity-100"
+            >
+                <circle cx="2" cy="2" r="1.2" />
+                <circle cx="6" cy="2" r="1.2" />
+                <circle cx="2" cy="7" r="1.2" />
+                <circle cx="6" cy="7" r="1.2" />
+                <circle cx="2" cy="12" r="1.2" />
+                <circle cx="6" cy="12" r="1.2" />
+            </svg>
+        </div>
+    );
+
+
+    // ==========================================
+    // DOCTOR & DATE RESOLUTION
+    // ==========================================
+
+    const fallbackDoctorId = useMemo(() => {
+        return (
+            doctor?.doctor_id ||
+            doctor?.id ||
+            therapyConfirmation?.doctor_id ||
+            therapyConfirmation?.doctor?.doctor_id ||
+            therapyConfirmation?.doctor?.id ||
+            schedule.find((s) => s.doctor_id)?.doctor_id ||
+            history.find((h) => h.doctor_id)?.doctor_id ||
+            ""
+        );
+    }, [doctor, therapyConfirmation, schedule, history]);
+
+    const formatBookingDate = (dateVal) => {
+        if (!dateVal) {
+            const today = new Date();
+            const y = today.getFullYear();
+            const m = String(today.getMonth() + 1).padStart(2, "0");
+            const d = String(today.getDate()).padStart(2, "0");
+            return `${y}-${m}-${d}`;
+        }
+        if (/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
+            return dateVal;
+        }
+        if (typeof dateVal === "string" && dateVal.includes("T")) {
+            return dateVal.split("T")[0];
+        }
+        const parsed = new Date(dateVal);
+        if (!isNaN(parsed.getTime())) {
+            const y = parsed.getFullYear();
+            const m = String(parsed.getMonth() + 1).padStart(2, "0");
+            const d = String(parsed.getDate()).padStart(2, "0");
+            return `${y}-${m}-${d}`;
+        }
+        return String(dateVal);
+    };
+
+    const defaultBookingDate = useMemo(() => {
+        return formatBookingDate(
+            therapyConfirmation?.booking_date ||
+            therapyConfirmation?.date ||
+            therapyConfirmation?.schedule_overview?.date ||
+            therapyConfirmation?.schedule_overview?.booking_date
+        );
+    }, [therapyConfirmation]);
+
+
+    // ==========================================
+    // DRAG AND DROP HANDLERS
+    // ==========================================
+
+    const handleDragStartRequest = (e, request, slot) => {
+        if (openRoomDropdown || openTherapistDropdown || isReschedulingLocal) {
+            e.preventDefault();
+            return;
+        }
+
+        const appointmentId = request?.appointment_id || request?.id;
+        if (!appointmentId) {
+            console.error("Missing appointment_id on request:", request);
+            return;
+        }
+
+        const item = {
+            appointment_id: appointmentId,
+            patient_id: request.patient_id,
+            patient_name: request.patient_name,
+            patient_code: request.patient_code,
+            source_time: slot.time,
+            doctor_id:
+                request.doctor_id ||
+                slot.doctor_id ||
+                fallbackDoctorId,
+            booking_date: formatBookingDate(
+                request.booking_date ||
+                request.date ||
+                slot.booking_date ||
+                slot.date ||
+                defaultBookingDate
+            ),
+        };
+
+        e.dataTransfer.setData("application/json", JSON.stringify(item));
+        e.dataTransfer.effectAllowed = "move";
+        setDraggedItem(item);
+    };
+
+    const handleDragStartSlot = (e, slot, selectedRequest) => {
+        if (openRoomDropdown || openTherapistDropdown || isReschedulingLocal) {
+            e.preventDefault();
+            return;
+        }
+
+        const appointmentId =
+            slot?.appointment_id ||
+            selectedRequest?.appointment_id ||
+            slot?.id;
+
+        if (!appointmentId) {
+            console.error("Missing appointment_id on slot:", slot);
+            return;
+        }
+
+        const item = {
+            appointment_id: appointmentId,
+            patient_id: slot.patient_id || selectedRequest?.patient_id,
+            patient_name: slot.patient_name || selectedRequest?.patient_name,
+            patient_code: slot.patient_code || selectedRequest?.patient_code,
+            source_time: slot.time,
+            doctor_id:
+                slot.doctor_id ||
+                selectedRequest?.doctor_id ||
+                fallbackDoctorId,
+            booking_date: formatBookingDate(
+                slot.booking_date ||
+                selectedRequest?.booking_date ||
+                slot.date ||
+                selectedRequest?.date ||
+                defaultBookingDate
+            ),
+        };
+
+        e.dataTransfer.setData("application/json", JSON.stringify(item));
+        e.dataTransfer.effectAllowed = "move";
+        setDraggedItem(item);
+    };
+
+    const handleDragEnd = () => {
+        setDraggedItem(null);
+        setDragOverTime(null);
+    };
+
+    const handleDragOver = (e, slot) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        if (dragOverTime !== slot.time) {
+            setDragOverTime(slot.time);
+        }
+    };
+
+    const handleDragLeave = (e, slot) => {
+        if (e.currentTarget.contains(e.relatedTarget)) {
+            return;
+        }
+        if (dragOverTime === slot.time) {
+            setDragOverTime(null);
+        }
+    };
+
+    const handleDrop = async (e, targetSlot) => {
+        e.preventDefault();
+        setDragOverTime(null);
+
+        let data = draggedItem;
+        if (!data) {
+            try {
+                const text = e.dataTransfer.getData("application/json");
+                if (text) {
+                    data = JSON.parse(text);
+                }
+            } catch (err) {
+                console.error("Failed to parse drag data:", err);
+            }
+        }
+        setDraggedItem(null);
+
+        if (!data || !data.appointment_id) {
+            return;
+        }
+
+        if (data.source_time === targetSlot.time) {
+            showErrorToast(
+                "Same Time Slot",
+                `The appointment is already scheduled at ${targetSlot.time}.`
+            );
+            return;
+        }
+
+        const doctorId =
+            data.doctor_id ||
+            targetSlot.doctor_id ||
+            fallbackDoctorId;
+
+        const bookingDate = formatBookingDate(
+            data.booking_date ||
+            targetSlot.booking_date ||
+            defaultBookingDate
+        );
+
+        const payload = {
+            doctor_id: doctorId,
+            appointment_id: data.appointment_id,
+            booking_date: bookingDate,
+            slot_time: targetSlot.time,
+        };
+
+        console.log("🚚 Rescheduling Therapy Appointment via Drag & Drop:", payload);
+
+        setIsReschedulingLocal(true);
+
+        try {
+            const response = await dispatch(
+                rescheduleFrontOfficeTherapyAppointment(payload)
+            ).unwrap();
+
+            showSuccessToast(
+                "Therapy Rescheduled",
+                response?.message ||
+                `Therapy appointment successfully rescheduled to ${targetSlot.time}!`
+            );
+
+            // Reload confirmation data from backend
+            await dispatch(
+                loadFrontOfficeTherapyAppointmentConfirmation()
+            );
+
+        } catch (error) {
+            console.error("❌ Reschedule error:", error);
+            showErrorToast(
+                "Reschedule Failed",
+                error?.message ||
+                error?.detail ||
+                (typeof error === "string"
+                    ? error
+                    : "Unable to reschedule therapy appointment.")
+            );
+        } finally {
+            setIsReschedulingLocal(false);
+        }
     };
 
 
@@ -1113,24 +1385,34 @@ const TherapyConfirmation = () => {
                             className="
                                 mt-1
                                 flex
+                                flex-wrap
                                 items-center
-                                gap-2
+                                gap-2.5
                                 text-[13px]
                                 text-[#634238]
                             "
                         >
 
-                            <span
-                                className="
-                                    h-2
-                                    w-2
-                                    rounded-full
-                                    bg-[#4B2E2A]
-                                "
-                            />
+                            <div className="flex items-center gap-2">
+                                <span
+                                    className="
+                                        h-2
+                                        w-2
+                                        rounded-full
+                                        bg-[#4B2E2A]
+                                    "
+                                />
 
-                            {pendingPatientCount}{" "}
-                            Patients
+                                {pendingPatientCount}{" "}
+                                Patients
+                            </div>
+
+                            <span className="text-[#D3C3B7]">•</span>
+
+                            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#E7D2C0] bg-[#FFF8F2] px-2.5 py-0.5 text-[11px] font-medium text-[#8A4F32]">
+                                <HiOutlineClock size={13} className="text-[#8A4F32]" />
+                                <span>Drag & drop appointments to reschedule time</span>
+                            </div>
 
                         </div>
 
@@ -1255,6 +1537,10 @@ const TherapyConfirmation = () => {
                                     slot.status ===
                                     "booked";
 
+                                const isDragTarget =
+                                    dragOverTime === slot.time &&
+                                    draggedItem?.source_time !== slot.time;
+
 
                                 return (
                                     <div
@@ -1262,13 +1548,29 @@ const TherapyConfirmation = () => {
                                             slot.id ||
                                             `${slot.time}-${index}`
                                         }
-                                        className="
+                                        onDragOver={(e) =>
+                                            handleDragOver(e, slot)
+                                        }
+                                        onDragLeave={(e) =>
+                                            handleDragLeave(e, slot)
+                                        }
+                                        onDrop={(e) =>
+                                            handleDrop(e, slot)
+                                        }
+                                        className={`
                                             grid
                                             grid-cols-[105px_1fr]
                                             border-b
                                             border-[#EFE4DC]
                                             last:border-b-0
-                                        "
+                                            transition-colors
+                                            duration-150
+                                            ${
+                                                isDragTarget
+                                                    ? "bg-[#FFF6EF] ring-2 ring-inset ring-[#8A4F32]/50"
+                                                    : ""
+                                            }
+                                        `}
                                     >
 
                                         {/* TIME */}
@@ -1301,6 +1603,17 @@ const TherapyConfirmation = () => {
                                             "
                                         >
 
+                                            {/* DROP TARGET INDICATOR ON BUSY SLOT */}
+                                            {isDragTarget &&
+                                                (isConflict ||
+                                                    slot.patient_name ||
+                                                    slot.appointment_id) && (
+                                                    <div className="mb-2 flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#8A4F32] bg-[#FFF8F3] py-2 text-[11px] font-semibold text-[#8A4F32] shadow-xs animate-pulse">
+                                                        <HiOutlineClock size={15} className="text-[#8A4F32]" />
+                                                        <span>Drop here to reschedule {draggedItem?.patient_name ? `"${draggedItem.patient_name}"` : "appointment"} to {slot.time}</span>
+                                                    </div>
+                                                )}
+
                                             {/* ========================= */}
                                             {/* EMPTY / AVAILABLE */}
                                             {/* ========================= */}
@@ -1311,11 +1624,24 @@ const TherapyConfirmation = () => {
                                                 requests.length ===
                                                 0 && (
 
-                                                    <div
-                                                        className="
-                                                            min-h-[54px]
-                                                        "
-                                                    />
+                                                    <div className="flex min-h-[56px] items-center justify-center">
+                                                        {isDragTarget ? (
+                                                            <div className="flex w-full min-h-[52px] items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#8A4F32] bg-[#FFF8F3] px-4 py-2.5 text-[12px] font-semibold text-[#8A4F32] shadow-xs">
+                                                                <HiOutlineClock size={16} className="animate-spin text-[#8A4F32]" />
+                                                                <span>Drop here to reschedule {draggedItem?.patient_name ? `"${draggedItem.patient_name}"` : "appointment"} to {slot.time}</span>
+                                                            </div>
+                                                        ) : draggedItem && draggedItem.source_time !== slot.time ? (
+                                                            <div className="flex w-full min-h-[50px] items-center justify-center rounded-xl border border-dashed border-[#DFCEBF] bg-[#FAFAF8] text-[11px] font-medium text-[#9E8B80]">
+                                                                <span>Available Slot • Drop here for {slot.time}</span>
+                                                            </div>
+                                                        ) : (
+                                                            <div
+                                                                className="
+                                                                    min-h-[54px]
+                                                                "
+                                                            />
+                                                        )}
+                                                    </div>
 
                                                 )}
 
@@ -1452,6 +1778,10 @@ const TherapyConfirmation = () => {
                                                                                 ?.appointment_id ===
                                                                             request.appointment_id;
 
+                                                                        const isItemDragged =
+                                                                            draggedItem?.appointment_id ===
+                                                                            request.appointment_id;
+
 
                                                                         return (
                                                                             <div
@@ -1459,11 +1789,34 @@ const TherapyConfirmation = () => {
                                                                                     request.appointment_id ||
                                                                                     requestIndex
                                                                                 }
+                                                                                draggable={
+                                                                                    !openRoomDropdown &&
+                                                                                    !openTherapistDropdown &&
+                                                                                    !isReschedulingLocal
+                                                                                }
+                                                                                onDragStart={(e) =>
+                                                                                    handleDragStartRequest(
+                                                                                        e,
+                                                                                        request,
+                                                                                        slot
+                                                                                    )
+                                                                                }
+                                                                                onDragEnd={
+                                                                                    handleDragEnd
+                                                                                }
                                                                                 className={`
+                                                                                group
+                                                                                relative
                                                                                 rounded-xl
                                                                                 border
                                                                                 px-3
                                                                                 py-3
+                                                                                transition-all
+                                                                                ${
+                                                                                    isItemDragged
+                                                                                        ? "opacity-30 scale-[0.99] border-dashed border-[#8A4F32]"
+                                                                                        : "cursor-grab active:cursor-grabbing hover:shadow-xs"
+                                                                                }
                                                                                 ${selected
                                                                                         ? "border-[#8A5035] bg-[#FFF6EF]"
                                                                                         : "border-[#E8DDD6] bg-white"
@@ -1480,55 +1833,63 @@ const TherapyConfirmation = () => {
                                                                                 "
                                                                                 >
 
-                                                                                    <button
-                                                                                        type="button"
-                                                                                        onClick={() =>
-                                                                                            handleSelectRequest(
-                                                                                                slot,
-                                                                                                request
-                                                                                            )
-                                                                                        }
-                                                                                        className="
-                                                                                        min-w-0
-                                                                                        flex-1
-                                                                                        text-left
-                                                                                    "
-                                                                                    >
-
-                                                                                        <p
+                                                                                    <div className="flex min-w-0 flex-1 items-center gap-1.5">
+                                                                                        <DragGripIcon />
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            draggable={false}
+                                                                                            onClick={() =>
+                                                                                                handleSelectRequest(
+                                                                                                    slot,
+                                                                                                    request
+                                                                                                )
+                                                                                            }
                                                                                             className="
-                                                                                            text-[12px]
-                                                                                            font-semibold
-                                                                                            text-[#4D2E23]
+                                                                                            min-w-0
+                                                                                            flex-1
+                                                                                            text-left
                                                                                         "
                                                                                         >
-                                                                                            {
-                                                                                                request.patient_name
-                                                                                            }
-                                                                                        </p>
 
-                                                                                        <p
-                                                                                            className="
-                                                                                            mt-1
-                                                                                            text-[10px]
-                                                                                            text-[#77716D]
-                                                                                        "
-                                                                                        >
-                                                                                            Patient ID:{" "}
-                                                                                            {
-                                                                                                request.patient_code
-                                                                                            }
-                                                                                        </p>
+                                                                                            <p
+                                                                                                className="
+                                                                                                text-[12px]
+                                                                                                font-semibold
+                                                                                                text-[#4D2E23]
+                                                                                            "
+                                                                                            >
+                                                                                                {
+                                                                                                    request.patient_name
+                                                                                                }
+                                                                                            </p>
 
-                                                                                    </button>
+                                                                                            <p
+                                                                                                className="
+                                                                                                mt-1
+                                                                                                text-[10px]
+                                                                                                text-[#77716D]
+                                                                                            "
+                                                                                            >
+                                                                                                Patient ID:{" "}
+                                                                                                {
+                                                                                                    request.patient_code
+                                                                                                }
+                                                                                            </p>
+
+                                                                                        </button>
+                                                                                    </div>
 
 
                                                                                     <div
                                                                                         className="
-        flex
-        items-center
-        gap-2
-    "
+                                                                                        flex
+                                                                                        items-center
+                                                                                        gap-2
+                                                                                    "
+                                                                                        draggable={false}
+                                                                                        onDragStart={(e) =>
+                                                                                            e.stopPropagation()
+                                                                                        }
                                                                                     >
 
                                                                                         <TherapistSelect
@@ -1571,11 +1932,40 @@ const TherapyConfirmation = () => {
                                                 ) && (
 
                                                     <div
+                                                        draggable={
+                                                            !openRoomDropdown &&
+                                                            !openTherapistDropdown &&
+                                                            !isReschedulingLocal &&
+                                                            Boolean(
+                                                                slot.appointment_id ||
+                                                                selectedRequest?.appointment_id
+                                                            )
+                                                        }
+                                                        onDragStart={(e) =>
+                                                            handleDragStartSlot(
+                                                                e,
+                                                                slot,
+                                                                selectedRequest
+                                                            )
+                                                        }
+                                                        onDragEnd={
+                                                            handleDragEnd
+                                                        }
                                                         className={`
+                                                            group
+                                                            relative
                                                             rounded-xl
                                                             border
                                                             px-3
                                                             py-3
+                                                            transition-all
+                                                            ${
+                                                                draggedItem?.appointment_id ===
+                                                                (slot.appointment_id ||
+                                                                    selectedRequest?.appointment_id)
+                                                                    ? "opacity-30 scale-[0.99] border-dashed border-[#8A4F32]"
+                                                                    : "cursor-grab active:cursor-grabbing hover:shadow-xs"
+                                                            }
                                                             ${isConfirmed
                                                                 ? "border-[#C9F0D1] bg-[#EEFFF1]"
                                                                 : "border-[#F1DFC4] bg-[#FFF7E9]"
@@ -1592,41 +1982,44 @@ const TherapyConfirmation = () => {
                                                             "
                                                         >
 
-                                                            <div>
+                                                            <div className="flex items-center gap-1.5">
+                                                                <DragGripIcon />
+                                                                <div>
 
-                                                                <p
-                                                                    className={`
-                                                                        text-[13px]
-                                                                        font-medium
-                                                                        ${isConfirmed
-                                                                            ? "text-[#2F6B3A]"
-                                                                            : "text-[#6A3F2D]"
+                                                                    <p
+                                                                        className={`
+                                                                            text-[13px]
+                                                                            font-medium
+                                                                            ${isConfirmed
+                                                                                ? "text-[#2F6B3A]"
+                                                                                : "text-[#6A3F2D]"
+                                                                            }
+                                                                        `}
+                                                                    >
+                                                                        {
+                                                                            slot.slot_range ||
+                                                                            slot.time
                                                                         }
-                                                                    `}
-                                                                >
-                                                                    {
-                                                                        slot.slot_range ||
-                                                                        slot.time
-                                                                    }
-                                                                </p>
+                                                                    </p>
 
-                                                                <p
-                                                                    className={`
-                                                                        mt-1
-                                                                        text-[13px]
-                                                                        ${isConfirmed
-                                                                            ? "text-[#315C39]"
-                                                                            : "text-[#6A3F2D]"
+                                                                    <p
+                                                                        className={`
+                                                                            mt-1
+                                                                            text-[13px]
+                                                                            ${isConfirmed
+                                                                                ? "text-[#315C39]"
+                                                                                : "text-[#6A3F2D]"
+                                                                            }
+                                                                        `}
+                                                                    >
+                                                                        {
+                                                                            slot.patient_name ||
+                                                                            selectedRequest?.patient_name ||
+                                                                            "-"
                                                                         }
-                                                                    `}
-                                                                >
-                                                                    {
-                                                                        slot.patient_name ||
-                                                                        selectedRequest?.patient_name ||
-                                                                        "-"
-                                                                    }
-                                                                </p>
+                                                                    </p>
 
+                                                                </div>
                                                             </div>
 
 
@@ -1636,16 +2029,20 @@ const TherapyConfirmation = () => {
                                                                     items-center
                                                                     gap-2
                                                                 "
+                                                                draggable={false}
+                                                                onDragStart={(e) =>
+                                                                    e.stopPropagation()
+                                                                }
                                                             >
 
                                                                 {selectedRequest && (
 
                                                                     <div
                                                                         className="
-            flex
-            items-center
-            gap-2
-        "
+                                                                            flex
+                                                                            items-center
+                                                                            gap-2
+                                                                        "
                                                                     >
 
                                                                         <TherapistSelect
@@ -1875,6 +2272,18 @@ const TherapyConfirmation = () => {
 
 
             </div>
+
+            {/* RESCHEDULING MODAL / OVERLAY */}
+            {isReschedulingLocal && (
+                <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/25 backdrop-blur-[1px]">
+                    <div className="flex items-center gap-3 rounded-2xl border border-[#E7D5C4] bg-white px-6 py-4 shadow-2xl">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-[#8A4F32] border-t-transparent" />
+                        <p className="text-[13px] font-semibold text-[#4D2E23]">
+                            Rescheduling therapy appointment...
+                        </p>
+                    </div>
+                </div>
+            )}
 
         </DashboardLayout>
     );

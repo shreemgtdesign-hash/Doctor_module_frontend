@@ -10,7 +10,7 @@ import {
 // FULL DASHBOARD
 // ==========================================
 
-export const fetchTherapistDashboard = async () => {
+export const fetchTherapistDashboard = async (period = "today") => {
 
     const [
         therapies,
@@ -18,24 +18,24 @@ export const fetchTherapistDashboard = async () => {
         patients,
     ] = await Promise.all([
 
-        getTherapiesPerformed(),
+        getTherapiesPerformed(period),
 
-        getTherapistAilments(),
+        getTherapistAilments(period),
 
-        getTherapistPatients(),
+        getTherapistPatients(period),
 
     ]);
 
     return {
 
         therapies:
-            therapies.data.data,
+            therapies.data?.data,
 
         ailments:
-            ailments.data.data,
+            ailments.data?.data,
 
         patients:
-            patients.data.data,
+            patients.data?.data,
 
     };
 
@@ -48,7 +48,7 @@ export const fetchTherapistDashboard = async () => {
 
 export const fetchTherapiesPerformedDashboard =
     async (
-        period = "week"
+        period = "today"
     ) => {
 
         const response =
@@ -80,7 +80,7 @@ export const fetchTherapiesPerformedDashboard =
 
 export const fetchTherapistAilmentsDashboard =
     async (
-        period = "week"
+        period = "today"
     ) => {
 
         const response =
@@ -100,10 +100,14 @@ export const fetchTherapistAilmentsDashboard =
 // ==========================================
 
 export const fetchTherapistPatientsDashboard =
-    async () => {
+    async (
+        period = "today"
+    ) => {
 
         const response =
-            await getTherapistPatients();
+            await getTherapistPatients(
+                period
+            );
 
         return (
             response.data?.data || {}

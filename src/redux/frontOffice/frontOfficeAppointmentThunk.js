@@ -29,6 +29,7 @@ import {
     fetchConfirmAppointmentRoom,
     fetchHomevisitAppointmentConfirmation,
     fetchTherapyAppointmentConfirmation,
+    fetchRescheduleTherapyAppointment,
     fetchHomevisitConfirmationList,
     fetchTherapistList,
     fetchSelectTherapist,
@@ -883,6 +884,37 @@ export const loadFrontOfficeTherapyAppointmentConfirmation =
                     error.response?.data ||
                     error.message ||
                     "Failed to load therapy confirmation."
+                );
+
+            }
+
+        }
+    );
+
+// ==========================================
+// RESCHEDULE THERAPY APPOINTMENT
+// ==========================================
+
+export const rescheduleFrontOfficeTherapyAppointment =
+    createAsyncThunk(
+
+        "frontOfficeAppointment/rescheduleTherapyAppointment",
+
+        async (
+            payload,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchRescheduleTherapyAppointment(payload);
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to reschedule therapy appointment."
                 );
 
             }

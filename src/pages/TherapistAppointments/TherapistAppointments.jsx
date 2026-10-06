@@ -17,13 +17,19 @@ import {
     HiOutlineArrowLeft,
     HiOutlineCalendar,
     HiOutlinePencil,
+    HiOutlineCheck,
 } from "react-icons/hi2";
 
 import {
     loadTherapistAppointments,
     completeTherapistAppointments,
     updateTherapistAppointmentStatusThunk,
+    checkInTherapistAppointmentThunk,
 } from "../../redux/therapist/therapistThunk";
+import {
+    showErrorToast,
+    showSuccessToast,
+} from "../../../utils/showToast";
 import DashboardLayout from "../../components/Layout/DashboardLayout";
 
 
@@ -45,14 +51,21 @@ const TherapistAppointments = () => {
         error,
         completingAppointments,
         updatingAppointmentStatus,
+        checkingInAppointmentId,
     } = useSelector(
         (state) => state.therapist
     );
 
 
     // ==========================================
-    // CHECKBOX STATE
+    // CHECK-IN STATE
     // ==========================================
+
+    const [
+        checkingInMap,
+        setCheckingInMap,
+    ] = useState({});
+
 
 
     // ==========================================
@@ -148,6 +161,84 @@ useEffect(() => {
         );
 
     };
+
+
+    // ==========================================
+    // CHECK IN STATUS CHECK
+    // ==========================================
+
+    const isAppointmentCheckedIn = (appointment) => {
+        return Boolean(
+            appointment?.checkin_time ||
+            appointment?.check_in_time ||
+            appointment?.is_checked_in ||
+            appointment?.checked_in ||
+            appointment?.check_in ||
+            appointment?.checkin ||
+            appointment?.status?.toLowerCase() === "checked_in"
+        );
+    };
+
+
+    // ==========================================
+    // HANDLE CHECK IN
+    // ==========================================
+
+    const handleCheckIn = async (appointment) => {
+        const bookingId = getBookingId(appointment);
+
+        if (!bookingId) {
+            showErrorToast(
+                "Check-in Error",
+                "Booking ID is missing for this appointment."
+            );
+            return;
+        }
+
+        if (isAppointmentCheckedIn(appointment)) {
+            return;
+        }
+
+        try {
+            setCheckingInMap((prev) => ({
+                ...prev,
+                [bookingId]: true,
+            }));
+
+            const resultAction = await dispatch(
+                checkInTherapistAppointmentThunk({ bookingId })
+            );
+
+            if (checkInTherapistAppointmentThunk.fulfilled.match(resultAction)) {
+                showSuccessToast(
+                    "Checked In",
+                    resultAction.payload?.message ||
+                        "Therapy appointment checked in successfully"
+                );
+                dispatch(loadTherapistAppointments());
+            } else {
+                const errorMsg =
+                    resultAction.payload?.message ||
+                    (typeof resultAction.payload === "string"
+                        ? resultAction.payload
+                        : null) ||
+                    "Failed to check in appointment";
+                showErrorToast("Check-in Failed", errorMsg);
+            }
+        } catch (err) {
+            console.error("Check-in error:", err);
+            showErrorToast(
+                "Check-in Error",
+                err?.message || "An unexpected error occurred during check-in."
+            );
+        } finally {
+            setCheckingInMap((prev) => ({
+                ...prev,
+                [bookingId]: false,
+            }));
+        }
+    };
+
 
 
     // ==========================================
@@ -602,7 +693,7 @@ useEffect(() => {
 
                 <div
                     className="
-                        min-w-[1410px]
+                        min-w-[1530px]
                     "
                 >
 
@@ -613,7 +704,7 @@ useEffect(() => {
                     <div
                         className="
                             grid
-                            grid-cols-[210px_160px_125px_160px_160px_70px_205px_245px_110px]
+                            grid-cols-[210px_160px_125px_160px_160px_70px_110px_205px_245px_110px]
                             border-b
                             border-[#EFE2D7]
                             bg-[#FFF9F3]
@@ -721,6 +812,24 @@ useEffect(() => {
                             "
                         >
                             Room
+                        </div>
+
+
+                        {/* CHECKED IN */}
+
+                        <div
+                            className="
+                                border-r
+                                border-[#EFE2D7]
+                                px-3
+                                py-5
+                                text-center
+                                text-[15px]
+                                font-semibold
+                                text-[#4D2E23]
+                            "
+                        >
+                            Checked in
                         </div>
 
 
@@ -852,7 +961,7 @@ useEffect(() => {
                                             }
                                             className={`
                                                 grid
-                                                grid-cols-[210px_160px_125px_160px_160px_70px_205px_245px_110px]
+                                                grid-cols-[210px_160px_125px_160px_160px_70px_110px_205px_245px_110px]
                                                 border-b
                                                 border-[#EFE2D7]
                                                 last:border-b-0
@@ -1087,6 +1196,121 @@ useEffect(() => {
                                                     {appointment.room ||
                                                         "-"}
                                                 </span>
+
+                                            </div>
+
+
+                                            {/* ================================= */}
+                                            {/* CHECKED IN */}
+                                            {/* ================================= */}
+
+                                            <div
+                                                className="
+                                                    flex
+                                                    items-center
+                                                    justify-center
+                                                    border-r
+                                                    border-[#EFE2D7]
+                                                    px-3
+                                                    py-5
+                                                "
+                                            >
+
+                                                {(() => {
+                                                    const checked =
+                                                        isAppointmentCheckedIn(
+                                                            appointment
+                                                        );
+                                                    const isCheckingIn =
+                                                        Boolean(
+                                                            checkingInMap[
+                                                                bookingId
+                                                            ] ||
+                                                            checkingInAppointmentId ===
+                                                                bookingId
+                                                        );
+
+                                                    if (checked) {
+                                                        return (
+                                                            <div
+                                                                className="
+                                                                    flex
+                                                                    h-6
+                                                                    w-6
+                                                                    items-center
+                                                                    justify-center
+                                                                    rounded-[5px]
+                                                                    bg-[#4D2E23]
+                                                                    text-white
+                                                                    shadow-sm
+                                                                "
+                                                                title={
+                                                                    (appointment.checkin_time ||
+                                                                        appointment.check_in_time)
+                                                                        ? `Checked in: ${
+                                                                              appointment.checkin_time ||
+                                                                              appointment.check_in_time
+                                                                          }`
+                                                                        : "Checked in"
+                                                                }
+                                                            >
+                                                                <HiOutlineCheck
+                                                                    className="
+                                                                        h-4
+                                                                        w-4
+                                                                        stroke-[3]
+                                                                    "
+                                                                />
+                                                            </div>
+                                                        );
+                                                    }
+
+                                                    return (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleCheckIn(
+                                                                    appointment
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                isCheckingIn
+                                                            }
+                                                            className="
+                                                                group
+                                                                flex
+                                                                h-6
+                                                                w-6
+                                                                items-center
+                                                                justify-center
+                                                                rounded-[5px]
+                                                                border-2
+                                                                border-[#4D2E23]
+                                                                bg-white
+                                                                transition
+                                                                hover:border-[#381F17]
+                                                                hover:bg-[#FFF5EA]
+                                                                disabled:cursor-wait
+                                                                disabled:opacity-60
+                                                            "
+                                                            title="Click to check in"
+                                                        >
+                                                            {isCheckingIn ? (
+                                                                <span
+                                                                    className="
+                                                                        h-3
+                                                                        w-3
+                                                                        animate-spin
+                                                                        rounded-full
+                                                                        border-2
+                                                                        border-[#4D2E23]
+                                                                        border-t-transparent
+                                                                    "
+                                                                />
+                                                            ) : null}
+                                                        </button>
+                                                    );
+                                                })()}
 
                                             </div>
 

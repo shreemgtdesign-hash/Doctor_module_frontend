@@ -13,8 +13,6 @@ import Wellness from "./components/Wellness";
 
 const DoctorDashboard = () => {
 
-    const [period, setPeriod] = useState("today");
-
     return (
         <DashboardLayout role="doctor">
 
@@ -25,22 +23,13 @@ const DoctorDashboard = () => {
                 {/* ================================= */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 lg:gap-6">
 
-                    <ScheduleOverview
-                        period={period}
-                        setPeriod={setPeriod}
-                    />
+                    <ScheduleOverview />
 
-                    <ConsultationHistory
-                        period={period}
-                    />
+                    <ConsultationHistory />
 
-                    <Wellness
-                        period={period}
-                    />
+                    <Wellness />
 
-                    <Beauty
-                        period={period}
-                    />
+                    <Beauty />
 
                 </div>
 
@@ -49,19 +38,13 @@ const DoctorDashboard = () => {
                 {/* ================================= */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 lg:gap-6 items-stretch">
 
-                    <AilmentsAddressed
-                        period={period}
-                    />
+                    <AilmentsAddressed />
 
                     <div className="flex flex-col gap-4 sm:gap-5 lg:gap-6 justify-between">
 
-                        <TherapiesPrescribed
-                            period={period}
-                        />
+                        <TherapiesPrescribed />
 
-                        <MedicinesPrescribed
-                            period={period}
-                        />
+                        <MedicinesPrescribed />
 
                     </div>
 

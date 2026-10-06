@@ -29,6 +29,7 @@ import {
     confirmFrontOfficeAppointmentRoom,
     loadFrontOfficeHomevisitAppointmentConfirmation,
     loadFrontOfficeTherapyAppointmentConfirmation,
+    rescheduleFrontOfficeTherapyAppointment,
     loadHomevisitConfirmationList,
     selectFrontOfficeTherapist,
     loadTherapistList,
@@ -90,6 +91,10 @@ const initialState = {
     therapyConfirmation: null,
     therapyConfirmationLoading: false,
     therapyConfirmationError: null,
+    reschedulingTherapy: false,
+    rescheduleTherapySuccess: false,
+    rescheduleTherapyMessage: "",
+    rescheduleTherapyError: null,
 
 
     // ==========================================
@@ -2310,6 +2315,46 @@ const frontOfficeAppointmentSlice = createSlice({
 
 
         // ==========================================
+        // RESCHEDULE THERAPY APPOINTMENT
+        // ==========================================
+
+        builder
+
+            .addCase(
+                rescheduleFrontOfficeTherapyAppointment.pending,
+                (state) => {
+                    state.reschedulingTherapy = true;
+                    state.rescheduleTherapySuccess = false;
+                    state.rescheduleTherapyError = null;
+                }
+            )
+
+            .addCase(
+                rescheduleFrontOfficeTherapyAppointment.fulfilled,
+                (state, action) => {
+                    state.reschedulingTherapy = false;
+                    state.rescheduleTherapySuccess = true;
+                    state.rescheduleTherapyMessage =
+                        action.payload?.message ||
+                        "Therapy appointment date and time updated successfully!";
+                    state.rescheduleTherapyError = null;
+                }
+            )
+
+            .addCase(
+                rescheduleFrontOfficeTherapyAppointment.rejected,
+                (state, action) => {
+                    state.reschedulingTherapy = false;
+                    state.rescheduleTherapySuccess = false;
+                    state.rescheduleTherapyError =
+                        action.payload?.message ||
+                        action.payload ||
+                        "Failed to reschedule therapy appointment.";
+                }
+            );
+
+
+        // ==========================================
         // LOAD HOME VISIT CONFIRMATION
         // ==========================================
         // ==========================================
@@ -2975,6 +3020,24 @@ export const selectFrontOfficeTherapyConfirmationError =
     (state) =>
         state.frontOfficeAppointment
             ?.therapyConfirmationError || null;
+
+
+export const selectReschedulingTherapy =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.reschedulingTherapy || false;
+
+
+export const selectRescheduleTherapySuccess =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.rescheduleTherapySuccess || false;
+
+
+export const selectRescheduleTherapyError =
+    (state) =>
+        state.frontOfficeAppointment
+            ?.rescheduleTherapyError || null;
 
 
 // ==========================================

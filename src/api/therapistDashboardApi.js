@@ -5,7 +5,7 @@ import api from "./axios";
 // ==========================================
 
 export const getTherapiesPerformed = (
-    period = "week"
+    period = "today"
 ) =>
     api.get(
         `/therapist/dashboard/therapies-performed?period=${period}`
@@ -17,7 +17,7 @@ export const getTherapiesPerformed = (
 // ==========================================
 
 export const getTherapistAilments = (
-    period = "week"
+    period = "today"
 ) =>
     api.get(
         `/therapist/dashboard/ailments-addressed?period=${period}`
@@ -28,9 +28,11 @@ export const getTherapistAilments = (
 // PATIENTS TENDED
 // ==========================================
 
-export const getTherapistPatients = () =>
+export const getTherapistPatients = (
+    period = "today"
+) =>
     api.get(
-        "/therapist/dashboard/patients-tended"
+        `/therapist/dashboard/patients-tended?period=${period}`
     );
 
 

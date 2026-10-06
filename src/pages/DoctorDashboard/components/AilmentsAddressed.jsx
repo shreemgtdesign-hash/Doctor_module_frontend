@@ -38,7 +38,7 @@ const AilmentsAddressed = () => {
     (state) => state.dashboard.ailments
   );
 
-  const [period, setPeriod] = useState("week");
+  const [period, setPeriod] = useState("today");
 
   // ==========================================
   // LOAD DATA

@@ -1,6 +1,5 @@
 import {
     useEffect,
-    useState,
 } from "react";
 
 import {
@@ -12,9 +11,6 @@ import DashboardLayout
 
 import {
     getTherapistDashboard,
-    loadTherapiesPerformed,
-    loadTherapistAilments,
-    loadTherapistPatients,
     loadTherapistScheduleOverview,
 } from "../../redux/therapist/therapistThunk";
 
@@ -36,49 +32,21 @@ const TherapistDashboard = () => {
     const dispatch = useDispatch();
 
 
-    const [period, setPeriod] =
-        useState("week");
-
-
     // ==========================================
-    // INITIAL DASHBOARD LOAD
+    // INITIAL DASHBOARD LOAD (ALL INITIALIZED TO TODAY)
     // ==========================================
 
     useEffect(() => {
 
         dispatch(
-            getTherapistDashboard()
+            getTherapistDashboard("today")
+        );
+
+        dispatch(
+            loadTherapistScheduleOverview("today")
         );
 
     }, [dispatch]);
-
-
-    // ==========================================
-    // PERIOD BASED DATA
-    // ==========================================
-
-    useEffect(() => {
-
-        dispatch(
-            loadTherapiesPerformed(period)
-        );
-
-        dispatch(
-            loadTherapistAilments(period)
-        );
-
-        dispatch(
-            loadTherapistPatients(period)
-        );
-
-        dispatch(
-            loadTherapistScheduleOverview(period)
-        );
-
-    }, [
-        dispatch,
-        period,
-    ]);
 
 
     return (
@@ -92,13 +60,10 @@ const TherapistDashboard = () => {
             ">
 
                 {/* =================================
-                    TOP
+                    TOP: THERAPIES PERFORMED
                 ================================= */}
 
-                <TherapiesPerformed
-                    period={period}
-                    setPeriod={setPeriod}
-                />
+                <TherapiesPerformed />
 
 
                 {/* =================================
@@ -113,31 +78,21 @@ const TherapistDashboard = () => {
                 ">
 
                     {/* =================================
-                        LEFT
+                        LEFT: AILMENTS ADDRESSED
                     ================================= */}
 
-                    <AilmentsAddressed
-                        period={period}
-                        setPeriod={setPeriod}
-                    />
+                    <AilmentsAddressed />
 
 
                     {/* =================================
-                        RIGHT
+                        RIGHT: PATIENTS TENDED & SCHEDULE
                     ================================= */}
 
                     <div className="space-y-5">
 
-                        <PatientsTended
-                            period={period}
-                            setPeriod={setPeriod}
-                        />
+                        <PatientsTended />
 
-
-                        <ScheduleOverview
-                            period={period}
-                            setPeriod={setPeriod}
-                        />
+                        <ScheduleOverview />
 
                     </div>
 

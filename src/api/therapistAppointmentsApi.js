@@ -29,3 +29,8 @@ export const completeTherapistAppointments = (
             status,
         }
     );
+
+export const checkInTherapyAppointment = (bookingId) =>
+    api.post("/therapist/appointments/check-in", {
+        booking_id: bookingId,
+    });

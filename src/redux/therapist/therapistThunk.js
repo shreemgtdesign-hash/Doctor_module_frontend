@@ -8,7 +8,12 @@ import {
     fetchTherapistScheduleOverview,
    
 } from "../../services/therapistDashboardService";
-import { fetchTherapistAppointments, markTherapistAppointmentsComplete, updateTherapistAppointmentsStatus } from "../../services/therapistAppointmentsService";
+import {
+    fetchTherapistAppointments,
+    markTherapistAppointmentsComplete,
+    updateTherapistAppointmentsStatus,
+    fetchCheckInTherapyAppointment,
+} from "../../services/therapistAppointmentsService";
 
 
 // ==========================================
@@ -20,11 +25,11 @@ export const getTherapistDashboard =
 
         "therapistDashboard/getTherapistDashboard",
 
-        async (_, { rejectWithValue }) => {
+        async (period = "today", { rejectWithValue }) => {
 
             try {
 
-                return await fetchTherapistDashboard();
+                return await fetchTherapistDashboard(period);
 
             } catch (error) {
 
@@ -50,7 +55,7 @@ export const loadTherapiesPerformed =
         "therapistDashboard/loadTherapiesPerformed",
 
         async (
-            period = "week",
+            period = "today",
             { rejectWithValue }
         ) => {
 
@@ -91,11 +96,11 @@ export const loadTherapistAilments =
 
         "therapistDashboard/loadAilments",
 
-        async (_, { rejectWithValue }) => {
+        async (period = "today", { rejectWithValue }) => {
 
             try {
 
-                return await fetchTherapistAilmentsDashboard();
+                return await fetchTherapistAilmentsDashboard(period);
 
             } catch (error) {
 
@@ -120,11 +125,11 @@ export const loadTherapistPatients =
 
         "therapistDashboard/loadPatients",
 
-        async (_, { rejectWithValue }) => {
+        async (period = "today", { rejectWithValue }) => {
 
             try {
 
-                return await fetchTherapistPatientsDashboard();
+                return await fetchTherapistPatientsDashboard(period);
 
             } catch (error) {
 
@@ -297,3 +302,23 @@ export const updateTherapistAppointmentStatusThunk =
 
         }
     );
+
+// ==========================================
+// CHECK IN THERAPY APPOINTMENT
+// ==========================================
+
+export const checkInTherapistAppointmentThunk =
+    createAsyncThunk(
+        "therapist/checkInAppointment",
+        async ({ bookingId }, { rejectWithValue }) => {
+            try {
+                return await fetchCheckInTherapyAppointment(bookingId);
+            } catch (error) {
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to check in appointment"
+                );
+            }
+        }
+    );

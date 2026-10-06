@@ -9,6 +9,7 @@ import {
     completeTherapistAppointments,
     loadTherapistScheduleOverview,
     updateTherapistAppointmentStatusThunk,
+    checkInTherapistAppointmentThunk,
 } from "./therapistThunk";
 
 
@@ -83,6 +84,8 @@ const initialState = {
     completingAppointments: false,
     updatingAppointmentStatus: false,
     appointmentStatusError: null,
+    checkingInAppointmentId: null,
+    checkInError: null,
 
     count: 0,
 
@@ -478,6 +481,65 @@ const therapistDashboardSlice =
                         state.error =
                             action.payload;
 
+                    }
+                )
+
+                // =================================
+                // CHECK IN APPOINTMENT
+                // =================================
+                .addCase(
+                    checkInTherapistAppointmentThunk.pending,
+                    (state, action) => {
+                        state.checkingInAppointmentId =
+                            action.meta?.arg?.bookingId || null;
+                        state.checkInError = null;
+                    }
+                )
+
+                .addCase(
+                    checkInTherapistAppointmentThunk.fulfilled,
+                    (state, action) => {
+                        state.checkingInAppointmentId = null;
+                        const data = action.payload?.data;
+                        const checkInTime =
+                            action.payload?.checkin_time ||
+                            action.payload?.check_in_time ||
+                            data?.checkin_time ||
+                            data?.check_in_time ||
+                            new Date().toISOString();
+                        const updatedId =
+                            data?.booking_id ||
+                            data?.id ||
+                            action.meta?.arg?.bookingId;
+
+                        if (updatedId) {
+                            const index = state.appointments.findIndex(
+                                (appointment) =>
+                                    (
+                                        appointment.booking_id ||
+                                        appointment.id
+                                    ) === updatedId
+                            );
+
+                            if (index !== -1) {
+                                state.appointments[index] = {
+                                    ...state.appointments[index],
+                                    ...(data || {}),
+                                    checkin_time: checkInTime,
+                                    check_in_time: checkInTime,
+                                    is_checked_in: true,
+                                    checked_in: true,
+                                };
+                            }
+                        }
+                    }
+                )
+
+                .addCase(
+                    checkInTherapistAppointmentThunk.rejected,
+                    (state, action) => {
+                        state.checkingInAppointmentId = null;
+                        state.checkInError = action.payload;
                     }
                 );
 

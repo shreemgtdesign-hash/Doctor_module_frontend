@@ -12,7 +12,9 @@ import DashboardCard
 import DashboardDropdown
     from "../../../components/Dashboard/DashboardDropdown";
 
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loadTherapistAilments } from "../../../redux/therapist/therapistThunk";
 
 
 const iconMap = {
@@ -47,15 +49,21 @@ const iconMap = {
 };
 
 
-const AilmentsAddressed = ({
-    period = "week",
-    setPeriod,
-}) => {
+const AilmentsAddressed = () => {
+
+    const dispatch = useDispatch();
+
+    const [period, setPeriod] = useState("today");
 
     const ailments = useSelector(
         (state) =>
-            state.therapist.ailments
+            state.therapist.ailments || []
     );
+
+    const handlePeriodChange = (newPeriod) => {
+        setPeriod(newPeriod);
+        dispatch(loadTherapistAilments(newPeriod));
+    };
 
 
     return (
@@ -75,11 +83,19 @@ const AilmentsAddressed = ({
                     value={period}
                     options={[
                         {
+                            label: "Today",
+                            value: "today",
+                        },
+                        {
                             label: "This Week",
                             value: "week",
                         },
+                        {
+                            label: "This Month",
+                            value: "month",
+                        },
                     ]}
-                    onChange={setPeriod}
+                    onChange={handlePeriodChange}
                 />
 
             </div>
@@ -87,7 +103,9 @@ const AilmentsAddressed = ({
 
             {/* Cards */}
 
-            <div className="mt-5 grid grid-cols-3 gap-4">
+            {ailments.length > 0 ? (
+
+                <div className="mt-5 grid grid-cols-3 gap-4">
 
                 {ailments.map(
                     (item, index) => (
@@ -143,6 +161,14 @@ const AilmentsAddressed = ({
                 )}
 
             </div>
+
+            ) : (
+
+                <div className="py-8 text-center text-[14px] text-[#8A756B]">
+                    No ailments addressed for this period
+                </div>
+
+            )}
 
         </DashboardCard>
 

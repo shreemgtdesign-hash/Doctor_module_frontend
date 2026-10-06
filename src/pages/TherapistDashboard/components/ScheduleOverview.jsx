@@ -1,5 +1,6 @@
 import {
     useEffect,
+    useState,
 } from "react";
 
 import {
@@ -18,13 +19,11 @@ import {
 } from "../../../redux/therapist/therapistThunk";
 
 
-const ScheduleOverview = ({
-    period = "today",
-    setPeriod,
-}) => {
+const ScheduleOverview = () => {
 
     const dispatch = useDispatch();
 
+    const [period, setPeriod] = useState("today");
 
     // =========================================
     // REDUX STATE
@@ -38,31 +37,6 @@ const ScheduleOverview = ({
         );
 
 
-
-    // =========================================
-    // FETCH SCHEDULE OVERVIEW
-    // =========================================
-
-    useEffect(() => {
-
-        console.log(
-            "Schedule Overview Period:",
-            period
-        );
-
-
-        dispatch(
-            loadTherapistScheduleOverview(
-                period
-            )
-        );
-
-    }, [
-        dispatch,
-        period,
-    ]);
-
-
     // =========================================
     // PERIOD CHANGE
     // =========================================
@@ -71,21 +45,16 @@ const ScheduleOverview = ({
         value
     ) => {
 
-        console.log(
-            "Schedule Overview Changed:",
-            value
+        setPeriod(value);
+
+        dispatch(
+            loadTherapistScheduleOverview(
+                value
+            )
         );
 
-
-        if (setPeriod) {
-
-            setPeriod(
-                value
-            );
-
-        }
-
     };
+
 
 
     return (

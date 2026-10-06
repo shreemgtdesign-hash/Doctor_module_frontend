@@ -21,13 +21,13 @@ import StatsCard
     from "../../../components/Dashboard/StatsCard";
 
 
-const TherapiesPerformed = ({
-    period = "week",
-    setPeriod,
-}) => {
+import { useState } from "react";
+
+const TherapiesPerformed = () => {
 
     const dispatch = useDispatch();
 
+    const [period, setPeriod] = useState("today");
 
     const therapies = useSelector(
         (state) =>
@@ -40,17 +40,14 @@ const TherapiesPerformed = ({
 
 
     // ==========================================
-    // PERIOD CHANGE
+    // PERIOD CHANGE (INDEPENDENT TO THIS CARD)
     // ==========================================
 
     const handlePeriodChange = (newPeriod) => {
 
-        // Update parent state
-        if (setPeriod) {
-            setPeriod(newPeriod);
-        }
+        setPeriod(newPeriod);
 
-        // Fetch new data
+        // Fetch new data for Therapies Performed only
         dispatch(
             loadTherapiesPerformed(newPeriod)
         );
@@ -138,7 +135,7 @@ const TherapiesPerformed = ({
                 CATEGORIES
             ================================= */}
 
-            {categories.length > 0 && (
+            {categories.length > 0 ? (
 
                 <div
                     className={`grid gap-2 ${
@@ -171,6 +168,12 @@ const TherapiesPerformed = ({
                         )
                     )}
 
+                </div>
+
+            ) : (
+
+                <div className="py-4 text-center text-[13px] text-[#8A756B]">
+                    No category breakdown available for this period
                 </div>
 
             )}

@@ -273,6 +273,13 @@ export const selectTherapist = (data) =>
         data
     );
 
+// Reschedule Therapy Appointment Date & Time
+export const rescheduleTherapyAppointment = (data) =>
+    api.put(
+        "/frontoffice/therapy/reschedule",
+        data
+    );
+
 // ==========================================
 // PENDING ACTIONS - REMINDERS
 // ==========================================

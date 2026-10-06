@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import {
+    useDispatch,
     useSelector,
 } from "react-redux";
 
@@ -8,16 +10,26 @@ import DashboardCard
 import DashboardDropdown
     from "../../../components/Dashboard/DashboardDropdown";
 
+import {
+    loadTherapistPatients,
+} from "../../../redux/therapist/therapistThunk";
 
-const PatientsTended = ({
-    period = "week",
-    setPeriod,
-}) => {
+
+const PatientsTended = () => {
+
+    const dispatch = useDispatch();
+
+    const [period, setPeriod] = useState("today");
 
     const patients = useSelector(
         (state) =>
-            state.therapist.patients
+            state.therapist.patients || {}
     );
+
+    const handlePeriodChange = (newPeriod) => {
+        setPeriod(newPeriod);
+        dispatch(loadTherapistPatients(newPeriod));
+    };
 
 
     return (
@@ -35,11 +47,19 @@ const PatientsTended = ({
                     value={period}
                     options={[
                         {
+                            label: "Today",
+                            value: "today",
+                        },
+                        {
                             label: "This Week",
                             value: "week",
                         },
+                        {
+                            label: "This Month",
+                            value: "month",
+                        },
                     ]}
-                    onChange={setPeriod}
+                    onChange={handlePeriodChange}
                 />
 
             </div>

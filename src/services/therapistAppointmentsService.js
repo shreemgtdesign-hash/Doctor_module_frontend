@@ -3,6 +3,7 @@ import {
     completeTherapistAppointments,
     getTherapistAppointments,
     updateTherapistAppointmentStatus,
+    checkInTherapyAppointment,
 } from "../api/therapistAppointmentsApi";
 
 export const fetchTherapistAppointments = async () => {
@@ -59,3 +60,12 @@ export const fetchAppointmentConfirmationList = async () => {
 
     return response.data;
 };
+
+// ==========================================
+// CHECK-IN THERAPY APPOINTMENT
+// ==========================================
+
+export const fetchCheckInTherapyAppointment = async (bookingId) => {
+    const response = await checkInTherapyAppointment(bookingId);
+    return response.data;
+};

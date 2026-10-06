@@ -10,9 +10,24 @@ import {
 } from "react-icons/hi";
 
 
+const DEFAULT_PERIOD_OPTIONS = [
+    {
+        label: "Today",
+        value: "today",
+    },
+    {
+        label: "This Week",
+        value: "week",
+    },
+    {
+        label: "This Month",
+        value: "month",
+    },
+];
+
 const DashboardDropdown = ({
-    value,
-    options = [],
+    value = "today",
+    options = DEFAULT_PERIOD_OPTIONS,
     onChange,
 }) => {
 
@@ -63,14 +78,24 @@ const DashboardDropdown = ({
 
 
     // ==========================================
-    // SELECTED OPTION
+    // RESOLVE OPTIONS & SELECTED OPTION
     // ==========================================
 
+    const resolvedOptions =
+        options && options.length > 0
+            ? options
+            : DEFAULT_PERIOD_OPTIONS;
+
     const selectedOption =
-        options.find(
+        resolvedOptions.find(
             (item) =>
-                item.value === value
-        );
+                item.value === value ||
+                item.value?.toLowerCase() === value?.toLowerCase()
+        ) ||
+        resolvedOptions.find(
+            (item) => item.value === "today"
+        ) ||
+        resolvedOptions[0];
 
 
     // ==========================================
@@ -218,12 +243,12 @@ const DashboardDropdown = ({
                     "
                 >
 
-                    {options.map(
+                    {resolvedOptions.map(
                         (item) => {
 
                             const isActive =
                                 item.value ===
-                                value;
+                                (selectedOption?.value || value);
 
 
                             return (
@@ -236,9 +261,11 @@ const DashboardDropdown = ({
 
                                     onClick={() => {
 
-                                        onChange(
-                                            item.value
-                                        );
+                                        if (typeof onChange === "function") {
+                                            onChange(
+                                                item.value
+                                            );
+                                        }
 
                                         setOpen(
                                             false

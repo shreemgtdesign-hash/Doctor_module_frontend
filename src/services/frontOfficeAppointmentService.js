@@ -29,6 +29,7 @@ import {
     getTherapyAppointmentConfirmation,
     getHomevisitConfirmationList,
     selectTherapist,
+    rescheduleTherapyAppointment,
     getTherapistList,
     sendPendingActionReminder,
     getTherapyReminders,
@@ -395,6 +396,16 @@ export const fetchTherapyAppointmentConfirmation =
 
         const response =
             await getTherapyAppointmentConfirmation();
+
+        return response.data;
+    };
+
+
+export const fetchRescheduleTherapyAppointment =
+    async (data) => {
+
+        const response =
+            await rescheduleTherapyAppointment(data);
 
         return response.data;
     };
