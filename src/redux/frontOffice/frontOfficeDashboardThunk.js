@@ -8,6 +8,7 @@ import {
   fetchFrontOfficeReferrals,
   fetchFrontOfficePendingActions,
   fetchFrontOfficeRecentTransactions,
+  fetchFrontOfficeBillingDetails
 } from "../../services/frontOfficeDashboardService";
 
 
@@ -214,5 +215,38 @@ export const loadFrontOfficeRecentTransactions =
         );
 
       }
+    }
+  );
+
+
+  // ==========================================
+// LOAD BILLING DETAILS BY PERIOD
+// ==========================================
+
+export const loadFrontOfficeBillingDetails =
+  createAsyncThunk(
+    "frontOffice/loadBillingDetails",
+
+    async (
+      period = "week",
+      { rejectWithValue }
+    ) => {
+
+      try {
+
+        return await fetchFrontOfficeBillingDetails(
+          period
+        );
+
+      } catch (error) {
+
+        return rejectWithValue(
+          error.response?.data ||
+          error.message ||
+          "Failed to load billing details."
+        );
+
+      }
+
     }
   );

@@ -22,7 +22,6 @@ updateTherapyThunk,
 deleteTherapyThunk,
 loadAssociateDoctors,
 } from "../../../redux/consultation/consultationThunk";
-import ConsultationTimer from "../components/ConsultationTimer";
 import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
 import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
@@ -519,7 +518,7 @@ return `${((hour + 11) % 12) + 1
 
 return (
 
-<div className="mt-6">
+<div>
 
 <ConsultationSectionNav
 activeSection={activeSection}
@@ -552,15 +551,7 @@ Add and manage Therapies
 
 </div>
 
-{consultationTimerStarted && (
 
-<ConsultationTimer
-timeLeft={
-consultationTimeLeft
-}
-/>
-
-)}
 
 </div>
 

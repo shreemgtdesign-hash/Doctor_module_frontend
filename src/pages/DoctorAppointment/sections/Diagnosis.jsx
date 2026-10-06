@@ -519,7 +519,7 @@ const Diagnosis = ({
 
   return (
     <>
-      <div className="mt-8">
+      <div className="">
 
         {/* ================================================= */}
         {/* Header */}

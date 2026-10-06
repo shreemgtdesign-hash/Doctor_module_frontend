@@ -91,15 +91,9 @@ const FrontOfficeDashboard = () => {
   };
 
 
-  useEffect(() => {
 
-    dispatch(
-      loadFrontOfficeDashboard({
-        period: "today",
-      })
-    );
 
-  }, [dispatch]);
+
 
 
   return (

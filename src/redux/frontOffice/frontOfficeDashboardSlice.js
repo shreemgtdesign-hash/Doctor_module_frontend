@@ -9,7 +9,9 @@ import {
   loadFrontOfficeReferrals,
   loadFrontOfficeMedicalCamp,
   loadFrontOfficeRecentTransactions,
-  loadFrontOfficePendingActions
+  loadFrontOfficePendingActions,
+  loadFrontOfficeBillingDetails
+  
 } from "./frontOfficeDashboardThunk";
 
 
@@ -137,8 +139,7 @@ const frontOfficeDashboardSlice =
             state.referrals =
               data.referrals;
 
-            state.billing =
-              data.billing;
+
 
             state.transactions =
               data.transactions?.data ||
@@ -242,7 +243,60 @@ const frontOfficeDashboardSlice =
         // ==========================================
         // PENDING ACTIONS
         // ==========================================
+        // ==========================================
+        // BILLING DETAILS
+        // ==========================================
 
+        .addCase(
+          loadFrontOfficeBillingDetails.pending,
+          (state) => {
+
+            state.loading = true;
+            state.error = null;
+
+          }
+        )
+
+        .addCase(
+          loadFrontOfficeBillingDetails.fulfilled,
+          (
+            state,
+            action
+          ) => {
+
+            state.loading = false;
+
+            console.log(
+              "🔥 BILLING DETAILS REDUX PAYLOAD:",
+              action.payload
+            );
+
+            state.billing = {
+              ...(action.payload || {}),
+              period:
+                action.payload?.period ||
+                action.meta.arg ||
+                "week",
+            };
+
+          }
+        )
+
+        .addCase(
+          loadFrontOfficeBillingDetails.rejected,
+          (
+            state,
+            action
+          ) => {
+
+            state.loading = false;
+
+            state.error =
+              action.payload ||
+              "Failed to load billing details.";
+
+          }
+        )
         .addCase(
           loadFrontOfficePendingActions.pending,
           (state) => {

@@ -9,13 +9,18 @@ import { setActiveFilter } from "../../redux/consultation/consultationSlice";
 import ScheduleOverview from "./components/ScheduleOverview";
 import AppointmentList from "./components/AppointmentList";
 import PatientProfile from "./components/PatientProfile";
-
+import {
+    useSidebar,
+} from "../../components/Layout/SidebarContext";
 import { loadOverview } from "../../redux/dashboard/dashboardThunk";
 
 const DoctorAppointment = () => {
 
     const dispatch = useDispatch();
-
+    const {
+        sidebarOpen,
+        setSidebarOpen,
+    } = useSidebar();
     const profileRef = useRef(null);
 
     const [profileHeight, setProfileHeight] = useState(720);
@@ -149,8 +154,7 @@ const DoctorAppointment = () => {
 
     return (
 
-        <DashboardLayout role="doctor">
-
+        
             <div className="
                 min-h-screen
                 bg-[#F7F7F7]
@@ -210,6 +214,9 @@ const DoctorAppointment = () => {
                             setActiveSection={
                                 setActiveSection
                             }
+                            sidebarOpen={sidebarOpen}
+                            setSidebarOpen={setSidebarOpen
+                            }
                         />
 
                     </div>
@@ -218,7 +225,7 @@ const DoctorAppointment = () => {
 
             </div>
 
-        </DashboardLayout>
+      
 
     );
 };

@@ -245,7 +245,7 @@ const PatientHistory = ({
   // ==========================================
 
   return (
-    <div className="mt-6">
+    <div>
       <ConsultationSectionNav
         activeSection={activeSection}
         setActiveSection={setActiveSection}

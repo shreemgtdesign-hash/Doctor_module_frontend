@@ -22,7 +22,9 @@ import {
     loadFrontOfficeAppointments,
 } from "../../../redux/frontOffice/frontOfficeDashboardThunk";
 
-
+import {
+    setFrontOfficePeriod,
+} from "../../../redux/frontOffice/frontOfficeDashboardSlice";
 const UpcomingAppointments = ({
     period = "week",
     onPeriodChange,
@@ -174,28 +176,32 @@ const UpcomingAppointments = ({
     // ==========================================
 
     const handlePeriodChange = (
-        nextPeriod
-    ) => {
+    nextPeriod
+) => {
 
-        setSelectedPeriod(
+    // Keep the local card UI updated
+    setSelectedPeriod(
+        nextPeriod
+    );
+
+    // IMPORTANT:
+    // Persist the selected period globally
+    dispatch(
+        setFrontOfficePeriod(
+            nextPeriod
+        )
+    );
+
+    // Notify parent if required
+    if (onPeriodChange) {
+
+        onPeriodChange(
             nextPeriod
         );
 
+    }
 
-        /*
-         * If parent is also maintaining
-         * the period, notify it.
-         */
-
-        if (onPeriodChange) {
-
-            onPeriodChange(
-                nextPeriod
-            );
-
-        }
-
-    };
+};
 
 
     // ==========================================

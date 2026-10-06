@@ -27,54 +27,87 @@ const ConsultationTimer = ({
   return (
     <div
       className="
-        sticky
-        top-14
-        ml-auto
-        z-50
-        w-[112px]
-        h-[70px]
-        -mb-[70px]
+        relative
+        h-[56px]
+        w-[90px]
+        shrink-0
       "
     >
 
       {/* ========================================
-          BACKGROUND + PROGRESS BORDER
+          BROWN GRADIENT
       ======================================== */}
 
       <svg
         className="
           absolute
           inset-0
-          w-full
           h-full
+          w-full
         "
-        viewBox="0 0 112 70"
+        viewBox="0 0 90 56"
         fill="none"
       >
 
-        {/* Background */}
+        <defs>
+
+          <linearGradient
+            id="timerBrownGradient"
+            x1="0"
+            y1="0"
+            x2="90"
+            y2="56"
+            gradientUnits="userSpaceOnUse"
+          >
+
+            <stop
+              offset="0%"
+              stopColor="#5A3022"
+            />
+
+            <stop
+              offset="50%"
+              stopColor="#8B5037"
+            />
+
+            <stop
+              offset="100%"
+              stopColor="#B8753A"
+            />
+
+          </linearGradient>
+
+        </defs>
+
+
+        {/* ========================================
+            BACKGROUND BORDER
+        ======================================== */}
 
         <rect
-          x="4"
-          y="4"
-          width="104"
-          height="62"
-          rx="18"
-          stroke="#F0F1F1"
-          strokeWidth="6"
+          x="3"
+          y="3"
+          width="84"
+          height="50"
+          rx="15"
+          stroke="#F0E8E2"
+          strokeWidth="5"
         />
 
-        {/* Progress */}
+
+        {/* ========================================
+            PROGRESS BORDER
+        ======================================== */}
 
         <rect
-          x="4"
-          y="4"
-          width="104"
-          height="62"
-          rx="18"
+          x="3"
+          y="3"
+          width="84"
+          height="50"
+          rx="15"
           pathLength="100"
-          stroke="#A65E10"
-          strokeWidth="6"
+          stroke="url(#timerBrownGradient)"
+          strokeWidth="5"
           strokeLinecap="round"
           strokeDasharray="100"
           strokeDashoffset={
@@ -98,11 +131,10 @@ const ConsultationTimer = ({
         className="
           absolute
           inset-0
-          z-10
           flex
           items-center
           justify-center
-          text-[20px]
+          text-[17px]
           font-semibold
           text-[#59352C]
         "

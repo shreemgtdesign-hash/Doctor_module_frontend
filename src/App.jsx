@@ -57,6 +57,7 @@ import OnlineOrderDetails from "./pages/Pharmacist/PharmacistAppointments/compon
 import JuniorDoctorAppointment from "./pages/JuniorDoctorAppointment/JuniorDoctorAppointment";
 import JuniorDoctorDashboard from "./pages/JuniorDoctorDashboard/JuniorDoctorDashboard";
 import CorporateDashboard from "./pages/Corporate/CorporateDashboard/CorporateDashboard";
+import DashboardLayout from "./components/Layout/DashboardLayout";
 
 function App() {
   return (
@@ -91,8 +92,14 @@ function App() {
 
       <Route
         path="/doctor/appointments"
-        element={<DoctorAppointment />}
-      />
+       
+    element={
+        <DashboardLayout role="doctor">
+            <DoctorAppointment />
+        </DashboardLayout>
+    }
+/>
+     
 
 
       {/* Pharmacist */}

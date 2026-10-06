@@ -28,7 +28,6 @@ import {
     loadAssociateDoctors,
 
 } from "../../../redux/consultation/consultationThunk";
-import ConsultationTimer from "../components/ConsultationTimer";
 import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
 import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
@@ -751,7 +750,7 @@ useEffect(() => {
     }, [editableMedicines]);
 
     return (
-        <div className="mt-6 space-y-8">
+        <div>
 
             {/* Header */}
             <ConsultationSectionNav
@@ -773,13 +772,7 @@ useEffect(() => {
 
                 
             </div>
-             {consultationTimerStarted && (
-                    <ConsultationTimer
-                        timeLeft={
-                            consultationTimeLeft
-                        }
-                    />
-                )}
+           
 
             {/* Search */}
 

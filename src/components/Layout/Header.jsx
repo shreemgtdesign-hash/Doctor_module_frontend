@@ -337,21 +337,31 @@ const Header = ({
   return (
 
     <header
-      className="
+      className={`
+        fixed
+        top-0
+        z-[100]
         flex
-        border-b
-        border-[#E4D9C580]
         h-16
-        sm:h-20
-        lg:h-24
+sm:h-20
+lg:h-[88px]
         items-center
         justify-between
+        border-b
+        border-[#E4D9C580]
         bg-[#FFF8F2]
         pr-3
         sm:pr-5
         shadow-sm
-        w-full
-      "
+        transition-[left,width]
+        duration-300
+        ease-in-out
+
+        ${sidebarOpen
+          ? "left-0 w-full lg:left-[280px] lg:w-[calc(100%-280px)]"
+          : "left-0 w-full"
+        }
+    `}
     >
 
       {/* ================================= */}
@@ -814,10 +824,9 @@ const Header = ({
                           text-left
                           transition
                           hover:bg-[#FFF8F2]
-                          ${
-                            !notification.is_read
-                              ? "bg-[#FFF9F5]"
-                              : "bg-white"
+                          ${!notification.is_read
+                            ? "bg-[#FFF9F5]"
+                            : "bg-white"
                           }
                         `}
                       >
@@ -834,10 +843,9 @@ const Header = ({
                             items-center
                             justify-center
                             rounded-full
-                            ${
-                              !notification.is_read
-                                ? "bg-[#FFEAD8]"
-                                : "bg-[#F5F1EE]"
+                            ${!notification.is_read
+                              ? "bg-[#FFEAD8]"
+                              : "bg-[#F5F1EE]"
                             }
                           `}
                         >
@@ -873,10 +881,9 @@ const Header = ({
                             <p
                               className={`
                                 text-sm
-                                ${
-                                  !notification.is_read
-                                    ? "font-semibold"
-                                    : "font-medium"
+                                ${!notification.is_read
+                                  ? "font-semibold"
+                                  : "font-medium"
                                 }
                                 text-[#4B2E2A]
                               `}

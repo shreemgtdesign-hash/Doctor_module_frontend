@@ -1,4 +1,8 @@
 import {
+  useRef,
+} from "react";
+
+import {
   HiOutlinePlus,
   HiOutlineMagnifyingGlass,
   HiOutlinePencilSquare,
@@ -6,6 +10,7 @@ import {
   HiOutlineDocumentChartBar,
   HiOutlineArrowPathRoundedSquare,
 } from "react-icons/hi2";
+
 
 const sections = [
   {
@@ -40,111 +45,219 @@ const sections = [
   },
 ];
 
+
 const ConsultationSectionNav = ({
   activeSection,
   setActiveSection,
 }) => {
+
+  const tabRefs = useRef([]);
+
+
   return (
+
     <div
       className="
-        w-full
+        mb-5
+       
         min-w-0
         max-w-full
-        mb-6
+        overflow-x-auto
+        overflow-y-hidden
+        hide-scrollbar
+        border-b
+        m-0
       "
     >
+
       <div
         className="
-          grid
-          grid-cols-3
-          gap-3
-          w-full
+          flex
+          w-max
+          min-w-full
+          items-center
+          justify-center
+          gap-4
+          px-1
         "
       >
-        {sections.map((item) => {
+
+        {sections.map((item, index) => {
+
           const Icon = item.icon;
 
           const isActive =
             activeSection === item.section;
 
+
           return (
+
             <button
               key={item.section}
+
+              ref={(element) => {
+                tabRefs.current[index] =
+                  element;
+              }}
+
               type="button"
+
               onClick={() =>
-                setActiveSection(item.section)
+                setActiveSection(
+                  item.section
+                )
               }
+
+              onMouseEnter={() => {
+
+                /*
+                 * Wait for the hover expansion
+                 * to start, then smoothly move
+                 * the tab into the center.
+                 */
+
+                requestAnimationFrame(() => {
+
+                  requestAnimationFrame(() => {
+
+                    tabRefs.current[
+                      index
+                    ]?.scrollIntoView({
+                      behavior: "smooth",
+                      inline: "center",
+                      block: "nearest",
+                    });
+
+                  });
+
+                });
+
+              }}
+
+              aria-label={item.title}
+
               className={`
+                group
                 flex
-                h-[52px]
-                w-full
-                min-w-0
+                h-[46px]
+
                 items-center
-                gap-2
-                rounded-[16px]
+                justify-center
+
+                m-2
+                overflow-hidden
+                rounded-[13px]
                 border
-                px-3
                 transition-all
-                duration-200
+                duration-300
+                ease-out
 
                 ${
                   isActive
                     ? `
+                      w-[125px]
                       border-[#70412E]
                       bg-[#FFF3E8]
                       text-[#59352C]
                       shadow-sm
                     `
                     : `
+                      w-[44px]
                       border-[#E7DBD3]
-                      bg-white
+                      bg-[#FFF0E3]
                       text-[#59352C]
+
+                      hover:w-[145px]
                       hover:border-[#C9A995]
-                      hover:bg-[#FFF9F5]
+                      hover:bg-[#FFE7D4]
+                      hover:shadow-sm
                     `
                 }
               `}
             >
-              {/* ICON */}
 
-              <span
-                className={`
-                  flex
-                  h-[34px]
-                  w-[34px]
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-[11px]
-
-                  ${
-                    isActive
-                      ? "bg-[#FFE5D0]"
-                      : "bg-[#FFF0E3]"
-                  }
-                `}
-              >
-                <Icon size={19} />
-              </span>
-
-              {/* TITLE */}
+              {/* =====================================
+                  CENTERED CONTENT
+              ===================================== */}
 
               <span
                 className="
+                  flex
                   min-w-0
-                  truncate
-                  text-[13px]
-                  font-semibold
+                  items-center
+                  justify-center
                 "
               >
-                {item.title}
+
+                {/* ICON */}
+
+                <span
+                  className="
+                    flex
+                    h-[30px]
+                    w-[30px]
+                    shrink-0
+                    items-center
+                    justify-center
+                  "
+                >
+
+                  <Icon
+                    size={21}
+                    strokeWidth={2}
+                  />
+
+                </span>
+
+
+                {/* TITLE */}
+
+                <span
+                  className={`
+                    overflow-hidden
+                    whitespace-nowrap
+                    text-center
+                    text-[10px]
+                    font-semibold
+                    leading-none
+                    opacity-0
+                    transition-all
+                    duration-300
+                    ease-out
+
+                    group-hover:max-w-[100px]
+                    group-hover:opacity-100
+
+                    ${
+                      isActive
+                        ? `
+                          max-w-[100px]
+                          opacity-100
+                        `
+                        : `
+                          max-w-0
+                        `
+                    }
+                  `}
+                >
+                  {item.title}
+                </span>
+
               </span>
+
             </button>
+
           );
+
         })}
+
       </div>
+
     </div>
+    
+
   );
 };
+
 
 export default ConsultationSectionNav;

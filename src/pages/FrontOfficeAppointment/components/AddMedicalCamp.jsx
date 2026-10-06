@@ -37,13 +37,12 @@ const AddMedicalCamp = () => {
     const {
         medicalCampCreating = false,
         medicalCampCreateSuccess = false,
-        medicalCampCreateMessage = "",
         medicalCampCreateError = null,
     } = useSelector(
         (state) =>
             state.frontOfficeAppointment || {}
     );
-
+    
 
     // ==========================================
     // FORM

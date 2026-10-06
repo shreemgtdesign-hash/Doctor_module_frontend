@@ -31,7 +31,10 @@ const PatientProfile = forwardRef(
     {
       activeSection,
       setActiveSection,
+      sidebarOpen,
+      setSidebarOpen,
     },
+    
     ref
   ) => {
 
@@ -525,16 +528,16 @@ const PatientProfile = forwardRef(
       <div
         ref={ref}
         className="
+    flex
     h-[720px]
     min-h-0
     min-w-0
-    overflow-y-auto
+    flex-col
+    overflow-hidden
     rounded-[30px]
     border
     border-[#E7DBD3]
     bg-white
-    p-8
-    hide-scrollbar
   "
       >
 
@@ -547,17 +550,25 @@ const PatientProfile = forwardRef(
           ref={profileTopRef}
         >
 
-          <PatientHeader
-            patient={
-              patientProfile
-            }
-            wellness={
-              patientWellness
-            }
-            appointment={
-              selectedPatient
-            }
-          />
+          <div
+            ref={profileTopRef}
+            className="
+    relative
+    z-50
+    shrink-0
+    bg-white
+  "
+          >
+            <PatientHeader
+              patient={patientProfile}
+              wellness={patientWellness}
+              appointment={selectedPatient}
+              timeLeft={consultationTimeLeft}
+              sidebarOpen={sidebarOpen}
+              setSidebarOpen={setSidebarOpen}
+
+            />
+          </div>
 
         </div>
 
@@ -568,6 +579,14 @@ const PatientProfile = forwardRef(
 
         <div
           ref={sectionTopRef}
+          className="
+    min-h-0
+    flex-1
+    overflow-y-auto
+    px-8
+    pb-8
+    hide-scrollbar
+  "
         >
 
           {/* ================================= */}

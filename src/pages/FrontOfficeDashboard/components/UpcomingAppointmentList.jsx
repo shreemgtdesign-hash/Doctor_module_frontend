@@ -45,7 +45,9 @@ import {
 } from "../../../redux/frontOffice/frontOfficeAppointmentSlice";
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
-
+import {
+    setFrontOfficePeriod,
+} from "../../../redux/frontOffice/frontOfficeDashboardSlice";
 
 // ======================================================
 // MAIN COMPONENT
@@ -126,12 +128,17 @@ const UpcomingAppointmentsList = () => {
     // ==================================================
     // PERIOD
     // ==================================================
-
-    const [
-        selectedPeriod,
-        setSelectedPeriod,
-    ] = useState("today");
-
+const dashboardPeriod =
+    useSelector(
+        (state) =>
+            state.frontOfficeDashboard.period
+    );
+const [
+    selectedPeriod,
+    setSelectedPeriod,
+] = useState(
+    dashboardPeriod || "today"
+);
 
     const [
         showPeriodMenu,
@@ -158,7 +165,19 @@ const UpcomingAppointmentsList = () => {
         selectedPeriod,
     ]);
 
+useEffect(() => {
 
+    if (!dashboardPeriod) {
+        return;
+    }
+
+    setSelectedPeriod(
+        dashboardPeriod
+    );
+
+}, [
+    dashboardPeriod,
+]);
     // ==================================================
     // PERIOD LABEL
     // ==================================================
@@ -186,18 +205,23 @@ const UpcomingAppointmentsList = () => {
     // ==================================================
 
     const handlePeriodChange = (
+    period
+) => {
+
+    setSelectedPeriod(
         period
-    ) => {
+    );
 
-        setSelectedPeriod(
+    dispatch(
+        setFrontOfficePeriod(
             period
-        );
+        )
+    );
 
-        setShowPeriodMenu(
-            false
-        );
-    };
-
+    setShowPeriodMenu(
+        false
+    );
+};
 
     // ==================================================
     // PREVIOUS PAGE
