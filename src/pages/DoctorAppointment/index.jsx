@@ -205,6 +205,7 @@ const DoctorAppointment = () => {
 
                     <div
                         ref={profileRef}
+                        className="min-w-0 w-full overflow-hidden"
                     >
 
                         <PatientProfile

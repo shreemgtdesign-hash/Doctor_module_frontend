@@ -10,6 +10,7 @@ import {
     getPrescriptionItems,
     dispensePrescriptionItem,
     dispensePrescriptionBulk,
+    deletePrescriptionItem,
     getMedicinesDispensedTable,
     searchPharmacistMedicines,
 
@@ -342,6 +343,44 @@ export const dispenseBulk =
                 return rejectWithValue(
                     error.response?.data ||
                     "Failed to dispense medicines"
+                );
+
+            }
+
+        }
+    );
+
+
+// ==========================================
+// Remove Prescription Item
+// ==========================================
+
+export const removePrescriptionItem =
+    createAsyncThunk(
+        "pharmacist/removePrescriptionItem",
+
+        async (
+            itemId,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                const response =
+                    await deletePrescriptionItem(
+                        itemId
+                    );
+
+                return {
+                    itemId,
+                    ...(response.data || {}),
+                };
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    "Failed to remove prescription item"
                 );
 
             }

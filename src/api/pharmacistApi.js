@@ -118,6 +118,13 @@ export const dispensePrescriptionBulk = (
         payload
     );
 
+export const deletePrescriptionItem = (
+    itemId
+) =>
+    api.delete(
+        `/prescriptions/item/${itemId}`
+    );
+
 
 // ==========================================
 // Medicine Search

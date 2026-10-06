@@ -8,6 +8,7 @@ import {
     loadPharmacistSales,
     loadPharmacistPatients,
     loadPrescriptionItems,
+    removePrescriptionItem,
     dispenseSingleItem,
     dispenseBulk,
     loadMedicinesDispensedTable,
@@ -856,6 +857,19 @@ const pharmacistSlice = createSlice({
                     state.error =
                         action.payload;
 
+                }
+            )
+
+            .addCase(
+                removePrescriptionItem.fulfilled,
+                (state, action) => {
+                    const removedId = action.payload?.itemId;
+                    if (removedId && state.prescription?.items) {
+                        state.prescription.items =
+                            state.prescription.items.filter(
+                                (item) => String(item.id) !== String(removedId)
+                            );
+                    }
                 }
             );
 

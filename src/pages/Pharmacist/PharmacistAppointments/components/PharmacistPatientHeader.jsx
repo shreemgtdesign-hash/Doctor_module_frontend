@@ -1,6 +1,10 @@
+import { Maximize2 } from "lucide-react";
+
 const PharmacistPatientHeader = ({
     patient,
+    onExpand,
 }) => {
+    if (!patient) return null;
 
     const initials =
         patient.patient_name
@@ -8,61 +12,68 @@ const PharmacistPatientHeader = ({
             .map((name) => name[0])
             .join("")
             .slice(0, 2)
-            .toUpperCase();
+            .toUpperCase() || "P";
 
+    const patientId =
+        patient.patient_id ||
+        patient.patient_code ||
+        patient.id ||
+        "1234567";
+
+    const doctorName =
+        patient.doctor_name
+            ? (patient.doctor_name.startsWith("Dr.") ? patient.doctor_name : `Dr. ${patient.doctor_name}`)
+            : "Dr. Jayasree";
+
+    const ailment = patient.ailment || "Digestion issue";
+    const duration = patient.duration || patient.visit_type || "15 Days";
 
     return (
-
         <div className="border-b border-[#EFE4DC] pb-5">
+            <div className="flex items-center justify-between">
+                {/* Left: Avatar + Details */}
+                <div className="flex items-center gap-3.5">
+                    {patient.image || patient.avatar || patient.photo ? (
+                        <img
+                            src={patient.image || patient.avatar || patient.photo}
+                            alt={patient.patient_name}
+                            className="h-12 w-12 rounded-full object-cover border border-[#EFE4DC] shadow-sm"
+                        />
+                    ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EBDCCF] text-[16px] font-bold text-[#6D4233] border border-[#DFC5B2] shadow-sm">
+                            {initials}
+                        </div>
+                    )}
 
-            <div className="flex items-center gap-4">
-
-                {/* Avatar */}
-
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F0E4DA] text-lg font-bold text-[#8B573D]">
-                    {initials || "P"}
-                </div>
-
-
-                {/* Patient */}
-
-                <div className="flex-1">
-
-                    <div className="flex items-center gap-3">
-
-                        <h2 className="text-[22px] font-bold text-[#4D2E23]">
-                            {patient.patient_name}
+                    <div>
+                        <h2 className="text-[20px] font-bold text-[#4B2E2A] leading-tight">
+                            {patient.patient_name || "Patient"}
                         </h2>
 
-                        <span className="rounded-lg bg-[#FFF0E3] px-3 py-1 text-xs text-[#6F625A]">
-                            {patient.patient_code}
-                        </span>
-
+                        <p className="mt-1 flex flex-wrap items-center gap-2 text-[13px] text-[#7D726B]">
+                            <span>Patient ID: {patientId}</span>
+                            <span className="text-[#C8B8AC]">|</span>
+                            <span>{doctorName}</span>
+                            <span className="text-[#C8B8AC]">|</span>
+                            <span>{ailment}</span>
+                            <span className="text-[#C8B8AC]">|</span>
+                            <span>{duration}</span>
+                        </p>
                     </div>
-
-
-                    <p className="mt-1 text-sm text-[#8B7A70]">
-
-                        {patient.doctor_name}
-
-                        {"  |  "}
-
-                        {patient.ailment}
-
-                        {"  |  "}
-
-                        {patient.visit_type}
-
-                    </p>
-
                 </div>
 
+                {/* Right: Expand Button */}
+                <button
+                    type="button"
+                    onClick={onExpand}
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#EFE4DC] bg-[#FDFAF7] text-[#6F625A] hover:bg-[#FFF4EB] hover:text-[#4B2E2A] transition shadow-sm"
+                    title="Expand View"
+                >
+                    <Maximize2 size={16} />
+                </button>
             </div>
-
         </div>
-
     );
 };
-
 
 export default PharmacistPatientHeader;

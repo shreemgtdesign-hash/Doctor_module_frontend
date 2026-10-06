@@ -581,8 +581,11 @@ const PatientProfile = forwardRef(
           ref={sectionTopRef}
           className="
     min-h-0
+    min-w-0
+    w-full
     flex-1
     overflow-y-auto
+    overflow-x-hidden
     px-8
     pb-8
     hide-scrollbar
