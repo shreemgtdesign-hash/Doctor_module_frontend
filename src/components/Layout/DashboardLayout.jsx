@@ -57,10 +57,9 @@ const DashboardLayout = ({
                         transition-all
                         duration-300
                         ease-in-out
-                        ${
-                            sidebarOpen
-                                ? "lg:pl-[280px]"
-                                : "pl-0"
+                        ${sidebarOpen
+                            ? "lg:pl-[280px]"
+                            : "pl-0"
                         }
                     `}
                 >
@@ -75,9 +74,12 @@ const DashboardLayout = ({
 
                     <main
                         className="
-                            flex-1
-                            w-full
-                        "
+        flex-1
+        w-full
+        pt-16
+        sm:pt-20
+        lg:pt-[88px]
+    "
                     >
                         {children}
                     </main>

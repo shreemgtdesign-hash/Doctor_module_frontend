@@ -343,6 +343,7 @@ const Header = ({
         z-[100]
         flex
         h-16
+        mb-[100px]
 sm:h-20
 lg:h-[88px]
         items-center
