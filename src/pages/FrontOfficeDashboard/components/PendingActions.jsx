@@ -140,20 +140,7 @@ const PendingActions = () => {
         },
 
 
-        {
-            label: "Prescriptions",
-
-            value:
-                pending?.prescriptions ??
-                0,
-
-            onClick: () => {
-                navigate(
-                    "/frontoffice/prescriptions"
-                );
-            },
-        },
-
+    
 
         {
             label: "Home Service Confirmation",
