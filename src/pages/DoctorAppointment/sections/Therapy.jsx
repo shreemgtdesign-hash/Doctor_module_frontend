@@ -23,7 +23,6 @@ import {
     loadAssociateDoctors,
 } from "../../../redux/consultation/consultationThunk";
 import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
-import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
 const therapyCategories = [
     "Treatments",
@@ -301,17 +300,14 @@ const Therapy = ({
     return (
         <div className="w-full min-w-0 max-w-full space-y-6">
             {/* Consultation Section Nav */}
-            <ConsultationSectionNav
-                activeSection={activeSection}
-                setActiveSection={setActiveSection}
-            />
+
 
             {/* ========================================================= */}
             {/* HEADER */}
             {/* ========================================================= */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-[30px] font-bold text-[#4D2E23]">
+                    <h2 className="text-[24px] font-semibold text-[#4D2E23]">
                         Therapy
                     </h2>
                     <p className="mt-1 text-[17px] text-[#786A61]">
@@ -433,7 +429,7 @@ const Therapy = ({
             {/* THERAPY LIST HEADER */}
             {/* ========================================================= */}
             <div className="flex items-center justify-between pt-2">
-                <h2 className="text-[30px] font-bold text-[#4D2E23]">
+                <h2 className="text-[24px] font-semibold text-[#4D2E23]">
                     Therapy List
                 </h2>
             </div>

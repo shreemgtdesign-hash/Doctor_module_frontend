@@ -54,7 +54,7 @@ const pharmacistMenu = [
         path: "/pharmacist/dashboard",
     },
     {
-        name: "Appointments",
+        name: "Patients",
         icon: HiOutlineCalendar,
         path: "/pharmacist/appointments",
     },

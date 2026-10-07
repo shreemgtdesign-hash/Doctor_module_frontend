@@ -29,6 +29,7 @@ import {
   loadFrontOfficePatients,
   deleteFrontOfficePatient,
 } from "../../../redux/frontOffice/frontOfficePatientThunk";
+import { HiOutlineArrowLeft } from "react-icons/hi";
 
 
 // =====================================================
@@ -309,87 +310,114 @@ const FrontofficePatientTable = () => {
             HEADER
         ===================================================== */}
 
-        <div
-          className="
-            flex
-            items-start
-            justify-between
-          "
-        >
+       <div
+    className="
+        flex
+        items-start
+        justify-between
+    "
+>
+    <div className="flex items-start gap-3">
 
-          <div>
+        {/* BACK BUTTON */}
+        <button
+            type="button"
+            onClick={() =>
+                navigate(-1)
+            }
+            className="
+                mt-0.5
+                flex
+                h-9
+                w-9
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-[#E7DBD3]
+                bg-white
+                text-[#4B2E2A]
+                transition
+                hover:bg-[#F9F5F1]
+            "
+        >
+            <HiOutlineArrowLeft
+                size={17}
+            />
+        </button>
+
+        <div>
 
             <h1
-              className="
-                text-[24px]
-                font-bold
-                text-[#2F2926]
-              "
+                className="
+                    text-[24px]
+                    font-semibold
+                    text-[#2F2926]
+                "
             >
-              Patients
+                Patients
             </h1>
 
             <div
-              className="
-                mt-2
-                flex
-                items-center
-                gap-2
-                text-[15px]
-                text-[#5A3B30]
-              "
-            >
-
-              <span
                 className="
-                  h-[7px]
-                  w-[7px]
-                  rounded-full
-                  bg-[#5A3024]
+                    mt-2
+                    flex
+                    items-center
+                    gap-2
+                    text-[15px]
+                    text-[#5A3B30]
                 "
-              />
+            >
+                <span
+                    className="
+                        h-[7px]
+                        w-[7px]
+                        rounded-full
+                        bg-[#5A3024]
+                    "
+                />
 
-              <span>
-                {totalPatients.toLocaleString()} Patients
-              </span>
-
+                <span>
+                    {totalPatients.toLocaleString()} Patients
+                </span>
             </div>
 
-          </div>
-
-
-          <button
-            type="button"
-            onClick={
-              handleAddPatient
-            }
-            className="
-              flex
-              h-[50px]
-              min-w-[210px]
-              items-center
-              justify-center
-              gap-2
-              rounded-[18px]
-              bg-[#8A5038]
-              px-7
-              text-[15px]
-              font-medium
-              text-white
-              transition
-              hover:opacity-90
-            "
-          >
-
-            <Plus
-              size={19}
-            />
-
-            Add Patient
-
-          </button>
-
         </div>
+
+    </div>
+
+    {/* ADD PATIENT BUTTON */}
+    <button
+        type="button"
+        onClick={
+            handleAddPatient
+        }
+        className="
+            flex
+            h-[50px]
+            min-w-[210px]
+            items-center
+            justify-center
+            gap-2
+            rounded-[18px]
+            bg-[#8A5038]
+            px-7
+            text-[15px]
+            font-medium
+            text-white
+            transition
+            hover:opacity-90
+        "
+    >
+        <Plus
+            size={19}
+        />
+
+        Add Patient
+    </button>
+
+</div>
 
 
         {/* =====================================================

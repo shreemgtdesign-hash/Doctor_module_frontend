@@ -1,16 +1,20 @@
-
+import {
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 
 import {
     useDispatch,
     useSelector,
 } from "react-redux";
-import { useEffect, useRef, useState } from "react";
+
 import JuniorDoctorConsultationTimer
     from "./JuniorDoctorConsultationTimer";
+
 import {
     HiOutlineArrowRightOnRectangle,
 } from "react-icons/hi2";
-
 
 import PatientHeader
     from "../../DoctorAppointment/components/PatientHeader";
@@ -37,7 +41,15 @@ import {
     showErrorToast,
     showSuccessToast,
 } from "../../../../utils/showToast";
-import { finishJuniorDoctorConsultation, loadJuniorDoctorAppointments } from "../../../redux/juniorDoctor/JuniorDoctorAppointmentThunk";
+
+import {
+    finishJuniorDoctorConsultation,
+    loadJuniorDoctorAppointments,
+} from "../../../redux/juniorDoctor/JuniorDoctorAppointmentThunk";
+
+import ConsultationSectionNav
+    from "../../DoctorAppointment/components/ConsultationSectionNav";
+
 
 const JuniorPatientProfile = ({
     activeSection,
@@ -49,7 +61,9 @@ const JuniorPatientProfile = ({
     const [
         juniorDoctorTimeLeft,
         setJuniorDoctorTimeLeft,
-    ] = useState(JUNIOR_DOCTOR_DURATION);
+    ] = useState(
+        JUNIOR_DOCTOR_DURATION
+    );
 
     const [
         juniorDoctorTimerStarted,
@@ -58,6 +72,7 @@ const JuniorPatientProfile = ({
 
     const juniorDoctorTimerRef =
         useRef(null);
+
 
     const {
         selectedPatient,
@@ -68,22 +83,30 @@ const JuniorPatientProfile = ({
         (state) =>
             state.consultation
     );
+
+
     const {
         finishConsultationLoading,
     } = useSelector(
         (state) =>
             state.juniorDoctorAppointment
     );
+
+
     const dispatch = useDispatch();
+
 
     const sectionTopRef =
         useRef(null);
+
+
     // =====================================================
     // CONSULTATION TIMER
     // =====================================================
 
     const CONSULTATION_DURATION =
         15 * 60;
+
 
     const [
         consultationTimeLeft,
@@ -92,13 +115,17 @@ const JuniorPatientProfile = ({
         CONSULTATION_DURATION
     );
 
+
     const [
         consultationTimerStarted,
         setConsultationTimerStarted,
     ] = useState(false);
 
+
     const consultationTimerRef =
         useRef(null);
+
+
     // =====================================================
     // START CONSULTATION TIMER
     // JUNIOR DOCTOR → CHIEF COMPLAINTS
@@ -112,11 +139,13 @@ const JuniorPatientProfile = ({
             return;
         }
 
+
         if (
             juniorDoctorTimerStarted
         ) {
             return;
         }
+
 
         setJuniorDoctorTimerStarted(true);
 
@@ -124,6 +153,8 @@ const JuniorPatientProfile = ({
         activeSection,
         juniorDoctorTimerStarted,
     ]);
+
+
     // =====================================================
     // CONSULTATION TIMER COUNTDOWN
     // =====================================================
@@ -134,9 +165,13 @@ const JuniorPatientProfile = ({
             return;
         }
 
-        if (juniorDoctorTimeLeft <= 0) {
+
+        if (
+            juniorDoctorTimeLeft <= 0
+        ) {
             return;
         }
+
 
         juniorDoctorTimerRef.current =
             setInterval(() => {
@@ -152,6 +187,7 @@ const JuniorPatientProfile = ({
 
                             return 0;
                         }
+
 
                         return previousTime - 1;
                     }
@@ -179,23 +215,25 @@ const JuniorPatientProfile = ({
         juniorDoctorTimeLeft,
     ]);
 
+
     // =====================================================
     // RESET TIMER FOR NEW PATIENT
     // =====================================================
 
-
-
     const previousJuniorPatientIdRef =
         useRef(null);
+
 
     useEffect(() => {
 
         const currentPatientId =
             selectedPatient?.id;
 
+
         if (!currentPatientId) {
             return;
         }
+
 
         if (
             previousJuniorPatientIdRef.current ===
@@ -204,8 +242,10 @@ const JuniorPatientProfile = ({
             return;
         }
 
+
         previousJuniorPatientIdRef.current =
             currentPatientId;
+
 
         if (
             juniorDoctorTimerRef.current
@@ -217,7 +257,9 @@ const JuniorPatientProfile = ({
 
         }
 
+
         setJuniorDoctorTimerStarted(false);
+
 
         setJuniorDoctorTimeLeft(
             JUNIOR_DOCTOR_DURATION
@@ -226,9 +268,12 @@ const JuniorPatientProfile = ({
     }, [
         selectedPatient?.id,
     ]);
+
+
     // =====================================================
     // SCROLL WHEN SECTION CHANGES
     // =====================================================
+
     const handleFinishConsultation = async () => {
 
         const appointmentId =
@@ -244,7 +289,6 @@ const JuniorPatientProfile = ({
             );
 
             return;
-
         }
 
 
@@ -307,11 +351,14 @@ const JuniorPatientProfile = ({
         }
 
     };
+
+
     useEffect(() => {
 
         if (!activeSection) {
             return;
         }
+
 
         requestAnimationFrame(() => {
 
@@ -418,6 +465,7 @@ const JuniorPatientProfile = ({
 
 
     return (
+
         <div
             className="
                 h-[720px]
@@ -434,51 +482,81 @@ const JuniorPatientProfile = ({
         >
 
             {/* ================================================= */}
-            {/* PATIENT PROFILE CONTENT */}
+            {/* PATIENT HEADER */}
+            {/* ================================================= */}
+
+            <div
+                className="
+                    relative
+                   
+                    shrink-0
+                    bg-white
+                "
+            >
+
+                <PatientHeader
+                    patient={patientProfile}
+                    wellness={patientWellness}
+                    appointment={selectedPatient}
+                    role="junior-doctor"
+                    juniorDoctorTimer={
+                        juniorDoctorTimerStarted ? (
+                            <JuniorDoctorConsultationTimer
+                                timeLeft={
+                                    juniorDoctorTimeLeft
+                                }
+                            />
+                        ) : null
+                    }
+                />
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* PATIENT PROFILE CONTENT / SCROLL AREA */}
             {/* ================================================= */}
 
             <div
                 ref={sectionTopRef}
                 className="
                     min-h-0
+                    min-w-0
+                    w-full
                     flex-1
                     overflow-y-auto
+                    overflow-x-hidden
                     px-6
-                    pt-6
                     pb-6
                     hide-scrollbar
                 "
             >
 
                 {/* ============================================= */}
-                {/* PATIENT HEADER */}
+                {/* STICKY CONSULTATION NAV */}
                 {/* ============================================= */}
 
-                <PatientHeader
-                    patient={
-                        patientProfile
-                    }
+                <div
+                    className="
+                        sticky
+                        top-0
+                        bg-white
+                        
+                    "
+                >
 
-                    wellness={
-                        patientWellness
-                    }
+                    <ConsultationSectionNav
+                        activeSection={
+                            activeSection
+                        }
+                        setActiveSection={
+                            setActiveSection
+                        }
+                        role="junior-doctor"
+                    />
 
-                    appointment={
-                        selectedPatient
-                    }
-                />
+                </div>
 
-{/* ============================================= */}
-{/* JUNIOR DOCTOR CONSULTATION TIMER */}
-{/* ============================================= */}
-
-{juniorDoctorTimerStarted && (
-    <JuniorDoctorConsultationTimer
-        timeLeft={
-            juniorDoctorTimeLeft
-        }
-    />
-)}
 
                 {/* ============================================= */}
                 {/* OVERVIEW */}
@@ -511,7 +589,6 @@ const JuniorPatientProfile = ({
                                 activeSection={
                                     activeSection
                                 }
-
                                 setActiveSection={
                                     setActiveSection
                                 }
@@ -580,7 +657,6 @@ const JuniorPatientProfile = ({
                                 patientProfile
                             }
 
-                   
                             consultationTimerStarted={
                                 juniorDoctorTimerStarted
                             }
@@ -595,10 +671,12 @@ const JuniorPatientProfile = ({
 
                             onViewReport={
                                 (consultationId) => {
+
                                     console.log(
                                         "View consultation:",
                                         consultationId
                                     );
+
                                 }
                             }
 
@@ -633,7 +711,6 @@ const JuniorPatientProfile = ({
                                 patientProfile
                             }
 
-                  
                             consultationTimerStarted={
                                 juniorDoctorTimerStarted
                             }
@@ -677,7 +754,6 @@ const JuniorPatientProfile = ({
                                 patientProfile
                             }
 
-                    
                             consultationTimerStarted={
                                 juniorDoctorTimerStarted
                             }
@@ -725,30 +801,32 @@ const JuniorPatientProfile = ({
                 "
             >
 
-
-
                 <button
                     type="button"
-                    disabled={finishConsultationLoading}
-                    onClick={handleFinishConsultation}
+                    disabled={
+                        finishConsultationLoading
+                    }
+                    onClick={
+                        handleFinishConsultation
+                    }
                     className="
-        flex
-        h-[50px]
-        w-full
-        items-center
-        justify-center
-        gap-2
-        rounded-xl
-        bg-[#8B5037]
-        text-[15px]
-        font-semibold
-        text-white
-        transition
-        hover:bg-[#79432F]
-        active:scale-[0.99]
-        disabled:cursor-not-allowed
-        disabled:opacity-60
-    "
+                        flex
+                        h-[50px]
+                        w-full
+                        items-center
+                        justify-center
+                        gap-2
+                        rounded-xl
+                        bg-[#8B5037]
+                        text-[15px]
+                        font-semibold
+                        text-white
+                        transition
+                        hover:bg-[#79432F]
+                        active:scale-[0.99]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-60
+                    "
                 >
 
                     <HiOutlineArrowRightOnRectangle
@@ -756,20 +834,21 @@ const JuniorPatientProfile = ({
                     />
 
                     <span>
-                        {finishConsultationLoading
-                            ? "Finishing Consultation..."
-                            : "Finish Consultation"
+                        {
+                            finishConsultationLoading
+                                ? "Finishing Consultation..."
+                                : "Finish Consultation"
                         }
                     </span>
 
                 </button>
 
-
-
             </div>
 
         </div>
+
     );
+
 };
 
 

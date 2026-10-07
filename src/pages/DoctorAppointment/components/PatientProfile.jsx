@@ -19,7 +19,8 @@ import Therapy from "../sections/Therapy";
 import Reports from "../sections/Reports";
 import PatientHistory from "../sections/PatientHistory";
 import ViewReport from "../sections/ViewReport";
-import ConsultationTimer from "./ConsultationTimer";
+import ConsultationSectionNav from "./ConsultationSectionNav";
+
 
 // ==========================================
 // CONSULTATION TIMER
@@ -34,7 +35,7 @@ const PatientProfile = forwardRef(
       sidebarOpen,
       setSidebarOpen,
     },
-    
+
     ref
   ) => {
 
@@ -591,7 +592,11 @@ const PatientProfile = forwardRef(
     hide-scrollbar
   "
         >
-
+          <ConsultationSectionNav
+            activeSection={activeSection}
+            setActiveSection={setActiveSection}
+            role="doctor"
+          />
           {/* ================================= */}
           {/* OVERVIEW */}
           {/* ================================= */}

@@ -18,7 +18,6 @@ import {
 
 import { searchDiagnosisCategoriesThunk } from "../../../redux/appointment/appointmentThunk";
 import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
-import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
 const Diagnosis = ({
   appointmentId,
@@ -524,13 +523,10 @@ const Diagnosis = ({
         {/* ================================================= */}
         {/* Header */}
         {/* ================================================= */}
-         <ConsultationSectionNav
-                activeSection={activeSection}
-                setActiveSection={setActiveSection}
-              />
+
         <div className="flex justify-between">
           <div >
-            <h2 className="text-[24px] font-bold text-[#4D2E23]">
+            <h2 className="text-[24px] font-semibold text-[#4D2E23]">
               Diagnosis
               <span className="ml-1 text-red-500">
                 *
@@ -589,7 +585,7 @@ const Diagnosis = ({
 
         <div className="mt-8">
 
-          <h3 className="text-[24px] font-bold text-[#4D2E23]">
+          <h3 className="text-[24px] font-semibold text-[#4D2E23]">
             Differential Diagnosis
           </h3>
 
@@ -623,7 +619,7 @@ const Diagnosis = ({
         {/* ================================================= */}
         {/* Diagnosis Search */}
         {/* ================================================= */}
-          <h2 className="text-[24px] font-bold mt-2 text-[#4D2E23]">
+          <h2 className="text-[24px] font-semibold mt-2 text-[#4D2E23]">
               Speciality
              
             </h2>
@@ -770,7 +766,7 @@ const Diagnosis = ({
 
             <h3
               className="
-                text-[30px]
+                text-[24px]
                 font-semibold
                 text-[#4D2E23]
               "

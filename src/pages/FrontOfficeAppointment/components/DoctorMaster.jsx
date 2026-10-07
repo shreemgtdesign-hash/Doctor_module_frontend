@@ -27,6 +27,8 @@ import {
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
+import { HiOutlineArrowLeft } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
 
 
 const emptyDoctor = {
@@ -61,6 +63,7 @@ const DoctorMaster = () => {
     (state) =>
       state.frontOfficeAppointment || {}
   );
+  const navigate = useNavigate();
 
 
   // ==========================================
@@ -441,65 +444,95 @@ const DoctorMaster = () => {
     <DashboardLayout
       role="frontoffice"
     >
-
+     
       <div
         className="
           min-h-screen
-          bg-[#F7F7F7]
+          bg-white
           px-6
           py-6
         "
       >
+        
 
         {/* ==========================================
             HEADER
         ========================================== */}
+<div className="flex item-center justify-between">
+       <div
+    className="
+        mb-5
+        flex
+        items-start
+        justify-between
+    "
+>
+    <div className="flex items-start gap-3">
 
-        <div
-          className="
-            mb-5
-            flex
-            items-start
-            justify-between
-          "
+        <button
+            type="button"
+            onClick={() =>
+                navigate("/frontoffice/dashboard")
+            }
+            className="
+                mt-0.5
+                flex
+                h-9
+                w-9
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-[#E7DBD3]
+                bg-white
+                text-[#4B2E2A]
+                transition
+                hover:bg-[#F9F5F1]
+            "
         >
+            <HiOutlineArrowLeft
+                size={17}
+            />
+        </button>
 
-          <div>
+        <div>
 
             <h1
-              className="
-                text-[20px]
-                font-bold
-                text-[#292929]
-              "
+                className="
+                    text-[24px]
+                    font-semibold
+                    text-[#292929]
+                "
             >
-              Doctor Master
+                Doctor Master
             </h1>
 
-
             <div
-              className="
-                mt-2
-                flex
-                items-center
-                gap-2
-                text-[14px]
-                text-[#4D2E23]
-              "
-            >
-
-              <span
                 className="
-                  h-2
-                  w-2
-                  rounded-full
-                  bg-[#4D2E23]
+                    mt-2
+                    flex
+                    items-center
+                    gap-2
+                    text-[14px]
+                    text-[#4D2E23]
                 "
-              />
+            >
+                <span
+                    className="
+                        h-2
+                        w-2
+                        rounded-full
+                        bg-[#4D2E23]
+                    "
+                />
 
-              {doctors.length} Doctors
-
+                {doctors.length} Doctors
             </div>
+
+        </div>
+
+    </div>
 
           </div>
 
@@ -574,8 +607,8 @@ const DoctorMaster = () => {
 
           </div>
 
-        </div>
-
+        
+</div>
 
         {/* ==========================================
             SEARCH

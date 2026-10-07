@@ -20,6 +20,7 @@ import {
     HiOutlineClock,
     HiOutlineChevronUp,
     HiOutlineChevronDown,
+    HiOutlineArrowLeft,
 
 } from "react-icons/hi2";
 
@@ -43,7 +44,7 @@ const TherapyConfirmation = () => {
 
     const [openRoomDropdown, setOpenRoomDropdown] = useState(null);
     const [openTherapistDropdown, setOpenTherapistDropdown] =
-    useState(null);
+        useState(null);
 
 
     // ==========================================
@@ -483,154 +484,154 @@ const TherapyConfirmation = () => {
     // ==========================================
 
     const handleRoomChange = async (
-    slot,
-    request,
-    roomNo
-) => {
+        slot,
+        request,
+        roomNo
+    ) => {
 
-    if (!roomNo) {
-        return;
-    }
+        if (!roomNo) {
+            return;
+        }
 
-    if (!request?.appointment_id) {
-        console.error(
-            "Appointment ID not found:",
-            request
-        );
+        if (!request?.appointment_id) {
+            console.error(
+                "Appointment ID not found:",
+                request
+            );
 
-        showErrorToast(
-            "Room Selection Failed",
-            "Appointment ID is missing."
-        );
+            showErrorToast(
+                "Room Selection Failed",
+                "Appointment ID is missing."
+            );
 
-        return;
-    }
+            return;
+        }
 
-    if (!request?.patient_id) {
-        console.error(
-            "Patient ID not found:",
-            request
-        );
+        if (!request?.patient_id) {
+            console.error(
+                "Patient ID not found:",
+                request
+            );
 
-        showErrorToast(
-            "Room Selection Failed",
-            "Patient ID is missing."
-        );
+            showErrorToast(
+                "Room Selection Failed",
+                "Patient ID is missing."
+            );
 
-        return;
-    }
-
-
-    // ==========================================
-    // STORE ROOM LOCALLY IMMEDIATELY
-    // ==========================================
-
-    setSelectedRooms(
-        (previous) => ({
-            ...previous,
-
-            [request.appointment_id]:
-                roomNo,
-        })
-    );
-
-
-    try {
-
-        console.log(
-            "🏠 Confirming room:",
-            {
-                slot_time: slot?.time,
-                patient_id:
-                    request.patient_id,
-                appointment_id:
-                    request.appointment_id,
-                room_no: roomNo,
-            }
-        );
+            return;
+        }
 
 
         // ==========================================
-        // API
-        // ==========================================
-
-        await dispatch(
-            confirmFrontOfficeAppointmentRoom({
-                slot_time:
-                    slot.time,
-
-                patient_id:
-                    request.patient_id,
-
-                appointment_id:
-                    request.appointment_id,
-
-                room_no:
-                    roomNo,
-            })
-        ).unwrap();
-
-
-        // ==========================================
-        // SUCCESS
-        // ==========================================
-
-        showSuccessToast(
-            "Room Confirmed",
-            `${roomNo} has been assigned successfully.`
-        );
-
-
-        // IMPORTANT:
-        // Don't immediately reload here.
-        //
-        // The local selectedRooms state already
-        // contains the selected room.
-
-
-    } catch (error) {
-
-        console.error(
-            "❌ Room confirmation failed:",
-            error
-        );
-
-        console.error(
-            "Backend error:",
-            error?.response?.data || error
-        );
-
-
-        // ==========================================
-        // REVERT LOCAL SELECTION
+        // STORE ROOM LOCALLY IMMEDIATELY
         // ==========================================
 
         setSelectedRooms(
-            (previous) => {
+            (previous) => ({
+                ...previous,
 
-                const updated = {
-                    ...previous,
-                };
-
-                delete updated[
-                    request.appointment_id
-                ];
-
-                return updated;
-            }
+                [request.appointment_id]:
+                    roomNo,
+            })
         );
 
 
-        showErrorToast(
-            "Room Confirmation Failed",
-            error?.message ||
+        try {
+
+            console.log(
+                "🏠 Confirming room:",
+                {
+                    slot_time: slot?.time,
+                    patient_id:
+                        request.patient_id,
+                    appointment_id:
+                        request.appointment_id,
+                    room_no: roomNo,
+                }
+            );
+
+
+            // ==========================================
+            // API
+            // ==========================================
+
+            await dispatch(
+                confirmFrontOfficeAppointmentRoom({
+                    slot_time:
+                        slot.time,
+
+                    patient_id:
+                        request.patient_id,
+
+                    appointment_id:
+                        request.appointment_id,
+
+                    room_no:
+                        roomNo,
+                })
+            ).unwrap();
+
+
+            // ==========================================
+            // SUCCESS
+            // ==========================================
+
+            showSuccessToast(
+                "Room Confirmed",
+                `${roomNo} has been assigned successfully.`
+            );
+
+
+            // IMPORTANT:
+            // Don't immediately reload here.
+            //
+            // The local selectedRooms state already
+            // contains the selected room.
+
+
+        } catch (error) {
+
+            console.error(
+                "❌ Room confirmation failed:",
+                error
+            );
+
+            console.error(
+                "Backend error:",
+                error?.response?.data || error
+            );
+
+
+            // ==========================================
+            // REVERT LOCAL SELECTION
+            // ==========================================
+
+            setSelectedRooms(
+                (previous) => {
+
+                    const updated = {
+                        ...previous,
+                    };
+
+                    delete updated[
+                        request.appointment_id
+                    ];
+
+                    return updated;
+                }
+            );
+
+
+            showErrorToast(
+                "Room Confirmation Failed",
+                error?.message ||
                 error?.detail ||
                 "Unable to confirm the selected room."
-        );
+            );
 
-    }
+        }
 
-};
+    };
 
 
     // ==========================================
@@ -782,42 +783,42 @@ const TherapyConfirmation = () => {
 
     };
     const RoomSelect = ({
-    slot,
-    request,
-}) => {
-
-    const roomValue = getRoomValue(
         slot,
-        request
-    );
+        request,
+    }) => {
 
-    const rooms = [
-        "Room 1",
-        "Room 2",
-        "Room 3",
-        "Room 4",
-        "Room 5",
-    ];
+        const roomValue = getRoomValue(
+            slot,
+            request
+        );
 
-    const dropdownKey =
-        request?.appointment_id;
+        const rooms = [
+            "Room 1",
+            "Room 2",
+            "Room 3",
+            "Room 4",
+            "Room 5",
+        ];
 
-    return (
-        <div className="relative min-w-[118px]" data-custom-dropdown>
+        const dropdownKey =
+            request?.appointment_id;
 
-            {/* SELECTED ROOM */}
-            <button
-                type="button"
-                onClick={() => {
-                    setOpenRoomDropdown(
-                        openRoomDropdown === dropdownKey
-                            ? null
-                            : dropdownKey
-                    );
+        return (
+            <div className="relative min-w-[118px]" data-custom-dropdown>
 
-                    setOpenTherapistDropdown(null);
-                }}
-                className="
+                {/* SELECTED ROOM */}
+                <button
+                    type="button"
+                    onClick={() => {
+                        setOpenRoomDropdown(
+                            openRoomDropdown === dropdownKey
+                                ? null
+                                : dropdownKey
+                        );
+
+                        setOpenTherapistDropdown(null);
+                    }}
+                    className="
                     flex
                     h-9
                     w-full
@@ -836,32 +837,31 @@ const TherapyConfirmation = () => {
                     transition
                     hover:border-[#CDB5A6]
                 "
-            >
-                <span className="truncate">
-                    {roomValue || "Select room no."}
-                </span>
+                >
+                    <span className="truncate">
+                        {roomValue || "Select room no."}
+                    </span>
 
-                <HiOutlineChevronDown
-                    size={14}
-                    className={`
+                    <HiOutlineChevronDown
+                        size={14}
+                        className={`
                         ml-2
                         flex-shrink-0
                         text-[#7A6658]
                         transition-transform
-                        ${
-                            openRoomDropdown === dropdownKey
+                        ${openRoomDropdown === dropdownKey
                                 ? "rotate-180"
                                 : ""
-                        }
+                            }
                     `}
-                />
-            </button>
+                    />
+                </button>
 
 
-            {/* CUSTOM ROOM DROPDOWN */}
-            {openRoomDropdown === dropdownKey && (
-                <div
-                    className="
+                {/* CUSTOM ROOM DROPDOWN */}
+                {openRoomDropdown === dropdownKey && (
+                    <div
+                        className="
                         absolute
                         right-0
                         top-[42px]
@@ -874,15 +874,15 @@ const TherapyConfirmation = () => {
                         bg-white
                         shadow-xl
                     "
-                >
+                    >
 
-                    {/* CLEAR */}
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setOpenRoomDropdown(null);
-                        }}
-                        className="
+                        {/* CLEAR */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setOpenRoomDropdown(null);
+                            }}
+                            className="
                             flex
                             w-full
                             items-center
@@ -895,31 +895,31 @@ const TherapyConfirmation = () => {
                             text-[#8B7A70]
                             hover:bg-[#FFF8F2]
                         "
-                    >
-                        Select room no.
-                    </button>
+                        >
+                            Select room no.
+                        </button>
 
 
-                    {rooms.map((room) => {
+                        {rooms.map((room) => {
 
-                        const isSelected =
-                            roomValue === room;
+                            const isSelected =
+                                roomValue === room;
 
-                        return (
-                            <button
-                                key={room}
-                                type="button"
-                                onClick={async () => {
+                            return (
+                                <button
+                                    key={room}
+                                    type="button"
+                                    onClick={async () => {
 
-                                    setOpenRoomDropdown(null);
+                                        setOpenRoomDropdown(null);
 
-                                    await handleRoomChange(
-                                        slot,
-                                        request,
-                                        room
-                                    );
-                                }}
-                                className={`
+                                        await handleRoomChange(
+                                            slot,
+                                            request,
+                                            room
+                                        );
+                                    }}
+                                    className={`
                                     flex
                                     w-full
                                     items-center
@@ -933,115 +933,114 @@ const TherapyConfirmation = () => {
                                     last:border-b-0
                                     transition
                                     hover:bg-[#FFF8F2]
-                                    ${
-                                        isSelected
+                                    ${isSelected
                                             ? "bg-[#FFF8F2] font-semibold text-[#4D2E23]"
                                             : "text-[#6F625B]"
-                                    }
+                                        }
                                 `}
-                            >
-                                <span>{room}</span>
+                                >
+                                    <span>{room}</span>
 
-                                {isSelected && (
-                                    <span className="text-[#8A5035]">
-                                        ✓
-                                    </span>
-                                )}
-                            </button>
-                        );
-                    })}
+                                    {isSelected && (
+                                        <span className="text-[#8A5035]">
+                                            ✓
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
 
-                </div>
-            )}
+                    </div>
+                )}
 
-        </div>
-    );
-};
+            </div>
+        );
+    };
     // ==========================================
     // RENDER THERAPIST SELECT
     // ==========================================
 
     const TherapistSelect = ({
-    slot,
-    request,
-}) => {
+        slot,
+        request,
+    }) => {
 
-    const appointmentId =
-        request?.appointment_id;
+        const appointmentId =
+            request?.appointment_id;
 
-    const therapistValue =
-        selectedTherapists[
+        const therapistValue =
+            selectedTherapists[
             appointmentId
-        ] ||
-        request?.therapist_id ||
-        slot?.therapist_id ||
-        "";
+            ] ||
+            request?.therapist_id ||
+            slot?.therapist_id ||
+            "";
 
-    const isSelecting =
-        Boolean(selectTherapistLoading);
+        const isSelecting =
+            Boolean(selectTherapistLoading);
 
-    const dropdownKey =
-        appointmentId;
+        const dropdownKey =
+            appointmentId;
 
-    const selectedTherapist =
-        therapistList?.find(
-            (therapist) =>
-                String(
-                    therapist.therapist_id ||
-                    therapist.id
-                ) === String(therapistValue)
-        );
-
-    const selectedTherapistName =
-        selectedTherapist?.therapist_name ||
-        selectedTherapist?.name ||
-        "";
-    useEffect(() => {
-    const handleClickOutside = (event) => {
-        const clickedInsideDropdown =
-            event.target.closest(
-                "[data-custom-dropdown]"
+        const selectedTherapist =
+            therapistList?.find(
+                (therapist) =>
+                    String(
+                        therapist.therapist_id ||
+                        therapist.id
+                    ) === String(therapistValue)
             );
 
-        if (!clickedInsideDropdown) {
-            setOpenRoomDropdown(null);
-            setOpenTherapistDropdown(null);
-        }
-    };
-
-    document.addEventListener(
-        "mousedown",
-        handleClickOutside
-    );
-
-    return () => {
-        document.removeEventListener(
-            "mousedown",
-            handleClickOutside
-        );
-    };
-}, []);
-    return (
-        <div className="relative min-w-[150px]" data-custom-dropdown>
-
-            {/* SELECTED THERAPIST */}
-            <button
-                type="button"
-                disabled={
-                    therapistListLoading ||
-                    isSelecting
-                }
-                onClick={() => {
-
-                    setOpenTherapistDropdown(
-                        openTherapistDropdown === dropdownKey
-                            ? null
-                            : dropdownKey
+        const selectedTherapistName =
+            selectedTherapist?.therapist_name ||
+            selectedTherapist?.name ||
+            "";
+        useEffect(() => {
+            const handleClickOutside = (event) => {
+                const clickedInsideDropdown =
+                    event.target.closest(
+                        "[data-custom-dropdown]"
                     );
 
+                if (!clickedInsideDropdown) {
                     setOpenRoomDropdown(null);
-                }}
-                className="
+                    setOpenTherapistDropdown(null);
+                }
+            };
+
+            document.addEventListener(
+                "mousedown",
+                handleClickOutside
+            );
+
+            return () => {
+                document.removeEventListener(
+                    "mousedown",
+                    handleClickOutside
+                );
+            };
+        }, []);
+        return (
+            <div className="relative min-w-[150px]" data-custom-dropdown>
+
+                {/* SELECTED THERAPIST */}
+                <button
+                    type="button"
+                    disabled={
+                        therapistListLoading ||
+                        isSelecting
+                    }
+                    onClick={() => {
+
+                        setOpenTherapistDropdown(
+                            openTherapistDropdown === dropdownKey
+                                ? null
+                                : dropdownKey
+                        );
+
+                        setOpenRoomDropdown(null);
+                    }}
+                    className="
                     flex
                     h-9
                     w-full
@@ -1062,38 +1061,37 @@ const TherapyConfirmation = () => {
                     disabled:cursor-not-allowed
                     disabled:opacity-60
                 "
-            >
-                <span className="truncate">
-                    {therapistListLoading
-                        ? "Loading..."
-                        : selectedTherapistName ||
-                          "Select Therapist"}
-                </span>
+                >
+                    <span className="truncate">
+                        {therapistListLoading
+                            ? "Loading..."
+                            : selectedTherapistName ||
+                            "Select Therapist"}
+                    </span>
 
-                <HiOutlineChevronDown
-                    size={14}
-                    className={`
+                    <HiOutlineChevronDown
+                        size={14}
+                        className={`
                         ml-2
                         flex-shrink-0
                         text-[#7A6658]
                         transition-transform
-                        ${
-                            openTherapistDropdown ===
-                            dropdownKey
+                        ${openTherapistDropdown ===
+                                dropdownKey
                                 ? "rotate-180"
                                 : ""
-                        }
+                            }
                     `}
-                />
-            </button>
+                    />
+                </button>
 
 
-            {/* CUSTOM THERAPIST DROPDOWN */}
-            {openTherapistDropdown === dropdownKey &&
-                !therapistListLoading &&
-                !isSelecting && (
-                    <div
-                        className="
+                {/* CUSTOM THERAPIST DROPDOWN */}
+                {openTherapistDropdown === dropdownKey &&
+                    !therapistListLoading &&
+                    !isSelecting && (
+                        <div
+                            className="
                             absolute
                             right-0
                             top-[42px]
@@ -1107,48 +1105,48 @@ const TherapyConfirmation = () => {
                             bg-white
                             shadow-xl
                         "
-                    >
+                        >
 
-                        {therapistList
-                            ?.filter(
-                                (therapist) =>
-                                    therapist.is_available !== false
-                            )
-                            .map((therapist) => {
+                            {therapistList
+                                ?.filter(
+                                    (therapist) =>
+                                        therapist.is_available !== false
+                                )
+                                .map((therapist) => {
 
-                                const therapistId =
-                                    therapist.therapist_id ||
-                                    therapist.id;
+                                    const therapistId =
+                                        therapist.therapist_id ||
+                                        therapist.id;
 
-                                const therapistName =
-                                    therapist.therapist_name ||
-                                    therapist.name ||
-                                    "Therapist";
+                                    const therapistName =
+                                        therapist.therapist_name ||
+                                        therapist.name ||
+                                        "Therapist";
 
-                                const isSelected =
-                                    String(
-                                        therapistValue
-                                    ) === String(
-                                        therapistId
-                                    );
+                                    const isSelected =
+                                        String(
+                                            therapistValue
+                                        ) === String(
+                                            therapistId
+                                        );
 
-                                return (
-                                    <button
-                                        key={therapistId}
-                                        type="button"
-                                        onClick={async () => {
+                                    return (
+                                        <button
+                                            key={therapistId}
+                                            type="button"
+                                            onClick={async () => {
 
-                                            setOpenTherapistDropdown(
-                                                null
-                                            );
+                                                setOpenTherapistDropdown(
+                                                    null
+                                                );
 
-                                            await handleTherapistChange(
-                                                slot,
-                                                request,
-                                                therapistId
-                                            );
-                                        }}
-                                        className={`
+                                                await handleTherapistChange(
+                                                    slot,
+                                                    request,
+                                                    therapistId
+                                                );
+                                            }}
+                                            className={`
                                             flex
                                             w-full
                                             items-center
@@ -1162,32 +1160,31 @@ const TherapyConfirmation = () => {
                                             last:border-b-0
                                             transition
                                             hover:bg-[#FFF8F2]
-                                            ${
-                                                isSelected
+                                            ${isSelected
                                                     ? "bg-[#FFF8F2] font-semibold text-[#4D2E23]"
                                                     : "text-[#6F625B]"
-                                            }
+                                                }
                                         `}
-                                    >
-                                        <span className="truncate">
-                                            {therapistName}
-                                        </span>
-
-                                        {isSelected && (
-                                            <span className="ml-2 text-[#8A5035]">
-                                                ✓
+                                        >
+                                            <span className="truncate">
+                                                {therapistName}
                                             </span>
-                                        )}
-                                    </button>
-                                );
-                            })}
 
-                    </div>
-                )}
+                                            {isSelected && (
+                                                <span className="ml-2 text-[#8A5035]">
+                                                    ✓
+                                                </span>
+                                            )}
+                                        </button>
+                                    );
+                                })}
 
-        </div>
-    );
-};
+                        </div>
+                    )}
+
+            </div>
+        );
+    };
 
 
     // ==========================================
@@ -1247,11 +1244,16 @@ const TherapyConfirmation = () => {
 
                 <div
                     className="
-                        min-h-screen
-                        bg-[#F7F7F7]
-                        px-6
-                        py-5
-                    "
+        min-h-screen
+        w-full
+        bg-[#F7F7F7]
+        px-4
+        py-5
+        sm:px-6
+        sm:py-6
+        lg:px-8
+        lg:py-7
+    "
                 >
 
                     <div
@@ -1298,7 +1300,7 @@ const TherapyConfirmation = () => {
                 {/* SUCCESS */}
                 {/* ========================================= */}
 
-               
+
 
 
                 {/* ========================================= */}
@@ -1307,117 +1309,186 @@ const TherapyConfirmation = () => {
 
                 <div
                     className="
-                        mb-3
-                        flex
-                        items-center
-                        justify-between
-                    "
+        mb-6
+        flex
+        flex-col
+        gap-5
+        xl:flex-row
+        xl:items-start
+        xl:justify-between
+    "
                 >
+                    <div className="flex items-start gap-3">
 
-                    <div>
-
-                        <div
+                        {/* BACK BUTTON */}
+                        <button
+                            type="button"
+                            onClick={() =>
+                                navigate(-1)
+                            }
+                            aria-label="Go back"
                             className="
-                                flex
-                                items-center
-                                gap-3
-                            "
+                mt-0.5
+                flex
+                h-9
+                w-9
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-[#E7DBD3]
+                bg-white
+                text-[#4B2E2A]
+                transition
+                hover:bg-[#F9F5F1]
+            "
                         >
+                            <HiOutlineArrowLeft
+                                size={17}
+                            />
+                        </button>
 
-                            <h1
+                        {/* HEADER CONTENT */}
+                        <div>
+
+                            <div
                                 className="
-                                    text-[21px]
-                                    font-semibold
-                                    text-[#2F2926]
-                                "
+                    flex
+                    flex-wrap
+                    items-center
+                    gap-2
+                    sm:gap-3
+                "
                             >
-                                Pending Actions
-                            </h1>
 
-                            <span
-                                className="
-                                    text-[22px]
-                                    text-[#8A817B]
-                                "
-                            >
-                                ›
-                            </span>
+                                <h1
+                                    className="
+                        text-[19px]
+                        font-semibold
+                        text-[#2F2926]
+                        sm:text-[21px]
+                    "
+                                >
+                                    Pending Actions
+                                </h1>
 
-                            <h2
-                                className="
-                                    text-[21px]
-                                    font-semibold
-                                    text-[#2F2926]
-                                "
-                            >
-                                Therapy Confirmation
-                            </h2>
-
-                            {doctor?.name && (
-                                <>
-                                    <span
-                                        className="
-                                            text-[22px]
-                                            text-[#8A817B]
-                                        "
-                                    >
-                                        ›
-                                    </span>
-
-                                    <h2
-                                        className="
-                                            text-[21px]
-                                            font-semibold
-                                            text-[#2F2926]
-                                        "
-                                    >
-                                        {
-                                            doctor.name
-                                        }
-                                    </h2>
-                                </>
-                            )}
-
-                        </div>
-
-
-                        <div
-                            className="
-                                mt-1
-                                flex
-                                flex-wrap
-                                items-center
-                                gap-2.5
-                                text-[13px]
-                                text-[#634238]
-                            "
-                        >
-
-                            <div className="flex items-center gap-2">
                                 <span
                                     className="
-                                        h-2
-                                        w-2
-                                        rounded-full
-                                        bg-[#4B2E2A]
-                                    "
-                                />
+                        text-[20px]
+                        text-[#8A817B]
+                        sm:text-[22px]
+                    "
+                                >
+                                    ›
+                                </span>
 
-                                {pendingPatientCount}{" "}
-                                Patients
+                                <h2
+                                    className="
+                        text-[19px]
+                        font-semibold
+                        text-[#2F2926]
+                        sm:text-[21px]
+                    "
+                                >
+                                    Therapy Confirmation
+                                </h2>
+
+                                {doctor?.name && (
+                                    <>
+                                        <span
+                                            className="
+                                text-[20px]
+                                text-[#8A817B]
+                                sm:text-[22px]
+                            "
+                                        >
+                                            ›
+                                        </span>
+
+                                        <h2
+                                            className="
+                                max-w-full
+                                truncate
+                                text-[19px]
+                                font-semibold
+                                text-[#2F2926]
+                                sm:text-[21px]
+                            "
+                                        >
+                                            {doctor.name}
+                                        </h2>
+                                    </>
+                                )}
+
                             </div>
 
-                            <span className="text-[#D3C3B7]">•</span>
+                            <div
+                                className="
+                    mt-2
+                    flex
+                    flex-wrap
+                    items-center
+                    gap-2.5
+                    text-[13px]
+                    text-[#634238]
+                "
+                            >
 
-                            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#E7D2C0] bg-[#FFF8F2] px-2.5 py-0.5 text-[11px] font-medium text-[#8A4F32]">
-                                <HiOutlineClock size={13} className="text-[#8A4F32]" />
-                                <span>Drag & drop appointments to reschedule time</span>
+                                <div
+                                    className="
+                        flex
+                        items-center
+                        gap-2
+                    "
+                                >
+                                    <span
+                                        className="
+                            h-2
+                            w-2
+                            rounded-full
+                            bg-[#4B2E2A]
+                        "
+                                    />
+
+                                    {pendingPatientCount} Patients
+                                </div>
+
+                                <span className="text-[#D3C3B7]">
+                                    •
+                                </span>
+
+                                <div
+                                    className="
+                        inline-flex
+                        items-center
+                        gap-1.5
+                        rounded-full
+                        border
+                        border-[#E7D2C0]
+                        bg-[#FFF8F2]
+                        px-2.5
+                        py-1
+                        text-[11px]
+                        font-medium
+                        text-[#8A4F32]
+                    "
+                                >
+                                    <HiOutlineClock
+                                        size={13}
+                                        className="text-[#8A4F32]"
+                                    />
+
+                                    <span>
+                                        Drag & drop appointments to reschedule time
+                                    </span>
+                                </div>
+
                             </div>
 
                         </div>
 
                     </div>
-
                 </div>
 
 
@@ -1440,7 +1511,8 @@ const TherapyConfirmation = () => {
                     <div
                         className="
                             grid
-                            grid-cols-[105px_1fr]
+                            grid-cols-[80px_1fr]
+                             sm:grid-cols-[105px_1fr]
                             border-b
                             border-[#E8DDD6]
                             bg-[#FFF9F4]
@@ -1559,16 +1631,16 @@ const TherapyConfirmation = () => {
                                         }
                                         className={`
                                             grid
-                                            grid-cols-[105px_1fr]
+                                            grid-cols-[80px_1fr]
+                                            sm:grid-cols-[105px_1fr]
                                             border-b
                                             border-[#EFE4DC]
                                             last:border-b-0
                                             transition-colors
                                             duration-150
-                                            ${
-                                                isDragTarget
-                                                    ? "bg-[#FFF6EF] ring-2 ring-inset ring-[#8A4F32]/50"
-                                                    : ""
+                                            ${isDragTarget
+                                                ? "bg-[#FFF6EF] ring-2 ring-inset ring-[#8A4F32]/50"
+                                                : ""
                                             }
                                         `}
                                     >
@@ -1812,11 +1884,10 @@ const TherapyConfirmation = () => {
                                                                                 px-3
                                                                                 py-3
                                                                                 transition-all
-                                                                                ${
-                                                                                    isItemDragged
+                                                                                ${isItemDragged
                                                                                         ? "opacity-30 scale-[0.99] border-dashed border-[#8A4F32]"
                                                                                         : "cursor-grab active:cursor-grabbing hover:shadow-xs"
-                                                                                }
+                                                                                    }
                                                                                 ${selected
                                                                                         ? "border-[#8A5035] bg-[#FFF6EF]"
                                                                                         : "border-[#E8DDD6] bg-white"
@@ -1882,10 +1953,12 @@ const TherapyConfirmation = () => {
 
                                                                                     <div
                                                                                         className="
-                                                                                        flex
-                                                                                        items-center
-                                                                                        gap-2
-                                                                                    "
+        flex
+        flex-wrap
+        items-center
+        justify-end
+        gap-2
+    "
                                                                                         draggable={false}
                                                                                         onDragStart={(e) =>
                                                                                             e.stopPropagation()
@@ -1959,12 +2032,11 @@ const TherapyConfirmation = () => {
                                                             px-3
                                                             py-3
                                                             transition-all
-                                                            ${
-                                                                draggedItem?.appointment_id ===
+                                                            ${draggedItem?.appointment_id ===
                                                                 (slot.appointment_id ||
                                                                     selectedRequest?.appointment_id)
-                                                                    ? "opacity-30 scale-[0.99] border-dashed border-[#8A4F32]"
-                                                                    : "cursor-grab active:cursor-grabbing hover:shadow-xs"
+                                                                ? "opacity-30 scale-[0.99] border-dashed border-[#8A4F32]"
+                                                                : "cursor-grab active:cursor-grabbing hover:shadow-xs"
                                                             }
                                                             ${isConfirmed
                                                                 ? "border-[#C9F0D1] bg-[#EEFFF1]"

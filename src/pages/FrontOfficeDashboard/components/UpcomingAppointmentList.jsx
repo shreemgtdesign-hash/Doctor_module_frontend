@@ -48,6 +48,7 @@ import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import {
     setFrontOfficePeriod,
 } from "../../../redux/frontOffice/frontOfficeDashboardSlice";
+import { HiOutlineArrowLeft } from "react-icons/hi";
 
 // ======================================================
 // MAIN COMPONENT
@@ -128,17 +129,17 @@ const UpcomingAppointmentsList = () => {
     // ==================================================
     // PERIOD
     // ==================================================
-const dashboardPeriod =
-    useSelector(
-        (state) =>
-            state.frontOfficeDashboard.period
+    const dashboardPeriod =
+        useSelector(
+            (state) =>
+                state.frontOfficeDashboard.period
+        );
+    const [
+        selectedPeriod,
+        setSelectedPeriod,
+    ] = useState(
+        dashboardPeriod || "today"
     );
-const [
-    selectedPeriod,
-    setSelectedPeriod,
-] = useState(
-    dashboardPeriod || "today"
-);
 
     const [
         showPeriodMenu,
@@ -165,19 +166,19 @@ const [
         selectedPeriod,
     ]);
 
-useEffect(() => {
+    useEffect(() => {
 
-    if (!dashboardPeriod) {
-        return;
-    }
+        if (!dashboardPeriod) {
+            return;
+        }
 
-    setSelectedPeriod(
-        dashboardPeriod
-    );
+        setSelectedPeriod(
+            dashboardPeriod
+        );
 
-}, [
-    dashboardPeriod,
-]);
+    }, [
+        dashboardPeriod,
+    ]);
     // ==================================================
     // PERIOD LABEL
     // ==================================================
@@ -205,23 +206,23 @@ useEffect(() => {
     // ==================================================
 
     const handlePeriodChange = (
-    period
-) => {
-
-    setSelectedPeriod(
         period
-    );
+    ) => {
 
-    dispatch(
-        setFrontOfficePeriod(
+        setSelectedPeriod(
             period
-        )
-    );
+        );
 
-    setShowPeriodMenu(
-        false
-    );
-};
+        dispatch(
+            setFrontOfficePeriod(
+                period
+            )
+        );
+
+        setShowPeriodMenu(
+            false
+        );
+    };
 
     // ==================================================
     // PREVIOUS PAGE
@@ -457,11 +458,16 @@ useEffect(() => {
 
             <div
                 className="
-                    min-h-screen
-                    bg-[#FFFCF9]
-                    px-6
-                    py-5
-                "
+        min-h-screen
+        w-full
+        bg-[#FFFCF9]
+        px-4
+        py-5
+        sm:px-6
+        sm:py-6
+        lg:px-8
+        lg:py-7
+    "
             >
 
                 {/* ==========================================
@@ -470,21 +476,26 @@ useEffect(() => {
 
                 <div
                     className="
-                        flex
-                        items-start
-                        justify-between
-                    "
+        mb-6
+        flex
+        flex-col
+        gap-5
+        xl:flex-row
+        xl:items-start
+        xl:justify-between
+    "
                 >
 
-                    <div>
-
-                        <div
-                            className="
-                                flex
-                                items-center
-                                gap-3
-                            "
-                        >
+                    <div className="flex items-start gap-3">
+    <div>
+        <div
+            className="
+                flex
+                flex-wrap
+                items-center
+                gap-3
+            "
+        >
 
                             {/* BACK BUTTON */}
 
@@ -493,24 +504,27 @@ useEffect(() => {
                                 onClick={() =>
                                     navigate(-1)
                                 }
+                                aria-label="Go back"
                                 className="
-                                    flex
-                                    h-8
-                                    w-8
-                                    items-center
-                                    justify-center
-                                    rounded-full
-                                    text-[#4B2E2A]
-                                    transition
-                                    hover:bg-[#FFF0E5]
-                                "
-                                title="Go back"
+        mt-0.5
+        flex
+        h-9
+        w-9
+        shrink-0
+        items-center
+        justify-center
+        rounded-full
+        border
+        border-[#E7DBD3]
+        bg-white
+        text-[#4B2E2A]
+        transition
+        hover:bg-[#F9F5F1]
+    "
                             >
-
-                                <HiArrowLeft
-                                    size={20}
+                                <HiOutlineArrowLeft
+                                    size={17}
                                 />
-
                             </button>
 
 
@@ -525,7 +539,7 @@ useEffect(() => {
                             </h1>
 
                         </div>
-
+</div>
 
                         <p
                             className="
@@ -678,7 +692,7 @@ useEffect(() => {
                         {typeof error === "string"
                             ? error
                             : error?.message ||
-                              "Failed to load appointments."
+                            "Failed to load appointments."
                         }
 
                     </div>
@@ -691,14 +705,16 @@ useEffect(() => {
                 ========================================== */}
 
                 <div
-                    className="
-                        mt-7
-                        flex
-                        items-center
-                        justify-end
-                        gap-4
-                    "
-                >
+    className="
+        mt-6
+        flex
+        flex-wrap
+        items-center
+        justify-end
+        gap-3
+        sm:gap-4
+    "
+>
 
                     <span
                         className="
@@ -771,16 +787,17 @@ useEffect(() => {
                 ========================================== */}
 
                 <div
-                    className="
-                        mt-5
-                        w-full
-                        overflow-hidden
-                        rounded-[15px]
-                        border
-                        border-[#E8DDD6]
-                        bg-white
-                    "
-                >
+    className="
+        mt-5
+        w-full
+        overflow-x-auto
+        overflow-y-hidden
+        rounded-[15px]
+        border
+        border-[#E8DDD6]
+        bg-white
+    "
+>
 
                     {/* ======================================
                         TABLE HEADER
@@ -902,19 +919,19 @@ useEffect(() => {
                                     checkInLoading={
                                         checkingInAppointment &&
                                         checkInAppointmentId ===
-                                            (
-                                                appointment?.appointment_id ||
-                                                appointment?.id
-                                            )
+                                        (
+                                            appointment?.appointment_id ||
+                                            appointment?.id
+                                        )
                                     }
 
                                     checkOutLoading={
                                         checkingOutAppointment &&
                                         checkOutAppointmentId ===
-                                            (
-                                                appointment?.appointment_id ||
-                                                appointment?.id
-                                            )
+                                        (
+                                            appointment?.appointment_id ||
+                                            appointment?.id
+                                        )
                                     }
                                 />
 
@@ -959,16 +976,14 @@ const TableHeader = ({
                 leading-4
                 text-[#4B2E2A]
 
-                ${
-                    center
-                        ? "justify-center text-center"
-                        : ""
+                ${center
+                    ? "justify-center text-center"
+                    : ""
                 }
 
-                ${
-                    !last
-                        ? "border-r border-[#E8DDD6]"
-                        : ""
+                ${!last
+                    ? "border-r border-[#E8DDD6]"
+                    : ""
                 }
             `}
         >
@@ -1089,8 +1104,8 @@ const AppointmentRow = ({
         appointment?.price_display ||
         (
             rawPrice !== undefined &&
-            rawPrice !== null &&
-            rawPrice !== ""
+                rawPrice !== null &&
+                rawPrice !== ""
                 ? `₹${rawPrice}`
                 : "-"
         );
@@ -1129,7 +1144,7 @@ const AppointmentRow = ({
         isVitalsAdded
             ? "Added Vitals"
             : appointment?.action_label ||
-              "+ Add Vitals";
+            "+ Add Vitals";
 
 
     return (
@@ -1391,14 +1406,13 @@ const AppointmentRow = ({
                         font-medium
                         transition
 
-                        ${
-                            isVitalsAdded
-                                ? `
+                        ${isVitalsAdded
+                            ? `
                                     border-[#EEE4DD]
                                     bg-white
                                     text-[#B7AAA3]
                                 `
-                                : `
+                            : `
                                     border-[#E7DBD3]
                                     bg-white
                                     text-[#4B2E2A]
@@ -1501,14 +1515,13 @@ const CheckButton = ({
                 border
                 transition
 
-                ${
-                    checked
-                        ? `
+                ${checked
+                    ? `
                             border-[#542C23]
                             bg-[#542C23]
                             text-white
                         `
-                        : `
+                    : `
                             border-[#542C23]
                             bg-white
                             text-transparent
@@ -1516,16 +1529,14 @@ const CheckButton = ({
                         `
                 }
 
-                ${
-                    loading
-                        ? "cursor-wait opacity-60"
-                        : ""
+                ${loading
+                    ? "cursor-wait opacity-60"
+                    : ""
                 }
 
-                ${
-                    checked
-                        ? "cursor-default"
-                        : ""
+                ${checked
+                    ? "cursor-default"
+                    : ""
                 }
             `}
         >
@@ -1582,10 +1593,9 @@ const PeriodButton = ({
                 transition
                 hover:bg-[#FFF5ED]
 
-                ${
-                    selected
-                        ? "bg-[#FFF5ED] font-semibold text-[#8A4F32]"
-                        : "text-[#4B2E2A]"
+                ${selected
+                    ? "bg-[#FFF5ED] font-semibold text-[#8A4F32]"
+                    : "text-[#4B2E2A]"
                 }
             `}
         >

@@ -13,9 +13,18 @@ const PatientHeader = ({
   // Sidebar control
   sidebarOpen,
   setSidebarOpen,
+
+  // Role
+  role,
+
+  // Junior Doctor timer
+  juniorDoctorTimer,
 }) => {
 
   if (!patient) return null;
+
+  const isJuniorDoctor =
+    role === "junior-doctor";
 
   return (
     <div
@@ -32,10 +41,6 @@ const PatientHeader = ({
         shadow-[0_2px_8px_rgba(80,50,40,0.05)]
       "
     >
-
-      {/* ==========================================
-          PATIENT HEADER CONTENT
-      ========================================== */}
 
       <div
         className="
@@ -62,10 +67,6 @@ const PatientHeader = ({
           "
         >
 
-          {/* ========================================
-              PATIENT IMAGE
-          ======================================== */}
-
           <img
             src={
               patient?.avatar ||
@@ -87,14 +88,7 @@ const PatientHeader = ({
             "
           />
 
-
-          {/* ========================================
-              PATIENT DETAILS
-          ======================================== */}
-
           <div className="min-w-0">
-
-            {/* NAME */}
 
             <h2
               className="
@@ -107,9 +101,6 @@ const PatientHeader = ({
             >
               {patient?.name}
             </h2>
-
-
-            {/* AGE + GENDER */}
 
             <p
               className="
@@ -127,9 +118,6 @@ const PatientHeader = ({
 
               {patient?.gender}
             </p>
-
-
-            {/* PHONE + PATIENT ID */}
 
             <div
               className="
@@ -176,9 +164,6 @@ const PatientHeader = ({
 
             </div>
 
-
-            {/* TAGS */}
-
             <div
               className="
                 mt-2
@@ -204,7 +189,6 @@ const PatientHeader = ({
                 {patient?.blood_group || "--"}
               </span>
 
-
               <span
                 className="
                   rounded-lg
@@ -221,7 +205,6 @@ const PatientHeader = ({
                   ? patient.allergies.join(", ")
                   : "No Allergies"}
               </span>
-
 
               {appointment?.status && (
                 <span
@@ -252,29 +235,48 @@ const PatientHeader = ({
 
 
         {/* ==========================================
-            TIMER
-            BOTTOM RIGHT
+            DOCTOR TIMER
+            Only for normal doctor
         ========================================== */}
 
-        <div
-          className="
-            absolute
-            bottom-[6px]
-            right-[62px]
-            z-20
-          "
-        >
+        {!isJuniorDoctor && (
+          <div
+            className="
+              absolute
+              bottom-[6px]
+              right-[62px]
+              z-20
+            "
+          >
+            <ConsultationTimer
+              timeLeft={timeLeft}
+            />
+          </div>
+        )}
 
-          <ConsultationTimer
-            timeLeft={timeLeft}
-          />
 
-        </div>
+        {/* ==========================================
+            JUNIOR DOCTOR TIMER
+            Only for junior-doctor
+        ========================================== */}
+
+        {isJuniorDoctor &&
+          juniorDoctorTimer && (
+            <div
+              className="
+                absolute
+                bottom-[6px]
+                right-[62px]
+                z-20
+              "
+            >
+              {juniorDoctorTimer}
+            </div>
+          )}
 
 
         {/* ==========================================
             SIDEBAR TOGGLE
-            TOP RIGHT
         ========================================== */}
 
         <button
@@ -289,7 +291,7 @@ const PatientHeader = ({
               (previous) => !previous
             )
           }
-          className={`
+          className="
             absolute
             right-0
             top-0
@@ -316,7 +318,7 @@ const PatientHeader = ({
 
             hover:bg-[#FFF2EA]
             hover:shadow-[0_2px_7px_rgba(80,50,40,0.10)]
-          `}
+          "
         >
 
           <HiOutlineArrowsPointingOut

@@ -90,6 +90,7 @@ const PendingPayments = () => {
         <DashboardLayout
             role="frontoffice"
         >
+            
 
             <div
                 className="
@@ -99,6 +100,36 @@ const PendingPayments = () => {
                     py-5
                 "
             >
+                <button
+            type="button"
+            onClick={() =>
+                navigate("/frontoffice/dashboard")
+            }
+            className="
+                mb-4
+                inline-flex
+                items-center
+                gap-2
+                rounded-xl
+                border
+                border-[#E7DBD3]
+                bg-white
+                px-4
+                py-2
+                text-[12px]
+                font-medium
+                text-[#4B2E2A]
+                transition
+                hover:bg-[#FFF8F2]
+                hover:border-[#CDB5A6]
+            "
+        >
+            <span className="text-[16px]">
+                ←
+            </span>
+
+            Back
+        </button>
 
                 {/* ================================= */}
                 {/* HEADER */}

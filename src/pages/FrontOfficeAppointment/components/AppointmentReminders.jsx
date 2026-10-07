@@ -195,7 +195,7 @@ const AppointmentReminders = () => {
 
                     <button
                         type="button"
-                        onClick={() => navigate("/frontoffice/dashboard")}
+                        onClick={() => navigate("/frontoffice/pending-actions-screen")}
                         className="
       flex
       h-10

@@ -15,7 +15,6 @@ import {
 import {
   loadPatientHistory,
 } from "../../../redux/consultation/consultationThunk";
-import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
 
 const PatientHistory = ({
@@ -142,8 +141,8 @@ const PatientHistory = ({
 
           <h2
             className="
-              text-2xl
-              font-bold
+              text-[24px]
+              font-semibold
               text-[#4D2E23]
             "
           >
@@ -198,8 +197,8 @@ const PatientHistory = ({
 
           <h2
             className="
-              text-2xl
-              font-bold
+              text-[24px]
+              font-semibold
               text-[#4D2E23]
             "
           >
@@ -246,10 +245,7 @@ const PatientHistory = ({
 
   return (
     <div>
-      <ConsultationSectionNav
-        activeSection={activeSection}
-        setActiveSection={setActiveSection}
-      />
+     
 
       {/* ================================= */}
       {/* HEADER */}
@@ -259,8 +255,8 @@ const PatientHistory = ({
         <div>
           <h2
             className="
-            text-2xl
-            font-bold
+            text-[24px]
+            font-semibold
             text-[#4D2E23]
           "
           >

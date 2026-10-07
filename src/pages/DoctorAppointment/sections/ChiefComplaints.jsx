@@ -14,7 +14,6 @@ import {
   saveChiefComplaintsThunk,
 } from "../../../redux/consultation/consultationThunk";
 import SpeechToTextTextarea from "../../../components/Layout/SpeechToTextTextarea";
-import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
 const symptoms = [
   "back ache",
@@ -431,10 +430,7 @@ const ChiefComplaints = ({
 
   return (
     <>
-     <ConsultationSectionNav
-        activeSection={activeSection}
-        setActiveSection={setActiveSection}
-      />
+  
       <div className="mt-6">
 
         {/* ================================================= */}
@@ -443,7 +439,7 @@ const ChiefComplaints = ({
 
         <div className="flex justify-between">
           <div>
-            <h2 className="text-[24px] font-bold text-[#4D2E23]">
+            <h2 className="text-[24px] font-semibold text-[#4D2E23]">
               Chief Complaints
               <span className="ml-1 text-red-500">
                 *

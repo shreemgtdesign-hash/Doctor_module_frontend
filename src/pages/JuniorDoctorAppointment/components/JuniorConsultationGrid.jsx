@@ -5,170 +5,128 @@ import {
     HiOutlineMagnifyingGlass,
 } from "react-icons/hi2";
 
-
 const cards = [
-
     {
         title: "Chief Complaints",
         section: "complaints",
-        icon: (
-            <HiOutlinePlus
-                size={24}
-            />
-        ),
+        icon: <HiOutlinePlus />,
     },
-
     {
         title: "Patient History",
         section: "history",
-        icon: (
-            <HiOutlineArrowPathRoundedSquare
-                size={24}
-            />
-        ),
+        icon: <HiOutlineArrowPathRoundedSquare />,
     },
-
     {
         title: "Reports",
         section: "reports",
-        icon: (
-            <HiOutlineDocumentChartBar
-                size={24}
-            />
-        ),
+        icon: <HiOutlineDocumentChartBar />,
     },
-
     {
         title: "Diagnosis",
         section: "diagnosis",
-        icon: (
-            <HiOutlineMagnifyingGlass
-                size={24}
-            />
-        ),
+        icon: <HiOutlineMagnifyingGlass />,
     },
-
 ];
-
 
 const JuniorConsultationGrid = ({
     activeSection,
     setActiveSection,
 }) => {
-
     return (
-
         <div
             className="
+                mt-5
                 grid
                 grid-cols-2
-                gap-4
+                gap-3
             "
         >
+            {cards.map((card) => {
+                const active =
+                    activeSection === card.section;
 
-            {cards.map(
-                (card) => (
-
+                return (
                     <button
-                        key={
-                            card.title
-                        }
-
+                        key={card.title}
                         type="button"
-
                         onClick={() =>
-                            setActiveSection(
-                                card.section
-                            )
+                            setActiveSection(card.section)
                         }
-
                         className={`
                             group
                             flex
-                            h-[100px]
-                            flex-col
+                            h-[64px]
+                            w-full
                             items-center
-                            justify-center
-                            rounded-[16px]
+                            rounded-[18px]
                             border
-                            px-4
+                            px-2
+                            text-left
                             transition-all
                             duration-200
 
                             ${
-                                activeSection ===
-                                card.section
-
+                                active
                                     ? `
-                                        border-[#D9B89C]
-                                        bg-[#FFF8F2]
+                                        border-[#7A4933]
+                                        bg-[#FFF7F0]
+                                        shadow-[0_2px_6px_rgba(90,50,35,0.08)]
                                     `
-
                                     : `
-                                        border-[#E8DDD4]
-                                        bg-[#FFFCF9]
-                                        hover:border-[#D9B89C]
-                                        hover:bg-[#FFF8F2]
+                                        border-[#E7DBD3]
+                                        bg-white
+                                        hover:border-[#C9A995]
+                                        hover:bg-[#FFF9F5]
                                     `
                             }
                         `}
                     >
-
-                        {/* ================================= */}
                         {/* ICON */}
-                        {/* ================================= */}
-
                         <div
-                            className="
+                            className={`
                                 flex
-                                h-[42px]
-                                w-[42px]
+                                h-[46px]
+                                w-[46px]
+                                shrink-0
                                 items-center
                                 justify-center
-                                rounded-xl
-                                bg-[#FFEAD8]
-                                text-[#6A3F2D]
-                                transition-transform
-                                duration-200
-                                group-hover:scale-105
-                            "
+                                rounded-[15px]
+
+                                ${
+                                    active
+                                        ? `
+                                            bg-[#FFE9D7]
+                                            text-[#75452F]
+                                        `
+                                        : `
+                                            bg-[#FFF0E3]
+                                            text-[#75452F]
+                                        `
+                                }
+                            `}
                         >
-
-                            {
-                                card.icon
-                            }
-
+                            <span className="text-[23px]">
+                                {card.icon}
+                            </span>
                         </div>
 
-
-                        {/* ================================= */}
                         {/* TITLE */}
-                        {/* ================================= */}
-
-                        <h3
+                        <span
                             className="
-                                mt-3
-                                text-center
-                                text-[14px]
+                                ml-3
+                                text-[16px]
                                 font-semibold
-                                text-[#4D2E23]
+                                leading-[20px]
+                                text-[#59352C]
                             "
                         >
-                            {
-                                card.title
-                            }
-                        </h3>
-
+                            {card.title}
+                        </span>
                     </button>
-
-                )
-            )}
-
+                );
+            })}
         </div>
-
     );
-
 };
-
 
 export default JuniorConsultationGrid;

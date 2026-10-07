@@ -23,7 +23,7 @@ import {
     saveFrontOfficeUpcomingAppointmentDetailsThunk,
     uploadFrontOfficePatientReportFile,
     createFrontOfficePatientReport,
-    
+
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 
@@ -322,6 +322,9 @@ const PatientAppointmentDetails = () => {
 
             setSuccessMessage(
                 "Vitals saved successfully."
+            );
+            navigate(
+                "/frontoffice/upcoming-appointments"
             );
 
 
@@ -691,22 +694,22 @@ const PatientAppointmentDetails = () => {
     // ==========================================
 
     return (
-<DashboardLayout role="frontoffice">
-        <div
-            className="
+        <DashboardLayout role="frontoffice">
+            <div
+                className="
                 min-h-screen
                 bg-[#FFFCF9]
                 px-6
                 py-5
             "
-        >
+            >
 
-            {/* ====================================== */}
-            {/* HEADER */}
-            {/* ====================================== */}
+                {/* ====================================== */}
+                {/* HEADER */}
+                {/* ====================================== */}
 
-            <div
-                className="
+                <div
+                    className="
                     flex
                     items-center
                     justify-between
@@ -714,24 +717,24 @@ const PatientAppointmentDetails = () => {
                     border-[#E8DDD6]
                     pb-5
                 "
-            >
+                >
 
-                <div
-                    className="
+                    <div
+                        className="
                         flex
                         items-center
                         gap-3
                     "
-                >
+                    >
 
-                    {/* BACK BUTTON */}
+                        {/* BACK BUTTON */}
 
-                    <button
-                        type="button"
-                        onClick={() =>
-                            navigate(-1)
-                        }
-                        className="
+                        <button
+                            type="button"
+                            onClick={() =>
+                                navigate(-1)
+                            }
+                            className="
                             flex
                             h-9
                             w-9
@@ -746,130 +749,94 @@ const PatientAppointmentDetails = () => {
                             transition
                             hover:bg-[#F9F5F1]
                         "
-                    >
+                        >
 
-                        <HiOutlineArrowLeft
-                            size={17}
-                        />
+                            <HiOutlineArrowLeft
+                                size={17}
+                            />
 
-                    </button>
+                        </button>
 
 
-                    {/* BREADCRUMB / TITLE */}
+                        {/* BREADCRUMB / TITLE */}
 
-                    <div>
+                        <div>
 
-                        <div
-                            className="
+                            <div
+                                className="
                                 flex
                                 items-center
                                 gap-2
                             "
-                        >
+                            >
 
-                            <h1
-                                className="
+                                <h1
+                                    className="
                                     text-[20px]
                                     font-semibold
                                     text-[#2F2926]
                                 "
-                            >
-                                Upcoming Appointments
-                            </h1>
+                                >
+                                    Upcoming Appointments
+                                </h1>
 
 
-                            <span
-                                className="
+                                <span
+                                    className="
                                     text-[20px]
                                     text-[#6F4A3A]
                                 "
-                            >
-                                ›
-                            </span>
+                                >
+                                    ›
+                                </span>
 
 
-                            <h2
-                                className="
+                                <h2
+                                    className="
                                     text-[18px]
                                     font-semibold
                                     text-[#2F2926]
                                 "
-                            >
-                                {personal.full_name ||
-                                    personal.name ||
-                                    "-"}
-                            </h2>
+                                >
+                                    {personal.full_name ||
+                                        personal.name ||
+                                        "-"}
+                                </h2>
 
-                        </div>
+                            </div>
 
 
-                        <p
-                            className="
+                            <p
+                                className="
                                 mt-1
                                 text-[11px]
                                 text-[#81756E]
                             "
-                        >
-                            Appointment No:{" "}
-                            {appointmentNumber}
-                        </p>
+                            >
+                                Appointment No:{" "}
+                                {appointmentNumber}
+                            </p>
+
+                        </div>
 
                     </div>
+
+
+                    {/* SAVE */}
+
+
 
                 </div>
 
 
-                {/* SAVE */}
+                {/* ====================================== */}
+                {/* SUCCESS */}
+                {/* ====================================== */}
 
-                <button
-                    type="button"
-                    disabled={
-                        saving ||
-                        savingVitals
-                    }
-                    onClick={
-                        handleSave
-                    }
-                    className="
-                        flex
-                        items-center
-                        gap-2
-                        rounded-lg
-                        bg-[#8A5038]
-                        px-6
-                        py-2.5
-                        text-[12px]
-                        font-medium
-                        text-white
-                        transition
-                        hover:bg-[#75432F]
-                        disabled:cursor-not-allowed
-                        disabled:opacity-50
-                    "
-                >
+                {successMessage && (
 
-                    <HiOutlineCloudArrowUp
-                        size={16}
-                    />
-
-                    {saving ||
-                        savingVitals
-                        ? "Saving..."
-                        : "Save Changes"}
-
-                </button>
-
-            </div>
-
-
-            {/* ====================================== */}
-            {/* SUCCESS */}
-            {/* ====================================== */}
-
-            {successMessage && (
-
-                <div
-                    className="
+                    <div
+                        className="
                         mt-4
                         rounded-xl
                         border
@@ -880,229 +847,229 @@ const PatientAppointmentDetails = () => {
                         text-[12px]
                         text-green-700
                     "
+                    >
+                        {successMessage}
+                    </div>
+
+                )}
+
+
+                {/* ====================================== */}
+                {/* PERSONAL INFORMATION */}
+                {/* ====================================== */}
+
+                <Section
+                    title="Personal Information"
                 >
-                    {successMessage}
-                </div>
 
-            )}
-
-
-            {/* ====================================== */}
-            {/* PERSONAL INFORMATION */}
-            {/* ====================================== */}
-
-            <Section
-                title="Personal Information"
-            >
-
-                <div
-                    className="
+                    <div
+                        className="
                         grid
                         grid-cols-3
                         gap-x-5
                         gap-y-5
                     "
+                    >
+
+                        <ReadOnlyField
+                            label="Full Name"
+                            value={
+                                personal.full_name ||
+                                personal.name
+                            }
+                        />
+
+
+                        <ReadOnlyField
+                            label="Patient ID"
+                            value={
+                                personal.patient_id
+                            }
+                        />
+
+
+                        <ReadOnlyField
+                            label="Email ID"
+                            value={
+                                personal.email ||
+                                personal.email_id
+                            }
+                        />
+
+
+                        <ReadOnlyField
+                            label="Phone"
+                            value={
+                                personal.mobile ||
+                                personal.phone
+                            }
+                        />
+
+
+                        <ReadOnlyField
+                            label="Date of Birth"
+                            value={
+                                patientDob
+                            }
+                        />
+
+
+                        <ReadOnlyField
+                            label="Gender"
+                            value={
+                                personal.gender
+                            }
+                        />
+
+                    </div>
+
+                </Section>
+
+
+                {/* ====================================== */}
+                {/* VITALS */}
+                {/* ====================================== */}
+
+                <Section
+                    title="Vitals"
                 >
 
-                    <ReadOnlyField
-                        label="Full Name"
-                        value={
-                            personal.full_name ||
-                            personal.name
-                        }
-                    />
-
-
-                    <ReadOnlyField
-                        label="Patient ID"
-                        value={
-                            personal.patient_id
-                        }
-                    />
-
-
-                    <ReadOnlyField
-                        label="Email ID"
-                        value={
-                            personal.email ||
-                            personal.email_id
-                        }
-                    />
-
-
-                    <ReadOnlyField
-                        label="Phone"
-                        value={
-                            personal.mobile ||
-                            personal.phone
-                        }
-                    />
-
-
-                    <ReadOnlyField
-                        label="Date of Birth"
-                        value={
-                            patientDob
-                        }
-                    />
-
-
-                    <ReadOnlyField
-                        label="Gender"
-                        value={
-                            personal.gender
-                        }
-                    />
-
-                </div>
-
-            </Section>
-
-
-            {/* ====================================== */}
-            {/* VITALS */}
-            {/* ====================================== */}
-
-            <Section
-                title="Vitals"
-            >
-
-                <div
-                    className="
+                    <div
+                        className="
                         grid
                         grid-cols-5
                         gap-5
                     "
-                >
+                    >
 
-                    <Input
-                        label="BP"
-                        name="bp"
-                        placeholder="Enter Value"
-                        value={
-                            form.bp
-                        }
-                        onChange={
-                            handleChange
-                        }
-                    />
-
-
-                    <Input
-                        label="Sugar"
-                        name="sugar"
-                        placeholder="Enter Value"
-                        value={
-                            form.sugar
-                        }
-                        onChange={
-                            handleChange
-                        }
-                    />
+                        <Input
+                            label="BP"
+                            name="bp"
+                            placeholder="Enter Value"
+                            value={
+                                form.bp
+                            }
+                            onChange={
+                                handleChange
+                            }
+                        />
 
 
-                    <Input
-                        label="Pulse"
-                        name="pulse"
-                        placeholder="Enter Value"
-                        value={
-                            form.pulse
-                        }
-                        onChange={
-                            handleChange
-                        }
-                    />
+                        <Input
+                            label="Sugar"
+                            name="sugar"
+                            placeholder="Enter Value"
+                            value={
+                                form.sugar
+                            }
+                            onChange={
+                                handleChange
+                            }
+                        />
 
 
-                    <Input
-                        label="SpO2"
-                        name="spo2"
-                        placeholder="Enter Value"
-                        value={
-                            form.spo2
-                        }
-                        onChange={
-                            handleChange
-                        }
-                    />
+                        <Input
+                            label="Pulse"
+                            name="pulse"
+                            placeholder="Enter Value"
+                            value={
+                                form.pulse
+                            }
+                            onChange={
+                                handleChange
+                            }
+                        />
 
 
-                    <Input
-                        label="Temperature"
-                        name="temperature"
-                        placeholder="Enter Value"
-                        value={
-                            form.temperature
-                        }
-                        onChange={
-                            handleChange
-                        }
-                    />
-
-                </div>
+                        <Input
+                            label="SpO2"
+                            name="spo2"
+                            placeholder="Enter Value"
+                            value={
+                                form.spo2
+                            }
+                            onChange={
+                                handleChange
+                            }
+                        />
 
 
-                <div
-                    className="
+                        <Input
+                            label="Temperature"
+                            name="temperature"
+                            placeholder="Enter Value"
+                            value={
+                                form.temperature
+                            }
+                            onChange={
+                                handleChange
+                            }
+                        />
+
+                    </div>
+
+
+                    <div
+                        className="
                         mt-5
                         grid
                         grid-cols-3
                         gap-5
                     "
-                >
+                    >
 
-                    <Input
-                        label="Body Toxicity"
-                        name="body_toxicity"
-                        placeholder="Enter Value"
-                        value={
-                            form.body_toxicity
-                        }
-                        onChange={
-                            handleChange
-                        }
-                    />
+                        <Input
+                            label="Body Toxicity"
+                            name="body_toxicity"
+                            placeholder="Enter Value"
+                            value={
+                                form.body_toxicity
+                            }
+                            onChange={
+                                handleChange
+                            }
+                        />
 
 
-                    <Select
-                        label="Ayurvedic Body Type"
-                        name="ayurvedic_body_type"
-                        value={
-                            form.ayurvedic_body_type
-                        }
-                        onChange={
-                            handleChange
-                        }
-                        options={[
-                            {
-                                label: "Vata",
-                                value: "Vata",
-                            },
-                            {
-                                label: "Pitta",
-                                value: "Pitta",
-                            },
-                            {
-                                label: "Kapha",
-                                value: "Kapha",
-                            },
-                        ]}
-                    />
-                    <div>
-                        <label
-                            className="
+                        <Select
+                            label="Ayurvedic Body Type"
+                            name="ayurvedic_body_type"
+                            value={
+                                form.ayurvedic_body_type
+                            }
+                            onChange={
+                                handleChange
+                            }
+                            options={[
+                                {
+                                    label: "Vata",
+                                    value: "Vata",
+                                },
+                                {
+                                    label: "Pitta",
+                                    value: "Pitta",
+                                },
+                                {
+                                    label: "Kapha",
+                                    value: "Kapha",
+                                },
+                            ]}
+                        />
+                        <div>
+                            <label
+                                className="
                                 mb-2
                                 block
                                 text-[12px]
                                 font-medium
                                 text-[#4B2E2A]
                             "
-                        >
-                            Upload Reports
-                        </label>
+                            >
+                                Upload Reports
+                            </label>
 
-                        <label
-                            className="
+                            <label
+                                className="
                                 flex
                                 h-11
                                 w-full
@@ -1123,43 +1090,43 @@ const PatientAppointmentDetails = () => {
                                 hover:border-[#B99B88]
                                 hover:bg-[#FFF9F5]
                             "
-                        >
-                            <HiOutlineCloudArrowUp
-                                size={17}
-                                className="shrink-0"
-                            />
+                            >
+                                <HiOutlineCloudArrowUp
+                                    size={17}
+                                    className="shrink-0"
+                                />
 
-                            <span className="truncate">
-                                {form.upload_reports?.length
-                                    ? `${form.upload_reports.length} report(s) uploaded`
-                                    : "Upload Reports"}
-                            </span>
+                                <span className="truncate">
+                                    {form.upload_reports?.length
+                                        ? `${form.upload_reports.length} report(s) uploaded`
+                                        : "Upload Reports"}
+                                </span>
 
-                            <input
-                                type="file"
-                                multiple
-                                accept=".pdf,.jpg,.jpeg,.png,.webp"
-                                className="hidden"
-                                onChange={handleReportFileChange}
-                            />
-                        </label>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                                    className="hidden"
+                                    onChange={handleReportFileChange}
+                                />
+                            </label>
 
-                        <p
-                            className="
+                            <p
+                                className="
                                 mt-1.5
                                 text-[11px]
                                 text-[#91847D]
                             "
-                        >
-                            Upload reports related to this appointment.
-                        </p>
+                            >
+                                Upload reports related to this appointment.
+                            </p>
 
-                        {form.upload_reports?.length > 0 && (
-                            <div className="mt-2 space-y-1">
-                                {form.upload_reports.map((report, index) => (
-                                    <div
-                                        key={`${report.name}-${index}`}
-                                        className="
+                            {form.upload_reports?.length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                    {form.upload_reports.map((report, index) => (
+                                        <div
+                                            key={`${report.name}-${index}`}
+                                            className="
                                             flex
                                             items-center
                                             justify-between
@@ -1170,111 +1137,194 @@ const PatientAppointmentDetails = () => {
                                             px-2.5
                                             py-1.5
                                         "
-                                    >
-                                        <span
-                                            className="
+                                        >
+                                            <span
+                                                className="
                                                 min-w-0
                                                 truncate
                                                 text-[11px]
                                                 text-[#4B2E2A]
                                             "
-                                        >
-                                            {report.name}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                                            >
+                                                {report.name}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                     </div>
 
-                </div>
-
-            </Section>
+                </Section>
 
 
-            {/* ====================================== */}
-            {/* APPOINTMENT DETAILS */}
-            {/* ====================================== */}
+                {/* ====================================== */}
+                {/* APPOINTMENT DETAILS */}
+                {/* ====================================== */}
 
-            <Section
-                title="Appointment Details"
-            >
+                <Section
+                    title="Appointment Details"
+                >
 
-                <div
-                    className="
+                    <div
+                        className="
                         grid
                         grid-cols-3
                         gap-x-5
                         gap-y-5
                     "
-                >
-
-                    <ReadOnlyField
-                        label="Doctor"
-                        value={
-                            appointment.doctor_name ||
-                            appointment.doctor_id
-                        }
-                    />
-
-
-                    <ReadOnlyField
-                        label="Appointment Type"
-                        value={
-                            appointment.appointment_type
-                        }
-                    />
-
-
-                    <ReadOnlyField
-                        label="Date"
-                        value={
-                            appointment.formatted_date ||
-                            appointment.date
-                        }
-                    />
-
-
-                    <ReadOnlyField
-                        label="Time"
-                        value={
-                            appointment.time ||
-                            appointment.slot_time
-                        }
-                    />
-
-
-                    <div
-                        className="
-                            col-span-2
-                        "
                     >
 
                         <ReadOnlyField
-                            label="Reason for Visit"
+                            label="Doctor"
                             value={
-                                appointment.reason_for_visit
+                                appointment.doctor_name ||
+                                appointment.doctor_id
+                            }
+                        />
+
+
+                        <ReadOnlyField
+                            label="Appointment Type"
+                            value={
+                                appointment.appointment_type
+                            }
+                        />
+
+
+                        <ReadOnlyField
+                            label="Date"
+                            value={
+                                appointment.formatted_date ||
+                                appointment.date
+                            }
+                        />
+
+
+                        <ReadOnlyField
+                            label="Time"
+                            value={
+                                appointment.time ||
+                                appointment.slot_time
+                            }
+                        />
+
+
+                        <div
+                            className="
+                            col-span-2
+                        "
+                        >
+
+                            <ReadOnlyField
+                                label="Reason for Visit"
+                                value={
+                                    appointment.reason_for_visit
+                                }
+                            />
+
+                        </div>
+
+
+                        <ReadOnlyField
+                            label="Fee"
+                            value={
+                                appointmentPrice !== undefined &&
+                                    appointmentPrice !== null
+                                    ? `₹${appointmentPrice}`
+                                    : "-"
                             }
                         />
 
                     </div>
 
+                </Section>
 
-                    <ReadOnlyField
-                        label="Fee"
-                        value={
-                            appointmentPrice !== undefined &&
-                                appointmentPrice !== null
-                                ? `₹${appointmentPrice}`
-                                : "-"
-                        }
-                    />
+                {/* ====================================== */}
+{/* ACTION BUTTONS */}
+{/* ====================================== */}
 
-                </div>
+<div
+    className="
+        mt-8
+        flex
+        items-center
+        justify-end
+        gap-3
+        border-t
+        border-[#E8DDD6]
+        pt-5
+    "
+>
+    {/* CANCEL */}
+    <button
+        type="button"
+        onClick={() =>
+            navigate(-1)
+        }
+        disabled={
+            saving ||
+            savingVitals
+        }
+        className="
+            rounded-lg
+            border
+            border-[#DCCBC0]
+            bg-white
+            px-6
+            py-2.5
+            text-[12px]
+            font-medium
+            text-[#6F4A3A]
+            transition
+            hover:bg-[#F9F5F1]
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+        "
+    >
+        Cancel
+    </button>
 
-            </Section>
+    {/* SAVE CHANGES */}
+    <button
+        type="button"
+        disabled={
+            saving ||
+            savingVitals
+        }
+        onClick={
+            handleSave
+        }
+        className="
+            flex
+            items-center
+            gap-2
+            rounded-lg
+            bg-[#8A5038]
+            px-6
+            py-2.5
+            text-[12px]
+            font-medium
+            text-white
+            transition
+            hover:bg-[#75432F]
+            disabled:cursor-not-allowed
+            disabled:opacity-50
+        "
+    >
+        <HiOutlineCloudArrowUp
+            size={16}
+        />
 
-        </div>
+        {saving ||
+            savingVitals
+            ? "Saving..."
+            : "Save Changes"}
+    </button>
+</div>
+
+            </div>
         </DashboardLayout>
 
     );

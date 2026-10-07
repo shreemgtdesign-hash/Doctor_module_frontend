@@ -18,7 +18,6 @@ import {
 import ViewXrayReport from "./ViewXrayReport";
 import { loadPatientReports } from "../../../redux/consultation/consultationThunk";
 import { selectPatientReports, selectPatientReportsLoading } from "../../../redux/consultation/consultationSlice";
-import ConsultationSectionNav from "../components/ConsultationSectionNav";
 
 
 const Reports = ({
@@ -257,11 +256,7 @@ const Reports = ({
                     scrollbar-track-transparent
                 "
             >
-                <ConsultationSectionNav
-        activeSection={activeSection}
-        setActiveSection={setActiveSection}
-      />
-
+              
                 {/* =================================
                     PATIENT HEADER
                 ================================= */}
@@ -276,7 +271,7 @@ const Reports = ({
                    <div> 
                     <h2
                         className="
-                            text-[19px]
+                            text-[24px]
                             font-semibold
                             text-[#59352C]
                         "

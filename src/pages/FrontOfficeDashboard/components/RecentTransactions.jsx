@@ -1,4 +1,5 @@
 import {
+    useEffect,
     useState,
 } from "react";
 
@@ -92,7 +93,13 @@ const RecentTransactions = () => {
         );
     };
 
-
+useEffect(() => {
+    dispatch(
+        loadFrontOfficeRecentTransactions(
+            period
+        )
+    );
+}, [dispatch, period]);
     return (
 
         <DashboardCard

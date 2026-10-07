@@ -1,8 +1,4 @@
 import {
-  useRef,
-} from "react";
-
-import {
   HiOutlinePlus,
   HiOutlineMagnifyingGlass,
   HiOutlinePencilSquare,
@@ -49,32 +45,51 @@ const sections = [
 const ConsultationSectionNav = ({
   activeSection,
   setActiveSection,
+  role,
 }) => {
 
-  const tabRefs = useRef([]);
+  const visibleSections =
+    role === "junior-doctor"
+      ? sections.filter((item) =>
+          [
+            "complaints",
+            "history",
+            "reports",
+            "diagnosis",
+          ].includes(item.section)
+        )
+      : sections;
 
 
   return (
-
     <div
       className="
+        sticky
+        top-0
+        z-40
+
         mb-5
-       
+        w-full
         min-w-0
         max-w-full
-        overflow-x-auto
-        overflow-y-hidden
-        hide-scrollbar
+
+        overflow-hidden
+
         border-b
-        m-0
+        border-[#E7DBD3]
+
+        bg-white
+
+        px-0
+        py-3
       "
     >
 
       <div
         className="
           flex
-          w-max
-          min-w-full
+          w-full
+          min-w-0
           items-center
           justify-center
           gap-4
@@ -82,7 +97,7 @@ const ConsultationSectionNav = ({
         "
       >
 
-        {sections.map((item, index) => {
+        {visibleSections.map((item) => {
 
           const Icon = item.icon;
 
@@ -91,14 +106,8 @@ const ConsultationSectionNav = ({
 
 
           return (
-
             <button
               key={item.section}
-
-              ref={(element) => {
-                tabRefs.current[index] =
-                  element;
-              }}
 
               type="button"
 
@@ -108,32 +117,6 @@ const ConsultationSectionNav = ({
                 )
               }
 
-              onMouseEnter={() => {
-
-                /*
-                 * Wait for the hover expansion
-                 * to start, then smoothly move
-                 * the tab into the center.
-                 */
-
-                requestAnimationFrame(() => {
-
-                  requestAnimationFrame(() => {
-
-                    tabRefs.current[
-                      index
-                    ]?.scrollIntoView({
-                      behavior: "smooth",
-                      inline: "center",
-                      block: "nearest",
-                    });
-
-                  });
-
-                });
-
-              }}
-
               aria-label={item.title}
 
               className={`
@@ -141,13 +124,14 @@ const ConsultationSectionNav = ({
                 flex
                 h-[46px]
 
+                shrink-0
                 items-center
                 justify-center
 
-                m-2
                 overflow-hidden
                 rounded-[13px]
                 border
+
                 transition-all
                 duration-300
                 ease-out
@@ -176,10 +160,6 @@ const ConsultationSectionNav = ({
               `}
             >
 
-              {/* =====================================
-                  CENTERED CONTENT
-              ===================================== */}
-
               <span
                 className="
                   flex
@@ -201,12 +181,10 @@ const ConsultationSectionNav = ({
                     justify-center
                   "
                 >
-
                   <Icon
                     size={21}
                     strokeWidth={2}
                   />
-
                 </span>
 
 
@@ -220,7 +198,9 @@ const ConsultationSectionNav = ({
                     text-[10px]
                     font-semibold
                     leading-none
+
                     opacity-0
+
                     transition-all
                     duration-300
                     ease-out
@@ -246,7 +226,6 @@ const ConsultationSectionNav = ({
               </span>
 
             </button>
-
           );
 
         })}
@@ -254,8 +233,6 @@ const ConsultationSectionNav = ({
       </div>
 
     </div>
-    
-
   );
 };
 
