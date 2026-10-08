@@ -15,7 +15,7 @@ import {
   useSelector,
 } from "react-redux";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { loadNotifications, markAllNotificationsRead, markNotificationRead } from "../../redux/notifications/notificationThiunk";
 import { isNotificationForRole, getActiveRole } from "../../utils/notificationFilter";
 
@@ -31,6 +31,13 @@ const Header = ({
 
   const navigate =
     useNavigate();
+
+  const location =
+    useLocation();
+
+  const isCorporate =
+    role === "corporate" ||
+    location.pathname.startsWith("/corporate");
 
   const notificationRef =
     useRef(null);
@@ -518,7 +525,7 @@ lg:h-[88px]
                 text-gray-500
               "
             >
-              Shree Ayurvedic group
+              {isCorporate ? "SHREE AYURVEDA HOSPITAL" : "Shree Ayurvedic group"}
             </p>
 
             <h1
@@ -541,12 +548,9 @@ lg:h-[88px]
                   "Playfair Display",
               }}
             >
-
-              Dhanwantaraye Namaha{" "}
-
-              {user?.name ||
-                "User"}
-
+              {isCorporate
+                ? `Namaste ${user?.name || "Rajkumari"}`
+                : `Dhanwantaraye Namaha ${user?.name || "User"}`}
             </h1>
 
           </div>

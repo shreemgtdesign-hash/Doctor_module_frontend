@@ -50,6 +50,9 @@ export const normalizeRole = (r) => {
   ) {
     return "therapist";
   }
+  if (clean === "corporate") {
+    return "corporate";
+  }
   return clean;
 };
 
@@ -94,6 +97,7 @@ export const getActiveRole = (user = null, reduxRole = null) => {
   // Fallback: Infer from current URL route
   if (typeof window !== "undefined" && window.location?.pathname) {
     const path = window.location.pathname.toLowerCase();
+    if (path.startsWith("/corporate")) return "corporate";
     if (path.startsWith("/pharmacist")) return "pharmacist";
     if (path.startsWith("/frontoffice")) return "frontoffice";
     if (path.startsWith("/doctor") || path.startsWith("/doctordashboard"))

@@ -1,6 +1,7 @@
 import {
     useState,
 } from "react";
+import { useLocation } from "react-router-dom";
 
 import Sidebar from "./Sidebar";
 import Header from "./Header";
@@ -12,6 +13,17 @@ const DashboardLayout = ({
     children,
     role,
 }) => {
+    const location = useLocation();
+
+    const resolvedRole =
+        role ||
+        (location?.pathname?.startsWith("/corporate") ? "corporate" : undefined) ||
+        (location?.pathname?.startsWith("/pharmacist") ? "pharmacist" : undefined) ||
+        (location?.pathname?.startsWith("/therapist") ? "therapist" : undefined) ||
+        (location?.pathname?.startsWith("/duty-doctor") ? "duty-doctor" : undefined) ||
+        (location?.pathname?.startsWith("/junior-doctor") ? "junior-doctor" : undefined) ||
+        (location?.pathname?.startsWith("/frontoffice") ? "frontoffice" : undefined) ||
+        "doctor";
 
     const [
         sidebarOpen,
@@ -45,7 +57,7 @@ const DashboardLayout = ({
                 <Sidebar
                     isOpen={sidebarOpen}
                     setIsOpen={setSidebarOpen}
-                    role={role}
+                    role={resolvedRole}
                 />
 
                 <div
@@ -69,7 +81,7 @@ const DashboardLayout = ({
                         setSidebarOpen={
                             setSidebarOpen
                         }
-                        role={role}
+                        role={resolvedRole}
                     />
 
                     <main

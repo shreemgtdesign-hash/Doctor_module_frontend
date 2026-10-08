@@ -25,6 +25,7 @@ import {
     FaFileMedical,
     FaBoxes,
     FaMedkit,
+    FaLifeRing,
 } from "react-icons/fa";
 
 import {
@@ -95,6 +96,53 @@ const dutyDoctorMenu = [
         name: "Dashboard",
         icon: HiHome,
         path: "/duty-doctor/dashboard",
+    },
+];
+
+// ==========================================
+// CORPORATE MENU
+// ==========================================
+
+const corporateMenu = [
+    {
+        name: "Dashboard",
+        icon: HiHome,
+        path: "/corporate/dashboard",
+    },
+    {
+        name: "Hospital Services",
+        icon: FaHospital,
+        path: "/corporate/hospital-services",
+    },
+    {
+        name: "Corporate Packages",
+        icon: FaBoxes,
+        path: "/corporate/packages",
+    },
+    {
+        name: "Customize Event",
+        icon: FaHandHoldingMedical,
+        path: "/corporate/customize-event",
+    },
+    {
+        name: "Medical Camps",
+        icon: FaMedkit,
+        path: "/corporate/medical-camps",
+    },
+    {
+        name: "Support",
+        icon: HiOutlineSupport,
+        path: "#",
+    },
+    {
+        name: "Profile",
+        icon: HiOutlineUserCircle,
+        path: "#",
+    },
+    {
+        name: "Settings",
+        icon: HiOutlineCog,
+        path: "#",
     },
 ];
 
@@ -290,6 +338,11 @@ const Sidebar = ({
         location.pathname.startsWith("/therapist")
     ) {
         currentMenu = therapistMenu;
+    } else if (
+        role === "corporate" ||
+        location.pathname.startsWith("/corporate")
+    ) {
+        currentMenu = corporateMenu;
     }
 
 
@@ -443,11 +496,73 @@ const Sidebar = ({
 
                         {currentMenu.map((item) => {
                             const Icon = item.icon;
+                            const isHash = !item.path || item.path === "#";
+                            const isCurrentlyActive = !isHash && (
+                                location.pathname === item.path ||
+                                (item.path === "/corporate/dashboard" && (location.pathname === "/corporate" || location.pathname === "/corporate/dashboard")) ||
+                                (item.path === "/corporate/packages" && (location.pathname === "/corporate/packages" || location.pathname === "/corporate/events/request")) ||
+                                (item.path === "/doctordashboard" && (location.pathname === "/" || location.pathname === "/doctordashboard"))
+                            );
+
+                            const content = (
+                                <div
+                                    className={`
+                                        flex
+                                        h-11
+                                        w-full
+                                        items-center
+                                        rounded-xl
+                                        px-3.5
+                                        transition-all
+                                        duration-200
+                                        ${
+                                            isCurrentlyActive
+                                                ? "border border-[#7A4933] bg-[#FFF5ED] text-[#7A4933] font-semibold shadow-xs"
+                                                : "text-[#5B3428] hover:bg-[#FAF4EF] font-medium"
+                                        }
+                                    `}
+                                >
+                                    <Icon
+                                        size={20}
+                                        className={`
+                                            shrink-0
+                                            ${
+                                                isCurrentlyActive
+                                                    ? "text-[#7A4933]"
+                                                    : "text-[#7D6B63]"
+                                            }
+                                        `}
+                                    />
+
+                                    <span
+                                        className="
+                                            ml-3
+                                            text-[14px]
+                                            truncate
+                                        "
+                                    >
+                                        {item.name}
+                                    </span>
+                                </div>
+                            );
+
+                            if (isHash) {
+                                return (
+                                    <div
+                                        key={item.name}
+                                        className="cursor-pointer"
+                                        onClick={(e) => e.preventDefault()}
+                                    >
+                                        {content}
+                                    </div>
+                                );
+                            }
 
                             return (
                                 <NavLink
                                     key={item.name}
                                     to={item.path}
+                                    end
                                     onClick={() => {
                                         if (
                                             typeof window !== "undefined" &&
@@ -457,47 +572,7 @@ const Sidebar = ({
                                         }
                                     }}
                                 >
-                                    {({ isActive }) => (
-                                        <div
-                                            className={`
-                                                flex
-                                                h-11
-                                                w-full
-                                                items-center
-                                                rounded-xl
-                                                px-3.5
-                                                transition-all
-                                                duration-200
-                                                ${
-                                                    isActive
-                                                        ? "border border-[#7A4933] bg-[#FFF5ED] text-[#7A4933] font-semibold shadow-xs"
-                                                        : "text-[#5B3428] hover:bg-[#FAF4EF] font-medium"
-                                                }
-                                            `}
-                                        >
-                                            <Icon
-                                                size={20}
-                                                className={`
-                                                    shrink-0
-                                                    ${
-                                                        isActive
-                                                            ? "text-[#7A4933]"
-                                                            : "text-[#7D6B63]"
-                                                    }
-                                                `}
-                                            />
-
-                                            <span
-                                                className="
-                                                    ml-3
-                                                    text-[14px]
-                                                    truncate
-                                                "
-                                            >
-                                                {item.name}
-                                            </span>
-                                        </div>
-                                    )}
+                                    {content}
                                 </NavLink>
                             );
                         })}

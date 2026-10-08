@@ -57,6 +57,8 @@ import OnlineOrderDetails from "./pages/Pharmacist/PharmacistAppointments/compon
 import JuniorDoctorAppointment from "./pages/JuniorDoctorAppointment/JuniorDoctorAppointment";
 import JuniorDoctorDashboard from "./pages/JuniorDoctorDashboard/JuniorDoctorDashboard";
 import CorporateDashboard from "./pages/Corporate/CorporateDashboard/CorporateDashboard";
+import CorporatePackages from "./pages/Corporate/CorporatePackages/CorporatePackages";
+import CorporateCustomizeEvent from "./pages/Corporate/CorporateCustomizeEvent/CorporateCustomizeEvent";
 import DashboardLayout from "./components/Layout/DashboardLayout";
 
 function App() {
@@ -408,8 +410,32 @@ function App() {
   }
 />
 <Route
+  path="/corporate"
+  element={<Navigate to="/corporate/dashboard" replace />}
+/>
+<Route
   path="/corporate/dashboard"
   element={<CorporateDashboard />}
+/>
+<Route
+  path="/corporate/packages"
+  element={<CorporatePackages />}
+/>
+<Route
+  path="/corporate/hospital-services"
+  element={<CorporatePackages />}
+/>
+<Route
+  path="/corporate/medical-camps"
+  element={<CorporatePackages />}
+/>
+<Route
+  path="/corporate/customize-event"
+  element={<CorporateCustomizeEvent />}
+/>
+<Route
+  path="/corporate/events/request"
+  element={<CorporateCustomizeEvent />}
 />
 
     </Routes>
