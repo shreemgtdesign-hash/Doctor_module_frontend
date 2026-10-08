@@ -36,10 +36,7 @@ const Therapy = ({
     appointmentId,
     onBack,
     onContinue,
-    consultationTimeLeft,
-    consultationTimerStarted,
-    activeSection,
-    setActiveSection,
+
 }) => {
     const dispatch = useDispatch();
 
@@ -203,9 +200,9 @@ const Therapy = ({
             prev.map((item, i) =>
                 i === index
                     ? {
-                          ...item,
-                          [key]: value,
-                      }
+                        ...item,
+                        [key]: value,
+                    }
                     : item
             )
         );
@@ -240,7 +237,7 @@ const Therapy = ({
                         booking_date:
                             item.booking_date?.split("T")[0] ||
                             new Date().toISOString().split("T")[0],
-                        slot_time: item.slot_time || "10:00:00",
+                       
                         doctor_prescription_therpay_notes:
                             item.notes ||
                             item.doctor_prescription_therpay_notes ||
@@ -265,7 +262,7 @@ const Therapy = ({
                                 booking_date:
                                     item.booking_date?.split("T")[0] ||
                                     new Date().toISOString().split("T")[0],
-                                slot_time: item.slot_time || "10:00:00",
+                                
                                 amount: Number(item.amount || 0),
                                 notes:
                                     item.notes ||
@@ -365,11 +362,10 @@ const Therapy = ({
                                             addTherapy(item);
                                         }
                                     }}
-                                    className={`flex w-full items-center justify-between rounded-xl border-b border-[#F2E8E2] px-4 py-3 text-left transition last:border-b-0 ${
-                                        isAlreadySelected
+                                    className={`flex w-full items-center justify-between rounded-xl border-b border-[#F2E8E2] px-4 py-3 text-left transition last:border-b-0 ${isAlreadySelected
                                             ? "cursor-not-allowed bg-[#FAF7F4] opacity-60"
                                             : "hover:bg-[#FFF8F2]"
-                                    }`}
+                                        }`}
                                 >
                                     {/* Left */}
                                     <div className="flex min-w-0 items-center gap-3">
@@ -531,9 +527,8 @@ const Therapy = ({
                                                     </span>
                                                     <HiChevronDown
                                                         size={16}
-                                                        className={`ml-2 shrink-0 text-[#7B665A] transition-transform ${
-                                                            openDoctorDropdown === index ? "rotate-180" : ""
-                                                        }`}
+                                                        className={`ml-2 shrink-0 text-[#7B665A] transition-transform ${openDoctorDropdown === index ? "rotate-180" : ""
+                                                            }`}
                                                     />
                                                 </button>
 
@@ -563,9 +558,8 @@ const Therapy = ({
                                                                         updateTherapy(index, "doctor_name", docName);
                                                                         setOpenDoctorDropdown(null);
                                                                     }}
-                                                                    className={`flex w-full items-center justify-between border-b border-[#F2E8E2] px-4 py-2.5 text-left last:border-b-0 transition hover:bg-[#FFF8F2] ${
-                                                                        isSelected ? "bg-[#FFF8F2]" : "bg-white"
-                                                                    }`}
+                                                                    className={`flex w-full items-center justify-between border-b border-[#F2E8E2] px-4 py-2.5 text-left last:border-b-0 transition hover:bg-[#FFF8F2] ${isSelected ? "bg-[#FFF8F2]" : "bg-white"
+                                                                        }`}
                                                                 >
                                                                     <div className="min-w-0">
                                                                         <p className="truncate text-[13px] font-semibold text-[#4D2E23]">
@@ -606,9 +600,8 @@ const Therapy = ({
                                                     </span>
                                                     <HiChevronDown
                                                         size={16}
-                                                        className={`ml-2 shrink-0 text-[#7B665A] transition-transform ${
-                                                            openCategoryDropdown === index ? "rotate-180" : ""
-                                                        }`}
+                                                        className={`ml-2 shrink-0 text-[#7B665A] transition-transform ${openCategoryDropdown === index ? "rotate-180" : ""
+                                                            }`}
                                                     />
                                                 </button>
 
@@ -624,11 +617,10 @@ const Therapy = ({
                                                                         updateTherapy(index, "category", cat);
                                                                         setOpenCategoryDropdown(null);
                                                                     }}
-                                                                    className={`flex w-full items-center justify-between border-b border-[#F2E8E2] px-4 py-2.5 text-left text-[12px] last:border-b-0 hover:bg-[#FFF8F2] ${
-                                                                        isSelected
+                                                                    className={`flex w-full items-center justify-between border-b border-[#F2E8E2] px-4 py-2.5 text-left text-[12px] last:border-b-0 hover:bg-[#FFF8F2] ${isSelected
                                                                             ? "bg-[#FFF8F2] font-semibold text-[#4D2E23]"
                                                                             : "text-[#6F625B]"
-                                                                    }`}
+                                                                        }`}
                                                                 >
                                                                     <span>{cat}</span>
                                                                     {isSelected && (
@@ -662,6 +654,8 @@ const Therapy = ({
                                     </div>
                                 </div>
 
+
+
                                 {/* ================================================= */}
                                 {/* DIVIDER */}
                                 {/* ================================================= */}
@@ -671,6 +665,41 @@ const Therapy = ({
                                 {/* NUMBER OF DAYS + INSTRUCTIONS / NOTES */}
                                 {/* ================================================= */}
                                 <div className="space-y-4">
+                                    {/* Booking Date */}
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <span className="text-[15px] font-semibold text-[#4D2E23]">
+                                            Booking Date:
+                                        </span>
+
+                                        <input
+                                            type="date"
+                                            value={
+                                                item.booking_date
+                                                    ? item.booking_date.split("T")[0]
+                                                    : new Date().toISOString().split("T")[0]
+                                            }
+                                            onChange={(e) =>
+                                                updateTherapy(
+                                                    index,
+                                                    "booking_date",
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="
+            h-10
+            rounded-xl
+            border
+            border-[#E7DBD3]
+            bg-white
+            px-3
+            text-[14px]
+            font-semibold
+            text-[#4D2E23]
+            outline-none
+            focus:border-[#8A563B]
+        "
+                                        />
+                                    </div>
                                     {/* Number of Days input */}
                                     <div className="flex items-center gap-3">
                                         <span className="text-[15px] font-semibold text-[#4D2E23]">

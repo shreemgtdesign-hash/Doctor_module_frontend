@@ -282,7 +282,7 @@ const FrontofficePatientTable = () => {
   const handleAddPatient = () => {
 
     navigate(
-      "/frontoffice/direct-walk-in"
+      "/frontoffice/direct-walkin"
     );
 
   };

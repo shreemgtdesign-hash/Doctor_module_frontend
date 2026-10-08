@@ -754,7 +754,7 @@ const Prescription = ({
             {/* Header */}
 
 
-            <div className="py-3 flex items-center justify-between">
+            <div className=" flex items-center justify-between">
                 <div>
 
                     <h2 className="text-[24px] font-semibold text-[#4D2E23]">

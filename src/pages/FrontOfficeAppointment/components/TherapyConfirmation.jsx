@@ -94,6 +94,16 @@ const TherapyConfirmation = () => {
         setSelectedTherapists,
     ] = useState({});
 
+    const [
+        selectedRecurring,
+        setSelectedRecurring,
+    ] = useState({});
+
+    const [
+        selectedDays,
+        setSelectedDays,
+    ] = useState({});
+
     // ==========================================
     // DRAG AND DROP STATE
     // ==========================================
@@ -327,6 +337,26 @@ const TherapyConfirmation = () => {
                 slot.date ||
                 defaultBookingDate
             ),
+            therapist_id:
+                request.therapist_id ||
+                slot.therapist_id ||
+                "",
+            room_no:
+                request.room_no ||
+                slot.room_no ||
+                "",
+            no_of_days:
+                request.no_of_days ||
+                slot.no_of_days ||
+                1,
+            is_recurring:
+                request.is_recurring ??
+                slot.is_recurring ??
+                false,
+            notes:
+                request.notes ||
+                slot.notes ||
+                "",
         };
 
         e.dataTransfer.setData("application/json", JSON.stringify(item));
@@ -367,6 +397,26 @@ const TherapyConfirmation = () => {
                 selectedRequest?.date ||
                 defaultBookingDate
             ),
+            therapist_id:
+                slot.therapist_id ||
+                selectedRequest?.therapist_id ||
+                "",
+            room_no:
+                slot.room_no ||
+                selectedRequest?.room_no ||
+                "",
+            no_of_days:
+                slot.no_of_days ||
+                selectedRequest?.no_of_days ||
+                1,
+            is_recurring:
+                slot.is_recurring ??
+                selectedRequest?.is_recurring ??
+                false,
+            notes:
+                slot.notes ||
+                selectedRequest?.notes ||
+                "",
         };
 
         e.dataTransfer.setData("application/json", JSON.stringify(item));
@@ -395,6 +445,119 @@ const TherapyConfirmation = () => {
             setDragOverTime(null);
         }
     };
+
+    const handleTherapyScheduleUpdate = async ({
+        slot,
+        request,
+        bookingDate,
+        slotTime,
+        therapistId,
+        roomNo,
+        noOfDays,
+        isRecurring,
+        notes,
+    }) => {
+        const appointmentId =
+            request?.appointment_id ||
+            slot?.appointment_id;
+
+        if (!appointmentId) {
+            showErrorToast(
+                "Update Failed",
+                "Appointment ID is missing."
+            );
+            return;
+        }
+
+        const payload = {
+            appointment_id: appointmentId,
+            booking_date: formatBookingDate(
+                bookingDate ||
+                request?.booking_date ||
+                slot?.booking_date ||
+                defaultBookingDate
+            ),
+            slot_time:
+                slotTime ||
+                request?.slot_time ||
+                slot?.time ||
+                "",
+            therapist_id:
+                therapistId ||
+                request?.therapist_id ||
+                slot?.therapist_id ||
+                "",
+            room_no:
+                roomNo ||
+                request?.room_no ||
+                slot?.room_no ||
+                "",
+            no_of_days: Number(
+                noOfDays ||
+                request?.no_of_days ||
+                slot?.no_of_days ||
+                1
+            ),
+            is_recurring:
+                typeof isRecurring === "boolean"
+                    ? isRecurring
+                    : Boolean(
+                        request?.is_recurring ??
+                        slot?.is_recurring ??
+                        false
+                    ),
+            notes:
+                notes ??
+                request?.notes ??
+                slot?.notes ??
+                "",
+        };
+
+        console.log(
+            "🔄 Updating Therapy Appointment:",
+            payload
+        );
+
+        setIsReschedulingLocal(true);
+
+        try {
+            const response = await dispatch(
+                rescheduleFrontOfficeTherapyAppointment(
+                    payload
+                )
+            ).unwrap();
+
+            showSuccessToast(
+                "Therapy Updated",
+                response?.message ||
+                "Therapy appointment updated successfully."
+            );
+
+            await dispatch(
+                loadFrontOfficeTherapyAppointmentConfirmation()
+            );
+        } catch (error) {
+            console.error(
+                "❌ Therapy update error:",
+                error
+            );
+
+            showErrorToast(
+                "Update Failed",
+                error?.message ||
+                error?.detail ||
+                (typeof error === "string"
+                    ? error
+                    : "Unable to update therapy appointment.")
+            );
+        } finally {
+            setIsReschedulingLocal(false);
+        }
+    };
+
+    // ==========================================
+    // DRAG & DROP RESCHEDULE
+    // ==========================================
 
     const handleDrop = async (e, targetSlot) => {
         e.preventDefault();
@@ -425,57 +588,42 @@ const TherapyConfirmation = () => {
             return;
         }
 
-        const doctorId =
-            data.doctor_id ||
-            targetSlot.doctor_id ||
-            fallbackDoctorId;
+        const appointmentId = data.appointment_id;
 
-        const bookingDate = formatBookingDate(
-            data.booking_date ||
-            targetSlot.booking_date ||
-            defaultBookingDate
-        );
-
-        const payload = {
-            doctor_id: doctorId,
-            appointment_id: data.appointment_id,
-            booking_date: bookingDate,
-            slot_time: targetSlot.time,
-        };
-
-        console.log("🚚 Rescheduling Therapy Appointment via Drag & Drop:", payload);
-
-        setIsReschedulingLocal(true);
-
-        try {
-            const response = await dispatch(
-                rescheduleFrontOfficeTherapyAppointment(payload)
-            ).unwrap();
-
-            showSuccessToast(
-                "Therapy Rescheduled",
-                response?.message ||
-                `Therapy appointment successfully rescheduled to ${targetSlot.time}!`
-            );
-
-            // Reload confirmation data from backend
-            await dispatch(
-                loadFrontOfficeTherapyAppointmentConfirmation()
-            );
-
-        } catch (error) {
-            console.error("❌ Reschedule error:", error);
-            showErrorToast(
-                "Reschedule Failed",
-                error?.message ||
-                error?.detail ||
-                (typeof error === "string"
-                    ? error
-                    : "Unable to reschedule therapy appointment.")
-            );
-        } finally {
-            setIsReschedulingLocal(false);
-        }
+        await handleTherapyScheduleUpdate({
+            slot: targetSlot,
+            request: data,
+            bookingDate: formatBookingDate(
+                data.booking_date ||
+                targetSlot.booking_date ||
+                defaultBookingDate
+            ),
+            slotTime: targetSlot.time,
+            therapistId:
+                selectedTherapists[appointmentId] ||
+                data.therapist_id ||
+                targetSlot.therapist_id ||
+                "",
+            roomNo:
+                selectedRooms[appointmentId] ||
+                data.room_no ||
+                targetSlot.room_no ||
+                "",
+            noOfDays:
+                selectedDays[appointmentId] ||
+                data.no_of_days ||
+                targetSlot.no_of_days ||
+                1,
+            isRecurring:
+                selectedRecurring[appointmentId] ??
+                data.is_recurring ??
+                targetSlot.is_recurring ??
+                false,
+            notes:
+                data.notes ||
+                targetSlot.notes ||
+                "",
+        });
     };
 
 
@@ -956,6 +1104,319 @@ const TherapyConfirmation = () => {
             </div>
         );
     };
+    // ==========================================
+    // NUMBER OF DAYS SELECT
+    // ==========================================
+
+    const dayOptions = [
+        1,
+        3,
+        5,
+        7,
+        10,
+        14,
+        20,
+        30,
+    ];
+
+    const DaysSelect = ({
+        slot,
+        request,
+    }) => {
+        const appointmentId =
+            request?.appointment_id ||
+            slot?.appointment_id;
+
+        const numberOfDays =
+            selectedDays[appointmentId] ??
+            request?.no_of_days ??
+            slot?.no_of_days ??
+            1;
+
+        const [open, setOpen] = useState(false);
+
+        return (
+            <div
+                className="relative min-w-[108px]"
+                data-custom-dropdown
+            >
+                <button
+                    type="button"
+                    disabled={isReschedulingLocal}
+                    onClick={() => {
+                        setOpen((previous) => !previous);
+                        setOpenRoomDropdown(null);
+                        setOpenTherapistDropdown(null);
+                    }}
+                    className="
+                        flex
+                        h-9
+                        w-full
+                        items-center
+                        justify-between
+                        rounded-[10px]
+                        border
+                        border-[#E7D5C4]
+                        bg-white
+                        px-3
+                        text-left
+                        text-[11px]
+                        font-medium
+                        text-[#4D2E23]
+                        shadow-sm
+                        transition
+                        hover:border-[#CDB5A6]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-60
+                    "
+                >
+                    <span>{numberOfDays} Days</span>
+                    <HiOutlineChevronDown
+                        size={14}
+                        className={`
+                            ml-2
+                            flex-shrink-0
+                            text-[#7A6658]
+                            transition-transform
+                            ${open ? "rotate-180" : ""}
+                        `}
+                    />
+                </button>
+
+                {open && (
+    <div
+        className="
+            absolute
+            right-0
+            top-[42px]
+            z-[9999]
+            w-[130px]
+            max-h-[260px]
+            overflow-y-auto
+            rounded-xl
+            border
+            border-[#E7D5C4]
+            bg-white
+            shadow-xl
+        "
+    >
+                        {dayOptions.map((days) => {
+                            const isSelected =
+                                Number(numberOfDays) ===
+                                Number(days);
+
+                            return (
+                                <button
+                                    key={days}
+                                    type="button"
+                                    onClick={async () => {
+                                        setOpen(false);
+
+                                        setSelectedDays(
+                                            (previous) => ({
+                                                ...previous,
+                                                [appointmentId]: days,
+                                            })
+                                        );
+
+                                        await handleTherapyScheduleUpdate({
+                                            slot,
+                                            request,
+                                            bookingDate:
+                                                request?.booking_date ||
+                                                slot?.booking_date ||
+                                                defaultBookingDate,
+                                            slotTime:
+                                                request?.slot_time ||
+                                                slot?.time ||
+                                                "",
+                                            therapistId:
+                                                selectedTherapists[appointmentId] ||
+                                                request?.therapist_id ||
+                                                slot?.therapist_id ||
+                                                "",
+                                            roomNo:
+                                                selectedRooms[appointmentId] ||
+                                                request?.room_no ||
+                                                slot?.room_no ||
+                                                "",
+                                            noOfDays: days,
+                                            isRecurring:
+                                                selectedRecurring[appointmentId] ??
+                                                request?.is_recurring ??
+                                                slot?.is_recurring ??
+                                                false,
+                                            notes:
+                                                request?.notes ||
+                                                slot?.notes ||
+                                                "",
+                                        });
+                                    }}
+                                    className={`
+                                        flex
+                                        w-full
+                                        items-center
+                                        justify-between
+                                        border-b
+                                        border-[#F2E8E2]
+                                        px-3
+                                        py-2.5
+                                        text-left
+                                        text-[11px]
+                                        last:border-b-0
+                                        transition
+                                        hover:bg-[#FFF8F2]
+                                        ${
+                                            isSelected
+                                                ? "bg-[#FFF8F2] font-semibold text-[#4D2E23]"
+                                                : "text-[#6F625B]"
+                                        }
+                                    `}
+                                >
+                                    <span>{days} Days</span>
+                                    {isSelected && (
+                                        <span className="text-[#8A5035]">
+                                            ✓
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    // ==========================================
+    // RECURRING + DAYS + THERAPIST + ROOM
+    // ==========================================
+
+    const TherapyScheduleControls = ({
+        slot,
+        request,
+    }) => {
+        const appointmentId =
+            request?.appointment_id ||
+            slot?.appointment_id;
+
+        const isRecurring =
+            selectedRecurring[appointmentId] ??
+            request?.is_recurring ??
+            slot?.is_recurring ??
+            false;
+
+        const numberOfDays =
+            selectedDays[appointmentId] ??
+            request?.no_of_days ??
+            slot?.no_of_days ??
+            1;
+
+        const handleRecurringChange = async (event) => {
+            const value = event.target.checked;
+
+            setSelectedRecurring((previous) => ({
+                ...previous,
+                [appointmentId]: value,
+            }));
+
+            await handleTherapyScheduleUpdate({
+                slot,
+                request,
+                bookingDate:
+                    request?.booking_date ||
+                    slot?.booking_date ||
+                    defaultBookingDate,
+                slotTime:
+                    request?.slot_time ||
+                    slot?.time ||
+                    "",
+                therapistId:
+                    selectedTherapists[appointmentId] ||
+                    request?.therapist_id ||
+                    slot?.therapist_id ||
+                    "",
+                roomNo:
+                    selectedRooms[appointmentId] ||
+                    request?.room_no ||
+                    slot?.room_no ||
+                    "",
+                noOfDays: numberOfDays,
+                isRecurring: value,
+                notes:
+                    request?.notes ||
+                    slot?.notes ||
+                    "",
+            });
+        };
+
+        return (
+            <div
+                className="
+                    flex
+                    flex-wrap
+                    items-center
+                    justify-end
+                    gap-2
+                "
+                draggable={false}
+                onDragStart={(event) =>
+                    event.stopPropagation()
+                }
+            >
+                <label
+                    className="
+                        flex
+                        shrink-0
+                        cursor-pointer
+                        items-center
+                        gap-2
+                        px-1
+                    "
+                >
+                    <input
+                        type="checkbox"
+                        checked={Boolean(isRecurring)}
+                        disabled={isReschedulingLocal}
+                        onChange={handleRecurringChange}
+                        className="
+                            h-4
+                            w-4
+                            cursor-pointer
+                            accent-[#4D2E23]
+                            disabled:cursor-not-allowed
+                        "
+                    />
+                    <span
+                        className="
+                            whitespace-nowrap
+                            text-[12px]
+                            font-semibold
+                            text-[#4D2E23]
+                        "
+                    >
+                        Recurring
+                    </span>
+                </label>
+
+                <DaysSelect
+                    slot={slot}
+                    request={request}
+                />
+
+                <TherapistSelect
+                    slot={slot}
+                    request={request}
+                />
+
+                <RoomSelect
+                    slot={slot}
+                    request={request}
+                />
+            </div>
+        );
+    };
+
     // ==========================================
     // RENDER THERAPIST SELECT
     // ==========================================
@@ -1497,14 +1958,15 @@ const TherapyConfirmation = () => {
                 {/* ========================================= */}
 
                 <div
-                    className="
-                        overflow-hidden
-                        rounded-[15px]
-                        border
-                        border-[#E8DDD6]
-                        bg-white
-                    "
-                >
+    className="
+        relative
+        overflow-visible
+        rounded-[15px]
+        border
+        border-[#E8DDD6]
+        bg-white
+    "
+>
 
                     {/* TABLE HEADER */}
 
@@ -1965,12 +2427,7 @@ const TherapyConfirmation = () => {
                                                                                         }
                                                                                     >
 
-                                                                                        <TherapistSelect
-                                                                                            slot={slot}
-                                                                                            request={request}
-                                                                                        />
-
-                                                                                        <RoomSelect
+                                                                                        <TherapyScheduleControls
                                                                                             slot={slot}
                                                                                             request={request}
                                                                                         />
@@ -2117,12 +2574,7 @@ const TherapyConfirmation = () => {
                                                                         "
                                                                     >
 
-                                                                        <TherapistSelect
-                                                                            slot={slot}
-                                                                            request={selectedRequest}
-                                                                        />
-
-                                                                        <RoomSelect
+                                                                        <TherapyScheduleControls
                                                                             slot={slot}
                                                                             request={selectedRequest}
                                                                         />

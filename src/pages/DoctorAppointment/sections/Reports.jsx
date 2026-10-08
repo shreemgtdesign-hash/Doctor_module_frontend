@@ -267,7 +267,7 @@ const Reports = ({
                     REPORT TITLE
                 ================================= */}
 
-                <div className="mt-6 flex items-center justify-between">
+                <div className="flex items-center justify-between">
                    <div> 
                     <h2
                         className="

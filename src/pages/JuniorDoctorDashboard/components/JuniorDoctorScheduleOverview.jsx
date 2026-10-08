@@ -74,7 +74,8 @@ const JuniorDoctorScheduleOverview = () => {
 
 
     return (
-        <DashboardCard className="px-5 pt-5 pb-5">
+        <DashboardCard className="px-5 pt-5 pb-5"
+           >
 
             {/* HEADER */}
             <div className="flex items-center justify-between">
