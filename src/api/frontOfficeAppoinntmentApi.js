@@ -148,9 +148,11 @@ export const getAppointmentConfirmation = (doctorId) =>
             },
         }
     );
-export const getTherapyAppointmentConfirmation  =()=>
+export const getTherapyAppointmentConfirmation = (params = {}) =>
     api.get(
-        "/frontoffice/therapy/confirmation",);
+        "/frontoffice/therapy/confirmation",
+        { params }
+    );
 
 export const getHomevisitAppointmentConfirmation = (doctorId) =>
     api.get(

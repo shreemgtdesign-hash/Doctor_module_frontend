@@ -392,10 +392,10 @@ export const fetchPatientReports = async (
 
 
 export const fetchTherapyAppointmentConfirmation =
-    async () => {
+    async (params = {}) => {
 
         const response =
-            await getTherapyAppointmentConfirmation();
+            await getTherapyAppointmentConfirmation(params);
 
         return response.data;
     };

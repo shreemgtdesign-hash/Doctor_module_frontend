@@ -870,13 +870,13 @@ export const loadFrontOfficeTherapyAppointmentConfirmation =
         "frontOfficeAppointment/loadTherapyAppointmentConfirmation",
 
         async (
-            _,
+            params = {},
             { rejectWithValue }
         ) => {
 
             try {
 
-                return await fetchTherapyAppointmentConfirmation();
+                return await fetchTherapyAppointmentConfirmation(params);
 
             } catch (error) {
 

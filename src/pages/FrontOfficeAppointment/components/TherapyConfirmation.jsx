@@ -21,7 +21,8 @@ import {
     HiOutlineChevronUp,
     HiOutlineChevronDown,
     HiOutlineArrowLeft,
-
+    HiOutlineCalendarDays,
+    HiOutlineArrowPath,
 } from "react-icons/hi2";
 
 import DashboardLayout
@@ -113,13 +114,108 @@ const TherapyConfirmation = () => {
     const [isReschedulingLocal, setIsReschedulingLocal] = useState(false);
 
     // ==========================================
+    // ==========================================
+    // DATE FILTER STATE
+    // ==========================================
+
+    const todayDateStr = useMemo(() => {
+        const today = new Date();
+        const y = today.getFullYear();
+        const m = String(today.getMonth() + 1).padStart(2, "0");
+        const d = String(today.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+    }, []);
+
+    const [filterDate, setFilterDate] = useState(todayDateStr);
+    const [activeFilterParams, setActiveFilterParams] = useState({});
+
+    const activeQueryString = useMemo(() => {
+        if (!activeFilterParams || Object.keys(activeFilterParams).length === 0) {
+            return "";
+        }
+        const searchParams = new URLSearchParams();
+        Object.entries(activeFilterParams).forEach(([k, v]) => {
+            if (v !== undefined && v !== null && v !== "") {
+                searchParams.append(k, v);
+            }
+        });
+        const qs = searchParams.toString();
+        return qs ? `?${qs}` : "";
+    }, [activeFilterParams]);
+
+    const handleDateChange = async (selectedDate) => {
+        setFilterDate(selectedDate);
+        if (!selectedDate) {
+            return;
+        }
+
+        setExpandedSlots({});
+        setSelectedRequests({});
+        setSelectedRooms({});
+        setSelectedTherapists({});
+
+        const params = { date: selectedDate };
+        setActiveFilterParams(params);
+
+        try {
+            await dispatch(
+                loadFrontOfficeTherapyAppointmentConfirmation(params)
+            ).unwrap();
+        } catch (err) {
+            console.error("Failed to load therapy confirmation for date:", err);
+            showErrorToast(
+                "Failed to Load",
+                err?.message || "Could not fetch therapy schedule for selected date."
+            );
+        }
+    };
+
+    const handleQuickToday = async () => {
+        setFilterDate(todayDateStr);
+        setExpandedSlots({});
+        setSelectedRequests({});
+        setSelectedRooms({});
+        setSelectedTherapists({});
+
+        const params = { date: todayDateStr };
+        setActiveFilterParams(params);
+
+        try {
+            await dispatch(
+                loadFrontOfficeTherapyAppointmentConfirmation(params)
+            ).unwrap();
+        } catch (err) {
+            console.error("Failed to load today's therapy confirmation:", err);
+            showErrorToast(
+                "Failed to Load",
+                err?.message || "Could not fetch therapy schedule for today."
+            );
+        }
+    };
+
+    const handleClearFilter = async () => {
+        setFilterDate(todayDateStr);
+        setActiveFilterParams({});
+
+        try {
+            await dispatch(
+                loadFrontOfficeTherapyAppointmentConfirmation({})
+            ).unwrap();
+        } catch (err) {
+            console.error("Failed to clear filter:", err);
+        }
+    };
+
+    // ==========================================
     // LOAD THERAPY CONFIRMATION
     // ==========================================
 
     useEffect(() => {
 
         dispatch(
-            loadFrontOfficeTherapyAppointmentConfirmation()
+            loadFrontOfficeTherapyAppointmentConfirmation(
+                filterDate ? { date: filterDate } : {}
+            )
         );
 
     }, [
@@ -299,9 +395,10 @@ const TherapyConfirmation = () => {
             therapyConfirmation?.booking_date ||
             therapyConfirmation?.date ||
             therapyConfirmation?.schedule_overview?.date ||
-            therapyConfirmation?.schedule_overview?.booking_date
+            therapyConfirmation?.schedule_overview?.booking_date ||
+            filterDate
         );
-    }, [therapyConfirmation]);
+    }, [therapyConfirmation, filterDate]);
 
 
     // ==========================================
@@ -534,7 +631,7 @@ const TherapyConfirmation = () => {
             );
 
             await dispatch(
-                loadFrontOfficeTherapyAppointmentConfirmation()
+                loadFrontOfficeTherapyAppointmentConfirmation(activeFilterParams)
             );
         } catch (error) {
             console.error(
@@ -1952,10 +2049,36 @@ const TherapyConfirmation = () => {
                     </div>
                 </div>
 
-
-                {/* ========================================= */}
-                {/* SCHEDULE */}
-                {/* ========================================= */}
+                <div className="flex flex-col items-end gap-3 mb-[20px]">
+                    {/* MODE 1: EXACT DATE */}
+                    <div className="flex flex-wrap items-center gap-2">
+                        <label className="text-[12px] font-medium text-[#634238]">
+                            Date:
+                        </label>
+                        <input
+                            type="date"
+                            value={filterDate}
+                            onChange={(e) => handleDateChange(e.target.value)}
+                            disabled={therapyConfirmationLoading}
+                            className="h-9 rounded-lg border border-[#E8DDD6] bg-white px-3 text-[13px] text-[#2F2926] shadow-inner focus:border-[#8A4F32] focus:outline-none disabled:opacity-60 cursor-pointer"
+                        />
+                        <button
+                            type="button"
+                            onClick={handleQuickToday}
+                            disabled={therapyConfirmationLoading}
+                            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#E7D2C0] bg-[#FFF9F4] px-3 text-[12px] font-medium text-[#8A4F32] hover:bg-[#FCEFE3] transition-colors disabled:opacity-60"
+                        >
+                            <HiOutlineCalendarDays size={14} />
+                            Today
+                        </button>
+                        {therapyConfirmationLoading && (
+                            <div className="flex items-center gap-1.5 text-xs text-[#8A4F32] ml-1">
+                                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#8A4F32] border-t-transparent" />
+                                <span>Loading...</span>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
                 <div
     className="
@@ -2012,7 +2135,12 @@ const TherapyConfirmation = () => {
 
                     {/* SLOTS */}
 
-                    {schedule.length === 0 ? (
+                    {therapyConfirmationLoading ? (
+                        <div className="flex flex-col items-center justify-center gap-2 px-6 py-16 text-center text-sm text-[#8B7A70]">
+                            <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#8A4F32] border-t-transparent" />
+                            <span>Loading therapy appointments...</span>
+                        </div>
+                    ) : schedule.length === 0 ? (
 
                         <div
                             className="
@@ -2023,7 +2151,19 @@ const TherapyConfirmation = () => {
                                 text-[#8B7A70]
                             "
                         >
-                            No therapy appointments found.
+                            No therapy appointments found {activeQueryString ? `for ${activeQueryString}` : ""}.
+                            {Boolean(activeQueryString) && (
+                                <div className="mt-3">
+                                    <button
+                                        type="button"
+                                        onClick={handleClearFilter}
+                                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#E8DDD6] bg-[#FFF9F4] px-3 py-1.5 text-xs font-medium text-[#8A4F32] hover:bg-[#FBECE0] transition-colors"
+                                    >
+                                        <HiOutlineArrowPath size={13} />
+                                        Clear filter & show default schedule
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                     ) : (
