@@ -99,7 +99,7 @@ const Prescription = ({
     const [allergyInput,
         setAllergyInput] =
         useState("");
-
+    const [reviewDateError, setReviewDateError] = useState("");
 
     const parseDosage = (dosage) => {
 
@@ -608,7 +608,35 @@ const Prescription = ({
 
     // };
     console.log("consultationId prop:", consultationId, "activeConsultationId:", activeConsultationId);
+
+    const validateReviewDate = (date) => {
+    if (!date) {
+        setReviewDateError("Please select a review date.");
+        return false;
+    }
+
+    const selectedDate = new Date(`${date}T00:00:00`);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (Number.isNaN(selectedDate.getTime())) {
+        setReviewDateError("Please select a valid review date.");
+        return false;
+    }
+
+    if (selectedDate < today) {
+        setReviewDateError("Review date cannot be in the past.");
+        return false;
+    }
+
+    setReviewDateError("");
+    return true;
+};
     const handleSaveAndContinue = async () => {
+
+        if (!validateReviewDate(reviewDate)) {
+        return;
+    }
         try {
             if (!activeConsultationId) {
                 console.error("❌ No consultationId found to save prescription");
@@ -1795,24 +1823,41 @@ const Prescription = ({
             </div>
 
 
-            <div>
+            
+<div>
+    <label className="mt-4 mb-2 block text-[18px] font-semibold text-[#4D2E23]">
+        Review Date <span className="text-red-500">*</span>
+    </label>
 
-                <label className="mt-4 mb-2 block text-[18px] font-semibold text-[#4D2E23]">
-                    Review Date
-                </label>
+    <input
+        type="date"
+        required
+        min={new Date().toLocaleDateString("en-CA")}
+        value={reviewDate ? reviewDate.split("T")[0] : ""}
+        onChange={(e) => {
+            const value = e.target.value;
+            setReviewDate(value);
 
-                <input
-                    type="date"
-                    value={
-                        reviewDate
-                            ? reviewDate.split("T")[0]
-                            : ""
-                    }
-                    onChange={(e) => setReviewDate(e.target.value)}
-                    className="h-14 w-full rounded-2xl border border-[#E7DBD3] px-5 outline-none focus:border-[#8A563B]"
-                />
+            if (value) {
+                validateReviewDate(value);
+            } else {
+                setReviewDateError("Please select a review date.");
+            }
+        }}
+        onBlur={() => validateReviewDate(reviewDate)}
+        className={`h-14 w-full rounded-2xl border px-5 outline-none ${
+            reviewDateError
+                ? "border-red-500 focus:border-red-500"
+                : "border-[#E7DBD3] focus:border-[#8A563B]"
+        }`}
+    />
 
-            </div>
+    {reviewDateError && (
+        <p className="mt-2 text-sm text-red-500">
+            {reviewDateError}
+        </p>
+    )}
+</div>
 
 
             <div>

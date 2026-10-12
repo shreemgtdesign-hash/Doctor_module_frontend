@@ -127,7 +127,9 @@ const TherapyConfirmation = () => {
     }, []);
 
     const [filterDate, setFilterDate] = useState(todayDateStr);
-    const [activeFilterParams, setActiveFilterParams] = useState({});
+    const [activeFilterParams, setActiveFilterParams] = useState({
+        date: todayDateStr,
+    });
 
     const activeQueryString = useMemo(() => {
         if (!activeFilterParams || Object.keys(activeFilterParams).length === 0) {
@@ -211,16 +213,12 @@ const TherapyConfirmation = () => {
     // ==========================================
 
     useEffect(() => {
-
-        dispatch(
-            loadFrontOfficeTherapyAppointmentConfirmation(
-                filterDate ? { date: filterDate } : {}
-            )
-        );
-
-    }, [
-        dispatch,
-    ]);
+    dispatch(
+        loadFrontOfficeTherapyAppointmentConfirmation({
+            ...activeFilterParams,
+        })
+    );
+}, [dispatch]);
 
     useEffect(() => {
 
@@ -631,8 +629,10 @@ const TherapyConfirmation = () => {
             );
 
             await dispatch(
-                loadFrontOfficeTherapyAppointmentConfirmation(activeFilterParams)
-            );
+                loadFrontOfficeTherapyAppointmentConfirmation({
+                    ...activeFilterParams,
+                })
+            ).unwrap();
         } catch (error) {
             console.error(
                 "❌ Therapy update error:",
@@ -1281,8 +1281,8 @@ const TherapyConfirmation = () => {
                 </button>
 
                 {open && (
-    <div
-        className="
+                    <div
+                        className="
             absolute
             right-0
             top-[42px]
@@ -1296,7 +1296,7 @@ const TherapyConfirmation = () => {
             bg-white
             shadow-xl
         "
-    >
+                    >
                         {dayOptions.map((days) => {
                             const isSelected =
                                 Number(numberOfDays) ===
@@ -1363,10 +1363,9 @@ const TherapyConfirmation = () => {
                                         last:border-b-0
                                         transition
                                         hover:bg-[#FFF8F2]
-                                        ${
-                                            isSelected
-                                                ? "bg-[#FFF8F2] font-semibold text-[#4D2E23]"
-                                                : "text-[#6F625B]"
+                                        ${isSelected
+                                            ? "bg-[#FFF8F2] font-semibold text-[#4D2E23]"
+                                            : "text-[#6F625B]"
                                         }
                                     `}
                                 >
@@ -2081,7 +2080,7 @@ const TherapyConfirmation = () => {
                 </div>
 
                 <div
-    className="
+                    className="
         relative
         overflow-visible
         rounded-[15px]
@@ -2089,7 +2088,7 @@ const TherapyConfirmation = () => {
         border-[#E8DDD6]
         bg-white
     "
->
+                >
 
                     {/* TABLE HEADER */}
 

@@ -20,6 +20,7 @@ import Reports from "../sections/Reports";
 import PatientHistory from "../sections/PatientHistory";
 import ViewReport from "../sections/ViewReport";
 import ConsultationSectionNav from "./ConsultationSectionNav";
+import VideoConsultation from "./VideoConsultation";
 
 
 // ==========================================
@@ -600,7 +601,9 @@ const PatientProfile = forwardRef(
           {/* ================================= */}
           {/* OVERVIEW */}
           {/* ================================= */}
-
+               <VideoConsultation
+  appointmentNo={selectedPatient?.appointment_no}
+/>
           {activeSection ===
             "overview" && (
 
@@ -614,6 +617,8 @@ const PatientProfile = forwardRef(
               />
 
             )}
+
+        
 
 
           {/* ================================= */}
