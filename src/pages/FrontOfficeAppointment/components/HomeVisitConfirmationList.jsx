@@ -12,6 +12,7 @@ import {
 } from "react-router-dom";
 
 import {
+    HiOutlineArrowLeft,
     HiOutlineArrowRight,
     HiOutlineClock,
 } from "react-icons/hi2";
@@ -94,46 +95,33 @@ const HomeVisitConfirmationList = () => {
 
                     <div>
 
-                        <div
-                            className="
-                                flex
-                                items-center
-                                gap-3
-                            "
-                        >
+                        <div className="flex items-center gap-3">
+    <button
+        type="button"
+        onClick={() =>
+            navigate("/frontoffice/pending-actions-screen")
+        }
+        aria-label="Back to Pending Actions"
+        title="Back to Pending Actions"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E7DBD3] bg-white text-[#4B2E2A] shadow-sm transition-all duration-200 hover:border-[#CDB6A7] hover:bg-[#FFF7F2] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#A57852]/30"
+    >
+        <HiOutlineArrowLeft size={19} />
+    </button>
 
-                            <h1
-                                className="
-                                    text-[21px]
-                                    font-semibold
-                                    text-[#2F2926]
-                                "
-                            >
-                                Pending Actions
-                            </h1>
+    <div className="flex items-center gap-3">
+        <h1 className="text-[21px] font-semibold text-[#2F2926]">
+            Pending Actions
+        </h1>
 
+        <span className="text-[22px] text-[#8A817B]">
+            ›
+        </span>
 
-                            <span
-                                className="
-                                    text-[22px]
-                                    text-[#8A817B]
-                                "
-                            >
-                                ›
-                            </span>
-
-
-                            <h2
-                                className="
-                                    text-[21px]
-                                    font-semibold
-                                    text-[#2F2926]
-                                "
-                            >
-                                Home Visit Confirmations
-                            </h2>
-
-                        </div>
+        <h2 className="text-[21px] font-semibold text-[#2F2926]">
+            Home Visit Confirmations
+        </h2>
+    </div>
+</div>
 
                     </div>
 

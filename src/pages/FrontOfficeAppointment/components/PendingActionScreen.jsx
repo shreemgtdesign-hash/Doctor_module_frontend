@@ -160,25 +160,7 @@ const PendingActionScreen = () => {
         },
 
 
-        {
-            label:
-                "Prescriptions",
-
-            value:
-                pending?.prescriptions ??
-                0,
-
-            description:
-                "Manage and verify prescription workflows",
-
-            onClick: () => {
-
-                navigate(
-                    "/frontoffice/prescriptions"
-                );
-
-            },
-        },
+  
 
 
         {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
+import { useNavigate } from "react-router-dom";
+import { HiOutlineArrowLeft } from "react-icons/hi2";
 import {
     HiOutlineChevronLeft,
     HiOutlineChevronRight,
@@ -35,7 +36,7 @@ const TherapyReminders = () => {
     } = useSelector(
         (state) => state.frontOfficeAppointment
     );
-
+    const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
 
 
@@ -252,29 +253,29 @@ const TherapyReminders = () => {
                         "
                     >
 
-                        <div>
+                        <div className="flex items-center gap-3">
+    <button
+        type="button"
+        onClick={() =>
+            navigate("/frontoffice/pending-actions-screen")
+        }
+        aria-label="Back to Pending Actions"
+        title="Back to Pending Actions"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E7DBD3] bg-white text-[#4B2E2A] shadow-sm transition-all duration-200 hover:border-[#CDB6A7] hover:bg-[#FFF7F2] hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#A57852]/30"
+    >
+        <HiOutlineArrowLeft size={19} />
+    </button>
 
-                            <h1
-                                className="
-                                    text-[18px]
-                                    font-semibold
-                                    text-[#3F302C]
-                                "
-                            >
-                                Therapy Reminders
-                            </h1>
+    <div>
+        <h1 className="text-[18px] font-semibold text-[#3F302C]">
+            Therapy Reminders
+        </h1>
 
-                            <p
-                                className="
-                                    mt-1
-                                    text-[12px]
-                                    text-[#958781]
-                                "
-                            >
-                                Send reminders for pending therapy appointments
-                            </p>
-
-                        </div>
+        <p className="mt-1 text-[12px] text-[#958781]">
+            Send reminders for pending therapy appointments
+        </p>
+    </div>
+</div>
 
 
                         {/* PAGINATION */}
