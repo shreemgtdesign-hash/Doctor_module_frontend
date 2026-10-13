@@ -12,6 +12,14 @@ export const getTherapiesPerformed = (
     );
 
 
+export const getTherapiesPerformedTable = (
+    period = "today"
+) =>
+    api.get(
+        `/therapist/therapies-performed?period=${period}`
+    );
+
+
 // ==========================================
 // AILMENTS ADDRESSED
 // ==========================================

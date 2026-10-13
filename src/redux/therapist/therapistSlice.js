@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
     getTherapistDashboard,
     loadTherapiesPerformed,
+    loadTherapiesPerformedTable,
     loadTherapistAilments,
     loadTherapistPatients,
     loadTherapistAppointments,
@@ -93,6 +94,38 @@ const initialState = {
     error: null,
 
     scheduleOverviewError: null,
+
+    // =================================
+    // THERAPIES PERFORMED TABLE
+    // =================================
+    therapiesPerformedTable: {
+        data: [],
+        therapies: [],
+        list: [],
+        total_therapies: 0,
+        total_count: 0,
+        total: 0,
+        total_text: "",
+        bullet_text: "",
+        period: "Today",
+        filter: {
+            period: "today",
+            label: "Today",
+            selected: "Today",
+        },
+        available_filters: [
+            "Today",
+            "This Week",
+            "This Month",
+            "All",
+        ],
+        breakdown: {},
+        categories: [],
+    },
+
+    therapiesPerformedTableLoading: false,
+
+    therapiesPerformedTableError: null,
 
 };
 
@@ -258,6 +291,42 @@ const therapistDashboardSlice =
                         state.error =
                             action.payload;
 
+                    }
+                )
+
+
+                // =================================
+                // THERAPIES PERFORMED TABLE
+                // =================================
+
+                .addCase(
+                    loadTherapiesPerformedTable.pending,
+                    (state) => {
+                        state.therapiesPerformedTableLoading = true;
+                        state.therapiesPerformedTableError = null;
+                    }
+                )
+
+                .addCase(
+                    loadTherapiesPerformedTable.fulfilled,
+                    (state, action) => {
+                        state.therapiesPerformedTableLoading = false;
+                        state.therapiesPerformedTable =
+                            action.payload || {
+                                data: [],
+                                total_count: 0,
+                                bullet_text: "",
+                                available_filters: [],
+                            };
+                    }
+                )
+
+                .addCase(
+                    loadTherapiesPerformedTable.rejected,
+                    (state, action) => {
+                        state.therapiesPerformedTableLoading = false;
+                        state.therapiesPerformedTableError =
+                            action.payload;
                     }
                 )
 

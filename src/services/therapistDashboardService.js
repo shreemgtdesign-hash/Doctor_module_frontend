@@ -1,5 +1,6 @@
 import {
     getTherapiesPerformed,
+    getTherapiesPerformedTable,
     getTherapistAilments,
     getTherapistPatients,
     getTherapistScheduleOverview,
@@ -70,6 +71,30 @@ export const fetchTherapiesPerformedDashboard =
                 categories: [],
             }
         );
+
+    };
+
+
+// ==========================================
+// THERAPIES PERFORMED TABLE
+// ==========================================
+
+export const fetchTherapiesPerformedTable =
+    async (
+        period = "today"
+    ) => {
+
+        const response =
+            await getTherapiesPerformedTable(
+                period
+            );
+
+        console.log(
+            "THERAPIES PERFORMED TABLE API:",
+            response.data
+        );
+
+        return response.data;
 
     };
 

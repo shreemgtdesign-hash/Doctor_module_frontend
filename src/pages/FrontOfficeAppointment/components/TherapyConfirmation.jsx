@@ -232,50 +232,290 @@ const TherapyConfirmation = () => {
 
 
     // ==========================================
-    // API DATA
+    // ==========================================
+    // API DATA & BOOKINGS
     // ==========================================
 
     const doctor =
         therapyConfirmation?.doctor || {};
 
-    const schedule =
-        therapyConfirmation
-            ?.schedule_overview
-            ?.schedule_slots || [];
+    const rawBookings = useMemo(() => {
+        if (Array.isArray(therapyConfirmation?.bookings)) {
+            return therapyConfirmation.bookings;
+        }
+        if (Array.isArray(therapyConfirmation?.data?.bookings)) {
+            return therapyConfirmation.data.bookings;
+        }
+        return [];
+    }, [therapyConfirmation]);
+
+    // Helpers for time calculations
+    const calculateEndTime = (startTimeStr, durationMinutes = 60) => {
+        if (!startTimeStr) return "";
+        const match = String(startTimeStr).match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!match) return startTimeStr;
+        let hours = parseInt(match[1], 10);
+        const minutes = parseInt(match[2], 10);
+        const period = match[3].toUpperCase();
+        if (period === "PM" && hours !== 12) hours += 12;
+        if (period === "AM" && hours === 12) hours = 0;
+
+        const totalMinutes =
+            hours * 60 + minutes + Number(durationMinutes || 60);
+        let endHours = Math.floor(totalMinutes / 60) % 24;
+        const endMinutes = totalMinutes % 60;
+        const endPeriod = endHours >= 12 ? "PM" : "AM";
+        if (endHours > 12) endHours -= 12;
+        if (endHours === 0) endHours = 12;
+
+        return `${endHours}:${String(endMinutes).padStart(2, "0")} ${endPeriod}`;
+    };
+
+    const parseTimeMinutes = (timeStr) => {
+        if (!timeStr) return 0;
+        const match = String(timeStr).match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!match) return 0;
+        let h = parseInt(match[1], 10);
+        const m = parseInt(match[2], 10);
+        const p = match[3].toUpperCase();
+        if (p === "PM" && h !== 12) h += 12;
+        if (p === "AM" && h === 12) h = 0;
+        return h * 60 + m;
+    };
+
+    const getTimeSpentText = (item) => {
+        if (!item) return "-";
+
+        const directTimeSpent = item.time_spent;
+        if (
+            directTimeSpent !== undefined &&
+            directTimeSpent !== null &&
+            directTimeSpent !== "" &&
+            directTimeSpent !== "-"
+        ) {
+            if (typeof directTimeSpent === "number") {
+                return `${directTimeSpent} Mins`;
+            }
+            const str = String(directTimeSpent).trim();
+            if (str && str !== "-") {
+                return str.replace(/mins?/i, "Mins");
+            }
+        }
+
+        const treatmentDuration = item.treatment_duration;
+        if (
+            treatmentDuration &&
+            treatmentDuration !== "-" &&
+            treatmentDuration !== "0" &&
+            treatmentDuration !== "0 mins"
+        ) {
+            const str = String(treatmentDuration).trim();
+            return str.replace(/mins?/i, "Mins");
+        }
+
+        const durationMinutes = item.duration_minutes ?? item.duration;
+        if (
+            durationMinutes !== undefined &&
+            durationMinutes !== null &&
+            durationMinutes !== "" &&
+            durationMinutes !== 0 &&
+            durationMinutes !== "0" &&
+            durationMinutes !== "-"
+        ) {
+            return `${durationMinutes} Mins`;
+        }
+
+        return "-";
+    };
+
+    const schedule = useMemo(() => {
+        const existingSlots =
+            therapyConfirmation?.schedule_overview?.schedule_slots;
+
+        // If existing schedule_slots array is available, use and enrich it
+        if (Array.isArray(existingSlots) && existingSlots.length > 0) {
+            return existingSlots.map((slot) => {
+                const matchingBooking = rawBookings.find(
+                    (b) =>
+                        (b.booking_id &&
+                            b.booking_id === slot.appointment_id) ||
+                        (b.appointment_no &&
+                            b.appointment_no === slot.appointment_id) ||
+                        (b.time &&
+                            b.time === slot.time &&
+                            b.patient_name === slot.patient_name)
+                );
+
+                const enrichedSlot = {
+                    ...slot,
+                    therapy_name:
+                        slot.therapy_name ||
+                        slot.therapy?.name ||
+                        matchingBooking?.therapy_name ||
+                        "",
+                    duration_minutes:
+                        slot.duration_minutes ??
+                        matchingBooking?.duration_minutes,
+                    treatment_duration:
+                        slot.treatment_duration ||
+                        matchingBooking?.treatment_duration ||
+                        "",
+                    time_spent:
+                        slot.time_spent ||
+                        matchingBooking?.time_spent ||
+                        matchingBooking?.treatment_duration ||
+                        "",
+                };
+
+                if (Array.isArray(slot.requests) && slot.requests.length > 0) {
+                    enrichedSlot.requests = slot.requests.map((req) => {
+                        const matchingReqBooking = rawBookings.find(
+                            (b) =>
+                                (b.booking_id &&
+                                    b.booking_id === req.appointment_id) ||
+                                (b.appointment_no &&
+                                    b.appointment_no === req.appointment_no) ||
+                                (b.patient_id &&
+                                    b.patient_id === req.patient_id)
+                        );
+                        return {
+                            ...req,
+                            therapy_name:
+                                req.therapy_name ||
+                                req.therapy?.name ||
+                                matchingReqBooking?.therapy_name ||
+                                "",
+                            duration_minutes:
+                                req.duration_minutes ??
+                                matchingReqBooking?.duration_minutes,
+                            treatment_duration:
+                                req.treatment_duration ||
+                                matchingReqBooking?.treatment_duration ||
+                                "",
+                            time_spent:
+                                req.time_spent ||
+                                matchingReqBooking?.time_spent ||
+                                matchingReqBooking?.treatment_duration ||
+                                "",
+                        };
+                    });
+                }
+
+                return enrichedSlot;
+            });
+        }
+
+        // Otherwise construct schedule slots from rawBookings
+        const defaultSlots = [
+            "9:00 AM",
+            "10:00 AM",
+            "11:00 AM",
+            "12:00 PM",
+            "1:00 PM",
+            "2:00 PM",
+            "3:00 PM",
+            "4:00 PM",
+            "5:00 PM",
+        ];
+
+        const timesSet = new Set(defaultSlots);
+        rawBookings.forEach((b) => {
+            const t = b.slot_time || b.time;
+            if (t) timesSet.add(t);
+        });
+
+        const sortedTimes = Array.from(timesSet).sort(
+            (a, b) => parseTimeMinutes(a) - parseTimeMinutes(b)
+        );
+
+        return sortedTimes.map((time) => {
+            const matching = rawBookings.filter(
+                (b) => (b.slot_time || b.time) === time
+            );
+
+            if (matching.length === 0) {
+                return {
+                    id: `slot-${time}`,
+                    time,
+                    slot_range: `${time} - ${calculateEndTime(time, 60)}`,
+                    status: "available",
+                    requests: [],
+                };
+            }
+
+            if (matching.length === 1) {
+                const b = matching[0];
+                return {
+                    id: b.booking_id || b.appointment_no,
+                    appointment_id: b.booking_id || b.appointment_no,
+                    appointment_no: b.appointment_no || b.booking_no,
+                    booking_no: b.booking_no,
+                    patient_id: b.patient_id,
+                    patient_name: b.patient_name,
+                    patient_code: b.patient_code,
+                    therapy_name: b.therapy_name,
+                    booking_date: b.booking_date,
+                    time: b.slot_time || b.time,
+                    slot_range: `${time} - ${calculateEndTime(time, b.duration_minutes || 60)}`,
+                    duration_minutes: b.duration_minutes,
+                    treatment_duration: b.treatment_duration,
+                    time_spent:
+                        b.treatment_duration ||
+                        (b.duration_minutes ? `${b.duration_minutes} Mins` : "-"),
+                    room_no: b.room_no,
+                    therapist_name: b.therapist_name,
+                    therapist_id: b.therapist_id,
+                    doctor_id: b.doctor_id,
+                    no_of_days: b.no_of_days,
+                    is_recurring: b.is_recurring,
+                    status: b.status || "confirmed",
+                    requests: [
+                        {
+                            ...b,
+                            appointment_id: b.booking_id || b.appointment_no,
+                            time: b.slot_time || b.time,
+                        },
+                    ],
+                };
+            }
+
+            // Conflict: 2 or more bookings
+            return {
+                id: `conflict-${time}`,
+                time,
+                slot_range: `${time} - ${calculateEndTime(time, 60)}`,
+                status: "conflict",
+                requests: matching.map((b) => ({
+                    ...b,
+                    appointment_id: b.booking_id || b.appointment_no,
+                    time: b.slot_time || b.time,
+                })),
+            };
+        });
+    }, [therapyConfirmation, rawBookings]);
 
     const history =
-        therapyConfirmation
-            ?.patient_history_with_doctor || [];
+        therapyConfirmation?.patient_history_with_doctor || [];
+
     // ==========================================
     // PATIENT COUNT
     // ==========================================
 
-    const pendingPatientCount =
-        useMemo(() => {
+    const pendingPatientCount = useMemo(() => {
+        if (rawBookings.length > 0) {
+            return rawBookings.length;
+        }
 
-            return schedule.reduce(
-                (total, slot) => {
-
-                    if (
-                        slot.status ===
-                        "conflict"
-                    ) {
-                        return (
-                            total +
-                            (
-                                slot.requests
-                                    ?.length || 0
-                            )
-                        );
-                    }
-
-                    return total;
-
-                },
-                0
-            );
-
-        }, [schedule]);
+        let count = 0;
+        schedule.forEach((slot) => {
+            if (slot.status === "conflict") {
+                count += slot.requests?.length || 0;
+            } else if (slot.appointment_id || slot.patient_name) {
+                count += 1;
+            }
+        });
+        return count;
+    }, [schedule, rawBookings]);
 
 
     // ==========================================
@@ -2533,6 +2773,9 @@ const TherapyConfirmation = () => {
                                                                                                 {
                                                                                                     request.patient_name
                                                                                                 }
+                                                                                                {request.therapy_name
+                                                                                                    ? ` | ${request.therapy_name}`
+                                                                                                    : ""}
                                                                                             </p>
 
                                                                                             <p
@@ -2551,6 +2794,10 @@ const TherapyConfirmation = () => {
                                                                                         </button>
                                                                                     </div>
 
+                                                                                    {/* TIME SPENT */}
+                                                                                    <div className="shrink-0 text-[12px] font-medium text-[#4D2E23]">
+                                                                                        Time spent: {getTimeSpentText(request)}
+                                                                                    </div>
 
                                                                                     <div
                                                                                         className="
@@ -2646,13 +2893,14 @@ const TherapyConfirmation = () => {
                                                                 flex
                                                                 items-center
                                                                 justify-between
+                                                                flex-wrap
                                                                 gap-3
                                                             "
                                                         >
 
-                                                            <div className="flex items-center gap-1.5">
+                                                            <div className="flex items-center gap-1.5 min-w-0">
                                                                 <DragGripIcon />
-                                                                <div>
+                                                                <div className="min-w-0">
 
                                                                     <p
                                                                         className={`
@@ -2674,6 +2922,7 @@ const TherapyConfirmation = () => {
                                                                         className={`
                                                                             mt-1
                                                                             text-[13px]
+                                                                            truncate
                                                                             ${isConfirmed
                                                                                 ? "text-[#315C39]"
                                                                                 : "text-[#6A3F2D]"
@@ -2685,11 +2934,18 @@ const TherapyConfirmation = () => {
                                                                             selectedRequest?.patient_name ||
                                                                             "-"
                                                                         }
+                                                                        {(slot.therapy_name || selectedRequest?.therapy_name)
+                                                                            ? ` | ${slot.therapy_name || selectedRequest?.therapy_name}`
+                                                                            : ""}
                                                                     </p>
 
                                                                 </div>
                                                             </div>
 
+                                                            {/* TIME SPENT */}
+                                                            <div className="shrink-0 text-[12px] font-medium text-[#4D2E23]">
+                                                                Time spent: {getTimeSpentText(selectedRequest || slot)}
+                                                            </div>
 
                                                             <div
                                                                 className="

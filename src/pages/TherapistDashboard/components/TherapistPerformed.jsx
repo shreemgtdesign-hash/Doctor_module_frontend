@@ -22,10 +22,12 @@ import StatsCard
 
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const TherapiesPerformed = () => {
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const [period, setPeriod] = useState("today");
 
@@ -57,7 +59,10 @@ const TherapiesPerformed = () => {
 
     return (
 
-        <DashboardCard className="px-5 pt-5 pb-3">
+        <DashboardCard
+            className="px-5 pt-5 pb-3 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-[#D6A17A]"
+            onClick={() => navigate("/therapist/therapies-performed")}
+        >
 
             {/* =================================
                 HEADER

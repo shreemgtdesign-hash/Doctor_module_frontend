@@ -3,6 +3,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
     fetchTherapistDashboard,
     fetchTherapiesPerformedDashboard,
+    fetchTherapiesPerformedTable,
     fetchTherapistAilmentsDashboard,
     fetchTherapistPatientsDashboard,
     fetchTherapistScheduleOverview,
@@ -78,6 +79,49 @@ export const loadTherapiesPerformed =
                 return rejectWithValue(
                     error.response?.data ||
                     error.message
+                );
+
+            }
+
+        }
+
+    );
+
+
+// ==========================================
+// THERAPIES PERFORMED TABLE
+// ==========================================
+
+export const loadTherapiesPerformedTable =
+    createAsyncThunk(
+
+        "therapist/loadTherapiesPerformedTable",
+
+        async (
+            period = "today",
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                const response =
+                    await fetchTherapiesPerformedTable(
+                        period
+                    );
+
+                console.log(
+                    "THERAPIES PERFORMED TABLE PAYLOAD:",
+                    response
+                );
+
+                return response;
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message ||
+                    "Failed to load therapies performed."
                 );
 
             }
