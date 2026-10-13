@@ -752,8 +752,8 @@ const Therapy = ({
                 {/* ========================================================= */}
                 {/* TOTAL SECTION */}
                 {/* ========================================================= */}
-                <div className="flex items-center justify-between border-t border-[#ECE2DA] px-7 py-6">
-                    <h2 className="text-[24px] font-bold text-[#4D2E23]">
+                <div className="flex items-center justify-between border-t border-[#ECE2DA] px-7 py-4">
+                    <h2 className="text-[20px] font-bold text-[#4D2E23]">
                         Total
                     </h2>
                     <h2 className="text-[20px] font-bold text-[#824C39]">

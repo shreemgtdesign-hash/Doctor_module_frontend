@@ -15,7 +15,7 @@ const PharmacistPatientHeader = ({
             .toUpperCase() || "P";
 
     const patientId =
-        patient.patient_id ||
+        
         patient.patient_code ||
         patient.id ||
         "1234567";

@@ -100,7 +100,7 @@ const Wellness = () => {
               {wellness?.total_consultations ?? 0}
             </h1>
 
-            <p className="mt-1.5 text-[12px] sm:text-[13px] font-medium text-[#7D726B]">
+            <p className="mt-1.5 text-[14px] sm:text-[13px] font-medium text-[#7D726B]">
               Total Consultations{" "}
               {wellness?.period
                 ? ` - ${wellness.period}`

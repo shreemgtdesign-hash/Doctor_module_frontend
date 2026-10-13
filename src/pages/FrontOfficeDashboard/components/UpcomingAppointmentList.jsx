@@ -544,7 +544,7 @@ const UpcomingAppointmentsList = () => {
                         <p
                             className="
                                 mt-2
-                                text-[15px]
+                                text-[14px]
                                 text-[#7D716B]
                             "
                         >

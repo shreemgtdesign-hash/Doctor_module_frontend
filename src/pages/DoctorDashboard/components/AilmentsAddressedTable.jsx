@@ -180,7 +180,7 @@ const AilmentsAddressedTable = () => {
               Ailments Addressed
             </h1>
 
-            <p className="mt-1 text-[18px] text-[#777]">
+            <p className="mt-1 text-[14px] text-[#777]">
               {ailments?.total_consultations ?? 0} Total Consultations
             </p>
 

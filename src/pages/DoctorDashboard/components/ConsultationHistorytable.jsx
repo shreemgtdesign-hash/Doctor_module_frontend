@@ -87,7 +87,7 @@ const ConsultationHistoryTable = () => {
           <div>
 
             <h1 className="
-              text-[34px]
+              text-[24px]
               font-bold
               leading-tight
               text-[#2F2F2F]
@@ -97,7 +97,7 @@ const ConsultationHistoryTable = () => {
 
             <p className="
               mt-3
-              text-[18px]
+              text-[14px]
               text-[#777777]
             ">
               {loading

@@ -1774,13 +1774,13 @@ const Prescription = ({
             border-t
             border-[#ECE2DA]
             px-7
-            py-7
+            py-4
         "
                 >
 
                     <h2
                         className="
-                text-[24px]
+                text-[20px]
                 font-bold
                 text-[#4D2E23]
             "

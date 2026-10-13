@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import {
   loadBeautySummaryList,
 } from "../../../redux/dashboard/dashboardThunk";
+import DashboardLayout from "../../../components/Layout/DashboardLayout";
 
 
 const BeautyTable = () => {
@@ -111,7 +112,7 @@ const BeautyTable = () => {
 
 
   return (
-
+<DashboardLayout role ="doctor">
     <div
       className="
         min-h-screen
@@ -561,6 +562,7 @@ const BeautyTable = () => {
       </div>
 
     </div>
+    </DashboardLayout>
 
   );
 };
