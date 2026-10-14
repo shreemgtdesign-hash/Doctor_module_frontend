@@ -604,14 +604,14 @@ export const loadFrontOfficeAppointmentConfirmation =
         "frontOfficeAppointment/loadAppointmentConfirmation",
 
         async (
-            doctorId,
+            payload,
             { rejectWithValue }
         ) => {
 
             try {
 
                 return await fetchAppointmentConfirmation(
-                    doctorId
+                    payload
                 );
 
             } catch (error) {

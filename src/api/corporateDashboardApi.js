@@ -61,3 +61,27 @@ export const getCorporateEventsCalendar = (month) => {
     params: month ? { month } : {}
   });
 };
+
+// ==========================================
+// 8. MY EVENTS
+// GET /corporate/my-events
+// ==========================================
+export const getCorporateMyEvents = (params = {}) => {
+  return api.get("/corporate/my-events", { params });
+};
+
+// ==========================================
+// 9. COMPANY DETAILS FORM OPTIONS
+// GET /corporate/company-details/options
+// ==========================================
+export const getCorporateCompanyDetailsOptions = () => {
+  return api.get("/corporate/company-details/options");
+};
+
+// ==========================================
+// 10. SUBMIT COMPANY REGISTRATION
+// POST /corporate/company-details
+// ==========================================
+export const submitCorporateCompanyRegistration = (payload) => {
+  return api.post("/corporate/company-details", payload);
+};

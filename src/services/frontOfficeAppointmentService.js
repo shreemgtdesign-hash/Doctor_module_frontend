@@ -272,12 +272,14 @@ export const fetchDoctorTimeSlots = (doctorId, date) =>
 // ==========================================
 
 export const fetchAppointmentConfirmation = async (
-    doctorId
+    arg1,
+    arg2
 ) => {
 
     const response =
         await getAppointmentConfirmation(
-            doctorId
+            arg1,
+            arg2
         );
 
     return response.data;

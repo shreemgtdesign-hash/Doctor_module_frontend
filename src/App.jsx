@@ -60,6 +60,8 @@ import JuniorDoctorDashboard from "./pages/JuniorDoctorDashboard/JuniorDoctorDas
 import CorporateDashboard from "./pages/Corporate/CorporateDashboard/CorporateDashboard";
 import CorporatePackages from "./pages/Corporate/CorporatePackages/CorporatePackages";
 import CorporateCustomizeEvent from "./pages/Corporate/CorporateCustomizeEvent/CorporateCustomizeEvent";
+import CorporateMyEvents from "./pages/Corporate/CorporateMyEvents/CorporateMyEvents";
+import CorporateRegistration from "./pages/Corporate/CorporateRegistration/CorporateRegistration";
 import DashboardLayout from "./components/Layout/DashboardLayout";
 
 function App() {
@@ -202,6 +204,24 @@ function App() {
       />
       <Route
         path="/frontoffice/pending-actions/appointment-confirmation/:doctorId"
+        element={
+          <AppointmentConfirmation />
+        }
+      />
+      <Route
+        path="/frontoffice/pending-actions/appointment-confirmation"
+        element={
+          <AppointmentConfirmation />
+        }
+      />
+      <Route
+        path="/frontoffice/appointments/confirmation"
+        element={
+          <AppointmentConfirmation />
+        }
+      />
+      <Route
+        path="/frontoffice/appointments/confirmation/:doctorId"
         element={
           <AppointmentConfirmation />
         }
@@ -425,6 +445,14 @@ function App() {
   element={<CorporateDashboard />}
 />
 <Route
+  path="/corporate/my-events"
+  element={<CorporateMyEvents />}
+/>
+<Route
+  path="/corporate/events/:eventId"
+  element={<CorporateMyEvents />}
+/>
+<Route
   path="/corporate/packages"
   element={<CorporatePackages />}
 />
@@ -443,6 +471,14 @@ function App() {
 <Route
   path="/corporate/events/request"
   element={<CorporateCustomizeEvent />}
+/>
+<Route
+  path="/corporate/register"
+  element={<CorporateRegistration />}
+/>
+<Route
+  path="/corporate/company-details"
+  element={<CorporateRegistration />}
 />
 
     </Routes>

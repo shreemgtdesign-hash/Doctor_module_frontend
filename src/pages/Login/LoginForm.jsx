@@ -245,6 +245,20 @@ const LoginForm = () => {
                         </button>
                     </form>
 
+                    {/* Corporate Registration wording link */}
+                    <div className="mt-3.5 text-center">
+                        <p className="text-xs text-[#7F726A]">
+                            Corporate Partner?{" "}
+                            <button
+                                type="button"
+                                onClick={() => navigate("/corporate/register")}
+                                className="font-bold text-[#6A3F2D] hover:text-[#4A291A] hover:underline transition cursor-pointer"
+                            >
+                                Register your Company →
+                            </button>
+                        </p>
+                    </div>
+
                     {/* Security footer */}
                     <div className="mt-4 flex items-center justify-center gap-2 border-t border-[#EDE3DA] pt-3 text-center">
                         <svg

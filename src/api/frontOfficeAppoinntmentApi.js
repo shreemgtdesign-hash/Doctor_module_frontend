@@ -139,15 +139,33 @@ export const getAppointmentConfirmationList = () =>
 // APPOINTMENT CONFIRMATION OVERVIEW
 // ==========================================
 
-export const getAppointmentConfirmation = (doctorId) =>
-    api.get(
-        "/frontoffice/appointments/confirmation",
-        {
-            params: {
-                doctor_id: doctorId,
-            },
+export const getAppointmentConfirmation = (arg1, arg2) => {
+    let params = {};
+    if (typeof arg1 === "object" && arg1 !== null) {
+        params = { ...arg1 };
+        if (params.doctorId && !params.doctor_id) {
+            params.doctor_id = params.doctorId;
+            delete params.doctorId;
         }
+    } else {
+        if (arg1) params.doctor_id = arg1;
+        if (arg2) {
+            if (typeof arg2 === "object" && arg2 !== null) {
+                params = { ...params, ...arg2 };
+                if (params.doctorId && !params.doctor_id) {
+                    params.doctor_id = params.doctorId;
+                    delete params.doctorId;
+                }
+            } else {
+                params.date = arg2;
+            }
+        }
+    }
+    return api.get(
+        "/frontoffice/appointments/confirmation",
+        { params }
     );
+};
 export const getTherapyAppointmentConfirmation = (params = {}) =>
     api.get(
         "/frontoffice/therapy/confirmation",

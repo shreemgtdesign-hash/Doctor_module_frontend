@@ -522,6 +522,47 @@ const PatientProfile = forwardRef(
 
 
     // ==========================================
+    // CHECK IF VIDEO CONSULTATION
+    // ==========================================
+
+    const isVideoConsultation = Boolean(
+      [
+        selectedPatient?.type,
+        selectedPatient?.consultation_type,
+        selectedPatient?.appointment_type,
+        selectedPatient?.mode,
+        selectedPatient?.consultation_mode,
+        selectedPatient?.service_type,
+        selectedPatient?.appointment?.type,
+        selectedPatient?.appointment?.consultation_type,
+        selectedPatient?.visit?.type,
+        patientProfile?.type,
+        patientProfile?.consultation_type,
+        patientProfile?.appointment_type,
+        patientProfile?.mode,
+        patientProfile?.consultation_mode,
+      ].some((val) => {
+        if (!val || typeof val !== "string") return false;
+        const lower = val.toLowerCase().trim();
+        if (
+          lower === "in-person and video" ||
+          lower === "in_person and video"
+        ) {
+          return false;
+        }
+        return (
+          lower.includes("video") ||
+          lower === "online" ||
+          lower === "teleconsultation"
+        );
+      }) ||
+        selectedPatient?.is_video === true ||
+        selectedPatient?.is_video_consultation === true ||
+        patientProfile?.is_video === true ||
+        patientProfile?.is_video_consultation === true
+    );
+
+    // ==========================================
     // MAIN
     // ==========================================
 
@@ -599,11 +640,21 @@ const PatientProfile = forwardRef(
             role="doctor"
           />
           {/* ================================= */}
+          {/* VIDEO CONSULTATION */}
+          {/* Only rendered for video appointments */}
+          {/* ================================= */}
+          {isVideoConsultation && (
+            <VideoConsultation
+              appointmentNo={
+                selectedPatient?.appointment_no ||
+                selectedPatient?.appointmentNo ||
+                selectedPatient?.id
+              }
+            />
+          )}
+          {/* ================================= */}
           {/* OVERVIEW */}
           {/* ================================= */}
-               <VideoConsultation
-  appointmentNo={selectedPatient?.appointment_no}
-/>
           {activeSection ===
             "overview" && (
 

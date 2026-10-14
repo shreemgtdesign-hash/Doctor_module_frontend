@@ -187,7 +187,7 @@ const CorporateDashboard = () => {
                   </h2>
                   <button
                     type="button"
-                    onClick={() => navigate("/corporate/packages")}
+                    onClick={() => navigate("/corporate/my-events")}
                     className="inline-flex items-center gap-1 text-[13px] font-bold text-[#7A4B3A] hover:underline"
                   >
                     <span>View All</span>

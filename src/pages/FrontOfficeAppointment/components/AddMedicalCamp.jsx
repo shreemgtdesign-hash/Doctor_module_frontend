@@ -15,13 +15,28 @@ import {
 import {
     ChevronDown,
     CalendarDays,
+    Plus,
+    Trash2,
 } from "lucide-react";
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 
+import toast from "react-hot-toast";
+
 import {
     createFrontOfficeMedicalCamp,
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
+
+
+const initialDoctor = {
+    full_name: "",
+    phone: "",
+    email: "",
+    qualification: "",
+    specialization: "",
+    experience_years: "",
+    about_doctor: "",
+};
 
 
 const AddMedicalCamp = () => {
@@ -42,15 +57,15 @@ const AddMedicalCamp = () => {
         (state) =>
             state.frontOfficeAppointment || {}
     );
-    
+
 
     // ==========================================
-    // FORM
+    // FORM STATE
     // ==========================================
 
     const [
-        formData,
-        setFormData,
+        campData,
+        setCampData,
     ] = useState({
         camp_name: "",
         category: "",
@@ -58,15 +73,15 @@ const AddMedicalCamp = () => {
         timings: "",
         camp_date: "",
         camp_id: "",
-
-        full_name: "",
-        phone: "",
-        email: "",
-        qualification: "",
-        specialization: "",
-        experience_years: "",
-        about_doctor: "",
+        camp_type: "",
     });
+
+    const [
+        doctors,
+        setDoctors,
+    ] = useState([
+        { ...initialDoctor },
+    ]);
 
 
     // ==========================================
@@ -82,6 +97,13 @@ const AddMedicalCamp = () => {
     // ==========================================
     // OPTIONS
     // ==========================================
+
+    const campTypeOptions = [
+        "General Camp",
+        "Specialty Camp",
+        "Screening Camp",
+        "Corporate Camp",
+    ];
 
     const categoryOptions = [
         "Healthcare",
@@ -166,6 +188,10 @@ const AddMedicalCamp = () => {
             medicalCampCreateSuccess
         ) {
 
+            toast.success(
+                "Medical camp created successfully!"
+            );
+
             navigate(
                 "/frontoffice/medcamp-calender"
             );
@@ -179,10 +205,10 @@ const AddMedicalCamp = () => {
 
 
     // ==========================================
-    // CHANGE
+    // CAMP DATA HANDLERS
     // ==========================================
 
-    const handleChange = (
+    const handleCampChange = (
         event
     ) => {
 
@@ -191,7 +217,7 @@ const AddMedicalCamp = () => {
             value,
         } = event.target;
 
-        setFormData(
+        setCampData(
             (previous) => ({
                 ...previous,
                 [name]: value,
@@ -200,17 +226,12 @@ const AddMedicalCamp = () => {
 
     };
 
-
-    // ==========================================
-    // DROPDOWN SELECT
-    // ==========================================
-
-    const handleDropdownSelect = (
+    const handleCampDropdownSelect = (
         field,
         value
     ) => {
 
-        setFormData(
+        setCampData(
             (previous) => ({
                 ...previous,
                 [field]: value,
@@ -218,6 +239,115 @@ const AddMedicalCamp = () => {
         );
 
         setOpenDropdown(null);
+
+    };
+
+
+    // ==========================================
+    // DOCTORS HANDLERS
+    // ==========================================
+
+    const handleDoctorChange = (
+        index,
+        field,
+        value
+    ) => {
+
+        setDoctors(
+            (previous) => {
+                const next = [
+                    ...previous,
+                ];
+                next[index] = {
+                    ...next[index],
+                    [field]: value,
+                };
+                return next;
+            }
+        );
+
+    };
+
+    const isPreviousDoctorFilled = Boolean(
+        doctors.length > 0 &&
+            doctors[doctors.length - 1].full_name?.trim() &&
+            doctors[doctors.length - 1].phone?.trim() &&
+            doctors[doctors.length - 1].email?.trim()
+    );
+
+    const handleAddDoctor = () => {
+
+        if (doctors.length > 0) {
+            const previousIndex = doctors.length - 1;
+            const previousDoctor = doctors[previousIndex];
+            const doctorLabel =
+                doctors.length > 1
+                    ? `Doctor ${previousIndex + 1}`
+                    : "Doctor";
+
+            const hasAnyData = Boolean(
+                previousDoctor.full_name?.trim() ||
+                previousDoctor.phone?.trim() ||
+                previousDoctor.email?.trim() ||
+                previousDoctor.qualification?.trim() ||
+                previousDoctor.specialization?.trim() ||
+                previousDoctor.experience_years ||
+                previousDoctor.about_doctor?.trim()
+            );
+
+            if (!hasAnyData) {
+                toast.error(
+                    `Please fill in ${doctorLabel}'s details before adding another doctor.`
+                );
+                return;
+            }
+
+            if (!previousDoctor.full_name?.trim()) {
+                toast.error(
+                    `Please enter full name for ${doctorLabel} before adding another doctor.`
+                );
+                return;
+            }
+
+            if (!previousDoctor.phone?.trim()) {
+                toast.error(
+                    `Please enter phone number for ${doctorLabel} before adding another doctor.`
+                );
+                return;
+            }
+
+            if (!previousDoctor.email?.trim()) {
+                toast.error(
+                    `Please enter email ID for ${doctorLabel} before adding another doctor.`
+                );
+                return;
+            }
+        }
+
+        setDoctors(
+            (previous) => [
+                ...previous,
+                { ...initialDoctor },
+            ]
+        );
+
+    };
+
+    const handleRemoveDoctor = (
+        indexToRemove
+    ) => {
+
+        if (doctors.length <= 1) {
+            return;
+        }
+
+        setDoctors(
+            (previous) =>
+                previous.filter(
+                    (_, idx) =>
+                        idx !== indexToRemove
+                )
+        );
 
     };
 
@@ -232,50 +362,92 @@ const AddMedicalCamp = () => {
 
         event.preventDefault();
 
-
         const payload = {
             camp_name:
-                formData.camp_name.trim(),
+                campData.camp_name.trim(),
 
             category:
-                formData.category,
+                campData.category,
 
             branch:
-                formData.branch,
+                campData.branch,
 
             timings:
-                formData.timings,
+                campData.timings,
 
             camp_date:
-                formData.camp_date,
+                campData.camp_date,
 
-            camp_id:
-                formData.camp_id.trim(),
+            ...(campData.camp_id?.trim()
+                ? {
+                      camp_id:
+                          campData.camp_id.trim(),
+                  }
+                : {}),
 
+            ...(campData.camp_type
+                ? {
+                      camp_type:
+                          campData.camp_type,
+                  }
+                : {}),
+
+            doctors: doctors.map(
+                (doc) => ({
+                    full_name:
+                        doc.full_name?.trim() ||
+                        "",
+                    email:
+                        doc.email?.trim() ||
+                        "",
+                    phone:
+                        doc.phone?.trim() ||
+                        "",
+                    qualification:
+                        doc.qualification ||
+                        "",
+                    specialization:
+                        doc.specialization ||
+                        "",
+                    experience_years:
+                        doc.experience_years
+                            ? Number(
+                                  doc.experience_years
+                              )
+                            : 0,
+                    about_doctor:
+                        doc.about_doctor?.trim() ||
+                        "",
+                })
+            ),
+
+            // Backward compatibility for endpoints expecting first doctor at root level
             full_name:
-                formData.full_name.trim(),
-
-            phone:
-                formData.phone.trim(),
-
+                doctors[0]?.full_name?.trim() ||
+                "",
             email:
-                formData.email.trim(),
-
+                doctors[0]?.email?.trim() ||
+                "",
+            phone:
+                doctors[0]?.phone?.trim() ||
+                "",
             qualification:
-                formData.qualification,
-
+                doctors[0]?.qualification ||
+                "",
             specialization:
-                formData.specialization,
-
+                doctors[0]?.specialization ||
+                "",
             experience_years:
-                Number(
-                    formData.experience_years
-                ),
-
+                doctors[0]?.experience_years
+                    ? Number(
+                          doctors[0]
+                              .experience_years
+                      )
+                    : 0,
             about_doctor:
-                formData.about_doctor.trim(),
+                doctors[0]?.about_doctor?.trim() ||
+                "",
         };
-
 
         try {
 
@@ -307,6 +479,7 @@ const AddMedicalCamp = () => {
         options,
         placeholder,
         width = "w-full",
+        onSelect,
     }) => {
 
         const isOpen =
@@ -400,12 +573,23 @@ const AddMedicalCamp = () => {
                                     <button
                                         key={option}
                                         type="button"
-                                        onClick={() =>
-                                            handleDropdownSelect(
-                                                field,
-                                                option
-                                            )
-                                        }
+                                        onClick={() => {
+                                            if (
+                                                onSelect
+                                            ) {
+                                                onSelect(
+                                                    option
+                                                );
+                                            } else {
+                                                handleCampDropdownSelect(
+                                                    field,
+                                                    option
+                                                );
+                                            }
+                                            setOpenDropdown(
+                                                null
+                                            );
+                                        }}
                                         className={`
                                             flex
                                             w-full
@@ -516,9 +700,28 @@ const AddMedicalCamp = () => {
 
                 <section className="pt-7">
 
-                    <h2 className="text-[19px] font-semibold text-[#2F2F2F]">
-                        Camp Information
-                    </h2>
+                    <div className="flex items-center justify-between">
+
+                        <h2 className="text-[19px] font-semibold text-[#2F2F2F]">
+                            Camp Information
+                        </h2>
+
+                        <div className="w-[170px]">
+
+                            <CustomDropdown
+                                field="camp_type"
+                                value={
+                                    campData.camp_type
+                                }
+                                options={
+                                    campTypeOptions
+                                }
+                                placeholder="Type of Camp"
+                            />
+
+                        </div>
+
+                    </div>
 
 
                     <div className="mt-6 grid grid-cols-3 gap-x-4 gap-y-7">
@@ -528,8 +731,12 @@ const AddMedicalCamp = () => {
                         <FormField
                             label="Camp Name"
                             name="camp_name"
-                            value={formData.camp_name}
-                            onChange={handleChange}
+                            value={
+                                campData.camp_name
+                            }
+                            onChange={
+                                handleCampChange
+                            }
                             placeholder="Enter camp name"
                         />
 
@@ -541,7 +748,7 @@ const AddMedicalCamp = () => {
                             <CustomDropdown
                                 field="category"
                                 value={
-                                    formData.category
+                                    campData.category
                                 }
                                 options={
                                     categoryOptions
@@ -559,7 +766,7 @@ const AddMedicalCamp = () => {
                             <CustomDropdown
                                 field="branch"
                                 value={
-                                    formData.branch
+                                    campData.branch
                                 }
                                 options={
                                     branchOptions
@@ -577,7 +784,7 @@ const AddMedicalCamp = () => {
                             <CustomDropdown
                                 field="timings"
                                 value={
-                                    formData.timings
+                                    campData.timings
                                 }
                                 options={
                                     timingOptions
@@ -607,10 +814,10 @@ const AddMedicalCamp = () => {
                                     type="date"
                                     name="camp_date"
                                     value={
-                                        formData.camp_date
+                                        campData.camp_date
                                     }
                                     onChange={
-                                        handleChange
+                                        handleCampChange
                                     }
                                     className="
                                         h-full
@@ -643,7 +850,17 @@ const AddMedicalCamp = () => {
 
                         {/* Camp ID */}
 
-
+                        <FormField
+                            label="Camp ID"
+                            name="camp_id"
+                            value={
+                                campData.camp_id
+                            }
+                            onChange={
+                                handleCampChange
+                            }
+                            placeholder="CAMP12345"
+                        />
 
                     </div>
 
@@ -661,134 +878,294 @@ const AddMedicalCamp = () => {
                     pt-7
                 ">
 
-                    <h2 className="text-[19px] font-semibold text-[#2F2F2F]">
-                        Doctor Details
-                    </h2>
+                    <div className="flex items-center justify-between">
 
+                        <h2 className="text-[19px] font-semibold text-[#2F2F2F]">
+                            Doctor Details
+                        </h2>
 
-                    <div className="mt-6 grid grid-cols-3 gap-x-4 gap-y-7">
-
-                        {/* Full Name */}
-
-                        <FormField
-                            label="Full Name"
-                            name="full_name"
-                            value={formData.full_name}
-                            onChange={handleChange}
-                            placeholder="Enter doctor name"
-                        />
-
-
-                        {/* Phone */}
-
-                        <FormField
-                            label="Phone"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            placeholder="+91"
-                            type="tel"
-                        />
-
-
-                        {/* Email */}
-
-                        <FormField
-                            label="Email ID"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="Enter email"
-                            type="email"
-                        />
-
-
-                        {/* Qualification */}
-
-                        <FieldGroup label="Qualification">
-
-                            <CustomDropdown
-                                field="qualification"
-                                value={
-                                    formData.qualification
+                        <button
+                            type="button"
+                            onClick={handleAddDoctor}
+                            className={`
+                                flex
+                                items-center
+                                gap-1.5
+                                text-[14px]
+                                font-semibold
+                                transition
+                                cursor-pointer
+                                ${
+                                    isPreviousDoctorFilled
+                                        ? "text-[#4B2E2A] hover:text-[#7A4B3A]"
+                                        : "text-[#9E8B83] hover:text-[#4B2E2A]"
                                 }
-                                options={
-                                    qualificationOptions
-                                }
-                                placeholder="Select qualification"
-                            />
-
-                        </FieldGroup>
-
-
-                        {/* Specialization */}
-
-                        <FieldGroup label="Specialization">
-
-                            <CustomDropdown
-                                field="specialization"
-                                value={
-                                    formData.specialization
-                                }
-                                options={
-                                    specializationOptions
-                                }
-                                placeholder="Select specialization"
-                            />
-
-                        </FieldGroup>
-
-
-                        {/* Experience */}
-
-                        <FormField
-                            label="Experience (Years)"
-                            name="experience_years"
-                            value={
-                                formData.experience_years
-                            }
-                            onChange={handleChange}
-                            placeholder="Enter experience"
-                            type="number"
-                        />
+                            `}
+                        >
+                            <Plus size={16} />
+                            <span>Add Doctor</span>
+                        </button>
 
                     </div>
 
 
-                    {/* About Doctor */}
+                    {/* LIST OF DOCTORS */}
 
-                    <div className="mt-7">
+                    <div className="mt-6 flex flex-col gap-8">
 
-                        <label className="mb-2 block text-[13px] font-medium text-[#4B2E2A]">
-                            About Doctor (Optional)
-                        </label>
+                        {doctors.map(
+                            (doctor, index) => (
 
-                        <textarea
-                            name="about_doctor"
-                            value={
-                                formData.about_doctor
-                            }
-                            onChange={
-                                handleChange
-                            }
-                            rows={4}
-                            placeholder="Enter details"
-                            className="
-                                w-full
-                                resize-none
-                                rounded-xl
-                                border
-                                border-[#E8D9CF]
-                                bg-white
-                                px-4
-                                py-3
-                                text-[13px]
-                                text-[#4B2E2A]
-                                outline-none
-                                placeholder:text-[#9A8D84]
-                                focus:border-[#BDA18F]
-                            "
-                        />
+                                <div
+                                    key={index}
+                                    className={`
+                                        rounded-2xl
+                                        ${
+                                            doctors.length > 1
+                                                ? "border border-[#E8DDD6] bg-[#FCFAF8] p-6 shadow-sm"
+                                                : ""
+                                        }
+                                    `}
+                                >
+
+                                    {/* Multi-doctor card header */}
+
+                                    {doctors.length > 1 && (
+
+                                        <div className="
+                                            mb-6
+                                            flex
+                                            items-center
+                                            justify-between
+                                            border-b
+                                            border-[#E8DDD6]
+                                            pb-3
+                                        ">
+
+                                            <span className="
+                                                rounded-full
+                                                bg-[#EFE6DF]
+                                                px-3.5
+                                                py-1
+                                                text-[13px]
+                                                font-semibold
+                                                text-[#4B2E2A]
+                                            ">
+                                                Doctor {index + 1}
+                                            </span>
+
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    handleRemoveDoctor(
+                                                        index
+                                                    )
+                                                }
+                                                className="
+                                                    flex
+                                                    items-center
+                                                    gap-1.5
+                                                    text-[13px]
+                                                    font-medium
+                                                    text-red-600
+                                                    hover:text-red-700
+                                                    transition
+                                                    cursor-pointer
+                                                "
+                                            >
+                                                <Trash2 size={15} />
+                                                <span>
+                                                    Remove Doctor
+                                                </span>
+                                            </button>
+
+                                        </div>
+
+                                    )}
+
+
+                                    <div className="grid grid-cols-3 gap-x-4 gap-y-7">
+
+                                        {/* Full Name */}
+
+                                        <FormField
+                                            label="Full Name"
+                                            name="full_name"
+                                            value={
+                                                doctor.full_name
+                                            }
+                                            onChange={(e) =>
+                                                handleDoctorChange(
+                                                    index,
+                                                    "full_name",
+                                                    e.target.value
+                                                )
+                                            }
+                                            placeholder="Enter doctor name"
+                                        />
+
+
+                                        {/* Phone */}
+
+                                        <FormField
+                                            label="Phone"
+                                            name="phone"
+                                            value={
+                                                doctor.phone
+                                            }
+                                            onChange={(e) =>
+                                                handleDoctorChange(
+                                                    index,
+                                                    "phone",
+                                                    e.target.value
+                                                )
+                                            }
+                                            placeholder="+91"
+                                            type="tel"
+                                        />
+
+
+                                        {/* Email */}
+
+                                        <FormField
+                                            label="Email ID"
+                                            name="email"
+                                            value={
+                                                doctor.email
+                                            }
+                                            onChange={(e) =>
+                                                handleDoctorChange(
+                                                    index,
+                                                    "email",
+                                                    e.target.value
+                                                )
+                                            }
+                                            placeholder="Enter email"
+                                            type="email"
+                                        />
+
+
+                                        {/* Qualification */}
+
+                                        <FieldGroup label="Qualification">
+
+                                            <CustomDropdown
+                                                field={`doctor_${index}_qualification`}
+                                                value={
+                                                    doctor.qualification
+                                                }
+                                                options={
+                                                    qualificationOptions
+                                                }
+                                                placeholder="Select qualification"
+                                                onSelect={(
+                                                    val
+                                                ) =>
+                                                    handleDoctorChange(
+                                                        index,
+                                                        "qualification",
+                                                        val
+                                                    )
+                                                }
+                                            />
+
+                                        </FieldGroup>
+
+
+                                        {/* Specialization */}
+
+                                        <FieldGroup label="Specialization">
+
+                                            <CustomDropdown
+                                                field={`doctor_${index}_specialization`}
+                                                value={
+                                                    doctor.specialization
+                                                }
+                                                options={
+                                                    specializationOptions
+                                                }
+                                                placeholder="Select specialization"
+                                                onSelect={(
+                                                    val
+                                                ) =>
+                                                    handleDoctorChange(
+                                                        index,
+                                                        "specialization",
+                                                        val
+                                                    )
+                                                }
+                                            />
+
+                                        </FieldGroup>
+
+
+                                        {/* Experience */}
+
+                                        <FormField
+                                            label="Experience (Years)"
+                                            name="experience_years"
+                                            value={
+                                                doctor.experience_years
+                                            }
+                                            onChange={(e) =>
+                                                handleDoctorChange(
+                                                    index,
+                                                    "experience_years",
+                                                    e.target.value
+                                                )
+                                            }
+                                            placeholder="Enter experience"
+                                            type="number"
+                                        />
+
+                                    </div>
+
+
+                                    {/* About Doctor */}
+
+                                    <div className="mt-7">
+
+                                        <label className="mb-2 block text-[13px] font-medium text-[#4B2E2A]">
+                                            About Doctor (Optional)
+                                        </label>
+
+                                        <textarea
+                                            name="about_doctor"
+                                            value={
+                                                doctor.about_doctor
+                                            }
+                                            onChange={(e) =>
+                                                handleDoctorChange(
+                                                    index,
+                                                    "about_doctor",
+                                                    e.target.value
+                                                )
+                                            }
+                                            rows={4}
+                                            placeholder="Enter details"
+                                            className="
+                                                w-full
+                                                resize-none
+                                                rounded-xl
+                                                border
+                                                border-[#E8D9CF]
+                                                bg-white
+                                                px-4
+                                                py-3
+                                                text-[13px]
+                                                text-[#4B2E2A]
+                                                outline-none
+                                                placeholder:text-[#9A8D84]
+                                                focus:border-[#BDA18F]
+                                            "
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                            )
+                        )}
 
                     </div>
 
@@ -832,7 +1209,7 @@ const AddMedicalCamp = () => {
                     gap-4
                     border-t
                     border-[#E8DDD6]
-                    pt-5
+                    pt-6
                 ">
 
                     <button
@@ -843,16 +1220,17 @@ const AddMedicalCamp = () => {
                             )
                         }
                         className="
-                            min-w-[180px]
-                            rounded-xl
+                            min-w-[170px]
+                            rounded-full
                             border
                             border-[#E5D4C5]
                             bg-[#FFFDF9]
-                            px-6
+                            px-8
                             py-3
-                            text-[12px]
+                            text-[13px]
                             font-semibold
                             text-[#4B2E2A]
+                            transition
                             hover:bg-[#FFF7F0]
                         "
                     >
@@ -867,15 +1245,15 @@ const AddMedicalCamp = () => {
                         }
                         className="
                             min-w-[190px]
-                            rounded-xl
-                            bg-[#8B533A]
-                            px-6
+                            rounded-full
+                            bg-[#704332]
+                            px-8
                             py-3
-                            text-[12px]
+                            text-[13px]
                             font-semibold
                             text-white
                             transition
-                            hover:bg-[#77432F]
+                            hover:bg-[#5C3627]
                             disabled:cursor-not-allowed
                             disabled:opacity-60
                         "

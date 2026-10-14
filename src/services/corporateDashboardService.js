@@ -1,6 +1,9 @@
 import {
   getCorporateDashboard,
   getCorporateEvents,
+  getCorporateMyEvents,
+  getCorporateCompanyDetailsOptions,
+  submitCorporateCompanyRegistration,
 } from "../api/corporateDashboardApi";
 
 
@@ -33,4 +36,28 @@ export const fetchCorporateEvents = async (
     data:
       response.data?.data || [],
   };
+};
+
+
+// ==========================================
+// MY EVENTS
+// ==========================================
+
+export const fetchCorporateMyEvents = async (params = {}) => {
+  const response = await getCorporateMyEvents(params);
+  return response.data || {};
+};
+
+// ==========================================
+// COMPANY DETAILS OPTIONS & REGISTRATION
+// ==========================================
+
+export const fetchCorporateCompanyDetailsOptions = async () => {
+  const response = await getCorporateCompanyDetailsOptions();
+  return response.data || {};
+};
+
+export const registerCorporateCompany = async (payload) => {
+  const response = await submitCorporateCompanyRegistration(payload);
+  return response.data || {};
 };

@@ -1,10 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
   HiOutlineCheckCircle,
   HiOutlineClock,
-  
+  HiOutlineCalendarDays,
 } from "react-icons/hi2";
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
@@ -18,6 +18,7 @@ const AppointmentConfirmation = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { doctorId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     confirmation,
@@ -28,11 +29,76 @@ const AppointmentConfirmation = () => {
     message,
   } = useSelector((state) => state.frontOfficeAppointment);
 
-  useEffect(() => {
-    if (!doctorId) return;
+  // ==========================================
+  // DATE FILTER STATE
+  // ==========================================
 
-    dispatch(loadFrontOfficeAppointmentConfirmation(doctorId));
+  const todayDateStr = useMemo(() => {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, "0");
+    const d = String(today.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }, []);
+
+  const urlDate = searchParams.get("date");
+  const [filterDate, setFilterDate] = useState(urlDate || todayDateStr);
+
+  useEffect(() => {
+    if (urlDate && urlDate !== filterDate) {
+      setFilterDate(urlDate);
+    }
+  }, [urlDate]);
+
+  useEffect(() => {
+    const targetDate = urlDate || filterDate || todayDateStr;
+    const params = { date: targetDate };
+    if (doctorId) {
+      params.doctor_id = doctorId;
+    }
+    dispatch(loadFrontOfficeAppointmentConfirmation(params));
   }, [dispatch, doctorId]);
+
+  const handleDateChange = (selectedDate) => {
+    setFilterDate(selectedDate);
+    if (!selectedDate) return;
+
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("date", selectedDate);
+        return next;
+      },
+      { replace: true }
+    );
+
+    const params = { date: selectedDate };
+    const docId = doctorId || confirmation?.doctor?.doctor_id;
+    if (docId) {
+      params.doctor_id = docId;
+    }
+    dispatch(loadFrontOfficeAppointmentConfirmation(params));
+  };
+
+  const handleQuickToday = () => {
+    setFilterDate(todayDateStr);
+
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("date", todayDateStr);
+        return next;
+      },
+      { replace: true }
+    );
+
+    const params = { date: todayDateStr };
+    const docId = doctorId || confirmation?.doctor?.doctor_id;
+    if (docId) {
+      params.doctor_id = docId;
+    }
+    dispatch(loadFrontOfficeAppointmentConfirmation(params));
+  };
 
   const doctor = confirmation?.doctor;
 
@@ -47,8 +113,16 @@ const AppointmentConfirmation = () => {
   }, [confirmation]);
 
   const patientCount = useMemo(() => {
-    return schedule.filter((slot) => slot.appointment_id).length;
-  }, [schedule]);
+    if (
+      confirmation?.schedule_overview?.total_patients_today !== undefined &&
+      confirmation?.schedule_overview?.total_patients_today !== null
+    ) {
+      return confirmation.schedule_overview.total_patients_today;
+    }
+    return schedule.filter(
+      (slot) => slot.appointment_id || slot.patient_id || slot.patient_name
+    ).length;
+  }, [confirmation, schedule]);
 
 
 
@@ -244,10 +318,44 @@ const AppointmentConfirmation = () => {
         )}
 
         {/* ========================================= */}
+        {/* DATE FILTER */}
+        {/* ========================================= */}
+
+        <div className="mt-5 flex flex-col items-end gap-3 mb-[16px]">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="text-[12px] font-medium text-[#634238]">
+              Date:
+            </label>
+            <input
+              type="date"
+              value={filterDate}
+              onChange={(e) => handleDateChange(e.target.value)}
+              disabled={confirmationLoading}
+              className="h-9 rounded-lg border border-[#E8DDD6] bg-white px-3 text-[13px] text-[#2F2926] shadow-inner focus:border-[#8A4F32] focus:outline-none disabled:opacity-60 cursor-pointer"
+            />
+            <button
+              type="button"
+              onClick={handleQuickToday}
+              disabled={confirmationLoading}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-[#E7D2C0] bg-[#FFF9F4] px-3 text-[12px] font-medium text-[#8A4F32] hover:bg-[#FCEFE3] transition-colors disabled:opacity-60 cursor-pointer"
+            >
+              <HiOutlineCalendarDays size={14} />
+              Today
+            </button>
+            {confirmationLoading && (
+              <div className="flex items-center gap-1.5 text-xs text-[#8A4F32] ml-1">
+                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#8A4F32] border-t-transparent" />
+                <span>Loading...</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ========================================= */}
         {/* SCHEDULE */}
         {/* ========================================= */}
 
-        <div className="mt-5 overflow-hidden rounded-[15px] border border-[#E8DDD6] bg-white">
+        <div className="overflow-hidden rounded-[15px] border border-[#E8DDD6] bg-white">
           {/* Header */}
           <div className="grid grid-cols-[120px_1fr] border-b border-[#E8DDD6] bg-[#FFF9F4] text-[11px] font-medium text-[#4B2E2A]">
             <div className="px-5 py-3 text-center">
@@ -266,12 +374,16 @@ const AppointmentConfirmation = () => {
             </div>
           ) : schedule.length === 0 ? (
             <div className="px-5 py-12 text-center text-[12px] text-[#8A817B]">
-              No appointments available.
+              No appointments available for this date.
             </div>
           ) : (
             schedule.map((slot, index) => {
-          
-           const confirmed = Boolean(slot.appointment_id);
+              const confirmed = Boolean(
+                slot.appointment_id ||
+                (slot.status && slot.status.toLowerCase() === "confirmed") ||
+                slot.patient_id ||
+                slot.patient_name
+              );
               return (
                 <div
                   key={

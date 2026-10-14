@@ -26,6 +26,8 @@ import {
     FaBoxes,
     FaMedkit,
     FaLifeRing,
+    FaCalendarAlt,
+    FaCog,
 } from "react-icons/fa";
 
 import {
@@ -111,37 +113,37 @@ const corporateMenu = [
     },
     {
         name: "Hospital Services",
-        icon: FaHospital,
+        icon: FaCalendarAlt,
         path: "/corporate/hospital-services",
     },
     {
+        name: "My Events",
+        icon: FaLifeRing,
+        path: "/corporate/my-events",
+    },
+    {
         name: "Corporate Packages",
-        icon: FaBoxes,
+        icon: FaLifeRing,
         path: "/corporate/packages",
     },
     {
-        name: "Customize Event",
-        icon: FaHandHoldingMedical,
-        path: "/corporate/customize-event",
-    },
-    {
         name: "Medical Camps",
-        icon: FaMedkit,
+        icon: FaLifeRing,
         path: "/corporate/medical-camps",
     },
     {
         name: "Support",
-        icon: HiOutlineSupport,
+        icon: FaLifeRing,
         path: "#",
     },
     {
         name: "Profile",
-        icon: HiOutlineUserCircle,
+        icon: FaLifeRing,
         path: "#",
     },
     {
         name: "Settings",
-        icon: HiOutlineCog,
+        icon: FaCog,
         path: "#",
     },
 ];
@@ -500,7 +502,8 @@ const Sidebar = ({
                             const isCurrentlyActive = !isHash && (
                                 location.pathname === item.path ||
                                 (item.path === "/corporate/dashboard" && (location.pathname === "/corporate" || location.pathname === "/corporate/dashboard")) ||
-                                (item.path === "/corporate/packages" && (location.pathname === "/corporate/packages" || location.pathname === "/corporate/events/request")) ||
+                                (item.path === "/corporate/my-events" && (location.pathname === "/corporate/my-events" || location.pathname.startsWith("/corporate/events/"))) ||
+                                (item.path === "/corporate/packages" && (location.pathname === "/corporate/packages" || location.pathname === "/corporate/events/request" || location.pathname === "/corporate/customize-event")) ||
                                 (item.path === "/doctordashboard" && (location.pathname === "/" || location.pathname === "/doctordashboard"))
                             );
 
