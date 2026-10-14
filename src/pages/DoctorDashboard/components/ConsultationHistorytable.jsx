@@ -87,17 +87,17 @@ const ConsultationHistoryTable = () => {
           <div>
 
             <h1 className="
-              text-[24px]
+              text-[28px]
               font-bold
-              leading-tight
               text-[#2F2F2F]
             ">
-              Consultations History
+              Consultation History
             </h1>
 
             <p className="
-              mt-3
-              text-[14px]
+              mt-2
+              text-[15px]
+              font-medium
               text-[#777777]
             ">
               {loading

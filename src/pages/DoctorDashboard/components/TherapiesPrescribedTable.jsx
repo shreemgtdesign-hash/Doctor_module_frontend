@@ -130,7 +130,7 @@ const TherapiesPrescribedTable = () => {
 
         <DashboardLayout role="doctor">
 
-            <div className="min-h-screen px-6 py-6">
+            <div className="min-h-screen bg-[#F8F6F3] px-8 py-6">
 
                 {/* ================================================= */}
                 {/* BACK TO DASHBOARD */}
@@ -140,20 +140,19 @@ const TherapiesPrescribedTable = () => {
                     type="button"
                     onClick={handleBack}
                     className="
-                        mb-5
                         flex
                         items-center
                         gap-2
-                        text-[17px]
+                        text-[16px]
                         font-semibold
                         text-[#4D2E23]
                         transition
-                        hover:text-[#7A4A33]
+                        hover:text-[#7A4A35]
                     "
                 >
 
                     <HiOutlineArrowLeft
-                        size={24}
+                        size={22}
                     />
 
                     <span>
@@ -167,46 +166,29 @@ const TherapiesPrescribedTable = () => {
                 {/* TITLE */}
                 {/* ================================================= */}
 
-                <div className="mb-5">
+                <div className="mt-8 mb-6">
 
                     <h1
                         className="
                             text-[28px]
-                            font-semibold
-                            text-[#2F211C]
+                            font-bold
+                            text-[#2F2F2F]
                         "
                     >
                         Therapies Prescribed
                     </h1>
 
 
-                    <div
+                    <p
                         className="
                             mt-2
-                            flex
-                            items-center
-                            gap-2
-                            text-[17px]
-                            text-[#4D2E23]
+                            text-[15px]
+                            font-medium
+                            text-[#777777]
                         "
                     >
-
-                        <span
-                            className="
-                                h-2.5
-                                w-2.5
-                                rounded-full
-                                bg-[#4D2E23]
-                            "
-                        />
-
-                        <span>
-                            {therapyAppointmentsCount}
-                            {" "}
-                            Total Therapies
-                        </span>
-
-                    </div>
+                        {therapyAppointmentsCount} Total Therapies
+                    </p>
 
                 </div>
 
@@ -285,10 +267,10 @@ const TherapiesPrescribedTable = () => {
                                             border-b
                                             border-r
                                             border-[#E9DED6]
-                                            px-4
+                                            px-6
                                             py-5
-                                            text-[14px]
-                                            font-medium
+                                            text-[16px]
+                                            font-semibold
                                             text-[#4D2E23]
                                         "
                                     >
@@ -303,10 +285,10 @@ const TherapiesPrescribedTable = () => {
                                             border-b
                                             border-r
                                             border-[#E9DED6]
-                                            px-4
+                                            px-6
                                             py-5
-                                            text-[14px]
-                                            font-medium
+                                            text-[16px]
+                                            font-semibold
                                             text-[#4D2E23]
                                         "
                                     >
@@ -321,10 +303,11 @@ const TherapiesPrescribedTable = () => {
                                             border-b
                                             border-r
                                             border-[#E9DED6]
-                                            px-4
+                                            px-6
                                             py-5
-                                            text-[14px]
-                                            font-medium
+                                            text-center
+                                            text-[16px]
+                                            font-semibold
                                             text-[#4D2E23]
                                         "
                                     >
@@ -339,10 +322,11 @@ const TherapiesPrescribedTable = () => {
                                             border-b
                                             border-r
                                             border-[#E9DED6]
-                                            px-4
+                                            px-6
                                             py-5
-                                            text-[14px]
-                                            font-medium
+                                            text-center
+                                            text-[16px]
+                                            font-semibold
                                             text-[#4D2E23]
                                         "
                                     >
@@ -357,10 +341,11 @@ const TherapiesPrescribedTable = () => {
                                             border-b
                                             border-r
                                             border-[#E9DED6]
-                                            px-4
+                                            px-6
                                             py-5
-                                            text-[14px]
-                                            font-medium
+                                            text-center
+                                            text-[16px]
+                                            font-semibold
                                             text-[#4D2E23]
                                         "
                                     >
@@ -374,10 +359,11 @@ const TherapiesPrescribedTable = () => {
                                         className="
                                             border-b
                                             border-[#E9DED6]
-                                            px-4
+                                            px-6
                                             py-5
-                                            text-[14px]
-                                            font-medium
+                                            text-center
+                                            text-[16px]
+                                            font-semibold
                                             text-[#4D2E23]
                                         "
                                     >
@@ -560,7 +546,7 @@ const TherapiesPrescribedTable = () => {
                                                         className="
                                                             border-r
                                                             border-[#E9DED6]
-                                                            px-4
+                                                            px-6
                                                             py-5
                                                             align-top
                                                         "
@@ -568,6 +554,7 @@ const TherapiesPrescribedTable = () => {
 
                                                         <p
                                                             className="
+                                                                text-[16px]
                                                                 font-semibold
                                                                 text-[#4D2E23]
                                                             "
@@ -579,8 +566,8 @@ const TherapiesPrescribedTable = () => {
                                                         <p
                                                             className="
                                                                 mt-1
-                                                                text-sm
-                                                                text-[#77706B]
+                                                                text-[13px]
+                                                                text-[#7A6E67]
                                                             "
                                                         >
                                                             Patient ID:{" "}
@@ -598,7 +585,7 @@ const TherapiesPrescribedTable = () => {
                                                         className="
                                                             border-r
                                                             border-[#E9DED6]
-                                                            px-4
+                                                            px-6
                                                             py-5
                                                             align-top
                                                         "
@@ -606,6 +593,7 @@ const TherapiesPrescribedTable = () => {
 
                                                         <p
                                                             className="
+                                                                text-[16px]
                                                                 font-semibold
                                                                 text-[#4D2E23]
                                                             "
@@ -617,8 +605,8 @@ const TherapiesPrescribedTable = () => {
                                                         <p
                                                             className="
                                                                 mt-1
-                                                                text-sm
-                                                                text-[#77706B]
+                                                                text-[13px]
+                                                                text-[#7A6E67]
                                                             "
                                                         >
                                                             {duration}
@@ -635,7 +623,7 @@ const TherapiesPrescribedTable = () => {
                                                         className="
                                                             border-r
                                                             border-[#E9DED6]
-                                                            px-4
+                                                            px-6
                                                             py-5
                                                             align-middle
                                                             text-center
@@ -648,6 +636,7 @@ const TherapiesPrescribedTable = () => {
                                                                 items-center
                                                                 justify-center
                                                                 gap-2
+                                                                text-[15px]
                                                                 font-semibold
                                                                 text-[#4D2E23]
                                                             "
@@ -677,7 +666,7 @@ const TherapiesPrescribedTable = () => {
                                                         className="
                                                             border-r
                                                             border-[#E9DED6]
-                                                            px-4
+                                                            px-6
                                                             py-5
                                                             align-middle
                                                             text-center
@@ -690,6 +679,7 @@ const TherapiesPrescribedTable = () => {
                                                                 items-center
                                                                 justify-center
                                                                 gap-2
+                                                                text-[15px]
                                                                 font-semibold
                                                                 text-[#4D2E23]
                                                             "
@@ -719,10 +709,11 @@ const TherapiesPrescribedTable = () => {
                                                         className="
                                                             border-r
                                                             border-[#E9DED6]
-                                                            px-4
+                                                            px-6
                                                             py-5
                                                             text-center
                                                             align-middle
+                                                            text-[15px]
                                                             font-semibold
                                                             text-[#4D2E23]
                                                         "
@@ -739,10 +730,11 @@ const TherapiesPrescribedTable = () => {
 
                                                     <td
                                                         className="
-                                                            px-4
+                                                            px-6
                                                             py-5
                                                             text-center
                                                             align-middle
+                                                            text-[16px]
                                                             font-semibold
                                                             text-[#4D2E23]
                                                         "

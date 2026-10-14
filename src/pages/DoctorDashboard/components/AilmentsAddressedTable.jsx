@@ -159,6 +159,7 @@ const AilmentsAddressedTable = () => {
             text-[16px]
             font-semibold
             text-[#4D2E23]
+            transition
             hover:text-[#7A4A35]
           "
         >
@@ -172,7 +173,7 @@ const AilmentsAddressedTable = () => {
         {/* Header */}
         {/* ================================= */}
 
-        <div className="mt-10 flex items-start justify-between">
+        <div className="mt-8 flex items-start justify-between">
 
           <div>
 
@@ -180,7 +181,7 @@ const AilmentsAddressedTable = () => {
               Ailments Addressed
             </h1>
 
-            <p className="mt-1 text-[14px] text-[#777]">
+            <p className="mt-2 text-[15px] font-medium text-[#777777]">
               {ailments?.total_consultations ?? 0} Total Consultations
             </p>
 
@@ -205,7 +206,7 @@ const AilmentsAddressedTable = () => {
                 py-0
                 pl-12
                 pr-12
-                text-[16px]
+                text-[15px]
                 font-medium
                 text-[#4D2E23]
                 outline-none
@@ -359,7 +360,7 @@ const AilmentsAddressedTable = () => {
                   px-6
                   py-5
                   text-center
-                  text-[15px]
+                  text-[16px]
                   font-semibold
                   text-[#4D2E23]
                   last:border-r-0
@@ -422,7 +423,7 @@ const AilmentsAddressedTable = () => {
                     {row.patient_name || "Unknown Patient"}
                   </h3>
 
-                  <p className="mt-1 text-[14px] text-[#7C7C7C]">
+                  <p className="mt-1 text-[13px] text-[#7A6E67]">
                     Patient ID: {row.patient_id || "-"}
                   </p>
 

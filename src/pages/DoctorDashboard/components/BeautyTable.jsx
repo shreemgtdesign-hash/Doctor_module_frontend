@@ -112,120 +112,121 @@ const BeautyTable = () => {
 
 
   return (
-<DashboardLayout role ="doctor">
-    <div
-      className="
-        min-h-screen
-        bg-[#F8F6F3]
-        px-7
-        py-6
-      "
-    >
-
-      {/* ======================================
-          BACK
-      ====================================== */}
-
-      <button
-        type="button"
-        onClick={() =>
-          navigate(
-            "/doctordashboard"
-          )
-        }
-        className="
-          flex
-          items-center
-          gap-2
-          text-[15px]
-          font-semibold
-          text-[#4D2E23]
-          transition
-          hover:text-[#7A4A35]
-        "
-      >
-
-        <HiOutlineArrowLeft
-          size={20}
-        />
-
-        Back to Dashboard
-
-      </button>
-
-
-      {/* ======================================
-          PAGE HEADER
-      ====================================== */}
-
+    <DashboardLayout role="doctor">
       <div
         className="
-          mt-8
-          flex
-          items-end
-          justify-between
+          min-h-screen
+          bg-[#F8F6F3]
+          px-8
+          py-6
         "
       >
 
-        <div>
+        {/* ======================================
+            BACK
+        ====================================== */}
 
-          <h1
-            className="
-              text-[25px]
-              font-bold
-              text-[#2F2F2F]
-            "
-          >
-            Beauty Consultations
-          </h1>
+        <button
+          type="button"
+          onClick={() =>
+            navigate(
+              "/doctordashboard"
+            )
+          }
+          className="
+            flex
+            items-center
+            gap-2
+            text-[16px]
+            font-semibold
+            text-[#4D2E23]
+            transition
+            hover:text-[#7A4A35]
+          "
+        >
 
-          <p
-            className="
-              mt-1
-              text-[14px]
-              text-[#888888]
-            "
-          >
-            {totalConsultations} Total Consultations
-          </p>
+          <HiOutlineArrowLeft
+            size={22}
+          />
 
-        </div>
+          Back to Dashboard
+
+        </button>
 
 
         {/* ======================================
-            PERIOD DROPDOWN
+            PAGE HEADER
         ====================================== */}
 
-        <div className="relative">
+        <div
+          className="
+            mt-8
+            flex
+            items-end
+            justify-between
+          "
+        >
 
-          <button
-            type="button"
-            onClick={() =>
-              setShowDropdown(
-                (prev) => !prev
-              )
-            }
-            className="
-              flex
-              h-[38px]
-              items-center
-              gap-2
-              rounded-xl
-              border
-              border-[#E7DBD3]
-              bg-white
-              px-4
-              text-[14px]
-              font-medium
-              text-[#4D2E23]
-            "
-          >
+          <div>
 
-            <HiOutlineCalendar
-              size={16}
-            />
+            <h1
+              className="
+                text-[28px]
+                font-bold
+                text-[#2F2F2F]
+              "
+            >
+              Beauty Consultations
+            </h1>
 
-            {selectedPeriod}
+            <p
+              className="
+                mt-2
+                text-[15px]
+                font-medium
+                text-[#777777]
+              "
+            >
+              {totalConsultations} Total Consultations
+            </p>
+
+          </div>
+
+
+          {/* ======================================
+              PERIOD DROPDOWN
+          ====================================== */}
+
+          <div className="relative">
+
+            <button
+              type="button"
+              onClick={() =>
+                setShowDropdown(
+                  (prev) => !prev
+                )
+              }
+              className="
+                flex
+                h-11
+                items-center
+                gap-2
+                rounded-xl
+                border
+                border-[#E7DBD3]
+                bg-white
+                px-4
+                text-[15px]
+                font-medium
+                text-[#4D2E23]
+              "
+            >
+
+              <HiOutlineCalendar
+                size={18}
+              />
+
+              {selectedPeriod}
 
             <HiChevronDown
               size={16}
@@ -467,7 +468,7 @@ const BeautyTable = () => {
 
                     <p
                       className="
-                        text-[14px]
+                        text-[16px]
                         font-semibold
                         text-[#4D2E23]
                       "
@@ -478,9 +479,9 @@ const BeautyTable = () => {
 
                     <p
                       className="
-                        mt-0.5
-                        text-[11px]
-                        text-[#999999]
+                        mt-1
+                        text-[13px]
+                        text-[#7A6E67]
                       "
                     >
                       Patient ID:{" "}
@@ -580,11 +581,11 @@ const HeaderCell = ({
   <div
     className={`
       px-4
-      py-3.5
+      py-4
       text-center
-      text-[12px]
+      text-[16px]
       font-semibold
-      text-[#6D5146]
+      text-[#4D2E23]
 
       ${
         !last
@@ -614,10 +615,10 @@ const BodyCell = ({
       justify-center
       border-r
       border-[#EFE2D7]
-      px-3
+      px-4
       py-4
       text-center
-      text-[13px]
+      text-[15px]
       font-medium
       text-[#4D2E23]
     "
@@ -673,10 +674,10 @@ const StatusBadge = ({
     <span
       className={`
         rounded-full
-        px-3
-        py-1
-        text-[11px]
-        font-medium
+        px-3.5
+        py-1.5
+        text-[12px]
+        font-semibold
         capitalize
         ${classes}
       `}

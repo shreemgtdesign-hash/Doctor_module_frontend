@@ -514,40 +514,41 @@ const PrescriptionTable = ({
                 TABLE CONTAINER
             ================================== */}
             <div className="overflow-hidden rounded-2xl border border-[#EFE4DC] bg-white shadow-sm">
-                <table className="w-full border-collapse">
-                    {/* Header */}
-                    <thead>
-                        <tr className="bg-[#FAF4EF] text-left text-[13px] font-semibold text-[#6F625A]">
-                            <th className="px-5 py-4 w-[28%]">
-                                Medicine
-                            </th>
-                            <th className="px-3 py-4 text-center w-[11%]">
-                                Qty.
-                                <br />
-                                Prescribed
-                            </th>
-                            <th className="px-3 py-4 text-center w-[11%]">
-                                Qty.
-                                <br />
-                                Dispensed
-                            </th>
-                            <th className="px-3 py-4 text-center w-[12%]">
-                                Stock
-                            </th>
-                            <th className="px-3 py-4 text-center w-[11%]">
-                                Discount
-                            </th>
-                            <th className="px-4 py-4 text-left w-[13%]">
-                                Remarks
-                            </th>
-                            <th className="px-4 py-4 text-right w-[8%]">
-                                Price
-                            </th>
-                            <th className="px-5 py-4 text-right w-[9%]">
-                                Total
-                            </th>
-                        </tr>
-                    </thead>
+                <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-[#E7D8CE] scrollbar-track-transparent">
+                    <table className="w-full min-w-[980px] border-collapse">
+                        {/* Header */}
+                        <thead>
+                            <tr className="bg-[#FAF4EF] text-left text-[13px] font-semibold text-[#6F625A]">
+                                <th className="px-5 py-4 min-w-[220px]">
+                                    Medicine
+                                </th>
+                                <th className="px-3 py-4 text-center min-w-[100px] whitespace-nowrap">
+                                    Qty.
+                                    <br />
+                                    Prescribed
+                                </th>
+                                <th className="px-3 py-4 text-center min-w-[110px] whitespace-nowrap">
+                                    Qty.
+                                    <br />
+                                    Dispensed
+                                </th>
+                                <th className="px-3 py-4 text-center min-w-[110px] whitespace-nowrap">
+                                    Stock
+                                </th>
+                                <th className="px-3 py-4 text-center min-w-[100px] whitespace-nowrap">
+                                    Discount
+                                </th>
+                                <th className="px-4 py-4 text-left min-w-[140px] whitespace-nowrap">
+                                    Remarks
+                                </th>
+                                <th className="px-4 py-4 text-right min-w-[90px] whitespace-nowrap">
+                                    Price
+                                </th>
+                                <th className="px-5 py-4 text-right min-w-[100px] whitespace-nowrap">
+                                    Total
+                                </th>
+                            </tr>
+                        </thead>
 
                     {/* Body */}
                     <tbody>
@@ -769,6 +770,7 @@ const PrescriptionTable = ({
                         </tr>
                     </tfoot>
                 </table>
+                </div>
             </div>
 
             {/* ==================================

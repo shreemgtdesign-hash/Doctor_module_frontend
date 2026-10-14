@@ -204,7 +204,7 @@ const MedicinePrescribedTable = () => {
 
           <h1
             className="
-              text-[34px]
+              text-[28px]
               font-bold
               text-[#2F2F2F]
             "
@@ -216,7 +216,8 @@ const MedicinePrescribedTable = () => {
           <p
             className="
               mt-2
-              text-[18px]
+              text-[15px]
+              font-medium
               text-[#777777]
             "
           >
