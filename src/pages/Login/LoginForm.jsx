@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { login } from "../../redux/auth/authThunk";
 import backgroundImage from "../../assets/image.png";
+import { Eye, EyeOff } from "lucide-react";
 
 const hospitalLogo =
     "https://res.cloudinary.com/hj1d367n/image/upload/v1787122082/sadop/logo/eupc9h2ibkpwzozw77tu.jpg";
@@ -21,6 +22,7 @@ const LoginForm = () => {
         login_id: "",
         password: "",
     });
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
         setForm((prev) => ({
@@ -194,7 +196,7 @@ const LoginForm = () => {
                                 <input
                                     id="password"
                                     name="password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     placeholder="Enter your password"
                                     autoComplete="current-password"
                                     value={form.password}
@@ -202,6 +204,19 @@ const LoginForm = () => {
                                     required
                                     className="h-full min-w-0 flex-1 bg-transparent text-sm text-[#39251C] outline-none placeholder:text-[#B4A69C]"
                                 />
+
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                    className="p-1 text-[#A58A77] hover:text-[#594237] transition-colors focus:outline-none cursor-pointer"
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                >
+                                    {showPassword ? (
+                                        <EyeOff size={18} />
+                                    ) : (
+                                        <Eye size={18} />
+                                    )}
+                                </button>
                             </div>
                         </div>
 

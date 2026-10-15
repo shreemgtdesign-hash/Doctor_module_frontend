@@ -115,9 +115,14 @@ const CorporateRegistration = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    const sanitizedValue =
+      name === "contact_number" || name === "alternate_contact_number"
+        ? value.replace(/\D/g, "").slice(0, 10)
+        : value;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: sanitizedValue,
     }));
 
     if (errors[name]) {
@@ -176,6 +181,15 @@ const CorporateRegistration = () => {
       }
       if (!formData.contact_number.trim()) {
         newErrors.contact_number = "Contact number is required";
+      } else if (formData.contact_number.replace(/\D/g, "").length !== 10) {
+        newErrors.contact_number = "Contact number must be exactly 10 digits";
+      }
+      if (
+        formData.alternate_contact_number?.trim() &&
+        formData.alternate_contact_number.replace(/\D/g, "").length !== 10
+      ) {
+        newErrors.alternate_contact_number =
+          "Alternate contact number must be exactly 10 digits";
       }
       if (!formData.corporate_email.trim()) {
         newErrors.corporate_email = "Corporate Email is required";
@@ -677,13 +691,15 @@ const CorporateRegistration = () => {
                     <input
                       type="tel"
                       name="contact_number"
-                      placeholder="Enter contact number"
+                      placeholder="Enter 10-digit contact number"
+                      maxLength={10}
+                      pattern="[0-9]{10}"
                       value={formData.contact_number}
                       onChange={handleChange}
                       className={`w-full rounded-xl border bg-white px-3.5 py-2.5 text-[13px] text-[#2C1810] placeholder:text-[#A9988D] outline-none transition focus:border-[#7A4B3A] focus:ring-1 focus:ring-[#7A4B3A] ${
                         errors.contact_number
-                          ? "border-red-400"
-                          : "border-[#E6D9CF]"
+                           ? "border-red-400"
+                           : "border-[#E6D9CF]"
                       }`}
                     />
                     {errors.contact_number && (
@@ -725,11 +741,22 @@ const CorporateRegistration = () => {
                     <input
                       type="tel"
                       name="alternate_contact_number"
-                      placeholder="Enter contact number"
+                      placeholder="Enter 10-digit contact number"
+                      maxLength={10}
+                      pattern="[0-9]{10}"
                       value={formData.alternate_contact_number}
                       onChange={handleChange}
-                      className="w-full rounded-xl border border-[#E6D9CF] bg-white px-3.5 py-2.5 text-[13px] text-[#2C1810] placeholder:text-[#A9988D] outline-none transition focus:border-[#7A4B3A] focus:ring-1 focus:ring-[#7A4B3A]"
+                      className={`w-full rounded-xl border bg-white px-3.5 py-2.5 text-[13px] text-[#2C1810] placeholder:text-[#A9988D] outline-none transition focus:border-[#7A4B3A] focus:ring-1 focus:ring-[#7A4B3A] ${
+                        errors.alternate_contact_number
+                          ? "border-red-400"
+                          : "border-[#E6D9CF]"
+                      }`}
                     />
+                    {errors.alternate_contact_number && (
+                      <p className="mt-1 text-[11px] text-red-500">
+                        {errors.alternate_contact_number}
+                      </p>
+                    )}
                   </div>
 
                   {/* Alternate Email ID */}

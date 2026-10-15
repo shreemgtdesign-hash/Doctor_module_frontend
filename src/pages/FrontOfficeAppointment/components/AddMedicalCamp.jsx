@@ -253,6 +253,11 @@ const AddMedicalCamp = () => {
         value
     ) => {
 
+        const sanitizedValue =
+            field === "phone" || field === "mobile"
+                ? value.replace(/\D/g, "").slice(0, 10)
+                : value;
+
         setDoctors(
             (previous) => {
                 const next = [
@@ -260,7 +265,7 @@ const AddMedicalCamp = () => {
                 ];
                 next[index] = {
                     ...next[index],
-                    [field]: value,
+                    [field]: sanitizedValue,
                 };
                 return next;
             }
@@ -271,7 +276,7 @@ const AddMedicalCamp = () => {
     const isPreviousDoctorFilled = Boolean(
         doctors.length > 0 &&
             doctors[doctors.length - 1].full_name?.trim() &&
-            doctors[doctors.length - 1].phone?.trim() &&
+            doctors[doctors.length - 1].phone?.replace(/\D/g, "").length === 10 &&
             doctors[doctors.length - 1].email?.trim()
     );
 
@@ -312,6 +317,13 @@ const AddMedicalCamp = () => {
             if (!previousDoctor.phone?.trim()) {
                 toast.error(
                     `Please enter phone number for ${doctorLabel} before adding another doctor.`
+                );
+                return;
+            }
+
+            if (previousDoctor.phone.replace(/\D/g, "").length !== 10) {
+                toast.error(
+                    `Phone number for ${doctorLabel} must be exactly 10 digits.`
                 );
                 return;
             }
@@ -361,6 +373,23 @@ const AddMedicalCamp = () => {
     ) => {
 
         event.preventDefault();
+
+        for (let i = 0; i < doctors.length; i++) {
+            const doc = doctors[i];
+            const docLabel =
+                doctors.length > 1
+                    ? `Doctor ${i + 1}`
+                    : "Doctor";
+            if (
+                doc.phone &&
+                doc.phone.replace(/\D/g, "").length !== 10
+            ) {
+                toast.error(
+                    `Phone number for ${docLabel} must be exactly 10 digits.`
+                );
+                return;
+            }
+        }
 
         const payload = {
             camp_name:
@@ -1283,18 +1312,24 @@ const FormField = ({
     onChange,
     placeholder,
     type = "text",
+    maxLength,
+    pattern,
 }) => {
+
+    const isContact = name === "phone" || name === "mobile";
 
     return (
 
         <FieldGroup label={label}>
 
             <input
-                type={type}
+                type={isContact ? "tel" : type}
                 name={name}
                 value={value}
                 onChange={onChange}
-                placeholder={placeholder}
+                placeholder={isContact ? (placeholder || "Enter 10-digit phone number") : placeholder}
+                maxLength={isContact ? 10 : maxLength}
+                pattern={isContact ? "[0-9]{10}" : pattern}
                 className="
                     h-[54px]
                     w-full

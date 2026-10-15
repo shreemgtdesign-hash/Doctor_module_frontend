@@ -223,13 +223,17 @@ const EditPatient = () => {
     } =
       event.target;
 
+    const sanitizedValue =
+      name === "mobile" || name === "phone"
+        ? value.replace(/\D/g, "").slice(0, 10)
+        : value;
 
     setForm(
       (previous) => ({
         ...previous,
 
         [name]:
-          value,
+          sanitizedValue,
       })
     );
 
@@ -243,6 +247,11 @@ const EditPatient = () => {
   const handleSave = async () => {
 
     if (!id) {
+      return;
+    }
+
+    if (form.mobile && form.mobile.replace(/\D/g, "").length !== 10) {
+      alert("Please enter a valid 10-digit phone number.");
       return;
     }
 
@@ -600,8 +609,11 @@ const EditPatient = () => {
                   >
 
                     <input
-                      type="text"
+                      type="tel"
                       name="mobile"
+                      maxLength={10}
+                      pattern="[0-9]{10}"
+                      placeholder="Enter 10-digit phone number"
                       value={
                         form.mobile
                       }

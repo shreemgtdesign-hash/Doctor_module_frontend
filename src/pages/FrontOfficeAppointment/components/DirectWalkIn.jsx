@@ -173,10 +173,14 @@ const DirectWalkIn = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    const sanitizedValue =
+      name === "mobile" || name === "phone"
+        ? value.replace(/\D/g, "").slice(0, 10)
+        : value;
 
     setForm((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: sanitizedValue,
     }));
   };
 
@@ -280,6 +284,15 @@ const DirectWalkIn = () => {
   const handleSubmitMedicinePurchase = async (e) => {
     e.preventDefault();
 
+    if (!form.mobile?.trim()) {
+      alert("Mobile number is required.");
+      return;
+    }
+    if (form.mobile.replace(/\D/g, "").length !== 10) {
+      alert("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
     const payload = {
       reason_for_visit: "Medicine purchase",
 
@@ -324,6 +337,15 @@ const DirectWalkIn = () => {
 
   const handleSubmitAppointment = async (e) => {
     e.preventDefault();
+
+    if (!form.mobile?.trim()) {
+      alert("Mobile number is required.");
+      return;
+    }
+    if (form.mobile.replace(/\D/g, "").length !== 10) {
+      alert("Please enter a valid 10-digit mobile number.");
+      return;
+    }
 
     const allergies = form.allergies
       ? form.allergies.split(",").map((item) => item.trim()).filter(Boolean)
@@ -481,6 +503,15 @@ const DirectWalkIn = () => {
 
   const handleSubmitTherapyBooking = async (e) => {
     e.preventDefault();
+
+    if (!form.mobile?.trim()) {
+      alert("Mobile number is required.");
+      return;
+    }
+    if (form.mobile.replace(/\D/g, "").length !== 10) {
+      alert("Please enter a valid 10-digit mobile number.");
+      return;
+    }
 
     const allergies = form.allergies
       ? form.allergies
@@ -1238,7 +1269,11 @@ const Field = ({
   type = "text",
   disabled = false,
   span = "",
+  maxLength,
+  pattern,
 }) => {
+  const isContact = name === "mobile" || name === "phone";
+
   return (
     <div className={span}>
       <label className="mb-2 block text-[11px]">
@@ -1246,12 +1281,14 @@ const Field = ({
       </label>
 
       <input
-        type={type}
+        type={isContact ? "tel" : type}
         name={name}
         value={value}
         onChange={onChange}
-        placeholder={placeholder}
+        placeholder={isContact ? (placeholder || "Enter 10-digit mobile number") : placeholder}
         disabled={disabled}
+        maxLength={isContact ? 10 : maxLength}
+        pattern={isContact ? "[0-9]{10}" : pattern}
         className="h-[39px] w-full rounded-lg border border-[#E8D9CF] px-3 text-[11px] outline-none placeholder:text-gray-400 disabled:bg-[#FAF7F4]"
       />
     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
@@ -234,15 +235,44 @@ const DURATIONS = [
 
 const CorporateMyEvents = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const authUser = useSelector((state) => state.auth?.user);
 
   // Active user / organization name
   const user = useMemo(() => {
+    if (authUser && typeof authUser === "object" && Object.keys(authUser).length > 0) {
+      return authUser;
+    }
     try {
       return JSON.parse(localStorage.getItem("user") || "{}");
     } catch {
       return {};
     }
-  }, []);
+  }, [authUser]);
+
+  // Resolve corporate ID from URL query param, user object or localStorage
+  const corporateId = useMemo(() => {
+    const fromUrl =
+      searchParams.get("id") ||
+      searchParams.get("corporate_id") ||
+      searchParams.get("corporateId");
+    if (fromUrl) return fromUrl;
+
+    if (user?.corporate_id) return user.corporate_id;
+    if (user?.id) return user.id;
+    if (user?._id) return user._id;
+    if (user?.company_id) return user.company_id;
+    if (user?.corporateId) return user.corporateId;
+    if (user?.organization_id) return user.organization_id;
+    if (user?.org_id) return user.org_id;
+
+    return (
+      localStorage.getItem("corporate_id") ||
+      localStorage.getItem("corporateId") ||
+      localStorage.getItem("company_id") ||
+      ""
+    );
+  }, [searchParams, user]);
 
   const [activeTab, setActiveTab] = useState("all");
   const [selectedDuration, setSelectedDuration] = useState("all");
@@ -274,13 +304,19 @@ const CorporateMyEvents = () => {
   const fetchEvents = async () => {
     setLoading(true);
     try {
-      const res = await getCorporateMyEvents({
+      const queryParams = {
         tab: activeTab,
         status: activeTab,
         duration: selectedDuration,
         page: currentPage,
         limit: itemsPerPage,
-      });
+      };
+
+      if (corporateId) {
+        queryParams.id = corporateId;
+      }
+
+      const res = await getCorporateMyEvents(queryParams);
 
       if (res.data?.success || res.data?.data || res.data?.events) {
         const dataList = res.data.data || res.data.events || [];
@@ -370,7 +406,7 @@ const CorporateMyEvents = () => {
 
   useEffect(() => {
     fetchEvents();
-  }, [activeTab, selectedDuration, currentPage]);
+  }, [corporateId, activeTab, selectedDuration, currentPage]);
 
   const handlePageChange = (direction) => {
     if (direction === "prev" && (pagination.has_prev || currentPage > 1)) {

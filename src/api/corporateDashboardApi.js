@@ -67,7 +67,11 @@ export const getCorporateEventsCalendar = (month) => {
 // GET /corporate/my-events
 // ==========================================
 export const getCorporateMyEvents = (params = {}) => {
-  return api.get("/corporate/my-events", { params });
+  const queryParams = { ...params };
+  if (!queryParams.id && queryParams.corporate_id) {
+    queryParams.id = queryParams.corporate_id;
+  }
+  return api.get("/corporate/my-events", { params: queryParams });
 };
 
 // ==========================================

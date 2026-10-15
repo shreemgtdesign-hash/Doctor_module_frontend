@@ -205,9 +205,14 @@ const RegisterPatient = ({
             value,
         } = e.target;
 
+        const sanitizedValue =
+            name === "mobile" || name === "phone"
+                ? value.replace(/\D/g, "").slice(0, 10)
+                : value;
+
         setFormData((prev) => ({
             ...prev,
-            [name]: value,
+            [name]: sanitizedValue,
         }));
 
     };
@@ -271,6 +276,26 @@ const RegisterPatient = ({
 
             alert(
                 "Medical camp ID is missing."
+            );
+
+            return;
+        }
+
+        if (!formData.mobile?.trim()) {
+
+            alert(
+                "Mobile number is required."
+            );
+
+            return;
+        }
+
+        if (
+            formData.mobile.replace(/\D/g, "").length !== 10
+        ) {
+
+            alert(
+                "Please enter a valid 10-digit mobile number."
             );
 
             return;
@@ -869,13 +894,15 @@ const RegisterPatient = ({
                                         <input
                                             type="tel"
                                             name="mobile"
+                                            maxLength={10}
+                                            pattern="[0-9]{10}"
                                             value={
                                                 formData.mobile
                                             }
                                             onChange={
                                                 handleChange
                                             }
-                                            placeholder="Enter Mobile Number"
+                                            placeholder="Enter 10-digit Mobile Number"
                                             required
                                             className="
                                                 h-[48px]
