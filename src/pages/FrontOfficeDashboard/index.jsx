@@ -13,6 +13,7 @@ import DashboardLayout
 import {
   loadFrontOfficeDashboard,
   loadFrontOfficeAppointments,
+  loadFrontOfficePendingActions,
 } from "../../redux/frontOffice/frontOfficeDashboardThunk";
 import AppointmentsCompleted
   from "./components/UpcomingAppointments";
@@ -66,6 +67,11 @@ const FrontOfficeDashboard = () => {
         loadFrontOfficeAppointments({
           period: period || "today",
         })
+      );
+      dispatch(
+        loadFrontOfficePendingActions(
+          period || "today"
+        )
       );
     };
 

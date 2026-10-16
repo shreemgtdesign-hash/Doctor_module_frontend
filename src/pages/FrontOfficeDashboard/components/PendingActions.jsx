@@ -1,4 +1,5 @@
 import {
+    useEffect,
     useState,
 } from "react";
 
@@ -102,6 +103,18 @@ const PendingActions = () => {
             )
         );
     };
+
+    // ==========================================
+    // LOAD PENDING ACTIONS ON MOUNT / PERIOD CHANGE
+    // ==========================================
+
+    useEffect(() => {
+        dispatch(
+            loadFrontOfficePendingActions(
+                period
+            )
+        );
+    }, [dispatch, period]);
 
 
     // ==========================================

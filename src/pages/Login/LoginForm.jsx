@@ -220,16 +220,25 @@ const LoginForm = () => {
                             </div>
                         </div>
 
-                        {/* Forgot Password link */}
-                        <div className="flex justify-end">
-                            <button
-                                type="button"
-                                onClick={() => navigate("/corporate/forgot-password")}
-                                className="text-xs font-semibold text-[#8D7B70] hover:text-[#594237] transition cursor-pointer"
-                            >
-                                Forgot Password ?
-                            </button>
-                        </div>
+                        {/* Forgot Password link - only show when HR login is being tried */}
+                        {Boolean(form.login_id && /hr|corp/i.test(form.login_id.trim())) && (
+                            <div className="flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        navigate("/corporate/forgot-password", {
+                                            state: {
+                                                login_id: form.login_id,
+                                                username: form.login_id,
+                                            },
+                                        })
+                                    }
+                                    className="text-xs font-semibold text-[#8D7B70] hover:text-[#594237] transition cursor-pointer"
+                                >
+                                    Forgot Password ?
+                                </button>
+                            </div>
+                        )}
 
                         {/* Login error */}
                         {error && (
