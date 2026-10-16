@@ -4,6 +4,8 @@ import {
   getCorporateMyEvents,
   getCorporateCompanyDetailsOptions,
   submitCorporateCompanyRegistration,
+  submitCorporateEventFeedback,
+  corporateForgotPassword,
 } from "../api/corporateDashboardApi";
 
 
@@ -61,3 +63,17 @@ export const registerCorporateCompany = async (payload) => {
   const response = await submitCorporateCompanyRegistration(payload);
   return response.data || {};
 };
+
+// ==========================================
+// EVENT FEEDBACK & FORGOT PASSWORD
+// ==========================================
+
+export const submitEventFeedback = async (payload) => {
+  const response = await submitCorporateEventFeedback(payload);
+  return response.data || {};
+};
+
+export const resetCorporatePassword = async (payload) => {
+  const response = await corporateForgotPassword(payload);
+  return response.data || {};
+};

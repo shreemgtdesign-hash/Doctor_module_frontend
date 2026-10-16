@@ -220,6 +220,17 @@ const LoginForm = () => {
                             </div>
                         </div>
 
+                        {/* Forgot Password link */}
+                        <div className="flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => navigate("/corporate/forgot-password")}
+                                className="text-xs font-semibold text-[#8D7B70] hover:text-[#594237] transition cursor-pointer"
+                            >
+                                Forgot Password ?
+                            </button>
+                        </div>
+
                         {/* Login error */}
                         {error && (
                             <div

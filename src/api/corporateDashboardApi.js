@@ -89,3 +89,19 @@ export const getCorporateCompanyDetailsOptions = () => {
 export const submitCorporateCompanyRegistration = (payload) => {
   return api.post("/corporate/company-details", payload);
 };
+
+// ==========================================
+// 11. SUBMIT EVENT FEEDBACK
+// POST /corporate/event-feedback
+// ==========================================
+export const submitCorporateEventFeedback = (payload) => {
+  return api.post("/corporate/event-feedback", payload);
+};
+
+// ==========================================
+// 12. FORGOT PASSWORD / CREATE PASSWORD
+// POST /corporate/forgot-password
+// ==========================================
+export const corporateForgotPassword = (payload) => {
+  return api.post("/corporate/forgot-password", payload);
+};

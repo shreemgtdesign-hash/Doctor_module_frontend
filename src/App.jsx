@@ -31,7 +31,6 @@ import DirectWalkIn from "./pages/FrontOfficeAppointment/components/DirectWalkIn
 import FrontofficePatientTable from "./pages/FrontOfficePatient/components/FrontofficePatientTable";
 import ViewPatientProfile from "./pages/FrontOfficePatient/components/ViewPatientProfile";
 import EditPatient from "./pages/FrontOfficePatient/components/EditPatient";
-import PendingActions from "./pages/FrontOfficeAppointment/components/PendingActionScreen";
 import PendingActionScreen from "./pages/FrontOfficeAppointment/components/PendingActionScreen";
 import AppointmentConfirmationList from "./pages/FrontOfficeAppointment/components/AppointmentConfirmationList";
 import UpcomingAppointmentsList from "./pages/FrontOfficeDashboard/components/UpcomingAppointmentList";
@@ -62,6 +61,8 @@ import CorporatePackages from "./pages/Corporate/CorporatePackages/CorporatePack
 import CorporateCustomizeEvent from "./pages/Corporate/CorporateCustomizeEvent/CorporateCustomizeEvent";
 import CorporateMyEvents from "./pages/Corporate/CorporateMyEvents/CorporateMyEvents";
 import CorporateRegistration from "./pages/Corporate/CorporateRegistration/CorporateRegistration";
+import CorporateEventFeedback from "./pages/Corporate/CorporateEventFeedback/CorporateEventFeedback";
+import CorporateForgotPassword from "./pages/Corporate/CorporateForgotPassword/CorporateForgotPassword";
 import DashboardLayout from "./components/Layout/DashboardLayout";
 
 function App() {
@@ -480,6 +481,15 @@ function App() {
   path="/corporate/company-details"
   element={<CorporateRegistration />}
 />
+<Route
+  path="/corporate/event-feedback"
+  element={<CorporateEventFeedback />}
+/>
+<Route
+  path="/corporate/forgot-password"
+  element={<CorporateForgotPassword />}
+/>
+
 
     </Routes>
     </>
