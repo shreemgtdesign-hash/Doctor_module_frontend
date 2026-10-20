@@ -9,6 +9,7 @@ import { setActiveFilter } from "../../redux/consultation/consultationSlice";
 import ScheduleOverview from "./components/ScheduleOverview";
 import AppointmentList from "./components/AppointmentList";
 import PatientProfile from "./components/PatientProfile";
+import DoctorConsultationChat from "./components/DoctorConsultationChat";
 import {
     useSidebar,
 } from "../../components/Layout/SidebarContext";
@@ -223,6 +224,9 @@ const DoctorAppointment = () => {
                     </div>
 
                 </div>
+
+                {/* Floating Bottom-Right Doctor Consultation Chat Widget */}
+                <DoctorConsultationChat />
 
             </div>
 

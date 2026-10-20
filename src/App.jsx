@@ -63,6 +63,11 @@ import CorporateMyEvents from "./pages/Corporate/CorporateMyEvents/CorporateMyEv
 import CorporateRegistration from "./pages/Corporate/CorporateRegistration/CorporateRegistration";
 import CorporateEventFeedback from "./pages/Corporate/CorporateEventFeedback/CorporateEventFeedback";
 import CorporateForgotPassword from "./pages/Corporate/CorporateForgotPassword/CorporateForgotPassword";
+import NotificationsPage from "./pages/Notifications/NotificationsPage";
+import CorporateCellDashboard from "./pages/CorporateCell/CorporateCellDashboard/CorporateCellDashboard";
+import CorporateCellUpcomingEvents from "./pages/CorporateCell/CorporateCellUpcomingEvents/CorporateCellUpcomingEvents";
+import CorporateCellEventDetails from "./pages/CorporateCell/CorporateCellEventDetails/CorporateCellEventDetails";
+import CorporateCellEditDashboard from "./pages/CorporateCell/CorporateCellEditDashboard/CorporateCellEditDashboard";
 import DashboardLayout from "./components/Layout/DashboardLayout";
 
 function App() {
@@ -489,6 +494,36 @@ function App() {
   path="/corporate/forgot-password"
   element={<CorporateForgotPassword />}
 />
+<Route
+  path="/notifications"
+  element={<NotificationsPage />}
+/>
+<Route
+  path="/corporate-cell"
+  element={<Navigate to="/corporate-cell/dashboard" replace />}
+/>
+<Route
+  path="/corporate-cell/dashboard"
+  element={<CorporateCellDashboard />}
+/>
+<Route
+  path="/corporate-cell/upcoming-events"
+  element={<CorporateCellUpcomingEvents />}
+/>
+<Route
+  path="/corporate-cell/upcoming-events/:id"
+  element={<CorporateCellEventDetails />}
+/>
+<Route
+  path="/corporate-cell/packages"
+  element={<CorporatePackages />}
+/>
+<Route
+  path="/corporate-cell/edit-dashboard"
+  element={<CorporateCellEditDashboard />}
+/>
+
+
 
 
     </Routes>

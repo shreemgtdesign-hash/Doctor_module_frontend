@@ -15,15 +15,22 @@ const DashboardLayout = ({
 }) => {
     const location = useLocation();
 
+    const storedRole =
+        (typeof window !== "undefined" && localStorage.getItem("role")) ||
+        "frontoffice";
+
     const resolvedRole =
         role ||
+        (location?.pathname?.startsWith("/corporate-cell") ? "corporate_cell" : undefined) ||
+        (location?.pathname?.startsWith("/corporatecell") ? "corporate_cell" : undefined) ||
         (location?.pathname?.startsWith("/corporate") ? "corporate" : undefined) ||
         (location?.pathname?.startsWith("/pharmacist") ? "pharmacist" : undefined) ||
         (location?.pathname?.startsWith("/therapist") ? "therapist" : undefined) ||
         (location?.pathname?.startsWith("/duty-doctor") ? "duty-doctor" : undefined) ||
         (location?.pathname?.startsWith("/junior-doctor") ? "junior-doctor" : undefined) ||
         (location?.pathname?.startsWith("/frontoffice") ? "frontoffice" : undefined) ||
-        "doctor";
+        (location?.pathname?.startsWith("/doctor") ? "doctor" : undefined) ||
+        storedRole;
 
     const [
         sidebarOpen,

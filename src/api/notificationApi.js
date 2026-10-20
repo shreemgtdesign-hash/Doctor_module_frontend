@@ -21,12 +21,11 @@ export const registerFCMToken = (
 // Get Notifications
 // ========================================
 
-export const getNotifications = () => {
-
+export const getNotifications = (params = {}) => {
   return api.get(
-    "/notifications"
+    "/notifications",
+    { params }
   );
-
 };
 
 

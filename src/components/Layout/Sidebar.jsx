@@ -148,6 +148,49 @@ const corporateMenu = [
     },
 ];
 
+// ==========================================
+// CORPORATE CELL MENU
+// ==========================================
+
+const corporateCellMenu = [
+    {
+        name: "Dashboard",
+        icon: HiHome,
+        path: "/corporate-cell/dashboard",
+    },
+    {
+        name: "Upcoming Events",
+        icon: FaLifeRing,
+        path: "/corporate-cell/upcoming-events",
+    },
+    {
+        name: "Corporate Packages",
+        icon: FaLifeRing,
+        path: "/corporate-cell/packages",
+    },
+    {
+        name: "Edit Dashboard",
+        icon: FaLifeRing,
+        path: "/corporate-cell/edit-dashboard",
+    },
+    {
+        name: "Support",
+        icon: FaLifeRing,
+        path: "#",
+    },
+    {
+        name: "Profile",
+        icon: FaLifeRing,
+        path: "#",
+    },
+    {
+        name: "Settings",
+        icon: FaCog,
+        path: "#",
+    },
+];
+
+
 
 // ==========================================
 // DOCTOR MENU
@@ -340,6 +383,14 @@ const Sidebar = ({
         location.pathname.startsWith("/therapist")
     ) {
         currentMenu = therapistMenu;
+    } else if (
+        role === "corporate_cell" ||
+        role === "corporatecell" ||
+        role === "corporate-cell" ||
+        location.pathname.startsWith("/corporate-cell") ||
+        location.pathname.startsWith("/corporatecell")
+    ) {
+        currentMenu = corporateCellMenu;
     } else if (
         role === "corporate" ||
         location.pathname.startsWith("/corporate")

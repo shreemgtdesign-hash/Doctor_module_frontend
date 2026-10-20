@@ -144,12 +144,8 @@ const Header = ({
   // ==================================================
 
   const handleBellClick = () => {
-
-    setShowNotifications(
-      (previous) =>
-        !previous
-    );
-
+    setShowNotifications(false);
+    navigate("/notifications");
   };
 
 

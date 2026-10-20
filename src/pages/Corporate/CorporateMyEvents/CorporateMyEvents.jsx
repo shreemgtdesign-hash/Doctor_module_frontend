@@ -327,7 +327,7 @@ const CorporateMyEvents = () => {
         }
         if (res.data.title || res.data.subtitle) {
           setHeaderInfo({
-            title: res.data.title || "My Events",
+            title: res.data.organization_name || "My Events",
             subtitle:
               res.data.subtitle ||
               "Track and manage all events for your organization.",

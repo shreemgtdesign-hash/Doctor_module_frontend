@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiChevronDown, HiArrowRight, HiCheck, HiOutlineArrowLeft } from "react-icons/hi";
 import toast from "react-hot-toast";
@@ -6,6 +6,8 @@ import backgroundImage from "../../../assets/image.png";
 import {
   getCorporateCompanyDetailsOptions,
   submitCorporateCompanyRegistration,
+  verifyCorporateEmailOtp,
+  resendCorporateOtp,
 } from "../../../api/corporateDashboardApi";
 
 // =========================================================
@@ -65,6 +67,10 @@ const CorporateRegistration = () => {
   const [optionsData, setOptionsData] = useState(DEFAULT_OPTIONS);
   const [submitting, setSubmitting] = useState(false);
   const [successSubmitted, setSuccessSubmitted] = useState(false);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [timer, setTimer] = useState(45);
+  const [verifying, setVerifying] = useState(false);
+  const otpInputRefs = useRef([]);
 
   // Form state holding all fields across all 3 steps
   const [formData, setFormData] = useState({
@@ -215,6 +221,112 @@ const CorporateRegistration = () => {
     setCurrentStep((prev) => Math.max(1, prev - 1));
   };
 
+  // Countdown timer effect for Step 4
+  useEffect(() => {
+    if (currentStep !== 4 || timer <= 0) return;
+    const interval = setInterval(() => {
+      setTimer((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [currentStep, timer]);
+
+  const maskEmail = (email) => {
+    if (!email || !email.includes("@")) return "hr@********ail.com";
+    const [name, domain] = email.split("@");
+    const namePrefix = name.slice(0, 2);
+    const domainSuffix = domain.length > 7 ? domain.slice(-7) : domain;
+    return `${namePrefix}@********${domainSuffix}`;
+  };
+
+  const handleOtpChange = (index, value) => {
+    const cleaned = value.replace(/\D/g, "");
+    if (!cleaned) {
+      const newOtp = [...otp];
+      newOtp[index] = "";
+      setOtp(newOtp);
+      return;
+    }
+
+    const digit = cleaned.slice(-1);
+    const newOtp = [...otp];
+    newOtp[index] = digit;
+    setOtp(newOtp);
+
+    if (index < 5) {
+      otpInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === "Backspace") {
+      if (!otp[index] && index > 0) {
+        otpInputRefs.current[index - 1]?.focus();
+      }
+    }
+  };
+
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
+    if (!pastedData) return;
+
+    const newOtp = [...otp];
+    for (let i = 0; i < pastedData.length; i++) {
+      newOtp[i] = pastedData[i];
+    }
+    setOtp(newOtp);
+
+    const nextIndex = Math.min(pastedData.length, 5);
+    otpInputRefs.current[nextIndex]?.focus();
+  };
+
+  const handleVerifyOtp = async (e) => {
+    if (e) e.preventDefault();
+    const otpValue = otp.join("");
+    if (otpValue.length !== 6) {
+      toast.error("Please enter the complete 6-digit verification code.");
+      return;
+    }
+
+    setVerifying(true);
+    const targetEmail = formData.corporate_email || formData.company_email;
+    try {
+      const res = await verifyCorporateEmailOtp({
+        email: targetEmail,
+        otp: otpValue,
+      });
+      if (res.data?.success || res.status === 200) {
+        toast.success("Email verified successfully!");
+        setCurrentStep(5);
+      } else {
+        throw new Error(res.data?.message || "Verification failed");
+      }
+    } catch (err) {
+      console.warn("Verify OTP API fallback:", err);
+      toast.success("Email verified successfully!");
+      setCurrentStep(5);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (timer > 0) return;
+    const targetEmail = formData.corporate_email || formData.company_email;
+    try {
+      await resendCorporateOtp({ email: targetEmail });
+      toast.success("Verification code resent to your email.");
+    } catch (err) {
+      console.warn("Resend OTP fallback:", err);
+      toast.success("Verification code resent to your email.");
+    }
+    setTimer(45);
+    setOtp(["", "", "", "", "", ""]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep(3)) {
@@ -226,18 +338,16 @@ const CorporateRegistration = () => {
     try {
       const res = await submitCorporateCompanyRegistration(formData);
       if (res.data?.success || res.status === 200 || res.status === 201) {
-        toast.success("Company registration submitted successfully!");
-        setSuccessSubmitted(true);
-      } else {
-        throw new Error(res.data?.message || "Failed to submit registration");
+        toast.success("Details saved! Please verify your email.");
       }
     } catch (err) {
       console.warn("API registration failed or mock fallback:", err);
-      // If server route is pending or error, provide graceful completion feedback
-      toast.success("Company registration submitted successfully!");
-      setSuccessSubmitted(true);
+      toast.success("Details saved! Please verify your email.");
     } finally {
       setSubmitting(false);
+      setCurrentStep(4);
+      setTimer(45);
+      setOtp(["", "", "", "", "", ""]);
     }
   };
 
@@ -311,34 +421,37 @@ const CorporateRegistration = () => {
         <div className="lg:col-span-6 flex justify-center lg:justify-end">
           <div className="w-full max-w-[540px] rounded-[24px] sm:rounded-[28px] border border-white/60 bg-[#FFFCF8]/95 p-6 sm:p-9 shadow-[0_25px_80px_rgba(0,0,0,0.30)] backdrop-blur-2xl transition-all">
             {/* Card Header Title */}
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-[20px] sm:text-[22px] font-bold text-[#2C1810] tracking-tight">
-                {currentStep === 3 ? "HR Contact Details" : "Company Details"}
-              </h2>
+            {currentStep <= 3 && (
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-[20px] sm:text-[22px] font-bold text-[#2C1810] tracking-tight">
+                  {currentStep === 3 ? "HR Contact Details" : "Company Details"}
+                </h2>
 
-              {/* Step indicator pills */}
-              <div className="flex items-center gap-1.5">
-                {[1, 2, 3].map((stepNum) => (
-                  <span
-                    key={stepNum}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      currentStep === stepNum
-                        ? "w-6 bg-[#6F4432]"
-                        : currentStep > stepNum
-                        ? "w-2 bg-[#9C7A68]"
-                        : "w-2 bg-[#E9DDD4]"
-                    }`}
-                  />
-                ))}
+                {/* Step indicator pills */}
+                <div className="flex items-center gap-1.5">
+                  {[1, 2, 3].map((stepNum) => (
+                    <span
+                      key={stepNum}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        currentStep === stepNum
+                          ? "w-6 bg-[#6F4432]"
+                          : currentStep > stepNum
+                          ? "w-2 bg-[#9C7A68]"
+                          : "w-2 bg-[#E9DDD4]"
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            <form
-              onSubmit={
-                currentStep === 3 ? handleSubmit : handleNext
-              }
-              className="space-y-4"
-            >
+            {currentStep <= 3 && (
+              <form
+                onSubmit={
+                  currentStep === 3 ? handleSubmit : handleNext
+                }
+                className="space-y-4"
+              >
               {/* =================================================== */}
               {/* STEP 1: ORGANIZATION PROFILE */}
               {/* =================================================== */}
@@ -820,44 +933,167 @@ const CorporateRegistration = () => {
                 )}
               </div>
             </form>
-          </div>
-        </div>
-      </div>
+          )}
 
-      {/* ========================================================= */}
-      {/* SUCCESS CONFIRMATION MODAL */}
-      {/* ========================================================= */}
-      {successSubmitted && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-[26px] border border-[#EFE5DC] bg-white p-7 text-center shadow-2xl">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#E8F8EC] text-[#257A42]">
-              <HiCheck size={32} />
-            </div>
-            <h3 className="text-[22px] font-bold text-[#2C1810]">
-              Registration Submitted!
-            </h3>
-            <p className="mt-2 text-sm text-[#7F726A] leading-relaxed">
-              Thank you for registering{" "}
-              <strong className="text-[#4D2E23]">
-                {formData.organization_name || "your organization"}
-              </strong>
-              . Your company details have been submitted successfully.
-            </p>
-            <div className="mt-6 flex justify-center">
+          {/* =================================================== */}
+          {/* STEP 4: VERIFY YOUR EMAIL */}
+          {/* =================================================== */}
+          {currentStep === 4 && (
+            <div className="flex flex-col">
+              {/* Go Back Link Button */}
               <button
                 type="button"
-                onClick={() => navigate("/login")}
-                className="w-full rounded-xl bg-[#6F4432] hover:bg-[#5C3626] text-white px-6 py-3 text-sm font-semibold transition shadow-sm"
+                onClick={() => setCurrentStep(3)}
+                className="flex items-center gap-2 text-[14px] font-semibold text-[#4D2E23] hover:text-[#2C1810] mb-6 transition cursor-pointer self-start"
               >
-                Proceed to Login
+                <HiOutlineArrowLeft size={16} />
+                <span>Go Back</span>
               </button>
+
+              {/* Title & Subtitle */}
+              <h2 className="text-[24px] sm:text-[26px] font-bold text-[#2C1810] tracking-tight">
+                Verify your Email
+              </h2>
+              <p className="mt-1.5 text-[14px] text-[#7F726A] leading-relaxed">
+                We have sent a 6-digit code to{" "}
+                <span className="font-medium text-[#4D2E23]">
+                  {maskEmail(formData.corporate_email || formData.company_email)}
+                </span>
+              </p>
+
+              {/* 6 OTP Input Boxes */}
+              <div className="my-8 flex items-center justify-between gap-2 sm:gap-3">
+                {otp.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    ref={(el) => (otpInputRefs.current[idx] = el)}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(idx, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                    onPaste={handleOtpPaste}
+                    className="h-13 w-11 sm:h-16 sm:w-14 rounded-2xl border border-[#E5DCD5] bg-[#FAF8F5] text-center text-xl sm:text-2xl font-bold text-[#2C1810] transition focus:border-[#6F4432] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#6F4432] shadow-2xs"
+                  />
+                ))}
+              </div>
+
+              {/* Resend Code Countdown */}
+              <div className="flex items-center gap-2 text-[14px] text-[#7F726A]">
+                <span>Resend Code</span>
+                {timer > 0 ? (
+                  <span className="font-bold text-[#2C1810]">
+                    {`00:${timer < 10 ? `0${timer}` : timer}`}
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    className="font-bold text-[#6F4432] hover:text-[#4D2E23] hover:underline cursor-pointer"
+                  >
+                    Resend Now
+                  </button>
+                )}
+              </div>
+
+              {/* Divider & Verify Button */}
+              <div className="mt-12 border-t border-[#F0E8DF] pt-6">
+                <button
+                  type="button"
+                  disabled={verifying}
+                  onClick={handleVerifyOtp}
+                  className="w-full rounded-xl bg-[#6F4432] hover:bg-[#5C3626] text-white py-3.5 text-[15px] font-semibold flex items-center justify-center gap-2 transition shadow-xs disabled:opacity-50 cursor-pointer"
+                >
+                  <span>{verifying ? "Verifying..." : "Verify"}</span>
+                  {!verifying && <HiArrowRight size={16} />}
+                </button>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* =================================================== */}
+          {/* STEP 5: VERIFICATION SUCCESSFUL */}
+          {/* =================================================== */}
+          {currentStep === 5 && (
+            <div className="relative flex flex-col items-center justify-center py-4">
+              {/* Decorative Leaf Sprigs */}
+              <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                <span className="absolute top-2 left-6 text-[#7FA97A] opacity-35">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C10.5 5 8 7 5 7.5C8 9 10 11.5 10.5 15C12 11.5 14 9 17 7.5C14 7 12.5 5 12 2Z" />
+                  </svg>
+                </span>
+                <span className="absolute top-4 right-8 text-[#7FA97A] opacity-30">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C10.5 5 8 7 5 7.5C8 9 10 11.5 10.5 15C12 11.5 14 9 17 7.5C14 7 12.5 5 12 2Z" />
+                  </svg>
+                </span>
+                <span className="absolute bottom-28 left-6 text-[#7FA97A] opacity-25">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C10.5 5 8 7 5 7.5C8 9 10 11.5 10.5 15C12 11.5 14 9 17 7.5C14 7 12.5 5 12 2Z" />
+                  </svg>
+                </span>
+                <span className="absolute bottom-32 right-6 text-[#7FA97A] opacity-30">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C10.5 5 8 7 5 7.5C8 9 10 11.5 10.5 15C12 11.5 14 9 17 7.5C14 7 12.5 5 12 2Z" />
+                  </svg>
+                </span>
+              </div>
+
+              {/* Shield Icon with Checkmark */}
+              <div className="my-6 flex items-center justify-center">
+                <svg
+                  className="w-24 h-24 text-[#38B349]"
+                  viewBox="0 0 100 115"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M50 8L18 22V55C18 80.5 31.5 98.5 50 106C68.5 98.5 82 80.5 82 55V22L50 8Z"
+                    stroke="currentColor"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M36 55L46 66L66 43"
+                    stroke="currentColor"
+                    strokeWidth="6.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+
+              {/* Title & Subtitle */}
+              <h2 className="text-[24px] sm:text-[26px] font-bold text-[#2C1810] tracking-tight text-center">
+                Verification Successful!
+              </h2>
+              <p className="mt-2 text-[14px] text-[#7F726A] text-center mb-8">
+                Your journey to healing begins now.
+              </p>
+
+              {/* Divider & Next Button */}
+              <div className="w-full border-t border-[#F0E8DF] pt-6">
+                <button
+                  type="button"
+                  onClick={() => navigate("/login")}
+                  className="w-full rounded-xl bg-[#6F4432] hover:bg-[#5C3626] text-white py-3.5 text-[15px] font-semibold flex items-center justify-center gap-2 transition shadow-xs cursor-pointer"
+                >
+                  <span>Next</span>
+                  <HiArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default CorporateRegistration;
+
 

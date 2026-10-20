@@ -104,4 +104,21 @@ export const submitCorporateEventFeedback = (payload) => {
 // ==========================================
 export const corporateForgotPassword = (payload) => {
   return api.post("/corporate/forgot-password", payload);
-};
+};
+
+// ==========================================
+// 13. VERIFY CORPORATE EMAIL OTP
+// POST /corporate/verify-email
+// ==========================================
+export const verifyCorporateEmailOtp = (payload) => {
+  return api.post("/corporate/verify-email", payload);
+};
+
+// ==========================================
+// 14. RESEND CORPORATE EMAIL OTP
+// POST /corporate/resend-otp
+// ==========================================
+export const resendCorporateOtp = (payload) => {
+  return api.post("/corporate/resend-otp", payload);
+};
+

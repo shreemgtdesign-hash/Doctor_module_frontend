@@ -52,6 +52,12 @@ const LoginForm = () => {
                     navigate("/corporate/dashboard", { replace: true });
                     break;
 
+                case "corporate_cell":
+                case "corporatecell":
+                case "corporate-cell":
+                    navigate("/corporate-cell/dashboard", { replace: true });
+                    break;
+
                 case "duty_doctor":
                     navigate("/duty-doctor/dashboard", { replace: true });
                     break;
