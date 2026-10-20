@@ -1,6 +1,3 @@
-
-const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL;
-
 export const connectVideoConsultationSocket = (
   appointmentNo,
   onMessage,
@@ -10,54 +7,48 @@ export const connectVideoConsultationSocket = (
     throw new Error("Appointment number is required for WebSocket");
   }
 
-  if (!WS_BASE_URL) {
-    throw new Error("VITE_WS_BASE_URL is not configured");
+  let wsBase = import.meta.env.VITE_WS_BASE_URL || "ws://72.62.78.53:5000";
+
+  // 72.62.78.53:5000 does not have SSL/TLS certificate; enforce ws:// to prevent ERR_SSL_PROTOCOL_ERROR
+  if (wsBase.includes("72.62.78.53")) {
+    wsBase = wsBase.replace(/^wss:\/\//i, "ws://");
+  } else if (!wsBase.startsWith("ws://") && !wsBase.startsWith("wss://")) {
+    wsBase = wsBase.replace(/^https:\/\//i, "wss://").replace(/^http:\/\//i, "ws://");
   }
 
-  const url = new URL(`${WS_BASE_URL}/ws/chat`);
+  const url = new URL(`${wsBase}/ws/chat`);
   url.searchParams.set("consultationId", appointmentNo);
+  url.searchParams.set("appointment_id", appointmentNo);
 
   const socket = new WebSocket(url.toString());
 
-socket.onopen = () => {
-  console.log("✅ WebSocket connected successfully");
-  onStatusChange?.("connected");
-};
+  socket.onopen = () => {
+    console.log("✅ Video consultation WebSocket connected successfully:", url.toString());
+    onStatusChange?.("connected");
+  };
 
-socket.onmessage = (event) => {
-  console.log("📩 WebSocket message:", event.data);
-
-  try {
-    const message = JSON.parse(event.data);
-    onMessage?.(message);
-  } catch (error) {
-    console.error("Invalid WebSocket message:", error);
-  }
-};
-
-socket.onerror = (error) => {
-  console.error("❌ WebSocket error:", error);
-  onStatusChange?.("error");
-};
-
-socket.onclose = (event) => {
-  console.log("🔌 WebSocket disconnected:", event.code, event.reason);
-  onStatusChange?.("disconnected");
-};
+  socket.onmessage = (event) => {
+    console.log("📩 Video consultation WebSocket message:", event.data);
+    try {
+      const message = JSON.parse(event.data);
+      onMessage?.(message);
+    } catch (error) {
+      console.error("Invalid WebSocket message:", error);
+    }
+  };
 
   socket.onerror = (error) => {
-    console.error("Video consultation WebSocket error:", error);
+    console.warn("⚠️ Video consultation WebSocket error:", error);
     onStatusChange?.("error");
   };
 
-  socket.onclose = () => {
-    console.log("Video consultation WebSocket disconnected");
+  socket.onclose = (event) => {
+    console.log("🔌 Video consultation WebSocket disconnected:", event.code, event.reason);
     onStatusChange?.("disconnected");
   };
 
   return {
     socket,
-
     disconnect() {
       socket.onopen = null;
       socket.onmessage = null;

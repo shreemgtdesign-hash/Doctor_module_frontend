@@ -125,6 +125,63 @@ const isUpcoming = (patient) => {
   return !finishedStatuses.includes(status);
 };
 
+// Safely extract text string from message object
+const extractMessageText = (msg) => {
+  if (!msg) return "";
+  if (typeof msg === "string") return msg;
+  if (typeof msg.message === "string") return msg.message;
+  if (typeof msg.text === "string") return msg.text;
+  if (typeof msg.message === "object" && msg.message !== null) {
+    if (typeof msg.message.message === "string") return msg.message.message;
+    if (typeof msg.message.text === "string") return msg.message.text;
+    return "";
+  }
+  return "";
+};
+
+// Normalize message objects so no nested message object causes React child error
+const sanitizeMessage = (m) => {
+  if (!m) return null;
+  if (typeof m === "string") {
+    return {
+      id: `msg_${Date.now()}`,
+      message: m,
+      createdAt: new Date().toISOString(),
+    };
+  }
+  if (m.message && typeof m.message === "object") {
+    return {
+      ...m.message,
+      ...m,
+      message: extractMessageText(m.message) || extractMessageText(m) || "",
+    };
+  }
+  return {
+    ...m,
+    message: extractMessageText(m),
+  };
+};
+
+// Deduplicate messages by id / messageId
+const deduplicateMessages = (msgList) => {
+  if (!Array.isArray(msgList)) return [];
+  const seenIds = new Set();
+  const result = [];
+
+  for (const m of msgList) {
+    if (!m) continue;
+    const id = m.id || m.messageId || m.message_id;
+    if (id && !String(id).startsWith("temp_")) {
+      if (seenIds.has(id)) {
+        continue;
+      }
+      seenIds.add(id);
+    }
+    result.push(m);
+  }
+  return result;
+};
+
 export default function DoctorConsultationChat() {
   const doctor = useSelector((state) => state.auth.user);
   const { appointments = [], selectedPatient } = useSelector(
@@ -236,7 +293,7 @@ export default function DoctorConsultationChat() {
         msgRes?.data?.messages ||
         msgRes?.data?.data ||
         (Array.isArray(msgRes?.data) ? msgRes.data : []);
-      setMessages(fetchedMessages);
+      setMessages(deduplicateMessages(fetchedMessages.map(sanitizeMessage).filter(Boolean)));
 
       // 3. Mark Messages as Read
       markChatMessagesAsRead(consultationId).catch(() => {});
@@ -268,12 +325,17 @@ export default function DoctorConsultationChat() {
       activeChatPatient.appointmentId ||
       activeChatPatient.consultation_id;
 
-    const baseWs =
-      import.meta.env.VITE_WS_BASE_URL
-        ? import.meta.env.VITE_WS_BASE_URL.replace(/^http/, "ws")
-        : "ws://72.62.78.53:5000";
+    let baseWs =
+      import.meta.env.VITE_WS_BASE_URL || "ws://72.62.78.53:5000";
 
-    const wsUrl = `${baseWs}/ws/chat?appointment_id=${appointmentId}&user_id=${doctorId}&role=doctor&name=${encodeURIComponent(
+    // 72.62.78.53:5000 does not have SSL/TLS configured; enforce ws:// to prevent ERR_SSL_PROTOCOL_ERROR
+    if (baseWs.includes("72.62.78.53")) {
+      baseWs = baseWs.replace(/^wss:\/\//i, "ws://");
+    } else if (!baseWs.startsWith("ws://") && !baseWs.startsWith("wss://")) {
+      baseWs = baseWs.replace(/^https:\/\//i, "wss://").replace(/^http:\/\//i, "ws://");
+    }
+
+    const wsUrl = `${baseWs}/ws/chat?appointment_id=${appointmentId}&consultationId=${appointmentId}&user_id=${doctorId}&role=doctor&name=${encodeURIComponent(
       doctorName
     )}`;
 
@@ -297,30 +359,52 @@ export default function DoctorConsultationChat() {
           }
 
           // Handle incoming message
-          const incomingMsg = data.messageData || data;
-          if (incomingMsg.message || incomingMsg.text) {
+          let incomingMsg = data.messageData || data.data || data;
+          if (data.message && typeof data.message === "object") {
+            incomingMsg = data.message;
+          }
+
+          const cleanMsg = sanitizeMessage(incomingMsg);
+          if (cleanMsg && (cleanMsg.message || cleanMsg.text || cleanMsg.fileUrl)) {
             setMessages((prev) => {
               const msgId =
-                incomingMsg.id ||
-                incomingMsg.message_id ||
-                incomingMsg.messageId ||
-                `msg_${Date.now()}`;
+                cleanMsg.id ||
+                cleanMsg.message_id ||
+                cleanMsg.messageId;
+
+              // Check if already in list by id
               if (
+                msgId &&
                 prev.some(
                   (m) =>
-                    (m.id && m.id === msgId) ||
-                    (m.messageId && m.messageId === msgId)
+                    m.id === msgId ||
+                    m.messageId === msgId ||
+                    m.message_id === msgId
                 )
               ) {
                 return prev;
               }
-              return [...prev, incomingMsg];
+
+              // Check if matching pending optimistic message from this doctor
+              const tempIndex = prev.findIndex(
+                (m) =>
+                  String(m.id || "").startsWith("temp_") &&
+                  extractMessageText(m) === extractMessageText(cleanMsg)
+              );
+
+              if (tempIndex !== -1) {
+                const next = [...prev];
+                next[tempIndex] = cleanMsg;
+                return deduplicateMessages(next);
+              }
+
+              return deduplicateMessages([...prev, cleanMsg]);
             });
 
             // Mark as read if from patient
             const senderRole = (
-              incomingMsg.senderRole ||
-              incomingMsg.sender_role ||
+              cleanMsg.senderRole ||
+              cleanMsg.sender_role ||
               ""
             ).toUpperCase();
             if (senderRole === "PATIENT") {
@@ -347,9 +431,48 @@ export default function DoctorConsultationChat() {
       };
     } catch (err) {
       console.error("Failed to initialize WebSocket:", err);
+      setWsConnected(false);
     }
 
+    // Background polling fallback to ensure messages stay updated when WS is not open
+    const pollInterval = setInterval(() => {
+      // If WebSocket is connected, WebSocket handles messages in real-time, no need for polling
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+        return;
+      }
+
+      const consultationId =
+        activeChatPatient.consultation_id ||
+        activeChatPatient.consultationId ||
+        activeChatPatient.id;
+      if (consultationId) {
+        getChatMessages(consultationId, { page: 1, limit: 50 })
+          .then((msgRes) => {
+            const fetched =
+              msgRes?.data?.messages ||
+              msgRes?.data?.data ||
+              (Array.isArray(msgRes?.data) ? msgRes.data : []);
+            if (fetched && fetched.length > 0) {
+              const cleaned = deduplicateMessages(fetched.map(sanitizeMessage).filter(Boolean));
+              setMessages((prev) => {
+                const tempMsgs = prev.filter((m) => String(m.id || "").startsWith("temp_"));
+                const combined = deduplicateMessages([...cleaned, ...tempMsgs]);
+                if (
+                  combined.length !== prev.length ||
+                  combined[combined.length - 1]?.id !== prev[prev.length - 1]?.id
+                ) {
+                  return combined;
+                }
+                return prev;
+              });
+            }
+          })
+          .catch(() => {});
+      }
+    }, 4000);
+
     return () => {
+      clearInterval(pollInterval);
       if (socketRef.current) {
         socketRef.current.close();
         socketRef.current = null;
@@ -386,10 +509,10 @@ export default function DoctorConsultationChat() {
       isRead: false,
     };
 
-    setMessages((prev) => [...prev, optimisticMessage]);
+    setMessages((prev) => deduplicateMessages([...prev, optimisticMessage]));
     setInputText("");
 
-    // 1. Send via WebSocket if open
+    // 1. Send via WebSocket if open (do NOT also call REST to prevent double sending)
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       try {
         socketRef.current.send(
@@ -398,12 +521,14 @@ export default function DoctorConsultationChat() {
             message: text,
           })
         );
+        setIsSending(false);
+        return;
       } catch (wsErr) {
-        console.warn("Failed sending over WS:", wsErr);
+        console.warn("Failed sending over WS, falling back to REST:", wsErr);
       }
     }
 
-    // 2. Persist via REST API
+    // 2. Fallback: Persist via REST API only if WebSocket is disconnected
     try {
       const res = await sendChatMessage(consultationId, {
         message: text,
@@ -414,10 +539,11 @@ export default function DoctorConsultationChat() {
       });
 
       if (res?.data?.data) {
-        const confirmedMsg = res.data.data;
-        setMessages((prev) =>
-          prev.map((m) => (m.id === tempId ? confirmedMsg : m))
-        );
+        const confirmedMsg = sanitizeMessage(res.data.data);
+        setMessages((prev) => {
+          const replaced = prev.map((m) => (m.id === tempId ? confirmedMsg : m));
+          return deduplicateMessages(replaced);
+        });
       }
     } catch (restErr) {
       console.error("REST send message error:", restErr);
@@ -668,11 +794,21 @@ export default function DoctorConsultationChat() {
             <div className="flex items-center gap-1.5 shrink-0">
               <span
                 className={`w-2 h-2 rounded-full ${
-                  wsConnected ? "bg-green-500 animate-pulse" : "bg-gray-400"
+                  wsConnected
+                    ? "bg-green-500 animate-pulse"
+                    : loadingMessages
+                    ? "bg-amber-400 animate-pulse"
+                    : "bg-emerald-500"
                 }`}
               />
-              <span className="text-[10px] font-medium text-gray-500">
-                {wsConnected ? "Online" : "Connecting..."}
+              <span
+                className={`text-[10px] font-medium ${
+                  wsConnected || !loadingMessages
+                    ? "text-emerald-700"
+                    : "text-gray-500"
+                }`}
+              >
+                {wsConnected ? "Online" : loadingMessages ? "Connecting..." : "Online"}
               </span>
             </div>
           </div>
@@ -714,14 +850,14 @@ export default function DoctorConsultationChat() {
                   role === "DOCTOR" ||
                   msg.senderId === doctorId ||
                   msg.sender_id === doctorId;
-                const messageText = msg.message || msg.text || "";
+                const messageText = extractMessageText(msg);
                 const timeStr = formatMessageTime(
                   msg.createdAt || msg.created_at || msg.readAt
                 );
 
                 return (
                   <div
-                    key={msg.id || msg.messageId || idx}
+                    key={`${msg.id || msg.messageId || "msg"}_${idx}`}
                     className={`flex flex-col ${
                       isDoctor ? "items-end" : "items-start"
                     }`}
