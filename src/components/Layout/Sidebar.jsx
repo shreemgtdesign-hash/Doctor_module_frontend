@@ -9,6 +9,16 @@ import {
     HiOutlineUserCircle,
 } from "react-icons/hi";
 
+import {
+    HiOutlineCalendarDays,
+    HiOutlineClock,
+    HiOutlineCube,
+    HiOutlinePencilSquare,
+    HiOutlineLifebuoy,
+    HiOutlineCog6Tooth,
+    HiOutlineBuildingOffice2,
+} from "react-icons/hi2";
+
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
@@ -33,6 +43,7 @@ import {
 import {
     FaHandHoldingMedical,
     FaPeopleArrows,
+    FaCampground,
 } from "react-icons/fa6";
 
 import { logout } from "../../redux/auth/authSlice";
@@ -58,7 +69,7 @@ const pharmacistMenu = [
     },
     {
         name: "Patients",
-        icon: HiOutlineCalendar,
+        icon: FaUserFriends,
         path: "/pharmacist/appointments",
     },
 ];
@@ -113,37 +124,37 @@ const corporateMenu = [
     },
     {
         name: "Hospital Services",
-        icon: FaCalendarAlt,
+        icon: HiOutlineBuildingOffice2,
         path: "/corporate/hospital-services",
     },
     {
         name: "My Events",
-        icon: FaLifeRing,
+        icon: HiOutlineCalendarDays,
         path: "/corporate/my-events",
     },
     {
         name: "Corporate Packages",
-        icon: FaLifeRing,
+        icon: HiOutlineCube,
         path: "/corporate/packages",
     },
     {
         name: "Medical Camps",
-        icon: FaLifeRing,
+        icon: FaCampground,
         path: "/corporate/medical-camps",
     },
     {
         name: "Support",
-        icon: FaLifeRing,
+        icon: HiOutlineLifebuoy,
         path: "#",
     },
     {
         name: "Profile",
-        icon: FaLifeRing,
+        icon: HiOutlineUserCircle,
         path: "#",
     },
     {
         name: "Settings",
-        icon: FaCog,
+        icon: HiOutlineCog6Tooth,
         path: "#",
     },
 ];
@@ -160,32 +171,37 @@ const corporateCellMenu = [
     },
     {
         name: "Upcoming Events",
-        icon: FaLifeRing,
+        icon: HiOutlineCalendarDays,
         path: "/corporate-cell/upcoming-events",
     },
     {
+        name: "Pending Requests",
+        icon: HiOutlineClock,
+        path: "/corporate-cell/pending-events",
+    },
+    {
         name: "Corporate Packages",
-        icon: FaLifeRing,
+        icon: HiOutlineCube,
         path: "/corporate-cell/packages",
     },
     {
         name: "Edit Dashboard",
-        icon: FaLifeRing,
+        icon: HiOutlinePencilSquare,
         path: "/corporate-cell/edit-dashboard",
     },
     {
         name: "Support",
-        icon: FaLifeRing,
+        icon: HiOutlineLifebuoy,
         path: "#",
     },
     {
         name: "Profile",
-        icon: FaLifeRing,
+        icon: HiOutlineUserCircle,
         path: "#",
     },
     {
         name: "Settings",
-        icon: FaCog,
+        icon: HiOutlineCog6Tooth,
         path: "#",
     },
 ];
@@ -552,6 +568,8 @@ const Sidebar = ({
                             const isHash = !item.path || item.path === "#";
                             const isCurrentlyActive = !isHash && (
                                 location.pathname === item.path ||
+                                (item.path === "/corporate-cell/pending-events" && (location.pathname.startsWith("/corporate-cell/pending-events") || location.pathname.startsWith("/corporate-cell/pending-requests"))) ||
+                                (item.path === "/corporate-cell/upcoming-events" && location.pathname.startsWith("/corporate-cell/upcoming-events")) ||
                                 (item.path === "/corporate/dashboard" && (location.pathname === "/corporate" || location.pathname === "/corporate/dashboard")) ||
                                 (item.path === "/corporate/my-events" && (location.pathname === "/corporate/my-events" || location.pathname.startsWith("/corporate/events/"))) ||
                                 (item.path === "/corporate/packages" && (location.pathname === "/corporate/packages" || location.pathname === "/corporate/events/request" || location.pathname === "/corporate/customize-event")) ||

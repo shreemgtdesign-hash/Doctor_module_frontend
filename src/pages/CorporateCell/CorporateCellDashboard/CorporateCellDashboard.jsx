@@ -66,56 +66,7 @@ const FALLBACK_DASHBOARD = {
     small_enterprise: { count: 79, label: "Small Enterprise", range: "20-100 Employees" },
     microenterprise: { count: 143, label: "Microenterprise", range: "<20 Employees" },
   },
-  upcoming_events: [
-    {
-      id: "ce_evt_sept22_01",
-      event_no: "EVT-260922-001",
-      title: "Yoga & Meditation",
-      company_name: "Reliance Industries Limited",
-      date_badge: { month: "SEPT", day: "22" },
-      time_display: "10 AM- 11:30 AM",
-      mode: "On-site",
-      location: "West Mambalam",
-      type_badge: "Seminar",
-      badge_color: "green",
-    },
-    {
-      id: "ce_evt_sept28_02",
-      event_no: "EVT-260928-002",
-      title: "Yoga & Meditation",
-      company_name: "Reliance Industries Limited",
-      date_badge: { month: "SEPT", day: "28" },
-      time_display: "10 AM- 11:30 AM",
-      mode: "On-site",
-      location: "West Mambalam",
-      type_badge: "Retreat",
-      badge_color: "purple",
-    },
-    {
-      id: "ce_evt_oct21_03",
-      event_no: "EVT-261021-003",
-      title: "Diet & Nutrition Talk",
-      company_name: "Reliance Industries Limited",
-      date_badge: { month: "OCT", day: "21" },
-      time_display: "10 AM- 11:30 AM",
-      mode: "On-site",
-      location: "West Mambalam",
-      type_badge: "Talk",
-      badge_color: "orange",
-    },
-    {
-      id: "ce_evt_oct30_04",
-      event_no: "EVT-261030-004",
-      title: "Stress Management Workshop",
-      company_name: "Reliance Industries Limited",
-      date_badge: { month: "OCT", day: "30" },
-      time_display: "10 AM- 11:30 AM",
-      mode: "Online",
-      location: "Online",
-      type_badge: "Workshop",
-      badge_color: "blue",
-    },
-  ],
+  upcoming_events: [],
   event_categories: [
     { key: "workshops", name: "Workshops", count: 24, display: "24 Workshops", icon: "users" },
     { key: "yoga_meditation", name: "Yoga & Meditation", count: 65, display: "65 Events", icon: "lotus" },
@@ -196,7 +147,7 @@ const CorporateCellDashboard = () => {
           {/* ========================================================= */}
           <div className="rounded-[22px] border border-[#EFE5DC] bg-white p-6 shadow-2xs">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-              <h2 className="text-[19px] sm:text-[21px] font-bold text-[#2C1810] tracking-tight">
+              <h2 className="text-[19px] sm:text-[21px] font-bold text-[#48221D] tracking-tight">
                 Corporate Engagements
               </h2>
 
@@ -240,11 +191,11 @@ const CorporateCellDashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {engagementItems.map((item) => (
                 <div key={item.key} className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#FAF3EC] border border-[#ECDCCF] text-xl font-bold text-[#2C1810]">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#FAF3EC] border border-[#ECDCCF] text-xl font-bold text-[#772C22]">
                     {item.count}
                   </div>
                   <div>
-                    <h3 className="text-[15px] font-bold text-[#2C1810] leading-snug">
+                    <h3 className="text-[15px] font-bold text-[#48221D] leading-snug">
                       {item.label}
                     </h3>
                     <p className="text-[12px] text-[#7F726A] mt-0.5">{item.range}</p>
@@ -279,6 +230,11 @@ const CorporateCellDashboard = () => {
                   <HiRefresh className="animate-spin text-[#6F4432]" size={20} />
                   <span className="text-sm">Loading events...</span>
                 </div>
+              ) : upcomingEvents.length === 0 ? (
+                <div className="py-12 text-center text-[#8A7D75]">
+                  <p className="text-sm font-semibold text-[#2C1810]">No upcoming events</p>
+                  <p className="text-xs mt-1">There are no upcoming events scheduled.</p>
+                </div>
               ) : (
                 <div className="space-y-3.5">
                   {upcomingEvents.slice(0, 4).map((evt) => {
@@ -288,7 +244,7 @@ const CorporateCellDashboard = () => {
 
                     return (
                       <div
-                        key={evt.id || evt.event_no}
+                        key={evt.event_no || evt.id}
                         className="rounded-2xl border border-[#F0E8DF] bg-[#FFFDFC] p-4 transition hover:border-[#E0D2C4] hover:shadow-2xs"
                       >
                         <div className="flex items-center justify-between gap-4">
@@ -333,7 +289,7 @@ const CorporateCellDashboard = () => {
                             <button
                               type="button"
                               onClick={() =>
-                                navigate(`/corporate-cell/upcoming-events/${evt.id}`)
+                                navigate(`/corporate-cell/upcoming-events/${evt.event_no || evt.id}`)
                               }
                               className="flex items-center gap-1 text-[12.5px] font-semibold text-[#4D2E23] hover:text-[#2C1810] transition cursor-pointer"
                             >

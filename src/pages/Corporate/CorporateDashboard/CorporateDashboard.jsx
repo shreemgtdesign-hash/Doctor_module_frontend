@@ -119,8 +119,8 @@ const CorporateDashboard = () => {
                     <div className="pt-2">
                       <button
                         type="button"
-                        onClick={() => navigate(hero.button_link || "/corporate/packages")}
-                        className="inline-flex items-center gap-2 rounded-full bg-[#7A4B3A] hover:bg-[#643C2D] px-8 py-3.5 text-[15px] font-medium text-white transition shadow-sm"
+                        onClick={() => navigate("/corporate/packages")}
+                        className="inline-flex items-center gap-2 rounded-full bg-[#7A4B3A] hover:bg-[#643C2D] px-8 py-3.5 text-[15px] font-medium text-white transition shadow-sm cursor-pointer"
                       >
                         <span>{hero.button_text || "Request an Event"}</span>
                         <HiArrowRight size={16} />

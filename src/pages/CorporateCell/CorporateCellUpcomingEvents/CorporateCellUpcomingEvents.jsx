@@ -23,100 +23,9 @@ const getBadgeStyle = (type, badgeColor) => {
   return "bg-[#EFE8DF] text-[#6F4432]";
 };
 
-const FALLBACK_EVENTS = [
-  {
-    id: "ce_evt_sept22_01",
-    event_no: "EVT-260922-001",
-    title: "Yoga & Meditation",
-    company_name: "Reliance Industries Limited",
-    date_badge: { month: "SEPT", day: "22" },
-    time_display: "10 AM- 11:30 AM",
-    mode: "On-site",
-    type_badge: "Seminar",
-    badge_color: "green",
-  },
-  {
-    id: "ce_evt_sept28_02",
-    event_no: "EVT-260928-002",
-    title: "Yoga & Meditation",
-    company_name: "Reliance Industries Limited",
-    date_badge: { month: "SEPT", day: "28" },
-    time_display: "10 AM- 11:30 AM",
-    mode: "On-site",
-    type_badge: "Retreat",
-    badge_color: "purple",
-  },
-  {
-    id: "ce_evt_oct21_03",
-    event_no: "EVT-261021-003",
-    title: "Diet & Nutrition Talk",
-    company_name: "Reliance Industries Limited",
-    date_badge: { month: "OCT", day: "21" },
-    time_display: "10 AM- 11:30 AM",
-    mode: "On-site",
-    type_badge: "Talk",
-    badge_color: "orange",
-  },
-  {
-    id: "ce_evt_oct30_04",
-    event_no: "EVT-261030-004",
-    title: "Stress Management Workshop",
-    company_name: "Reliance Industries Limited",
-    date_badge: { month: "OCT", day: "30" },
-    time_display: "10 AM- 11:30 AM",
-    mode: "Online",
-    type_badge: "Workshop",
-    badge_color: "blue",
-  },
-  {
-    id: "e7a8b010-628d-4b82-9842-7cf3b04c9010",
-    event_no: "EVT061126010",
-    title: "Corporate Detox & Cleansing Camp",
-    company_name: "Reliance Industries Limited",
-    date_badge: { month: "NOV", day: "06" },
-    time_display: "9AM - 6PM",
-    mode: "On-site",
-    type_badge: "Retreat",
-    badge_color: "orange",
-  },
-  {
-    id: "e7a8b013-628d-4b82-9842-7cf3b04c9013",
-    event_no: "EVT151126013",
-    title: "Ayurvedic Ahara Nutrition Masterclass",
-    company_name: "Reliance Industries Limited",
-    date_badge: { month: "NOV", day: "15" },
-    time_display: "10AM - 6PM",
-    mode: "On-site",
-    type_badge: "Seminar",
-    badge_color: "orange",
-  },
-  {
-    id: "e7a8b002-628d-4b82-9842-7cf3b04c9002",
-    event_no: "EVT171126002",
-    title: "Stress Management",
-    company_name: "Reliance Industries Limited",
-    date_badge: { month: "NOV", day: "17" },
-    time_display: "10AM - 1PM",
-    mode: "On-site",
-    type_badge: "Seminar",
-    badge_color: "blue",
-  },
-  {
-    id: "e7a8b007-628d-4b82-9842-7cf3b04c9007",
-    event_no: "EVT221126007",
-    title: "Executive Cardiac Wellness Screening",
-    company_name: "Reliance Industries Limited",
-    date_badge: { month: "NOV", day: "22" },
-    time_display: "9AM - 5PM",
-    mode: "On-site",
-    type_badge: "Check-up",
-    badge_color: "orange",
-  },
-];
-
 const CorporateCellUpcomingEvents = () => {
   const navigate = useNavigate();
-  const [events, setEvents] = useState(FALLBACK_EVENTS);
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -126,12 +35,20 @@ const CorporateCellUpcomingEvents = () => {
     getCorporateCellUpcomingEvents()
       .then((res) => {
         if (!isMounted) return;
-        if (res.data?.success && Array.isArray(res.data?.data) && res.data.data.length > 0) {
-          setEvents(res.data.data);
+        const apiData = res.data?.data || res.data?.events;
+        if (res.data?.success && Array.isArray(apiData)) {
+          // Only confirmed events appear in upcoming events
+          const confirmed = apiData.filter(
+            (evt) => !evt.status || evt.status.toLowerCase() === "confirmed"
+          );
+          setEvents(confirmed);
+        } else {
+          setEvents([]);
         }
       })
       .catch((err) => {
-        console.warn("Could not load upcoming events from API, using fallback:", err);
+        console.error("Could not load upcoming events from API:", err);
+        if (isMounted) setEvents([]);
       })
       .finally(() => {
         if (isMounted) setLoading(false);
@@ -170,7 +87,7 @@ const CorporateCellUpcomingEvents = () => {
 
                   return (
                     <div
-                      key={evt.id || evt.event_no}
+                      key={evt.event_no || evt.id}
                       className="rounded-2xl border border-[#F0E8DF] bg-[#FFFDFC] p-4 sm:p-5 transition hover:border-[#E0D2C4] hover:shadow-xs"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -188,9 +105,16 @@ const CorporateCellUpcomingEvents = () => {
 
                           {/* Event Text Info */}
                           <div className="min-w-0">
-                            <h3 className="text-[16px] font-bold text-[#2C1810] truncate">
-                              {evt.title}
-                            </h3>
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-[16px] font-bold text-[#2C1810] truncate">
+                                {evt.title}
+                              </h3>
+                              {evt.event_no && (
+                                <span className="text-[11px] font-semibold text-[#8A7D75] bg-[#FAF4ED] px-2 py-0.5 rounded border border-[#EFE5DC]">
+                                  {evt.event_no}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-[13.5px] text-[#6B5E55] mt-0.5 truncate">
                               {evt.company_name}
                             </p>
@@ -220,7 +144,7 @@ const CorporateCellUpcomingEvents = () => {
                           <button
                             type="button"
                             onClick={() =>
-                              navigate(`/corporate-cell/upcoming-events/${evt.id}`)
+                              navigate(`/corporate-cell/upcoming-events/${evt.event_no || evt.id}`)
                             }
                             className="flex items-center gap-1.5 text-[13px] font-semibold text-[#4D2E23] hover:text-[#2C1810] transition cursor-pointer"
                           >

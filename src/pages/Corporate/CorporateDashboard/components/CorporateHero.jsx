@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   HiOutlineArrowRight,
 } from "react-icons/hi2";
@@ -7,6 +8,7 @@ import corporateImage
 
 
 const CorporateHero = () => {
+  const navigate = useNavigate();
   return (
     <section
       className="
@@ -92,6 +94,7 @@ const CorporateHero = () => {
 
         <button
           type="button"
+          onClick={() => navigate("/corporate/packages")}
           className="
             mt-5
             flex
@@ -107,6 +110,7 @@ const CorporateHero = () => {
             text-white
             transition
             hover:bg-[#754630]
+            cursor-pointer
           "
         >
           Request an Event

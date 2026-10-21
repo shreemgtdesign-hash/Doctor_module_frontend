@@ -66,6 +66,7 @@ import CorporateForgotPassword from "./pages/Corporate/CorporateForgotPassword/C
 import NotificationsPage from "./pages/Notifications/NotificationsPage";
 import CorporateCellDashboard from "./pages/CorporateCell/CorporateCellDashboard/CorporateCellDashboard";
 import CorporateCellUpcomingEvents from "./pages/CorporateCell/CorporateCellUpcomingEvents/CorporateCellUpcomingEvents";
+import CorporateCellPendingEvents from "./pages/CorporateCell/CorporateCellPendingEvents/CorporateCellPendingEvents";
 import CorporateCellEventDetails from "./pages/CorporateCell/CorporateCellEventDetails/CorporateCellEventDetails";
 import CorporateCellEditDashboard from "./pages/CorporateCell/CorporateCellEditDashboard/CorporateCellEditDashboard";
 import DashboardLayout from "./components/Layout/DashboardLayout";
@@ -512,7 +513,23 @@ function App() {
 />
 <Route
   path="/corporate-cell/upcoming-events/:id"
-  element={<CorporateCellEventDetails />}
+  element={<CorporateCellEventDetails isReadOnly={true} />}
+/>
+<Route
+  path="/corporate-cell/pending-events"
+  element={<CorporateCellPendingEvents />}
+/>
+<Route
+  path="/corporate-cell/pending-requests"
+  element={<CorporateCellPendingEvents />}
+/>
+<Route
+  path="/corporate-cell/pending-events/:id"
+  element={<CorporateCellEventDetails isPending={true} />}
+/>
+<Route
+  path="/corporate-cell/pending-requests/:id"
+  element={<CorporateCellEventDetails isPending={true} />}
 />
 <Route
   path="/corporate-cell/packages"

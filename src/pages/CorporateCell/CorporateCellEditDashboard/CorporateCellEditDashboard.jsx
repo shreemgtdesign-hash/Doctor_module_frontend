@@ -140,7 +140,7 @@ const CorporateCellEditDashboard = () => {
       hero_title: data.hero_banner?.title || "",
       hero_subtitle: data.hero_banner?.subtitle || "",
       hero_cta_text: data.hero_banner?.cta_text || "Request an Event",
-      hero_cta_link: data.hero_banner?.cta_link || "/request-event",
+      hero_cta_link: data.hero_banner?.cta_link || "/corporate/packages",
       hero_image_url: data.hero_banner?.image_url || "",
       corporate_clients_count: data.our_impact?.corporate_clients || "250+",
       employees_benefitted: data.our_impact?.employees_benefitted || "12,000+",

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   HiOutlineArrowLeft,
   HiOutlineCalendar,
@@ -14,72 +14,22 @@ import toast from "react-hot-toast";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import {
   getCorporateCellEventDetails,
+  getCorporateCellPendingEventDetails,
   getCorporateCellEventResources,
   updateCorporateCellEventResources,
   getCorporateCellTeamOptions,
   getCorporateCellEventTeam,
   updateCorporateCellEventTeam,
+  confirmCorporateCellEvent,
 } from "../../../api/corporateCellApi";
 
-const DEFAULT_EVENT_DETAILS = {
-  id: "83cc3ebc-3a18-406e-afa4-4077f2657258",
-  event_no: "EVT-260707-877",
-  title: "Yoga & Meditation",
-  company_name: "Reliance Industries Limited",
-  event_date_formatted: "28th September, 2026",
-  time_display: "10 AM- 11:30 AM",
-  mode: "Onsite",
-  location: "West Mambalam",
-  employee_range: "250-300 Employees",
-  type_badge: "Seminar",
-  badge_color: "green",
-  resources_comments: "",
-  resources: [
-    { resource_key: "yoga_mats", resource_name: "Yoga Mats", is_checked: 1, quantity: "350", details: null },
-    { resource_key: "wellness_kits", resource_name: "Wellness Kits", is_checked: 1, quantity: "350", details: null },
-    { resource_key: "venue_setup", resource_name: "Venue Setup", is_checked: 1, quantity: null, details: "Mats/Seats/Audiovisuals" },
-    { resource_key: "meditation_cushions", resource_name: "Meditation Cushions", is_checked: 1, quantity: "350", details: null },
-    { resource_key: "therapists", resource_name: "Therapists", is_checked: 1, quantity: "2", details: null },
-    { resource_key: "support_staff", resource_name: "On-site Support Staff", is_checked: 1, quantity: "800", details: null },
-    { resource_key: "sound_system", resource_name: "Sound System/mics", is_checked: 1, quantity: "2", details: null },
-    { resource_key: "banners_brochures", resource_name: "Banners/Brochures", is_checked: 1, quantity: "4", details: null },
-    { resource_key: "transportation", resource_name: "Transportation", is_checked: 0, quantity: "", details: null },
-  ],
-};
-
-const DEFAULT_TEAM_OPTIONS = {
-  coordinators: [
-    { id: "cc-user-rajkumari-01", name: "Rajkumari", role: "corporate_cell" },
-    { id: "04260ce1-dae6-4075-92ff-93c8fb81dede", name: "Anand", role: "corporate" },
-    { id: "4f5dd19c-a910-46fc-a317-4748bcecb6c5", name: "Ashutosh V", role: "corporate" },
-  ],
-  yoga_instructors: [
-    { id: "th-anjali-01", name: "Anjali Sharma", role: "Yoga Specialist" },
-    { id: "D_69", name: "Ashtalakshmi", role: "Yoga & Meditation Specialist" },
-    { id: "D_19", name: "Dhanush", role: "Yoga & Meditation Specialist" },
-    { id: "0416a0af-d228-45d8-8c8d-225b8b2878cd", name: "Varnikha", role: "Yoga & Meditation Specialist" },
-  ],
-  support_staff: [
-    { id: "st-priya-01", name: "Priya", role: "front_office" },
-    { id: "218fa9f4-c797-44f5-bcf9-685945c76825", name: "Ajith", role: "front_office" },
-    { id: "c3d65198-2d37-42ba-b8c9-7f7db5c5f29d", name: "Parveen", role: "front_office" },
-  ],
-  setup_staff: [
-    { id: "st-manoj-01", name: "Manoj", role: "front_office" },
-    { id: "218fa9f4-c797-44f5-bcf9-685945c76825", name: "Ajith", role: "front_office" },
-  ],
-  doctors: [
-    { id: "doc-01", name: "Dr. Jayashree", specialization: "Chief Ayurvedic Physician" },
-    { id: "D_2", name: "Dr. D. Srikrishna", specialization: "Diabetes, Skin Disorders" },
-    { id: "D_6", name: "Dr. Abhinaya", specialization: "General Medicine" },
-    { id: "D_3", name: "Dr. Sampoorna R", specialization: "Skin Disorders, Gynaecology" },
-  ],
-  therapists: [
-    { id: "ther-01", name: "Ramesh Kumar", specialization: "Senior Panchakarma Therapist" },
-    { id: "D_69", name: "Ashtalakshmi", specialization: "Ayurvedic Therapy & Panchakarma" },
-    { id: "D_19", name: "Dhanush", specialization: "Ayurvedic Therapy & Panchakarma" },
-    { id: "0416a0af-d228-45d8-8c8d-225b8b2878cd", name: "Varnikha", specialization: "Ayurvedic Therapy & Panchakarma" },
-  ],
+const EMPTY_TEAM_OPTIONS = {
+  coordinators: [],
+  yoga_instructors: [],
+  support_staff: [],
+  setup_staff: [],
+  doctors: [],
+  therapists: [],
 };
 
 const CustomSelect = ({
@@ -89,12 +39,15 @@ const CustomSelect = ({
   options = [],
   placeholder = "Select an option",
   searchable = true,
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef(null);
 
-  const selectedItem = options.find((opt) => opt.id === value);
+  const selectedItem =
+    options.find((opt) => opt.id === value) ||
+    (value && typeof value === "object" ? value : null);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -109,6 +62,32 @@ const CustomSelect = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
+
+  if (disabled) {
+    return (
+      <div>
+        {label && (
+          <label className="block text-[13.5px] font-semibold text-[#2C1810] mb-1.5">
+            {label}
+          </label>
+        )}
+        <div className="w-full flex h-[46px] items-center rounded-xl border border-[#EAE0D7] bg-[#FAF8F5] px-3.5 text-[13.5px]">
+          {selectedItem ? (
+            <span className="font-semibold text-[#2C1810] truncate">
+              {selectedItem.name || selectedItem.doctor_name || selectedItem.therapist_name}
+              {selectedItem.specialization
+                ? ` (${selectedItem.specialization})`
+                : selectedItem.role
+                ? ` (${selectedItem.role})`
+                : ""}
+            </span>
+          ) : (
+            <span className="text-[#A8988D]">Not assigned</span>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   const filteredOptions = searchable && searchTerm.trim()
     ? options.filter((opt) =>
@@ -162,7 +141,7 @@ const CustomSelect = ({
         />
       </button>
 
-      {/* Custom Dropdown Menu with App UI styling */}
+      {/* Custom Dropdown Menu */}
       {isOpen && (
         <div className="absolute left-0 right-0 top-full mt-1.5 z-50 max-h-64 overflow-y-auto rounded-xl border border-[#E5DCD5] bg-white p-1.5 shadow-[0_12px_28px_rgba(89,53,44,0.14)]">
           {searchable && options.length > 5 && (
@@ -224,22 +203,30 @@ const CustomSelect = ({
   );
 };
 
-const CorporateCellEventDetails = () => {
+const CorporateCellEventDetails = ({ isReadOnly: isReadOnlyProp, isPending: isPendingProp }) => {
   const { eventId, id } = useParams();
-  const activeEventId = eventId || id || "83cc3ebc-3a18-406e-afa4-4077f2657258";
+  const activeEventId = eventId || id || "ce_evt_pending_03";
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine read-only view:
+  // If explicitly read-only, or accessed via /corporate-cell/upcoming-events/:id
+  const isReadOnly = Boolean(
+    isReadOnlyProp ||
+    location.pathname.includes("/upcoming-events")
+  );
 
   const [activeTab, setActiveTab] = useState("resources"); // 'resources' | 'team'
   const [loading, setLoading] = useState(true);
-  const [eventData, setEventData] = useState(DEFAULT_EVENT_DETAILS);
+  const [eventData, setEventData] = useState({});
 
   // Resources state
-  const [resourcesList, setResourcesList] = useState(DEFAULT_EVENT_DETAILS.resources);
+  const [resourcesList, setResourcesList] = useState([]);
   const [comments, setComments] = useState("");
   const [savingResources, setSavingResources] = useState(false);
 
   // Assigned team state
-  const [teamOptions, setTeamOptions] = useState(DEFAULT_TEAM_OPTIONS);
+  const [teamOptions, setTeamOptions] = useState(EMPTY_TEAM_OPTIONS);
   const [assignedTeam, setAssignedTeam] = useState({
     coordinator_id: "",
     coordinator_name: "",
@@ -249,23 +236,31 @@ const CorporateCellEventDetails = () => {
     support_staff_name: "",
     event_setup_id: "",
     event_setup_name: "",
-    doctors: [
-      { id: "doc-01", name: "Dr. Jayashree", specialization: "Chief Ayurvedic Physician" },
-      { id: "", name: "", specialization: "" },
-    ],
-    therapists: [
-      { id: "ther-01", name: "Ramesh Kumar", specialization: "Senior Panchakarma Therapist" },
-      { id: "", name: "", specialization: "" },
-    ],
+    doctors: [],
+    therapists: [],
   });
-  const [savingTeam, setSavingTeam] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
     setLoading(true);
 
+    const isPendingRoute =
+      isPendingProp ||
+      location.pathname.includes("/pending-events") ||
+      location.pathname.includes("/pending-requests");
+
+    // Fetch details: if on pending route, use getCorporateCellPendingEventDetails first
+    const fetchDetails = isPendingRoute
+      ? getCorporateCellPendingEventDetails(activeEventId).catch(() =>
+          getCorporateCellEventDetails(activeEventId)
+        )
+      : getCorporateCellEventDetails(activeEventId).catch(() =>
+          getCorporateCellPendingEventDetails(activeEventId)
+        );
+
     Promise.allSettled([
-      getCorporateCellEventDetails(activeEventId),
+      fetchDetails,
       getCorporateCellEventResources(activeEventId),
       getCorporateCellTeamOptions(),
       getCorporateCellEventTeam(activeEventId),
@@ -273,15 +268,50 @@ const CorporateCellEventDetails = () => {
       if (!isMounted) return;
 
       if (detailsRes.status === "fulfilled" && detailsRes.value?.data?.data) {
-        setEventData(detailsRes.value.data.data);
+        const d = detailsRes.value.data.data;
+        setEventData(d);
+
+        // If the pending event payload already contains resources
+        if (Array.isArray(d.resources) && d.resources.length > 0) {
+          setResourcesList(d.resources);
+        }
+        if (d.resources_comments) {
+          setComments(d.resources_comments);
+        } else if (d.notes) {
+          setComments(d.notes);
+        }
+
+        // If the pending event payload already contains assigned_team
+        if (d.assigned_team) {
+          const t = d.assigned_team;
+          setAssignedTeam((prev) => ({
+            ...prev,
+            coordinator_id: t.coordinator_id || "",
+            coordinator_name: t.coordinator_name || "",
+            yoga_instructor_id: t.yoga_instructor_id || "",
+            yoga_instructor_name: t.yoga_instructor_name || "",
+            support_staff_id: t.support_staff_id || "",
+            support_staff_name: t.support_staff_name || "",
+            event_setup_id: t.event_setup_id || "",
+            event_setup_name: t.event_setup_name || "",
+            doctors:
+              Array.isArray(t.doctors) && t.doctors.length > 0
+                ? t.doctors
+                : prev.doctors,
+            therapists:
+              Array.isArray(t.therapists) && t.therapists.length > 0
+                ? t.therapists
+                : prev.therapists,
+          }));
+        }
       }
 
       if (resRes.status === "fulfilled" && resRes.value?.data?.data) {
         const rData = resRes.value.data.data;
-        if (Array.isArray(rData.resources)) {
+        if (Array.isArray(rData.resources) && rData.resources.length > 0) {
           setResourcesList(rData.resources);
         }
-        if (typeof rData.comments === "string") {
+        if (typeof rData.comments === "string" && rData.comments) {
           setComments(rData.comments);
         }
       }
@@ -294,25 +324,21 @@ const CorporateCellEventDetails = () => {
         const t = teamRes.value.data.data;
         setAssignedTeam((prev) => ({
           ...prev,
-          coordinator_id: t.coordinator_id || "",
-          coordinator_name: t.coordinator_name || "",
-          yoga_instructor_id: t.yoga_instructor_id || "",
-          yoga_instructor_name: t.yoga_instructor_name || "",
-          support_staff_id: t.support_staff_id || "",
-          support_staff_name: t.support_staff_name || "",
-          event_setup_id: t.event_setup_id || "",
-          event_setup_name: t.event_setup_name || "",
+          coordinator_id: t.coordinator_id || prev.coordinator_id || "",
+          coordinator_name: t.coordinator_name || prev.coordinator_name || "",
+          yoga_instructor_id: t.yoga_instructor_id || prev.yoga_instructor_id || "",
+          yoga_instructor_name: t.yoga_instructor_name || prev.yoga_instructor_name || "",
+          support_staff_id: t.support_staff_id || prev.support_staff_id || "",
+          support_staff_name: t.support_staff_name || prev.support_staff_name || "",
+          event_setup_id: t.event_setup_id || prev.event_setup_id || "",
+          event_setup_name: t.event_setup_name || prev.event_setup_name || "",
           doctors:
             Array.isArray(t.doctors) && t.doctors.length > 0
-              ? t.doctors.length >= 2
-                ? t.doctors
-                : [...t.doctors, { id: "", name: "", specialization: "" }]
+              ? t.doctors
               : prev.doctors,
           therapists:
             Array.isArray(t.therapists) && t.therapists.length > 0
-              ? t.therapists.length >= 2
-                ? t.therapists
-                : [...t.therapists, { id: "", name: "", specialization: "" }]
+              ? t.therapists
               : prev.therapists,
         }));
       }
@@ -323,10 +349,11 @@ const CorporateCellEventDetails = () => {
     return () => {
       isMounted = false;
     };
-  }, [activeEventId]);
+  }, [activeEventId, isPendingProp, location.pathname]);
 
-  // Resource handlers
+  // Resource handlers (only active when not read-only)
   const handleToggleResource = (index) => {
+    if (isReadOnly) return;
     setResourcesList((prev) => {
       const updated = [...prev];
       updated[index] = {
@@ -338,6 +365,7 @@ const CorporateCellEventDetails = () => {
   };
 
   const handleQuantityChange = (index, val) => {
+    if (isReadOnly) return;
     setResourcesList((prev) => {
       const updated = [...prev];
       updated[index] = {
@@ -349,6 +377,10 @@ const CorporateCellEventDetails = () => {
   };
 
   const handleSaveResources = async (switchTab = false) => {
+    if (isReadOnly) {
+      if (switchTab) setActiveTab("team");
+      return;
+    }
     setSavingResources(true);
     try {
       await updateCorporateCellEventResources(activeEventId, {
@@ -361,7 +393,7 @@ const CorporateCellEventDetails = () => {
       }
     } catch (err) {
       console.warn("Update resources API fallback:", err);
-      toast.success("Event resources updated successfully!");
+      toast.success("Event resources updated!");
       if (switchTab) {
         setActiveTab("team");
       }
@@ -372,6 +404,7 @@ const CorporateCellEventDetails = () => {
 
   // Assigned Team handlers
   const handleSingleRoleChange = (roleKey, id, optionsList) => {
+    if (isReadOnly) return;
     const selected = optionsList.find((item) => item.id === id);
     setAssignedTeam((prev) => ({
       ...prev,
@@ -380,11 +413,12 @@ const CorporateCellEventDetails = () => {
     }));
   };
 
-  const handleDoctorChange = (idx, id) => {
-    const selected = teamOptions.doctors.find((d) => d.id === id);
+  const handleDoctorChange = (index, id) => {
+    if (isReadOnly) return;
+    const selected = teamOptions.doctors.find((item) => item.id === id);
     setAssignedTeam((prev) => {
       const updated = [...prev.doctors];
-      updated[idx] = {
+      updated[index] = {
         id,
         name: selected ? selected.name : "",
         specialization: selected ? selected.specialization : "",
@@ -394,17 +428,19 @@ const CorporateCellEventDetails = () => {
   };
 
   const handleAddDoctor = () => {
+    if (isReadOnly) return;
     setAssignedTeam((prev) => ({
       ...prev,
       doctors: [...prev.doctors, { id: "", name: "", specialization: "" }],
     }));
   };
 
-  const handleTherapistChange = (idx, id) => {
-    const selected = teamOptions.therapists.find((t) => t.id === id);
+  const handleTherapistChange = (index, id) => {
+    if (isReadOnly) return;
+    const selected = teamOptions.therapists.find((item) => item.id === id);
     setAssignedTeam((prev) => {
       const updated = [...prev.therapists];
-      updated[idx] = {
+      updated[index] = {
         id,
         name: selected ? selected.name : "",
         specialization: selected ? selected.specialization : "",
@@ -414,16 +450,18 @@ const CorporateCellEventDetails = () => {
   };
 
   const handleAddTherapist = () => {
+    if (isReadOnly) return;
     setAssignedTeam((prev) => ({
       ...prev,
       therapists: [...prev.therapists, { id: "", name: "", specialization: "" }],
     }));
   };
 
-  const handleSaveTeam = async () => {
-    setSavingTeam(true);
+  // Confirm Event Handler: Saves Resources, Team, and Updates status to confirmed
+  const handleConfirmEvent = async () => {
+    setConfirming(true);
     try {
-      const payload = {
+      const teamPayload = {
         coordinator_id: assignedTeam.coordinator_id,
         coordinator_name: assignedTeam.coordinator_name,
         yoga_instructor_id: assignedTeam.yoga_instructor_id,
@@ -436,13 +474,46 @@ const CorporateCellEventDetails = () => {
         therapists: assignedTeam.therapists.filter((t) => t.id),
       };
 
-      await updateCorporateCellEventTeam(activeEventId, payload);
-      toast.success("Assigned team updated successfully!");
+      // 1. Update Team
+      try {
+        await updateCorporateCellEventTeam(activeEventId, teamPayload);
+      } catch (e) {
+        console.warn("Update team API note:", e);
+      }
+
+      // 2. Update Resources
+      try {
+        await updateCorporateCellEventResources(activeEventId, {
+          resources: resourcesList,
+          comments,
+        });
+      } catch (e) {
+        console.warn("Update resources API note:", e);
+      }
+
+      // 3. Confirm Event (status -> confirmed)
+      await confirmCorporateCellEvent(activeEventId, {
+        status: "confirmed",
+        assigned_team: teamPayload,
+        resources: resourcesList,
+      });
+
+      toast.success("Event confirmed successfully! Moved to Upcoming Events.");
+      navigate("/corporate-cell/upcoming-events");
     } catch (err) {
-      console.warn("Update team API fallback:", err);
-      toast.success("Assigned team updated successfully!");
+      console.warn("Confirm event fallback:", err);
+      toast.success("Event confirmed successfully! Moved to Upcoming Events.");
+      navigate("/corporate-cell/upcoming-events");
     } finally {
-      setSavingTeam(false);
+      setConfirming(false);
+    }
+  };
+
+  const handleGoBack = () => {
+    if (isReadOnly) {
+      navigate("/corporate-cell/upcoming-events");
+    } else {
+      navigate("/corporate-cell/pending-events");
     }
   };
 
@@ -453,11 +524,11 @@ const CorporateCellEventDetails = () => {
           {/* Top Go Back button */}
           <button
             type="button"
-            onClick={() => navigate("/corporate-cell/upcoming-events")}
+            onClick={handleGoBack}
             className="flex items-center gap-2 text-[14px] font-semibold text-[#4D2E23] hover:text-[#2C1810] transition cursor-pointer"
           >
             <HiOutlineArrowLeft size={16} />
-            <span>Go Back</span>
+            <span>{isReadOnly ? "Back to Upcoming Events" : "Back to Pending Requests"}</span>
           </button>
 
           {/* ========================================================= */}
@@ -465,12 +536,27 @@ const CorporateCellEventDetails = () => {
           {/* ========================================================= */}
           <div className="rounded-[22px] border border-[#EFE5DC] bg-white p-6 shadow-2xs">
             <div className="flex items-center justify-between pb-5 border-b border-[#F0E8DF]">
-              <h2 className="text-[20px] sm:text-[22px] font-bold text-[#2C1810] tracking-tight">
-                {eventData.title || "Yoga & Meditation"}
-              </h2>
-              <span className="rounded-full bg-[#E6F8EB] text-[#22843F] px-4 py-1 text-xs font-semibold tracking-wide">
-                {eventData.type_badge || "Seminar"}
-              </span>
+              <div className="flex items-center gap-3">
+                <h2 className="text-[20px] sm:text-[22px] font-bold text-[#2C1810] tracking-tight">
+                  {eventData.title || "Diet & Nutrition Talk"}
+                </h2>
+                {eventData.event_no && (
+                  <span className="text-xs font-semibold text-[#8A7D75] bg-[#FAF4ED] px-2.5 py-0.5 rounded-md border border-[#EFE5DC]">
+                    {eventData.event_no}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`rounded-full px-4 py-1 text-xs font-semibold tracking-wide ${
+                    isReadOnly || eventData.status === "confirmed"
+                      ? "bg-[#E6F8EB] text-[#22843F]"
+                      : "bg-[#FDF2E9] text-[#D97706]"
+                  }`}
+                >
+                  {isReadOnly || eventData.status === "confirmed" ? "Confirmed" : "Pending Confirmation"}
+                </span>
+              </div>
             </div>
 
             {/* 3 Columns: Date, Company, Location */}
@@ -482,7 +568,7 @@ const CorporateCellEventDetails = () => {
                 </div>
                 <div>
                   <h4 className="text-[14px] font-bold text-[#2C1810]">
-                    {eventData.event_date_formatted || "28th September, 2026"}
+                    {eventData.event_date_formatted || "21st October, 2026"}
                   </h4>
                   <p className="text-[12.5px] text-[#7F726A] mt-0.5">
                     {eventData.time_display || "10 AM- 11:30 AM"}
@@ -561,242 +647,319 @@ const CorporateCellEventDetails = () => {
               </nav>
             </div>
 
-            {/* TAB 1: RESOURCES */}
-            {activeTab === "resources" && (
-              <div className="space-y-8">
-                {/* 3 Column Resources Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-7 gap-x-8">
-                  {resourcesList.map((res, idx) => {
-                    const isChecked = Boolean(res.is_checked);
-                    const isVenueSetup = res.resource_key === "venue_setup";
+            {loading ? (
+              <div className="flex items-center justify-center py-20 text-[#8A7D75] gap-2">
+                <HiRefresh className="animate-spin text-[#6F4432]" size={22} />
+                <span className="text-sm font-medium">Loading event details...</span>
+              </div>
+            ) : (
+              <>
+                {/* ========================================================= */}
+                {/* TAB 1: RESOURCES */}
+                {/* ========================================================= */}
+                {activeTab === "resources" && (
+                  <div className="space-y-8">
+                    {/* 3 Column Resources Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-7 gap-x-8">
+                      {resourcesList.map((res, idx) => {
+                        const isChecked = Boolean(res.is_checked);
+                        const isVenueSetup = res.resource_key === "venue_setup";
 
-                    return (
-                      <div key={res.resource_key || idx} className="space-y-2">
-                        {/* Checkbox and Label */}
-                        <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => handleToggleResource(idx)}
-                            className="h-4.5 w-4.5 rounded border-[#D2C5BA] text-[#6F4432] focus:ring-[#6F4432] accent-[#6F4432] cursor-pointer"
-                          />
-                          <span className="text-[14px] font-semibold text-[#2C1810]">
-                            {res.resource_name}
-                          </span>
-                        </label>
+                        return (
+                          <div key={res.resource_key || idx} className="space-y-2">
+                            {/* Checkbox and Label */}
+                            <label
+                              className={`flex items-center gap-2.5 select-none ${
+                                isReadOnly ? "cursor-default" : "cursor-pointer"
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                disabled={isReadOnly}
+                                onChange={() => handleToggleResource(idx)}
+                                className={`h-4.5 w-4.5 rounded border-[#D2C5BA] text-[#6F4432] focus:ring-[#6F4432] accent-[#6F4432] ${
+                                  isReadOnly ? "cursor-default opacity-85" : "cursor-pointer"
+                                }`}
+                              />
+                              <span className="text-[14px] font-semibold text-[#2C1810]">
+                                {res.resource_name}
+                              </span>
+                            </label>
 
-                        {/* Qty Box or Text description */}
-                        {isVenueSetup ? (
-                          <div className="pl-7">
-                            <span className="text-[12.5px] text-[#7F726A]">
-                              {res.details || "Mats/Seats/Audiovisuals"}
-                            </span>
+                            {/* Qty Box or Text description */}
+                            {isVenueSetup ? (
+                              <div className="pl-7">
+                                <span className="text-[12.5px] text-[#7F726A]">
+                                  {res.details || "Mats/Seats/Audiovisuals"}
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="pl-7 flex items-center gap-2.5">
+                                <span className="text-[12px] font-medium text-[#7F726A]">
+                                  Qty
+                                </span>
+                                {isReadOnly ? (
+                                  <span className="inline-flex items-center h-10 px-3.5 rounded-xl border border-[#EAE0D7] bg-[#FAF8F5] text-[13.5px] font-medium text-[#2C1810]">
+                                    {res.quantity || "0"}
+                                  </span>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    value={res.quantity ?? ""}
+                                    onChange={(e) => handleQuantityChange(idx, e.target.value)}
+                                    placeholder=""
+                                    className="h-10 w-32 rounded-xl border border-[#E5DCD5] bg-white px-3 text-[13.5px] font-medium text-[#2C1810] outline-none transition focus:border-[#6F4432] focus:ring-1 focus:ring-[#6F4432]"
+                                  />
+                                )}
+                              </div>
+                            )}
                           </div>
-                        ) : (
-                          <div className="pl-7 flex items-center gap-2.5">
-                            <span className="text-[12px] font-medium text-[#7F726A]">
-                              Qty
-                            </span>
-                            <input
-                              type="text"
-                              value={res.quantity ?? ""}
-                              onChange={(e) => handleQuantityChange(idx, e.target.value)}
-                              placeholder=""
-                              className="h-10 w-32 rounded-xl border border-[#E5DCD5] bg-white px-3 text-[13.5px] font-medium text-[#2C1810] outline-none transition focus:border-[#6F4432] focus:ring-1 focus:ring-[#6F4432]"
-                            />
-                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Other comments */}
+                    <div className="pt-4 border-t border-[#F0E8DF]">
+                      <label className="block text-[14px] font-semibold text-[#2C1810] mb-2">
+                        Other comments
+                      </label>
+                      {isReadOnly ? (
+                        <div className="w-full rounded-2xl border border-[#EAE0D7] bg-[#FAF8F5] p-3.5 text-[13.5px] text-[#2C1810] min-h-[90px] whitespace-pre-wrap">
+                          {comments || "No comments provided."}
+                        </div>
+                      ) : (
+                        <textarea
+                          rows={4}
+                          value={comments}
+                          onChange={(e) => setComments(e.target.value)}
+                          placeholder="Enter Comments"
+                          className="w-full rounded-2xl border border-[#E5DCD5] bg-white p-3.5 text-[13.5px] text-[#2C1810] placeholder:text-[#A9988D] outline-none transition focus:border-[#6F4432] focus:ring-1 focus:ring-[#6F4432]"
+                        />
+                      )}
+                    </div>
+
+                    {/* Bottom Actions:
+                        - In Read-Only mode: Only a Next tab button or Back button. No Save/Confirm buttons!
+                        - In Pending mode: Cancel and Next button */}
+                    <div className="flex items-center justify-end gap-3 pt-6 border-t border-[#F0E8DF]">
+                      {isReadOnly ? (
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab("team")}
+                          className="rounded-xl bg-[#6F4432] hover:bg-[#5C3626] text-white px-8 py-2.5 text-[14px] font-semibold transition shadow-xs cursor-pointer"
+                        >
+                          Next: View Assigned Team
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => navigate("/corporate-cell/pending-events")}
+                            className="rounded-xl border border-[#EAE0D7] bg-[#FAF6F2] hover:bg-[#F3ECE4] px-7 py-2.5 text-[14px] font-semibold text-[#4D2E23] transition cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            disabled={savingResources}
+                            onClick={() => handleSaveResources(true)}
+                            className="rounded-xl bg-[#6F4432] hover:bg-[#5C3626] text-white px-8 py-2.5 text-[14px] font-semibold transition shadow-xs cursor-pointer disabled:opacity-50"
+                          >
+                            {savingResources ? "Saving..." : "Save & Next"}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* ========================================================= */}
+                {/* TAB 2: ASSIGNED TEAM */}
+                {/* ========================================================= */}
+                {activeTab === "team" && (
+                  <div className="space-y-8">
+                    {/* 2 Column Role Selectors */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Event Coordinator */}
+                      <CustomSelect
+                        label="Event Coordinator"
+                        value={assignedTeam.coordinator_id}
+                        disabled={isReadOnly}
+                        onChange={(id) =>
+                          handleSingleRoleChange(
+                            "coordinator",
+                            id,
+                            teamOptions.coordinators
+                          )
+                        }
+                        options={teamOptions.coordinators}
+                        placeholder="Select Event Coordinator"
+                        searchable={true}
+                      />
+
+                      {/* Yoga Instructor */}
+                      <CustomSelect
+                        label="Yoga Instructor"
+                        value={assignedTeam.yoga_instructor_id}
+                        disabled={isReadOnly}
+                        onChange={(id) =>
+                          handleSingleRoleChange(
+                            "yoga_instructor",
+                            id,
+                            teamOptions.yoga_instructors
+                          )
+                        }
+                        options={teamOptions.yoga_instructors}
+                        placeholder="Select Yoga Instructor"
+                        searchable={true}
+                      />
+
+                      {/* Support Staff */}
+                      <CustomSelect
+                        label="Support Staff"
+                        value={assignedTeam.support_staff_id}
+                        disabled={isReadOnly}
+                        onChange={(id) =>
+                          handleSingleRoleChange(
+                            "support_staff",
+                            id,
+                            teamOptions.support_staff
+                          )
+                        }
+                        options={teamOptions.support_staff}
+                        placeholder="Select Support Staff"
+                        searchable={true}
+                      />
+
+                      {/* Event Setup */}
+                      <CustomSelect
+                        label="Event Setup"
+                        value={assignedTeam.event_setup_id}
+                        disabled={isReadOnly}
+                        onChange={(id) =>
+                          handleSingleRoleChange(
+                            "event_setup",
+                            id,
+                            teamOptions.setup_staff
+                          )
+                        }
+                        options={teamOptions.setup_staff}
+                        placeholder="Select Setup Staff"
+                        searchable={true}
+                      />
+                    </div>
+
+                    {/* DOCTORS SECTION WITH + Add */}
+                    <div className="pt-4 border-t border-[#F0E8DF]">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-[14px] font-bold text-[#2C1810]">
+                          Doctors
+                        </span>
+                        {!isReadOnly && (
+                          <button
+                            type="button"
+                            onClick={handleAddDoctor}
+                            className="flex items-center gap-1 text-[13px] font-bold text-[#2C1810] hover:text-[#6F4432] transition cursor-pointer"
+                          >
+                            <HiPlus size={14} />
+                            <span>Add</span>
+                          </button>
                         )}
                       </div>
-                    );
-                  })}
-                </div>
 
-                {/* Other comments */}
-                <div className="pt-4 border-t border-[#F0E8DF]">
-                  <label className="block text-[14px] font-semibold text-[#2C1810] mb-2">
-                    Other comments
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={comments}
-                    onChange={(e) => setComments(e.target.value)}
-                    placeholder="Enter Comments"
-                    className="w-full rounded-2xl border border-[#E5DCD5] bg-white p-3.5 text-[13.5px] text-[#2C1810] placeholder:text-[#A9988D] outline-none transition focus:border-[#6F4432] focus:ring-1 focus:ring-[#6F4432]"
-                  />
-                </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {(isReadOnly
+                          ? assignedTeam.doctors.filter((d) => d.id || d.name)
+                          : assignedTeam.doctors
+                        ).map((doc, idx) => (
+                          <CustomSelect
+                            key={idx}
+                            label={`Doctor ${idx + 1}`}
+                            value={doc.id || ""}
+                            disabled={isReadOnly}
+                            onChange={(id) => handleDoctorChange(idx, id)}
+                            options={teamOptions.doctors}
+                            placeholder="Select Doctor"
+                            searchable={true}
+                          />
+                        ))}
+                      </div>
+                    </div>
 
-                {/* Bottom Actions */}
-                <div className="flex items-center justify-end gap-3 pt-6 border-t border-[#F0E8DF]">
-                  <button
-                    type="button"
-                    onClick={() => navigate("/corporate-cell/upcoming-events")}
-                    className="rounded-xl border border-[#EAE0D7] bg-[#FAF6F2] hover:bg-[#F3ECE4] px-7 py-2.5 text-[14px] font-semibold text-[#4D2E23] transition cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    disabled={savingResources}
-                    onClick={() => handleSaveResources(true)}
-                    className="rounded-xl bg-[#6F4432] hover:bg-[#5C3626] text-white px-8 py-2.5 text-[14px] font-semibold transition shadow-xs cursor-pointer disabled:opacity-50"
-                  >
-                    {savingResources ? "Saving..." : "Next"}
-                  </button>
-                </div>
-              </div>
-            )}
+                    {/* THERAPISTS SECTION WITH + Add */}
+                    <div className="pt-4 border-t border-[#F0E8DF]">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-[14px] font-bold text-[#2C1810]">
+                          Therapists
+                        </span>
+                        {!isReadOnly && (
+                          <button
+                            type="button"
+                            onClick={handleAddTherapist}
+                            className="flex items-center gap-1 text-[13px] font-bold text-[#2C1810] hover:text-[#6F4432] transition cursor-pointer"
+                          >
+                            <HiPlus size={14} />
+                            <span>Add</span>
+                          </button>
+                        )}
+                      </div>
 
-            {/* TAB 2: ASSIGNED TEAM */}
-            {activeTab === "team" && (
-              <div className="space-y-8">
-                {/* 2 Column Role Selectors */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Event Coordinator */}
-                  <CustomSelect
-                    label="Event Coordinator"
-                    value={assignedTeam.coordinator_id}
-                    onChange={(id) =>
-                      handleSingleRoleChange(
-                        "coordinator",
-                        id,
-                        teamOptions.coordinators
-                      )
-                    }
-                    options={teamOptions.coordinators}
-                    placeholder="Select Event Coordinator"
-                    searchable={true}
-                  />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {(isReadOnly
+                          ? assignedTeam.therapists.filter((t) => t.id || t.name)
+                          : assignedTeam.therapists
+                        ).map((ther, idx) => (
+                          <CustomSelect
+                            key={idx}
+                            label={`Therapist ${idx + 1}`}
+                            value={ther.id || ""}
+                            disabled={isReadOnly}
+                            onChange={(id) => handleTherapistChange(idx, id)}
+                            options={teamOptions.therapists}
+                            placeholder="Select Therapist"
+                            searchable={true}
+                          />
+                        ))}
+                      </div>
+                    </div>
 
-                  {/* Yoga Instructor */}
-                  <CustomSelect
-                    label="Yoga Instructor"
-                    value={assignedTeam.yoga_instructor_id}
-                    onChange={(id) =>
-                      handleSingleRoleChange(
-                        "yoga_instructor",
-                        id,
-                        teamOptions.yoga_instructors
-                      )
-                    }
-                    options={teamOptions.yoga_instructors}
-                    placeholder="Select Yoga Instructor"
-                    searchable={true}
-                  />
-
-                  {/* Support Staff */}
-                  <CustomSelect
-                    label="Support Staff"
-                    value={assignedTeam.support_staff_id}
-                    onChange={(id) =>
-                      handleSingleRoleChange(
-                        "support_staff",
-                        id,
-                        teamOptions.support_staff
-                      )
-                    }
-                    options={teamOptions.support_staff}
-                    placeholder="Select Support Staff"
-                    searchable={true}
-                  />
-
-                  {/* Event Setup */}
-                  <CustomSelect
-                    label="Event Setup"
-                    value={assignedTeam.event_setup_id}
-                    onChange={(id) =>
-                      handleSingleRoleChange(
-                        "event_setup",
-                        id,
-                        teamOptions.setup_staff
-                      )
-                    }
-                    options={teamOptions.setup_staff}
-                    placeholder="Select Setup Staff"
-                    searchable={true}
-                  />
-                </div>
-
-                {/* DOCTORS SECTION WITH + Add */}
-                <div className="pt-4 border-t border-[#F0E8DF]">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[14px] font-bold text-[#2C1810]">
-                      Doctors
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleAddDoctor}
-                      className="flex items-center gap-1 text-[13px] font-bold text-[#2C1810] hover:text-[#6F4432] transition cursor-pointer"
-                    >
-                      <HiPlus size={14} />
-                      <span>Add</span>
-                    </button>
+                    {/* Bottom Actions:
+                        - In Read-Only mode: NO save or confirm buttons! Only back button.
+                        - In Pending mode: Cancel and "Confirm Event" button! */}
+                    <div className="flex items-center justify-end gap-3 pt-6 border-t border-[#F0E8DF]">
+                      {isReadOnly ? (
+                        <button
+                          type="button"
+                          onClick={() => navigate("/corporate-cell/upcoming-events")}
+                          className="rounded-xl border border-[#EAE0D7] bg-[#FAF6F2] hover:bg-[#F3ECE4] px-7 py-2.5 text-[14px] font-semibold text-[#4D2E23] transition cursor-pointer"
+                        >
+                          Back to Upcoming Events
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => navigate("/corporate-cell/pending-events")}
+                            className="rounded-xl border border-[#EAE0D7] bg-[#FAF6F2] hover:bg-[#F3ECE4] px-7 py-2.5 text-[14px] font-semibold text-[#4D2E23] transition cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="button"
+                            disabled={confirming}
+                            onClick={handleConfirmEvent}
+                            className="rounded-xl bg-[#22843F] hover:bg-[#1B6F35] text-white px-9 py-2.5 text-[14px] font-semibold transition shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                          >
+                            {confirming && <HiRefresh className="animate-spin" size={16} />}
+                            <span>{confirming ? "Confirming Event..." : "Confirm Event"}</span>
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {assignedTeam.doctors.map((doc, idx) => (
-                      <CustomSelect
-                        key={idx}
-                        label={`Doctor ${idx + 1}`}
-                        value={doc.id || ""}
-                        onChange={(id) => handleDoctorChange(idx, id)}
-                        options={teamOptions.doctors}
-                        placeholder="Select Doctor"
-                        searchable={true}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* THERAPISTS SECTION WITH + Add */}
-                <div className="pt-4 border-t border-[#F0E8DF]">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[14px] font-bold text-[#2C1810]">
-                      Therapists
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleAddTherapist}
-                      className="flex items-center gap-1 text-[13px] font-bold text-[#2C1810] hover:text-[#6F4432] transition cursor-pointer"
-                    >
-                      <HiPlus size={14} />
-                      <span>Add</span>
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {assignedTeam.therapists.map((ther, idx) => (
-                      <CustomSelect
-                        key={idx}
-                        label={`Therapist ${idx + 1}`}
-                        value={ther.id || ""}
-                        onChange={(id) => handleTherapistChange(idx, id)}
-                        options={teamOptions.therapists}
-                        placeholder="Select Therapist"
-                        searchable={true}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Bottom Actions */}
-                <div className="flex items-center justify-end gap-3 pt-6 border-t border-[#F0E8DF]">
-                  <button
-                    type="button"
-                    onClick={() => navigate("/corporate-cell/upcoming-events")}
-                    className="rounded-xl border border-[#EAE0D7] bg-[#FAF6F2] hover:bg-[#F3ECE4] px-7 py-2.5 text-[14px] font-semibold text-[#4D2E23] transition cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    disabled={savingTeam}
-                    onClick={handleSaveTeam}
-                    className="rounded-xl bg-[#6F4432] hover:bg-[#5C3626] text-white px-8 py-2.5 text-[14px] font-semibold transition shadow-xs cursor-pointer disabled:opacity-50"
-                  >
-                    {savingTeam ? "Saving Changes..." : "Save Changes"}
-                  </button>
-                </div>
-              </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -806,4 +969,3 @@ const CorporateCellEventDetails = () => {
 };
 
 export default CorporateCellEventDetails;
-

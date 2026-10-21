@@ -545,7 +545,7 @@ lg:h-[88px]
               }}
             >
               {isCorporate
-                ? `Namaste ${user?.name || "Rajkumari"}`
+                ? `Dhanwantaraye Namaha ${user?.name || ""}`
                 : `Dhanwantaraye Namaha ${user?.name || "User"}`}
             </h1>
 
