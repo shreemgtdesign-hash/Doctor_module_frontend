@@ -41,14 +41,16 @@ const formatTimeSlot = (time) => {
 };
 
 // Check if an appointment is specifically a video consultation
-const isVideoConsultation = (patient) => {
+const isVideoConsultation = (patient, profile) => {
   if (!patient) return false;
 
   if (
     patient.is_video === true ||
     patient.is_video_consultation === true ||
     patient.appointment?.is_video === true ||
-    patient.appointment?.is_video_consultation === true
+    patient.appointment?.is_video_consultation === true ||
+    profile?.is_video === true ||
+    profile?.is_video_consultation === true
   ) {
     return true;
   }
@@ -73,56 +75,53 @@ const isVideoConsultation = (patient) => {
     patient.consultation_mode,
     patient.service_type,
     patient.category,
+    patient.reason,
+    patient.notes,
+    patient.description,
     patient.appointment?.type,
     patient.appointment?.consultation_type,
     patient.appointment?.appointment_type,
     patient.appointment?.mode,
+    patient.appointment?.reason,
     patient.visit?.type,
+    profile?.type,
+    profile?.consultation_type,
+    profile?.appointment_type,
+    profile?.mode,
+    profile?.consultation_mode,
+    profile?.reason,
   ];
 
   return rawValues.some((val) => {
     if (!val || typeof val !== "string") return false;
     const lower = val.toLowerCase().trim();
 
-    // Exclude strictly in-person / general
+    // Check for video/teleconsultation indicators
     if (
-      lower === "in-person and video" ||
-      lower === "in_person and video" ||
-      lower === "in-person" ||
-      lower === "in_person" ||
-      lower === "in person" ||
-      lower === "physical" ||
-      lower === "offline" ||
-      lower === "general" ||
-      lower === "general consultation"
-    ) {
-      return false;
-    }
-
-    return (
       lower.includes("video") ||
       lower === "online" ||
       lower === "teleconsultation" ||
       lower === "virtual"
-    );
+    ) {
+      if (
+        (lower === "in-person and video" || lower === "in_person and video") &&
+        !lower.includes("consultation")
+      ) {
+        return false;
+      }
+      return true;
+    }
+
+    return false;
   });
 };
 
-// Check if appointment is upcoming (not finished or cancelled)
-const isUpcoming = (patient) => {
+// Check if appointment is not cancelled or rejected
+const isNotCancelled = (patient) => {
   if (!patient) return false;
   const status = String(patient.status || "").toLowerCase().trim();
-  const finishedStatuses = [
-    "completed",
-    "finished",
-    "cancelled",
-    "canceled",
-    "rejected",
-    "missed",
-    "no_show",
-    "no-show",
-  ];
-  return !finishedStatuses.includes(status);
+  const cancelledStatuses = ["cancelled", "canceled", "rejected"];
+  return !cancelledStatuses.includes(status);
 };
 
 // Safely extract text string from message object
@@ -184,9 +183,11 @@ const deduplicateMessages = (msgList) => {
 
 export default function DoctorConsultationChat() {
   const doctor = useSelector((state) => state.auth.user);
-  const { appointments = [], selectedPatient } = useSelector(
-    (state) => state.consultation
-  );
+  const {
+    appointments = [],
+    selectedPatient,
+    patientProfile,
+  } = useSelector((state) => state.consultation);
 
   const doctorId = doctor?.doctor_id || doctor?.id || "D_1";
   const doctorName = doctor?.name || doctor?.doctor_name || "Doctor";
@@ -212,18 +213,22 @@ export default function DoctorConsultationChat() {
   const recognitionRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Filter strictly for UPCOMING VIDEO CONSULTATION patients only
+  // Filter strictly for VIDEO CONSULTATION patients
   const conversationPatients = useMemo(() => {
-    // Only keep appointments that are upcoming video consultations
+    // Only keep appointments that are video consultations and not cancelled
     const list = appointments.filter(
-      (p) => isVideoConsultation(p) && isUpcoming(p)
+      (p) =>
+        isVideoConsultation(
+          p,
+          p.id === selectedPatient?.id ? patientProfile : null
+        ) && isNotCancelled(p)
     );
 
-    // If selectedPatient on the dashboard is an upcoming video consultation, include them if not already present
+    // If selectedPatient on the dashboard is a video consultation, include them if not already present
     if (
       selectedPatient &&
-      isVideoConsultation(selectedPatient) &&
-      isUpcoming(selectedPatient) &&
+      isVideoConsultation(selectedPatient, patientProfile) &&
+      isNotCancelled(selectedPatient) &&
       !list.some(
         (p) =>
           (p.id && p.id === selectedPatient.id) ||
@@ -233,7 +238,7 @@ export default function DoctorConsultationChat() {
       list.unshift(selectedPatient);
     }
     return list;
-  }, [appointments, selectedPatient]);
+  }, [appointments, selectedPatient, patientProfile]);
 
   // Filtered by search query
   const filteredPatients = useMemo(() => {
@@ -326,7 +331,7 @@ export default function DoctorConsultationChat() {
       activeChatPatient.consultation_id;
 
     let baseWs =
-      import.meta.env.VITE_WS_BASE_URL || "ws://72.62.78.53:5000";
+      import.meta.env.VITE_WS_BASE_URL || "wss://72.62.78.53:5000";
 
     // 72.62.78.53:5000 does not have SSL/TLS configured; enforce ws:// to prevent ERR_SSL_PROTOCOL_ERROR
     if (baseWs.includes("72.62.78.53")) {
@@ -686,10 +691,10 @@ export default function DoctorConsultationChat() {
                   📹
                 </div>
                 <p className="text-sm font-semibold text-[#2C1810]">
-                  No upcoming video consultations
+                  No video consultations
                 </p>
                 <p className="text-xs text-gray-400 mt-1 max-w-[240px]">
-                  Only upcoming video consultation patients appear in this chat list.
+                  Video consultation patients scheduled for today will appear here.
                 </p>
               </div>
             ) : (

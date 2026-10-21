@@ -4,6 +4,11 @@ import AgoraRTC from "agora-rtc-sdk-ng";
 import { initiateVideoCall } from "../../../services/videoConsultationService";
 import { connectVideoConsultationSocket } from "../../../services/videoConsultationSocket";
 
+// Set Agora log level to suppress internal racing candidate probe closure logs
+try {
+  AgoraRTC.setLogLevel(2);
+} catch (_) {}
+
 export default function VideoConsultation({ appointmentNo }) {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -80,6 +85,10 @@ const [callStatus, setCallStatus] = useState("idle");
 
     if (client) {
       client.removeAllListeners();
+
+      try {
+        client.stopProxyServer();
+      } catch (_) {}
 
       try {
         await client.leave();
@@ -188,26 +197,94 @@ const [callStatus, setCallStatus] = useState("idle");
         setStatus("Patient disconnected");
       });
 
+      client.on("connection-state-change", (curState, revState, reason) => {
+        console.log("Agora connection state change:", curState, revState, reason);
+        if (curState === "CONNECTED") {
+          setStatus("Agora connected");
+        } else if (curState === "CONNECTING") {
+          setStatus("Connecting to Agora...");
+        } else if (curState === "RECONNECTING") {
+          setStatus("Reconnecting to video server...");
+        } else if (curState === "DISCONNECTED") {
+          console.warn("Agora disconnected:", reason);
+        }
+      });
+
+      client.on("join-fallback-to-proxy", (proxyServer) => {
+        console.log("Agora joined via fallback proxy:", proxyServer);
+      });
+
       setStatus("Connecting to Agora...");
 
-      // Use the channel, UID and token issued by your backend.
-      await client.join(
-        doctor.appId,
+      // Convert UID to integer if numeric
+      const uid =
+        doctor.uid != null && !isNaN(Number(doctor.uid)) && typeof doctor.uid !== "boolean"
+          ? Number(doctor.uid)
+          : doctor.uid;
+
+      console.log("Agora initiating join:", {
+        appId: doctor.appId,
         channelName,
-        doctor.token,
-        doctor.uid
-      );
+        uid,
+      });
 
-      const [audioTrack, videoTrack] =
-        await AgoraRTC.createMicrophoneAndCameraTracks();
+      // Join with automatic Cloud Proxy fallback if direct edge WebSocket/UDP is blocked
+      try {
+        await client.join(
+          doctor.appId,
+          channelName,
+          doctor.token,
+          uid
+        );
+      } catch (directJoinErr) {
+        console.warn("Direct Agora connection failed, trying Cloud Proxy (mode 3)...", directJoinErr);
+        try {
+          client.startProxyServer(3);
+          await client.join(
+            doctor.appId,
+            channelName,
+            doctor.token,
+            uid
+          );
+        } catch (proxyErr3) {
+          console.warn("Cloud Proxy mode 3 failed, trying TCP TLS 443 (mode 5)...", proxyErr3);
+          try {
+            client.startProxyServer(5);
+            await client.join(
+              doctor.appId,
+              channelName,
+              doctor.token,
+              uid
+            );
+          } catch (tcpErr) {
+            throw tcpErr || proxyErr3 || directJoinErr;
+          }
+        }
+      }
 
-      tracksRef.current = [audioTrack, videoTrack];
+      // Create camera and microphone tracks with graceful fallback
+      let audioTrack, videoTrack;
+      try {
+        [audioTrack, videoTrack] =
+          await AgoraRTC.createMicrophoneAndCameraTracks();
+      } catch (trackErr) {
+        console.warn("Failed creating combined tracks, trying audio only:", trackErr);
+        try {
+          audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        } catch (audioErr) {
+          throw new Error("Unable to access camera or microphone. Please verify device permissions in your browser.");
+        }
+      }
 
-      if (localVideoRef.current) {
+      tracksRef.current = [audioTrack, videoTrack].filter(Boolean);
+
+      if (videoTrack && localVideoRef.current) {
         videoTrack.play(localVideoRef.current);
       }
 
-      await client.publish([audioTrack, videoTrack]);
+      if (tracksRef.current.length > 0) {
+        await client.publish(tracksRef.current);
+      }
 
       setInCall(true);
       setStatus("Calling patient — waiting for response...");
