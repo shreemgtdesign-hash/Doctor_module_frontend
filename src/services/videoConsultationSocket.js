@@ -11,18 +11,27 @@ export const connectVideoConsultationSocket = (
     typeof window !== "undefined" && window.location.protocol === "https:";
   let wsBase = import.meta.env.VITE_WS_BASE_URL || "ws://72.62.78.53:5000";
 
-  // When loaded over HTTPS in production (e.g. Vercel), browsers strictly require wss://.
-  // Insecure ws:// is blocked as Mixed Content and throws SecurityError.
-  if (isHttps) {
-    wsBase = wsBase.replace(/^ws:\/\//i, "wss://");
-  } else if (wsBase.includes("72.62.78.53")) {
-    // When running on HTTP locally, use ws:// since raw IP does not have SSL certificate
-    wsBase = wsBase.replace(/^wss:\/\//i, "ws://");
+  // When loaded over HTTPS in production (e.g. Vercel), browsers strictly forbid insecure ws://
+  // and will throw "Uncaught SecurityError: An insecure WebSocket connection may not be initiated from a page loaded over HTTPS."
+  // If the target is an unencrypted IP with no SSL certificate (like 72.62.78.53:5000), skip constructing the insecure socket.
+  if (isHttps && wsBase.includes("72.62.78.53") && !wsBase.startsWith("wss://")) {
+    console.warn(
+      "⚠️ WebSocket skipped on HTTPS production: 72.62.78.53 lacks an SSL certificate. Video consultation will connect directly via Agora RTC."
+    );
+    onStatusChange?.("disconnected");
+    return {
+      socket: null,
+      disconnect() {},
+    };
   }
 
   let socket = null;
 
   try {
+    if (isHttps) {
+      wsBase = wsBase.replace(/^ws:\/\//i, "wss://");
+    }
+
     const url = new URL(`${wsBase}/ws/chat`);
     url.searchParams.set("consultationId", appointmentNo);
     url.searchParams.set("appointment_id", appointmentNo);

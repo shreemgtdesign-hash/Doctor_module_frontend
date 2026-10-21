@@ -335,112 +335,121 @@ export default function DoctorConsultationChat() {
     let baseWs =
       import.meta.env.VITE_WS_BASE_URL || "ws://72.62.78.53:5000";
 
-    // When loaded over HTTPS in production (e.g. Vercel), browsers enforce wss://.
-    // Insecure ws:// is blocked as Mixed Content and throws SecurityError.
-    if (isHttps) {
-      baseWs = baseWs.replace(/^ws:\/\//i, "wss://");
-    } else if (baseWs.includes("72.62.78.53")) {
-      // On local HTTP, use ws:// since raw IP does not have SSL certificate
-      baseWs = baseWs.replace(/^wss:\/\//i, "ws://");
-    }
+    const isRawInsecureIp = baseWs.includes("72.62.78.53");
 
-    const wsUrl = `${baseWs}/ws/chat?appointment_id=${appointmentId}&consultationId=${appointmentId}&user_id=${doctorId}&role=doctor&name=${encodeURIComponent(
-      doctorName
-    )}`;
-
-    try {
-      const socket = new WebSocket(wsUrl);
-      socketRef.current = socket;
-
-      socket.onopen = () => {
-        console.log("✅ Consultation Chat WebSocket connected:", wsUrl);
-        setWsConnected(true);
-      };
-
-      socket.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          console.log("📩 Consultation Chat WS message received:", data);
-
-          if (data.type === "connected") {
-            setWsConnected(true);
-            return;
-          }
-
-          // Handle incoming message
-          let incomingMsg = data.messageData || data.data || data;
-          if (data.message && typeof data.message === "object") {
-            incomingMsg = data.message;
-          }
-
-          const cleanMsg = sanitizeMessage(incomingMsg);
-          if (cleanMsg && (cleanMsg.message || cleanMsg.text || cleanMsg.fileUrl)) {
-            setMessages((prev) => {
-              const msgId =
-                cleanMsg.id ||
-                cleanMsg.message_id ||
-                cleanMsg.messageId;
-
-              // Check if already in list by id
-              if (
-                msgId &&
-                prev.some(
-                  (m) =>
-                    m.id === msgId ||
-                    m.messageId === msgId ||
-                    m.message_id === msgId
-                )
-              ) {
-                return prev;
-              }
-
-              // Check if matching pending optimistic message from this doctor
-              const tempIndex = prev.findIndex(
-                (m) =>
-                  String(m.id || "").startsWith("temp_") &&
-                  extractMessageText(m) === extractMessageText(cleanMsg)
-              );
-
-              if (tempIndex !== -1) {
-                const next = [...prev];
-                next[tempIndex] = cleanMsg;
-                return deduplicateMessages(next);
-              }
-
-              return deduplicateMessages([...prev, cleanMsg]);
-            });
-
-            // Mark as read if from patient
-            const senderRole = (
-              cleanMsg.senderRole ||
-              cleanMsg.sender_role ||
-              ""
-            ).toUpperCase();
-            if (senderRole === "PATIENT") {
-              const consultationId =
-                activeChatPatient.consultation_id ||
-                activeChatPatient.consultationId ||
-                activeChatPatient.id;
-              markChatMessagesAsRead(consultationId).catch(() => {});
-            }
-          }
-        } catch (err) {
-          console.error("WS message parse error:", err);
-        }
-      };
-
-      socket.onerror = (err) => {
-        console.warn("Consultation Chat WS error:", err);
-        setWsConnected(false);
-      };
-
-      socket.onclose = () => {
-        console.log("Consultation Chat WS closed");
-        setWsConnected(false);
-      };
-    } catch (err) {
-      console.error("Failed to initialize WebSocket:", err);
+    // When loaded over HTTPS in production (e.g. Vercel), browsers strictly forbid insecure ws://
+    // and throw "SecurityError: An insecure WebSocket connection may not be initiated from a page loaded over HTTPS."
+    // If targeting an unencrypted raw IP with no SSL certificate, skip constructing the insecure socket.
+    // The chat seamlessly uses REST API sync (/api/consultations/:id/messages) which works 100% on HTTPS!
+    if (isHttps && isRawInsecureIp && !baseWs.startsWith("wss://")) {
+      console.log("ℹ️ HTTPS production: using REST API sync for consultation chat.");
       setWsConnected(false);
+    } else {
+      if (isHttps) {
+        baseWs = baseWs.replace(/^ws:\/\//i, "wss://");
+      } else if (isRawInsecureIp) {
+        // On local HTTP, use ws:// since raw IP does not have SSL certificate
+        baseWs = baseWs.replace(/^wss:\/\//i, "ws://");
+      }
+
+      const wsUrl = `${baseWs}/ws/chat?appointment_id=${appointmentId}&consultationId=${appointmentId}&user_id=${doctorId}&role=doctor&name=${encodeURIComponent(
+        doctorName
+      )}`;
+
+      try {
+        const socket = new WebSocket(wsUrl);
+        socketRef.current = socket;
+
+        socket.onopen = () => {
+          console.log("✅ Consultation Chat WebSocket connected:", wsUrl);
+          setWsConnected(true);
+        };
+
+        socket.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            console.log("📩 Consultation Chat WS message received:", data);
+
+            if (data.type === "connected") {
+              setWsConnected(true);
+              return;
+            }
+
+            // Handle incoming message
+            let incomingMsg = data.messageData || data.data || data;
+            if (data.message && typeof data.message === "object") {
+              incomingMsg = data.message;
+            }
+
+            const cleanMsg = sanitizeMessage(incomingMsg);
+            if (cleanMsg && (cleanMsg.message || cleanMsg.text || cleanMsg.fileUrl)) {
+              setMessages((prev) => {
+                const msgId =
+                  cleanMsg.id ||
+                  cleanMsg.message_id ||
+                  cleanMsg.messageId;
+
+                // Check if already in list by id
+                if (
+                  msgId &&
+                  prev.some(
+                    (m) =>
+                      m.id === msgId ||
+                      m.messageId === msgId ||
+                      m.message_id === msgId
+                  )
+                ) {
+                  return prev;
+                }
+
+                // Check if matching pending optimistic message from this doctor
+                const tempIndex = prev.findIndex(
+                  (m) =>
+                    String(m.id || "").startsWith("temp_") &&
+                    extractMessageText(m) === extractMessageText(cleanMsg)
+                );
+
+                if (tempIndex !== -1) {
+                  const next = [...prev];
+                  next[tempIndex] = cleanMsg;
+                  return deduplicateMessages(next);
+                }
+
+                return deduplicateMessages([...prev, cleanMsg]);
+              });
+
+              // Mark as read if from patient
+              const senderRole = (
+                cleanMsg.senderRole ||
+                cleanMsg.sender_role ||
+                ""
+              ).toUpperCase();
+              if (senderRole === "PATIENT") {
+                const consultationId =
+                  activeChatPatient.consultation_id ||
+                  activeChatPatient.consultationId ||
+                  activeChatPatient.id;
+                markChatMessagesAsRead(consultationId).catch(() => {});
+              }
+            }
+          } catch (err) {
+            console.error("WS message parse error:", err);
+          }
+        };
+
+        socket.onerror = (err) => {
+          console.warn("Consultation Chat WS error:", err);
+          setWsConnected(false);
+        };
+
+        socket.onclose = () => {
+          console.log("Consultation Chat WS closed");
+          setWsConnected(false);
+        };
+      } catch (err) {
+        console.warn("WebSocket initialization skipped or failed (falling back to REST):", err);
+        setWsConnected(false);
+      }
     }
 
     // Background polling fallback to ensure messages stay updated when WS is not open
