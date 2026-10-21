@@ -330,14 +330,18 @@ export default function DoctorConsultationChat() {
       activeChatPatient.appointmentId ||
       activeChatPatient.consultation_id;
 
+    const isHttps =
+      typeof window !== "undefined" && window.location.protocol === "https:";
     let baseWs =
-      import.meta.env.VITE_WS_BASE_URL || "wss://72.62.78.53:5000";
+      import.meta.env.VITE_WS_BASE_URL || "ws://72.62.78.53:5000";
 
-    // 72.62.78.53:5000 does not have SSL/TLS configured; enforce ws:// to prevent ERR_SSL_PROTOCOL_ERROR
-    if (baseWs.includes("72.62.78.53")) {
+    // When loaded over HTTPS in production (e.g. Vercel), browsers enforce wss://.
+    // Insecure ws:// is blocked as Mixed Content and throws SecurityError.
+    if (isHttps) {
+      baseWs = baseWs.replace(/^ws:\/\//i, "wss://");
+    } else if (baseWs.includes("72.62.78.53")) {
+      // On local HTTP, use ws:// since raw IP does not have SSL certificate
       baseWs = baseWs.replace(/^wss:\/\//i, "ws://");
-    } else if (!baseWs.startsWith("ws://") && !baseWs.startsWith("wss://")) {
-      baseWs = baseWs.replace(/^https:\/\//i, "wss://").replace(/^http:\/\//i, "ws://");
     }
 
     const wsUrl = `${baseWs}/ws/chat?appointment_id=${appointmentId}&consultationId=${appointmentId}&user_id=${doctorId}&role=doctor&name=${encodeURIComponent(
