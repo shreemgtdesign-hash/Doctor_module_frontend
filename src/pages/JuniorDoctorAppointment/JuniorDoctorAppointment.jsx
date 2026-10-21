@@ -27,6 +27,9 @@ import JuniorDoctorAppointmentList
 import JuniorPatientProfile
     from "./components/JuniorPatientProfile";
 
+import JuniorDoctorConsultationChat
+    from "./components/JuniorDoctorConsultationChat";
+
 
 const JuniorDoctorAppointment = () => {
 
@@ -189,6 +192,9 @@ const JuniorDoctorAppointment = () => {
                     />
 
                 </div>
+
+                {/* Floating Bottom-Right Junior Doctor Consultation Chat Widget */}
+                <JuniorDoctorConsultationChat period={period} />
 
             </div>
 

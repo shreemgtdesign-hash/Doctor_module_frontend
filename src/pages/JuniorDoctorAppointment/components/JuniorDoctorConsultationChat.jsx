@@ -15,6 +15,7 @@ import {
   markChatMessagesAsRead,
   uploadChatFile,
 } from "../../../api/consultationChatApi";
+import { getWebSocketUrl } from "../../../services/videoConsultationSocket";
 
 const formatMessageTime = (dateStr) => {
   if (!dateStr) return "";
@@ -181,16 +182,17 @@ const deduplicateMessages = (msgList) => {
   return result;
 };
 
-export default function DoctorConsultationChat() {
-  const doctor = useSelector((state) => state.auth.user);
+export default function JuniorDoctorConsultationChat({ period = "today" }) {
+  const user = useSelector((state) => state.auth.user);
+  const jdState = useSelector((state) => state.juniorDoctorAppointment);
   const {
-    appointments = [],
+    appointments: consultationAppts = [],
     selectedPatient,
     patientProfile,
   } = useSelector((state) => state.consultation);
 
-  const doctorId = doctor?.doctor_id || doctor?.id || "D_1";
-  const doctorName = doctor?.name || doctor?.doctor_name || "Doctor";
+  const doctorId = user?.doctor_id || user?.id || "JD_1";
+  const doctorName = user?.name || user?.doctor_name || "Junior Doctor";
 
   // Widget view states
   const [isOpen, setIsOpen] = useState(false);
@@ -213,10 +215,40 @@ export default function DoctorConsultationChat() {
   const recognitionRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // Extract junior doctor appointments
+  const jdAppointmentsList = useMemo(() => {
+    const raw = jdState?.appointments;
+    if (Array.isArray(raw)) return raw;
+    if (raw && typeof raw === "object") {
+      const current = raw[period]?.data || raw["today"]?.data;
+      if (Array.isArray(current)) return current;
+      const combined = [];
+      Object.values(raw).forEach((val) => {
+        if (val?.data && Array.isArray(val.data)) {
+          combined.push(...val.data);
+        } else if (Array.isArray(val)) {
+          combined.push(...val);
+        }
+      });
+      return combined;
+    }
+    return [];
+  }, [jdState, period]);
+
   // Filter strictly for VIDEO CONSULTATION patients
   const conversationPatients = useMemo(() => {
-    // Only keep appointments that are video consultations and not cancelled
-    const list = appointments.filter(
+    const allCandidates = [...jdAppointmentsList];
+
+    if (Array.isArray(consultationAppts) && consultationAppts.length > 0) {
+      consultationAppts.forEach((ca) => {
+        if (!allCandidates.some((p) => p.id === ca.id || p.token === ca.token)) {
+          allCandidates.push(ca);
+        }
+      });
+    }
+
+    // Filter for video consultations that are not cancelled
+    const list = allCandidates.filter(
       (p) =>
         isVideoConsultation(
           p,
@@ -238,7 +270,7 @@ export default function DoctorConsultationChat() {
       list.unshift(selectedPatient);
     }
     return list;
-  }, [appointments, selectedPatient, patientProfile]);
+  }, [jdAppointmentsList, consultationAppts, selectedPatient, patientProfile]);
 
   // Filtered by search query
   const filteredPatients = useMemo(() => {
@@ -310,7 +342,7 @@ export default function DoctorConsultationChat() {
   };
 
   // ==========================================
-  // WEBSOCKET MANAGEMENT
+  // WEBSOCKET MANAGEMENT & REST FALLBACK
   // ==========================================
   useEffect(() => {
     if (!isOpen || !activeChatPatient) {
@@ -330,45 +362,25 @@ export default function DoctorConsultationChat() {
       activeChatPatient.appointmentId ||
       activeChatPatient.consultation_id;
 
-    const isHttps =
-      typeof window !== "undefined" && window.location.protocol === "https:";
-    let baseWs =
-      import.meta.env.VITE_WS_BASE_URL || "ws://72.62.78.53:5000";
+    try {
+      const wsUrl = getWebSocketUrl(appointmentId, {
+        userId: doctorId,
+        role: "doctor",
+        name: doctorName,
+      });
 
-    const isRawInsecureIp = baseWs.includes("72.62.78.53");
+      const socket = new WebSocket(wsUrl);
+      socketRef.current = socket;
 
-    // When loaded over HTTPS in production (e.g. Vercel), browsers strictly forbid insecure ws://
-    // and throw "SecurityError: An insecure WebSocket connection may not be initiated from a page loaded over HTTPS."
-    // If targeting an unencrypted raw IP with no SSL certificate, skip constructing the insecure socket.
-    // The chat seamlessly uses REST API sync (/api/consultations/:id/messages) which works 100% on HTTPS!
-    if (isHttps && isRawInsecureIp && !baseWs.startsWith("wss://")) {
-      console.log("ℹ️ HTTPS production: using REST API sync for consultation chat.");
-      setWsConnected(false);
-    } else {
-      if (isHttps) {
-        baseWs = baseWs.replace(/^ws:\/\//i, "wss://");
-      } else if (isRawInsecureIp) {
-        // On local HTTP, use ws:// since raw IP does not have SSL certificate
-        baseWs = baseWs.replace(/^wss:\/\//i, "ws://");
-      }
-
-      const wsUrl = `${baseWs}/ws/chat?appointment_id=${appointmentId}&consultationId=${appointmentId}&user_id=${doctorId}&role=doctor&name=${encodeURIComponent(
-        doctorName
-      )}`;
-
-      try {
-        const socket = new WebSocket(wsUrl);
-        socketRef.current = socket;
-
-        socket.onopen = () => {
-          console.log("✅ Consultation Chat WebSocket connected:", wsUrl);
-          setWsConnected(true);
-        };
+      socket.onopen = () => {
+        console.log("✅ Junior Doctor Consultation Chat WebSocket connected:", wsUrl);
+        setWsConnected(true);
+      };
 
         socket.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
-            console.log("📩 Consultation Chat WS message received:", data);
+            console.log("📩 Junior Doctor Chat WS message received:", data);
 
             if (data.type === "connected") {
               setWsConnected(true);
@@ -402,7 +414,7 @@ export default function DoctorConsultationChat() {
                   return prev;
                 }
 
-                // Check if matching pending optimistic message from this doctor
+                // Check if matching pending optimistic message from this junior doctor
                 const tempIndex = prev.findIndex(
                   (m) =>
                     String(m.id || "").startsWith("temp_") &&
@@ -438,23 +450,21 @@ export default function DoctorConsultationChat() {
         };
 
         socket.onerror = (err) => {
-          console.warn("Consultation Chat WS error:", err);
+          console.warn("Junior Doctor Chat WS error:", err);
           setWsConnected(false);
         };
 
         socket.onclose = () => {
-          console.log("Consultation Chat WS closed");
+          console.log("Junior Doctor Chat WS closed");
           setWsConnected(false);
         };
       } catch (err) {
         console.warn("WebSocket initialization skipped or failed (falling back to REST):", err);
         setWsConnected(false);
       }
-    }
 
-    // Background polling fallback to ensure messages stay updated when WS is not open
+    // Background polling fallback to ensure messages stay updated
     const pollInterval = setInterval(() => {
-      // If WebSocket is connected, WebSocket handles messages in real-time, no need for polling
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         return;
       }
@@ -487,7 +497,7 @@ export default function DoctorConsultationChat() {
           })
           .catch(() => {});
       }
-    }, 4000);
+    }, 3000);
 
     return () => {
       clearInterval(pollInterval);
@@ -530,7 +540,7 @@ export default function DoctorConsultationChat() {
     setMessages((prev) => deduplicateMessages([...prev, optimisticMessage]));
     setInputText("");
 
-    // 1. Send via WebSocket if open (do NOT also call REST to prevent double sending)
+    // 1. Send via WebSocket if open
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       try {
         socketRef.current.send(
@@ -546,7 +556,7 @@ export default function DoctorConsultationChat() {
       }
     }
 
-    // 2. Fallback: Persist via REST API only if WebSocket is disconnected
+    // 2. Fallback: Persist via REST API
     try {
       const res = await sendChatMessage(consultationId, {
         message: text,
@@ -724,7 +734,7 @@ export default function DoctorConsultationChat() {
 
                 return (
                   <div
-                    key={patient.id || patient.token || idx}
+                    key={`${patient.id || patient.token || "p"}_${idx}`}
                     onClick={() => setActiveChatPatient(patient)}
                     className="p-3.5 flex items-center justify-between hover:bg-[#FFF8F3] transition-colors cursor-pointer"
                   >
