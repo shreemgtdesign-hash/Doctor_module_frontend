@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://api.sadop.in/api/:path*"
+      "destination": "http://72.62.78.53:5000/api/:path*"
     },
     {
       "source": "/(.*)",
