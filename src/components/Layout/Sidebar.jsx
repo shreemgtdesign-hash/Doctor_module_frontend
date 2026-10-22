@@ -17,6 +17,7 @@ import {
     HiOutlineLifebuoy,
     HiOutlineCog6Tooth,
     HiOutlineBuildingOffice2,
+    HiOutlineCheckBadge,
 } from "react-icons/hi2";
 
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
@@ -178,6 +179,11 @@ const corporateCellMenu = [
         name: "Pending Requests",
         icon: HiOutlineClock,
         path: "/corporate-cell/pending-events",
+    },
+    {
+        name: "Completed Events",
+        icon: HiOutlineCheckBadge,
+        path: "/corporate-cell/completed-events",
     },
     {
         name: "Corporate Packages",
@@ -568,6 +574,7 @@ const Sidebar = ({
                             const isHash = !item.path || item.path === "#";
                             const isCurrentlyActive = !isHash && (
                                 location.pathname === item.path ||
+                                (item.path === "/corporate-cell/completed-events" && location.pathname.startsWith("/corporate-cell/completed-events")) ||
                                 (item.path === "/corporate-cell/pending-events" && (location.pathname.startsWith("/corporate-cell/pending-events") || location.pathname.startsWith("/corporate-cell/pending-requests"))) ||
                                 (item.path === "/corporate-cell/upcoming-events" && location.pathname.startsWith("/corporate-cell/upcoming-events")) ||
                                 (item.path === "/corporate/dashboard" && (location.pathname === "/corporate" || location.pathname === "/corporate/dashboard")) ||

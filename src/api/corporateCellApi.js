@@ -43,28 +43,17 @@ export const getCorporateCellPendingEventDetails = (id) => {
 // ==========================================
 // 6. GET EVENT RESOURCES
 // GET /corporatecell/pending-events/:id/resources
-// Fallback to /corporatecell/upcoming-events/:id/resources
 // ==========================================
-export const getCorporateCellEventResources = async (id) => {
-  try {
-    return await api.get(`/corporatecell/pending-events/${id}/resources`);
-  } catch (err) {
-    // Fallback for confirmed/upcoming events
-    return await api.get(`/corporatecell/upcoming-events/${id}/resources`);
-  }
+export const getCorporateCellEventResources = (id) => {
+  return api.get(`/corporatecell/pending-events/${id}/resources`);
 };
 
 // ==========================================
 // 7. UPDATE EVENT RESOURCES
 // PUT /corporatecell/pending-events/:id/resources
-// Fallback to /corporatecell/upcoming-events/:id/resources
 // ==========================================
-export const updateCorporateCellEventResources = async (id, payload) => {
-  try {
-    return await api.put(`/corporatecell/pending-events/${id}/resources`, payload);
-  } catch (err) {
-    return await api.put(`/corporatecell/upcoming-events/${id}/resources`, payload);
-  }
+export const updateCorporateCellEventResources = (id, payload) => {
+  return api.put(`/corporatecell/pending-events/${id}/resources`, payload);
 };
 
 // ==========================================
@@ -78,47 +67,18 @@ export const getCorporateCellTeamOptions = () => {
 // ==========================================
 // 9. GET EVENT ASSIGNED TEAM
 // GET /corporatecell/pending-events/:id/team
-// Fallback to /corporatecell/events/:id/team
 // ==========================================
-export const getCorporateCellEventTeam = async (id) => {
-  try {
-    return await api.get(`/corporatecell/pending-events/${id}/team`);
-  } catch (err) {
-    return await api.get(`/corporatecell/events/${id}/team`);
-  }
+export const getCorporateCellEventTeam = (id) => {
+  return api.get(`/corporatecell/pending-events/${id}/team`);
 };
 
 // ==========================================
-// 10. UPDATE EVENT ASSIGNED TEAM
+// 10. UPDATE EVENT ASSIGNED TEAM & CONFIRM EVENT
 // PUT /corporatecell/pending-events/:id/team
-// Fallback to /corporatecell/events/:id/team
+// (This call assigns team and triggers status to confirmed)
 // ==========================================
-export const updateCorporateCellEventTeam = async (id, payload) => {
-  try {
-    return await api.put(`/corporatecell/pending-events/${id}/team`, payload);
-  } catch (err) {
-    return await api.put(`/corporatecell/events/${id}/team`, payload);
-  }
-};
-
-// ==========================================
-// 11. CONFIRM EVENT
-// Changes pending event status to confirmed
-// ==========================================
-export const confirmCorporateCellEvent = async (id, payload = {}) => {
-  try {
-    return await api.put(`/corporatecell/pending-events/${id}/confirm`, payload);
-  } catch (err) {
-    try {
-      return await api.post(`/corporatecell/pending-events/${id}/confirm`, payload);
-    } catch (err2) {
-      // Fallback: update status to confirmed via general update
-      return await api.put(`/corporatecell/pending-events/${id}`, {
-        status: "confirmed",
-        ...payload,
-      });
-    }
-  }
+export const updateCorporateCellEventTeam = (id, payload) => {
+  return api.put(`/corporatecell/pending-events/${id}/team`, payload);
 };
 
 // ==========================================
@@ -144,3 +104,81 @@ export const updateCorporateCellDashboardCms = (payload) => {
 export const updateCorporateCellDashboardGallery = (payload) => {
   return api.put("/corporatecell/dashboard-cms/gallery", payload);
 };
+
+// ==========================================
+// 15. GET TODAY'S EVENT BY ID
+// GET /corporatecell/today-event/:id
+// ==========================================
+export const getCorporateCellTodayEventDetails = (id) => {
+  return api.get(`/corporatecell/today-event/${id}`);
+};
+
+// ==========================================
+// 16. TODAY'S EVENT CHECK-IN
+// POST /corporatecell/today-event/check-in
+// ==========================================
+export const checkInTodayEvent = (id) => {
+  return api.post("/corporatecell/today-event/check-in", { id });
+};
+
+// ==========================================
+// 17. TODAY'S EVENT CHECK-OUT
+// POST /corporatecell/today-event/check-out
+// ==========================================
+export const checkOutTodayEvent = (id) => {
+  return api.post("/corporatecell/today-event/check-out", { id });
+};
+
+// ==========================================
+// 18. EVENT CATEGORIES FILTERED EVENTS
+// GET /corporatecell/event-categories/events?category=:category
+// ==========================================
+export const getCorporateCellEventCategoriesEvents = (category = "all", params = {}) => {
+  return api.get("/corporatecell/event-categories/events", {
+    params: {
+      category,
+      ...params,
+    },
+  });
+};
+
+// ==========================================
+// 19. GET COMPLETED EVENTS LIST
+// GET /corporatecell/completed-events
+// ==========================================
+export const getCorporateCellCompletedEvents = (params = {}) => {
+  return api.get("/corporatecell/completed-events", { params });
+};
+
+// ==========================================
+// 20. GET COMPLETED EVENT DETAILS
+// GET /corporatecell/completed-events/:id
+// ==========================================
+export const getCorporateCellCompletedEventDetails = (id) => {
+  return api.get(`/corporatecell/completed-events/${id}`);
+};
+
+// ==========================================
+// 21. GET COMPLETED EVENT GALLERY
+// GET /corporatecell/completed-events/:id/gallery
+// ==========================================
+export const getCorporateCellCompletedEventGallery = (id) => {
+  return api.get(`/corporatecell/completed-events/${id}/gallery`);
+};
+
+// ==========================================
+// 22. UPDATE COMPLETED EVENT GALLERY
+// PUT /corporatecell/completed-events/:id/gallery
+// ==========================================
+export const updateCorporateCellCompletedEventGallery = (id, payload) => {
+  return api.put(`/corporatecell/completed-events/${id}/gallery`, payload);
+};
+
+// ==========================================
+// 23. DELETE COMPLETED EVENT GALLERY ITEM
+// DELETE /corporatecell/completed-events/:id/gallery/:gallery_id
+// ==========================================
+export const deleteCorporateCellGalleryItem = (id, galleryId) => {
+  return api.delete(`/corporatecell/completed-events/${id}/gallery/${galleryId}`);
+};
+

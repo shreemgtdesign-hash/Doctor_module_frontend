@@ -319,7 +319,15 @@ const CorporateMyEvents = () => {
       const res = await getCorporateMyEvents(queryParams);
 
       if (res.data?.success || res.data?.data || res.data?.events) {
-        const dataList = res.data.data || res.data.events || [];
+        const rawList = res.data.data || res.data.events || [];
+        // Deduplicate events by id or event_no
+        const seen = new Set();
+        const dataList = rawList.filter((item) => {
+          const key = item.id || item.event_no;
+          if (!key || seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
         setEvents(dataList);
 
         if (res.data.tabs) {

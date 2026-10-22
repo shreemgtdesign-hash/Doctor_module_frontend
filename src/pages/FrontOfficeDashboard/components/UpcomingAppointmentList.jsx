@@ -371,6 +371,15 @@ const UpcomingAppointmentsList = () => {
             return;
         }
 
+        const isCheckedIn =
+            appointment?.checkin === true ||
+            appointment?.checked_in === true ||
+            appointment?.check_in === true;
+
+        if (!isCheckedIn) {
+            toast.error("Please check in first before checking out");
+            return;
+        }
 
         // Already checked out
         if (
@@ -1460,15 +1469,25 @@ const AppointmentRow = ({
                         checkOutLoading
                     }
 
-                    onClick={() =>
+                    disabled={
+                        !isCheckedIn || isCheckedOut
+                    }
+
+                    onClick={() => {
+                        if (!isCheckedIn) {
+                            toast.error("Please check in first before checking out");
+                            return;
+                        }
                         onCheckOut(
                             appointment
-                        )
-                    }
+                        );
+                    }}
 
                     label={
                         isCheckedOut
                             ? "Checked out"
+                            : !isCheckedIn
+                            ? "Pending check in (Cannot check out)"
                             : "Check out"
                     }
                 />
@@ -1492,6 +1511,7 @@ const CheckButton = ({
     loading,
     onClick,
     label,
+    disabled = false,
 }) => {
 
     return (
@@ -1501,7 +1521,8 @@ const CheckButton = ({
             onClick={onClick}
             disabled={
                 checked ||
-                loading
+                loading ||
+                disabled
             }
             title={label}
             aria-label={label}

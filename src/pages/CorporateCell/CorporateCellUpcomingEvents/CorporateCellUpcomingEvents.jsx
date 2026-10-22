@@ -37,10 +37,18 @@ const CorporateCellUpcomingEvents = () => {
         if (!isMounted) return;
         const apiData = res.data?.data || res.data?.events;
         if (res.data?.success && Array.isArray(apiData)) {
-          // Only confirmed events appear in upcoming events
-          const confirmed = apiData.filter(
-            (evt) => !evt.status || evt.status.toLowerCase() === "confirmed"
-          );
+          // Deduplicate events by event_no or id
+          const seen = new Set();
+          const confirmed = [];
+          for (const evt of apiData) {
+            const key = evt.event_no || evt.id;
+            if (key && !seen.has(key)) {
+              seen.add(key);
+              if (!evt.status || evt.status.toLowerCase() === "confirmed") {
+                confirmed.push(evt);
+              }
+            }
+          }
           setEvents(confirmed);
         } else {
           setEvents([]);

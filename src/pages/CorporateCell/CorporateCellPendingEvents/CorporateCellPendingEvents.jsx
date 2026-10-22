@@ -66,7 +66,15 @@ const CorporateCellPendingEvents = () => {
         if (!isMounted) return;
         const apiData = res.data?.data || res.data?.events;
         if (res.data?.success && Array.isArray(apiData)) {
-          setEvents(apiData);
+          // Deduplicate events by id or event_no so each event is rendered once
+          const seen = new Set();
+          const uniqueEvents = apiData.filter((evt) => {
+            const key = evt.id || evt.event_no;
+            if (!key || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+          setEvents(uniqueEvents);
         } else {
           setEvents([]);
         }

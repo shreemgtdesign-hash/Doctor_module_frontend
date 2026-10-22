@@ -68,6 +68,10 @@ import CorporateCellDashboard from "./pages/CorporateCell/CorporateCellDashboard
 import CorporateCellUpcomingEvents from "./pages/CorporateCell/CorporateCellUpcomingEvents/CorporateCellUpcomingEvents";
 import CorporateCellPendingEvents from "./pages/CorporateCell/CorporateCellPendingEvents/CorporateCellPendingEvents";
 import CorporateCellEventDetails from "./pages/CorporateCell/CorporateCellEventDetails/CorporateCellEventDetails";
+import CorporateCellTodayEvent from "./pages/CorporateCell/CorporateCellTodayEvent/CorporateCellTodayEvent";
+import CorporateCellEventCategories from "./pages/CorporateCell/CorporateCellEventCategories/CorporateCellEventCategories";
+import CorporateCellCompletedEvents from "./pages/CorporateCell/CorporateCellCompletedEvents/CorporateCellCompletedEvents";
+import CorporateCellCompletedEventDetails from "./pages/CorporateCell/CorporateCellCompletedEvents/CorporateCellCompletedEventDetails";
 import CorporateCellEditDashboard from "./pages/CorporateCell/CorporateCellEditDashboard/CorporateCellEditDashboard";
 import DashboardLayout from "./components/Layout/DashboardLayout";
 
@@ -530,6 +534,26 @@ function App() {
 <Route
   path="/corporate-cell/pending-requests/:id"
   element={<CorporateCellEventDetails isPending={true} />}
+/>
+<Route
+  path="/corporate-cell/today-event/:id"
+  element={<CorporateCellTodayEvent />}
+/>
+<Route
+  path="/corporate-cell/today-event"
+  element={<CorporateCellTodayEvent />}
+/>
+<Route
+  path="/corporate-cell/event-categories"
+  element={<CorporateCellEventCategories />}
+/>
+<Route
+  path="/corporate-cell/completed-events/:id"
+  element={<CorporateCellCompletedEventDetails />}
+/>
+<Route
+  path="/corporate-cell/completed-events"
+  element={<CorporateCellCompletedEvents />}
 />
 <Route
   path="/corporate-cell/packages"

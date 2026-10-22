@@ -20,7 +20,6 @@ import {
   getCorporateCellTeamOptions,
   getCorporateCellEventTeam,
   updateCorporateCellEventTeam,
-  confirmCorporateCellEvent,
 } from "../../../api/corporateCellApi";
 
 const EMPTY_TEAM_OPTIONS = {
@@ -457,10 +456,26 @@ const CorporateCellEventDetails = ({ isReadOnly: isReadOnlyProp, isPending: isPe
     }));
   };
 
-  // Confirm Event Handler: Saves Resources, Team, and Updates status to confirmed
+  // Confirm Event Handler:
+  // Saves Resources and assigns Team via PUT /corporatecell/pending-events/:id/team
+  // which automatically triggers the event status to confirmed on the backend
   const handleConfirmEvent = async () => {
     setConfirming(true);
     try {
+      // 1. Update Resources (if modified)
+      if (resourcesList && resourcesList.length > 0) {
+        try {
+          await updateCorporateCellEventResources(activeEventId, {
+            resources: resourcesList,
+            comments,
+          });
+        } catch (e) {
+          console.warn("Update resources note:", e);
+        }
+      }
+
+      // 2. Update Team via PUT /corporatecell/pending-events/:id/team
+      // (This exact call assigns the team and transitions status to confirmed)
       const teamPayload = {
         coordinator_id: assignedTeam.coordinator_id,
         coordinator_name: assignedTeam.coordinator_name,
@@ -470,40 +485,17 @@ const CorporateCellEventDetails = ({ isReadOnly: isReadOnlyProp, isPending: isPe
         support_staff_name: assignedTeam.support_staff_name,
         event_setup_id: assignedTeam.event_setup_id,
         event_setup_name: assignedTeam.event_setup_name,
-        doctors: assignedTeam.doctors.filter((d) => d.id),
-        therapists: assignedTeam.therapists.filter((t) => t.id),
+        doctors: (assignedTeam.doctors || []).filter((d) => d.id),
+        therapists: (assignedTeam.therapists || []).filter((t) => t.id),
       };
 
-      // 1. Update Team
-      try {
-        await updateCorporateCellEventTeam(activeEventId, teamPayload);
-      } catch (e) {
-        console.warn("Update team API note:", e);
-      }
+      const res = await updateCorporateCellEventTeam(activeEventId, teamPayload);
 
-      // 2. Update Resources
-      try {
-        await updateCorporateCellEventResources(activeEventId, {
-          resources: resourcesList,
-          comments,
-        });
-      } catch (e) {
-        console.warn("Update resources API note:", e);
-      }
-
-      // 3. Confirm Event (status -> confirmed)
-      await confirmCorporateCellEvent(activeEventId, {
-        status: "confirmed",
-        assigned_team: teamPayload,
-        resources: resourcesList,
-      });
-
-      toast.success("Event confirmed successfully! Moved to Upcoming Events.");
+      toast.success(res?.data?.message || "Event confirmed successfully! Moved to Upcoming Events.");
       navigate("/corporate-cell/upcoming-events");
     } catch (err) {
-      console.warn("Confirm event fallback:", err);
-      toast.success("Event confirmed successfully! Moved to Upcoming Events.");
-      navigate("/corporate-cell/upcoming-events");
+      console.error("Confirm event error via team assignment:", err);
+      toast.error(err.response?.data?.message || "Failed to confirm event. Please check team assignment.");
     } finally {
       setConfirming(false);
     }
@@ -586,7 +578,7 @@ const CorporateCellEventDetails = ({ isReadOnly: isReadOnlyProp, isPending: isPe
                     {eventData.company_name || "Reliance Industries Limited"}
                   </h4>
                   <p className="text-[12.5px] text-[#7F726A] mt-0.5">
-                    {eventData.employee_range || "250-300 Employees"}
+                    {eventData.employee_range || "250-3Employees"}
                   </p>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   HiOutlineCalendar,
@@ -108,8 +108,31 @@ const CorporateCellDashboard = () => {
   }, []);
 
   const engagements = dashboardData?.corporate_engagements || FALLBACK_DASHBOARD.corporate_engagements;
-  const upcomingEvents = dashboardData?.upcoming_events || FALLBACK_DASHBOARD.upcoming_events;
-  const eventCategories = dashboardData?.event_categories || FALLBACK_DASHBOARD.event_categories;
+
+  // Deduplicate upcoming and today events by event_no or id
+  const upcomingEvents = useMemo(() => {
+    const list = dashboardData?.upcoming_events || [];
+    const seen = new Set();
+    return list.filter((evt) => {
+      const key = evt.event_no || evt.id;
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [dashboardData?.upcoming_events]);
+
+  const todayEvents = useMemo(() => {
+    const list = dashboardData?.today_events || [];
+    const seen = new Set();
+    return list.filter((evt) => {
+      const key = evt.event_no || evt.id;
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [dashboardData?.today_events]);
+
+  const eventCategories = dashboardData?.event_categories || [];
 
   const engagementItems = [
     {
@@ -305,31 +328,79 @@ const CorporateCellDashboard = () => {
               )}
             </div>
 
-            {/* RIGHT COLUMN: EVENT CATEGORIES (5 cols) */}
-            <div className="lg:col-span-5 rounded-[22px] border border-[#EFE5DC] bg-white p-6 shadow-2xs">
-              <h2 className="text-[19px] sm:text-[21px] font-bold text-[#2C1810] tracking-tight mb-5">
-                Event Categories
-              </h2>
+            {/* RIGHT COLUMN (5 cols): TODAY'S EVENTS & EVENT CATEGORIES */}
+            <div className="lg:col-span-5 space-y-6">
+              {/* Card 1: Today's Events */}
+              <div className="rounded-[22px] border border-[#EFE5DC] bg-white p-6 shadow-2xs">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-[18px] sm:text-[19px] font-bold text-[#2C1810] tracking-tight">
+                    Today's Events
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const targetId = todayEvents[0]?.id || "";
+                      navigate(`/corporate-cell/today-event/${targetId}`);
+                    }}
+                    className="flex items-center gap-1.5 text-xs sm:text-[13px] font-semibold text-[#4D2E23] hover:text-[#2C1810] transition cursor-pointer"
+                  >
+                    <span>View Details</span>
+                    <HiArrowRight size={14} />
+                  </button>
+                </div>
 
-              <div className="grid grid-cols-2 divide-x divide-y divide-[#F0E8DF] border-y border-[#F0E8DF]">
-                {eventCategories.map((cat, idx) => {
-                  return (
+                {todayEvents.length === 0 ? (
+                  <div className="py-4 text-[#8A7D75]">
+                    <p className="text-sm font-semibold text-[#2C1810]">No events scheduled for today</p>
+                    <p className="text-xs mt-0.5">Check upcoming events for future sessions.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {todayEvents.slice(0, 2).map((evt) => (
+                      <div
+                        key={evt.id || evt.event_no}
+                        onClick={() => navigate(`/corporate-cell/today-event/${evt.id}`)}
+                        className="cursor-pointer group pt-1"
+                      >
+                        <h4 className="text-[15.5px] font-bold text-[#2C1810] group-hover:text-[#6F4432] transition truncate">
+                          {evt.company_name || evt.title || "Reliance Industries Limited"}
+                        </h4>
+                        <p className="text-[12.5px] text-[#7F726A] mt-1 truncate">
+                          {evt.company_name && evt.title ? `${evt.title} | ` : ""}
+                          {evt.time_display}
+                          {evt.mode ? ` | ${evt.mode}` : ""}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Card 2: Event Categories */}
+              <div className="rounded-[22px] border border-[#EFE5DC] bg-white p-6 shadow-2xs">
+                <h2 className="text-[18px] sm:text-[19px] font-bold text-[#2C1810] tracking-tight mb-5">
+                  Event Categories
+                </h2>
+
+                <div className="grid grid-cols-2 divide-x divide-y divide-[#F0E8DF] border-y border-[#F0E8DF]">
+                  {eventCategories.map((cat, idx) => (
                     <div
                       key={cat.key || idx}
-                      className="flex flex-col items-center justify-center p-6 text-center transition hover:bg-[#FAF6F2]/50"
+                      onClick={() => navigate(`/corporate-cell/event-categories?category=${cat.key}`)}
+                      className="flex flex-col items-center justify-center p-6 text-center transition hover:bg-[#FAF6F2]/80 cursor-pointer group"
                     >
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FAF3EC] border border-[#EFE4DA] mb-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FAF3EC] border border-[#EFE4DA] mb-3 group-hover:scale-105 transition-transform">
                         {getCategoryIcon(cat.key, cat.icon)}
                       </div>
-                      <h4 className="text-[14.5px] font-bold text-[#2C1810]">
+                      <h4 className="text-[14.5px] font-bold text-[#2C1810] group-hover:text-[#6F4432] transition">
                         {cat.name}
                       </h4>
                       <p className="text-[12.5px] text-[#7F726A] mt-1">
                         {cat.display || `${cat.count} Events`}
                       </p>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
             </div>
           </div>
