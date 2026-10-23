@@ -476,9 +476,12 @@ const Sidebar = ({
                     w-[280px]
                     flex-col
                     bg-white
+                    dark:bg-[#1C1714]
                     border-r
                     border-[#EFE4DC]
+                    dark:border-[#2E2621]
                     shadow-[4px_0_24px_rgba(70,40,25,0.06)]
+                    dark:shadow-[4px_0_24px_rgba(0,0,0,0.5)]
                     transition-transform
                     duration-300
                     ease-in-out
@@ -500,6 +503,7 @@ const Sidebar = ({
                         px-4
                         border-b
                         border-[#EFE4DC]
+                        dark:border-[#2E2621]
                     "
                 >
 
@@ -596,8 +600,8 @@ const Sidebar = ({
                                         duration-200
                                         ${
                                             isCurrentlyActive
-                                                ? "border border-[#7A4933] bg-[#FFF5ED] text-[#7A4933] font-semibold shadow-xs"
-                                                : "text-[#5B3428] hover:bg-[#FAF4EF] font-medium"
+                                                ? "border border-[#7A4933] bg-[#FFF5ED] text-[#7A4933] font-semibold shadow-xs dark:border-[#8C5E3C] dark:bg-[#2C231F] dark:text-[#EDE3DA]"
+                                                : "text-[#5B3428] hover:bg-[#FAF4EF] font-medium dark:text-[#A8988D] dark:hover:bg-[#26201D] dark:hover:text-[#EDE3DA]"
                                         }
                                     `}
                                 >
@@ -607,8 +611,8 @@ const Sidebar = ({
                                             shrink-0
                                             ${
                                                 isCurrentlyActive
-                                                    ? "text-[#7A4933]"
-                                                    : "text-[#7D6B63]"
+                                                    ? "text-[#7A4933] dark:text-[#D4956B]"
+                                                    : "text-[#7D6B63] dark:text-[#A8988D]"
                                             }
                                         `}
                                     />
@@ -669,7 +673,9 @@ const Sidebar = ({
                         shrink-0
                         border-t
                         border-[#EFE4DC]
+                        dark:border-[#2E2621]
                         bg-white
+                        dark:bg-[#1C1714]
                         px-3
                         py-3.5
                     "
@@ -686,15 +692,18 @@ const Sidebar = ({
                             rounded-xl
                             px-3.5
                             text-[#B42318]
+                            dark:text-[#F87171]
                             transition-all
                             duration-200
                             hover:bg-[#FFF1F0]
+                            dark:hover:bg-[#2A1818]
                             font-medium
+                            cursor-pointer
                         "
                     >
                         <HiOutlineLogout
                             size={20}
-                            className="shrink-0 text-[#B42318]"
+                            className="shrink-0 text-[#B42318] dark:text-[#F87171]"
                         />
 
                         <span

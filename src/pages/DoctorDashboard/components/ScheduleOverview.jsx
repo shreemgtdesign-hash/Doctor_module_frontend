@@ -63,11 +63,11 @@ useEffect(() => {
 
           <div>
 
-            <h1 className="text-[28px] sm:text-[32px] font-bold leading-none text-[#4B2E2A]">
+            <h1 className="text-[28px] sm:text-[32px] font-bold leading-none text-[#4B2E2A] dark:text-white">
               {overview?.total_appointments ?? 0}
             </h1>
 
-            <p className="mt-1.5 text-[12px] sm:text-[13px] font-medium text-[#7D726B]">
+            <p className="mt-1.5 text-[12px] sm:text-[13px] font-medium text-[#7D726B] dark:text-[#A8988D]">
               Total Appointments
             </p>
 

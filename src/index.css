@@ -10,14 +10,14 @@
     transform: translateX(-100%);
   }
 }
-@keyframes toastProgress {
-    from {
-        transform: scaleX(1);
-    }
 
-    to {
-        transform: scaleX(0);
-    }
+@keyframes toastProgress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
 }
 
 .animate-marquee {
@@ -34,4 +34,613 @@
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
+}
+
+/* ==========================================================================
+   GLOBAL DARK MODE SYSTEM
+   Accurate color match based on Shree Ayurveda Dark Mode Design
+   ========================================================================== */
+
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #181513;
+  color: #EDE3DA;
+}
+
+/* ==========================================================================
+   1. APP CANVAS & PAGE BACKGROUNDS -> #181513
+   ========================================================================== */
+html.dark .bg-\[\#F6F6F4\],
+html.dark .bg-\[\#F7F7F7\],
+html.dark .bg-\[\#FAF7F2\],
+html.dark .bg-\[\#FAF8F5\],
+html.dark .bg-\[\#F8F6F3\],
+html.dark .bg-\[\#F8F6F5\],
+html.dark .bg-\[\#F7EEE8\],
+html.dark .bg-\[\#F7EFE8\],
+html.dark .bg-\[\#F7EFE5\],
+html.dark .bg-\[\#F8F0E5\],
+html.dark .bg-\[\#F8F0E6\],
+html.dark .bg-\[\#F8EEE7\],
+html.dark .bg-\[\#F9F2E8\],
+html.dark .bg-\[\#FAF0E6\],
+html.dark .bg-\[\#FAF0E7\],
+html.dark .bg-\[\#FAF6F2\],
+html.dark .bg-\[\#FAFAF8\],
+html.dark .bg-\[\#FBFAF8\],
+html.dark .bg-\[\#FCFAF8\],
+html.dark .bg-\[\#FCFCFC\],
+html.dark .bg-\[\#FDF9F5\],
+html.dark .bg-\[\#FDFAF7\],
+html.dark .bg-\[\#FDFBF9\],
+html.dark .bg-\[\#f7f7f7\],
+html.dark .bg-stone-50,
+html.dark .bg-gray-50,
+html.dark .bg-neutral-50,
+html.dark .bg-slate-50 {
+  background-color: #181513 !important;
+}
+
+/* ==========================================================================
+   2. DASHBOARD CARDS & MAIN CONTAINERS -> #241E1B
+   ========================================================================== */
+html.dark .bg-white,
+html.dark .bg-\[\#FFFDFC\],
+html.dark .bg-\[\#FFFFFF\],
+html.dark .bg-\[\#FCFCFC\],
+html.dark .bg-\[\#FFFDF9\],
+html.dark .bg-\[\#FFFDFB\],
+html.dark .bg-\[\#FFFCFA\],
+html.dark .bg-\[\#FFFCF9\],
+html.dark .bg-\[\#FFFCF8\] {
+  background-color: #241E1B !important;
+}
+
+/* Dashboard Cards with Linear Gradients */
+html.dark [class*="bg-[linear-gradient"],
+html.dark .bg-\[linear-gradient\(90deg\,\#FFFDFB_0\%\,\#F8F2EB_100\%\,\#E4D9C5_100\%\)\],
+html.dark .bg-\[linear-gradient\(90deg\,\#FFFDFB_0\%\,\#F8F2EB_70\%\,\#E4D9C5_9x0\%\)\],
+html.dark .bg-\[linear-gradient\(90deg\,\#FFFDFB_0\%\,\#F8F2EB_40\%\,\#E4D9C5_100\%\)\] {
+  background-color: #241E1B !important;
+  background-image: none !important;
+}
+
+/* ==========================================================================
+   3. SUB-CARDS, ELEVATED CARDS & INNER PANELS -> #1F1916 / #2C231F
+   ========================================================================== */
+html.dark .bg-\[\#FAF8F6\],
+html.dark .bg-\[\#FFFBF7\],
+html.dark .bg-\[\#FFF8F2\],
+html.dark .bg-\[\#FFF6F1\],
+html.dark .bg-\[\#FAF4EF\],
+html.dark .bg-\[\#FAF6F0\],
+html.dark .bg-\[\#F5F1EE\],
+html.dark .bg-\[\#F5F1ED\],
+html.dark .bg-\[\#F5F2EF\],
+html.dark .bg-\[\#F5F0EA\],
+html.dark .bg-\[\#F4EDE4\],
+html.dark .bg-\[\#F4E8DE\],
+html.dark .bg-\[\#F3ECE4\],
+html.dark .bg-\[\#F2E8E2\],
+html.dark .bg-\[\#F1ECE4\],
+html.dark .bg-\[\#F0EBE7\],
+html.dark .bg-\[\#FAF4ED\],
+html.dark .bg-\[\#FAF5EE\],
+html.dark .bg-\[\#f3f0ee\],
+html.dark .bg-\[\#f5f1ee\] {
+  background-color: #1F1916 !important;
+}
+
+/* Highlighted / Selected card background */
+html.dark .bg-\[\#FFF9F5\],
+html.dark .bg-\[\#FFF7F0\],
+html.dark .bg-\[\#FFF5ED\],
+html.dark .bg-\[\#FFF4ED\],
+html.dark .bg-\[\#FFF3E6\],
+html.dark .bg-\[\#FFF3EB\],
+html.dark .bg-\[\#FFF1E4\],
+html.dark .bg-\[\#FFF0E2\],
+html.dark .bg-\[\#FAF3EB\],
+html.dark .bg-\[\#FEF1E4\],
+html.dark .bg-\[\#FEF2E6\],
+html.dark .bg-\[\#FDE8D7\],
+html.dark .bg-\[\#FDEEDC\],
+html.dark .bg-\[\#FDF0E6\],
+html.dark .bg-\[\#FDF2E9\] {
+  background-color: #2C231F !important;
+}
+
+/* ==========================================================================
+   4. DASHBOARD KPI ICONS & BUTTON ACCENTS -> #362C26
+   ========================================================================== */
+html.dark .bg-\[\#FFF4EB\],
+html.dark .bg-\[\#FFF2E8\],
+html.dark .bg-\[\#FFF4EC\],
+html.dark .bg-\[\#FAF3EC\],
+html.dark .bg-\[\#FFEAD8\],
+html.dark .bg-\[\#FFDFC4\],
+html.dark .bg-\[\#F9DDC5\],
+html.dark .bg-\[\#FFEADA\],
+html.dark .bg-\[\#FFE9D7\],
+html.dark .bg-\[\#FFF0E3\],
+html.dark .bg-\[\#FFF0E4\],
+html.dark .bg-\[\#FFF0E5\],
+html.dark .bg-\[\#FFEEDF\],
+html.dark .bg-\[\#FFF2DF\],
+html.dark .bg-\[\#FFF2E2\] {
+  background-color: #362C26 !important;
+}
+
+/* KPI Icon Warm Colors */
+html.dark .text-\[\#D48A43\],
+html.dark .text-\[\#E8BD83\],
+html.dark .text-\[\#8A563B\] {
+  color: #E59850 !important;
+}
+
+/* ==========================================================================
+   5. BORDER OVERRIDES -> #382E28
+   ========================================================================== */
+html.dark .border-\[\#E4D9C5\],
+html.dark .border-\[\#E4D8CD\],
+html.dark .border-\[\#E4D9C580\],
+html.dark .border-\[\#E5D7CC\],
+html.dark .border-\[\#E5D3C5\],
+html.dark .border-\[\#E5D4C3\],
+html.dark .border-\[\#E5D4C5\],
+html.dark .border-\[\#E5D5C8\],
+html.dark .border-\[\#E5D6CA\],
+html.dark .border-\[\#E5D8CF\],
+html.dark .border-\[\#E6D5C5\],
+html.dark .border-\[\#E6D8CC\],
+html.dark .border-\[\#E6D9CF\],
+html.dark .border-\[\#E6DAD3\],
+html.dark .border-\[\#E6DCD1\],
+html.dark .border-\[\#E7D2C0\],
+html.dark .border-\[\#E7D5C4\],
+html.dark .border-\[\#E7D5C8\],
+html.dark .border-\[\#E7D6C5\],
+html.dark .border-\[\#E7D7C8\],
+html.dark .border-\[\#E7D8CF\],
+html.dark .border-\[\#E7DBD3\],
+html.dark .border-\[\#E7DCD2\],
+html.dark .border-\[\#E8D5C8\],
+html.dark .border-\[\#E8D9CD\],
+html.dark .border-\[\#E8D9CF\],
+html.dark .border-\[\#E8DCD2\],
+html.dark .border-\[\#E8DDD4\],
+html.dark .border-\[\#E8DDD5\],
+html.dark .border-\[\#E8DDD6\],
+html.dark .border-\[\#E8DEC9\],
+html.dark .border-\[\#E8DED7\],
+html.dark .border-\[\#E8DED5\],
+html.dark .border-\[\#E9D7C8\],
+html.dark .border-\[\#E9DED6\],
+html.dark .border-\[\#E9DFD8\],
+html.dark .border-\[\#EAE0D7\],
+html.dark .border-\[\#EBD5C4\],
+html.dark .border-\[\#EBDDD2\],
+html.dark .border-\[\#ECDCCF\],
+html.dark .border-\[\#ECDCD0\],
+html.dark .border-\[\#ECDED5\],
+html.dark .border-\[\#ECE2DA\],
+html.dark .border-\[\#ECE3DC\],
+html.dark .border-\[\#ECE5E0\],
+html.dark .border-\[\#EDE2DA\],
+html.dark .border-\[\#EDE3DA\],
+html.dark .border-\[\#EDE4DD\],
+html.dark .border-\[\#EEE3DA\],
+html.dark .border-\[\#EEE3DC\],
+html.dark .border-\[\#EEE4DD\],
+html.dark .border-\[\#EEE5DE\],
+html.dark .border-\[\#EEE5DF\],
+html.dark .border-\[\#EFE4DA\],
+html.dark .border-\[\#EFE4DC\],
+html.dark .border-\[\#EFE4DD\],
+html.dark .border-\[\#EFE5DC\],
+html.dark .border-\[\#EFE5DE\],
+html.dark .border-\[\#F0E3D9\],
+html.dark .border-\[\#F0E5DE\],
+html.dark .border-\[\#F0E6DF\],
+html.dark .border-\[\#F0E7DF\],
+html.dark .border-\[\#F0E8DF\],
+html.dark .border-\[\#F0E8E3\],
+html.dark .border-\[\#F1E7E0\],
+html.dark .border-\[\#F2DFD2\],
+html.dark .border-\[\#F2E8E1\],
+html.dark .border-\[\#F2E8E2\],
+html.dark .border-\[\#FFE8D6\],
+html.dark .border-\[\#FFEAD8\],
+html.dark .border-stone-200,
+html.dark .border-stone-300,
+html.dark .border-gray-200,
+html.dark .border-gray-100 {
+  border-color: #382E28 !important;
+}
+
+/* Active / Selected Card Border (Warm Bronze/Amber glow) */
+html.dark .border-\[\#4D2E23\],
+html.dark .border-\[\#7A4933\],
+html.dark .border-\[\#75452F\],
+html.dark .border-\[\#8A4F32\],
+html.dark .border-\[\#6F4432\],
+html.dark .border-\[\#70412E\],
+html.dark .border-\[\#8B5037\],
+html.dark .border-\[\#8B573D\] {
+  border-color: #8C5E3C !important;
+}
+
+/* ==========================================================================
+   6. PRIMARY NUMBERS, STAT COUNTS & HEADINGS -> #FFFFFF (WHITE)
+   ========================================================================== */
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #FFFFFF !important;
+}
+
+/* High-contrast White for all primary counts, values & metrics */
+html.dark .text-\[\#593A2E\],
+html.dark .text-\[\#4B2E2A\],
+html.dark .text-\[\#4D2E23\],
+html.dark .text-\[\#2C1810\],
+html.dark .text-\[\#2F2623\],
+html.dark .text-\[\#2F2A28\],
+html.dark .text-\[\#2F2F2F\],
+html.dark .text-\[\#2F2521\],
+html.dark .text-\[\#2F2926\],
+html.dark .text-\[\#2D211E\],
+html.dark .text-\[\#3E2723\],
+html.dark .text-\[\#302522\],
+html.dark .text-\[\#33221c\],
+html.dark .text-\[\#35231D\],
+html.dark .text-\[\#39251C\],
+html.dark .text-\[\#3B2219\],
+html.dark .text-\[\#3C2415\],
+html.dark .text-\[\#3D2C26\],
+html.dark .text-\[\#3E2923\],
+html.dark .text-\[\#3F2923\],
+html.dark .text-\[\#3F302A\],
+html.dark .text-\[\#3F302C\],
+html.dark .text-\[\#3F332E\],
+html.dark .text-\[\#3F3733\],
+html.dark .text-\[\#48221D\],
+html.dark .text-\[\#49362E\],
+html.dark .text-\[\#4A2E23\],
+html.dark .text-\[\#4B2418\],
+html.dark .text-\[\#4D382F\],
+html.dark .text-\[\#4b2b21\],
+html.dark .text-\[\#4b2d22\],
+html.dark .text-\[\#4d2b20\],
+html.dark .text-\[\#4d2e24\],
+html.dark .text-\[\#4d3026\],
+html.dark .text-\[\#772C22\],
+html.dark .text-stone-900,
+html.dark .text-stone-800,
+html.dark .text-gray-900,
+html.dark .text-gray-800 {
+  color: #FFFFFF !important;
+}
+
+/* ==========================================================================
+   7. SECONDARY TEXT, LABELS & SUBTITLES -> #A8988D
+   ========================================================================== */
+html.dark .text-\[\#57362c\],
+html.dark .text-\[\#57372c\],
+html.dark .text-\[\#59352C\],
+html.dark .text-\[\#594237\],
+html.dark .text-\[\#5A3024\],
+html.dark .text-\[\#5A3224\],
+html.dark .text-\[\#5A4E46\],
+html.dark .text-\[\#5B3428\],
+html.dark .text-\[\#5B3A32\],
+html.dark .text-\[\#5B3B31\],
+html.dark .text-\[\#5B4035\],
+html.dark .text-\[\#5D3B32\],
+html.dark .text-\[\#5D4940\],
+html.dark .text-\[\#5D4E46\],
+html.dark .text-\[\#5D514A\],
+html.dark .text-\[\#5F4A42\],
+html.dark .text-\[\#5c3023\],
+html.dark .text-\[\#5d382b\],
+html.dark .text-\[\#5d3930\],
+html.dark .text-\[\#60483d\],
+html.dark .text-\[\#604940\],
+html.dark .text-\[\#633A2B\],
+html.dark .text-\[\#634238\],
+html.dark .text-\[\#634E42\],
+html.dark .text-\[\#67483d\],
+html.dark .text-\[\#684331\],
+html.dark .text-\[\#694b3e\],
+html.dark .text-\[\#695B55\],
+html.dark .text-\[\#6A3F2D\],
+html.dark .text-\[\#6A554D\],
+html.dark .text-\[\#6B4031\],
+html.dark .text-\[\#6B4A3D\],
+html.dark .text-\[\#6B4A3E\],
+html.dark .text-\[\#6B4D3E\],
+html.dark .text-\[\#6B5E55\],
+html.dark .text-\[\#6B5E57\],
+html.dark .text-\[\#6D4233\],
+html.dark .text-\[\#6D625C\],
+html.dark .text-\[\#6E625D\],
+html.dark .text-\[\#6F4432\],
+html.dark .text-\[\#6F4A3A\],
+html.dark .text-\[\#6F5F56\],
+html.dark .text-\[\#6F625A\],
+html.dark .text-\[\#6F625B\],
+html.dark .text-\[\#6F625C\],
+html.dark .text-\[\#6d5145\],
+html.dark .text-\[\#6f4f43\],
+html.dark .text-\[\#6f5a52\],
+html.dark .text-\[\#70452e\],
+html.dark .text-\[\#705247\],
+html.dark .text-\[\#75452F\],
+html.dark .text-\[\#765A4F\],
+html.dark .text-\[\#765E55\],
+html.dark .text-\[\#766B65\],
+html.dark .text-\[\#786A61\],
+html.dark .text-\[\#795238\],
+html.dark .text-\[\#7A4933\],
+html.dark .text-\[\#7A4A35\],
+html.dark .text-\[\#7A4B38\],
+html.dark .text-\[\#7A4B3A\],
+html.dark .text-\[\#7A6658\],
+html.dark .text-\[\#7A6B63\],
+html.dark .text-\[\#7A6E67\],
+html.dark .text-\[\#7A756F\],
+html.dark .text-\[\#7D6B61\],
+html.dark .text-\[\#7D6B63\],
+html.dark .text-\[\#7D7068\],
+html.dark .text-\[\#7D716B\],
+html.dark .text-\[\#7D726B\],
+html.dark .text-\[\#7F716B\],
+html.dark .text-\[\#7F726A\],
+html.dark .text-stone-700,
+html.dark .text-stone-600,
+html.dark .text-gray-700,
+html.dark .text-gray-600 {
+  color: #A8988D !important;
+}
+
+/* ==========================================================================
+   8. MUTED TEXT, UNITS, TIMESTAMPS -> #7D6F66
+   ========================================================================== */
+html.dark .text-\[\#777777\],
+html.dark .text-\[\#77706C\],
+html.dark .text-\[\#77706d\],
+html.dark .text-\[\#77716D\],
+html.dark .text-\[\#777\],
+html.dark .text-\[\#7C7C7C\],
+html.dark .text-\[\#7E7E7E\],
+html.dark .text-\[\#81746D\],
+html.dark .text-\[\#81756E\],
+html.dark .text-\[\#81756F\],
+html.dark .text-\[\#824C39\],
+html.dark .text-\[\#858585\],
+html.dark .text-\[\#88807B\],
+html.dark .text-\[\#888888\],
+html.dark .text-\[\#888\],
+html.dark .text-\[\#8A4F32\],
+html.dark .text-\[\#8A5035\],
+html.dark .text-\[\#8A5038\],
+html.dark .text-\[\#8A553B\],
+html.dark .text-\[\#8A563B\],
+html.dark .text-\[\#8A756B\],
+html.dark .text-\[\#8A7A71\],
+html.dark .text-\[\#8A7A72\],
+html.dark .text-\[\#8A7C73\],
+html.dark .text-\[\#8A7D75\],
+html.dark .text-\[\#8A817B\],
+html.dark .text-\[\#8A817C\],
+html.dark .text-\[\#8A8A8A\],
+html.dark .text-\[\#8B573D\],
+html.dark .text-\[\#8B5E43\],
+html.dark .text-\[\#8B7A70\],
+html.dark .text-\[\#8B817C\],
+html.dark .text-\[\#8C7A70\],
+html.dark .text-\[\#8C7C72\],
+html.dark .text-\[\#8C7D73\],
+html.dark .text-\[\#8C7E74\],
+html.dark .text-\[\#8D7B70\],
+html.dark .text-\[\#8D8179\],
+html.dark .text-\[\#8D8D8D\],
+html.dark .text-\[\#8F847C\],
+html.dark .text-\[\#8a5238\],
+html.dark .text-\[\#8b756d\],
+html.dark .text-\[\#91847D\],
+html.dark .text-\[\#958781\],
+html.dark .text-\[\#999999\],
+html.dark .text-\[\#999\],
+html.dark .text-\[\#9A8D84\],
+html.dark .text-\[\#9B8E87\],
+html.dark .text-\[\#9E8B80\],
+html.dark .text-\[\#A0958E\],
+html.dark .text-\[\#A28B80\],
+html.dark .text-\[\#A49488\],
+html.dark .text-\[\#A4968D\],
+html.dark .text-\[\#A58A77\],
+html.dark .text-\[\#A8988B\],
+html.dark .text-\[\#A8988D\],
+html.dark .text-\[\#A89A8F\],
+html.dark .text-\[\#A9988D\],
+html.dark .text-\[\#B0A196\],
+html.dark .text-\[\#B4AAA4\],
+html.dark .text-\[\#B5A9A3\],
+html.dark .text-\[\#B5AAA4\],
+html.dark .text-\[\#B7AAA3\],
+html.dark .text-\[\#B8AAA2\],
+html.dark .text-\[\#BFAFA7\],
+html.dark .text-\[\#C4B7AC\],
+html.dark .text-\[\#C7B7AD\],
+html.dark .text-\[\#C7B7AF\],
+html.dark .text-\[\#C7B8AF\],
+html.dark .text-\[\#C8B8AC\],
+html.dark .text-\[\#b5a49d\],
+html.dark .text-\[\#b5a6a0\],
+html.dark .text-\[\#cbbdb8\],
+html.dark .text-\[\#d5c9c4\],
+html.dark .text-stone-500,
+html.dark .text-stone-400,
+html.dark .text-gray-500,
+html.dark .text-gray-400 {
+  color: #7D6F66 !important;
+}
+
+/* ==========================================================================
+   9. FORM INPUTS, TEXTAREAS, SELECTS & DROPDOWNS
+   ========================================================================== */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+html.dark textarea,
+html.dark select {
+  background-color: #1D1714 !important;
+  color: #FFFFFF !important;
+  border-color: #382E28 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #7D6F66 !important;
+}
+
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  border-color: #8C5E3C !important;
+  outline: none !important;
+}
+
+/* ==========================================================================
+   10. TABLES ACROSS DASHBOARDS
+   ========================================================================== */
+html.dark table {
+  background-color: #241E1B !important;
+  border-color: #382E28 !important;
+}
+
+html.dark th {
+  background-color: #2C231F !important;
+  color: #A8988D !important;
+  border-color: #382E28 !important;
+}
+
+html.dark td {
+  background-color: #241E1B !important;
+  color: #EDE3DA !important;
+  border-color: #382E28 !important;
+}
+
+html.dark tr:hover td {
+  background-color: #2C231F !important;
+}
+
+/* ==========================================================================
+   11. STATUS BADGES
+   ========================================================================== */
+/* Checked in / Green */
+html.dark .bg-\[\#DDF6E5\],
+html.dark .bg-\[\#DDF9E5\],
+html.dark .bg-\[\#E8F8EC\],
+html.dark .bg-\[\#EAFBEF\],
+html.dark .bg-emerald-50,
+html.dark .bg-emerald-100,
+html.dark .bg-green-50,
+html.dark .bg-green-100 {
+  background-color: #163321 !important;
+  border-color: #1E462D !important;
+}
+html.dark .text-\[\#1E6A41\],
+html.dark .text-\[\#149647\],
+html.dark .text-emerald-700,
+html.dark .text-emerald-600,
+html.dark .text-green-700,
+html.dark .text-green-600 {
+  color: #4ADE80 !important;
+}
+
+/* Waiting / Amber / Orange */
+html.dark .bg-amber-50,
+html.dark .bg-amber-100,
+html.dark .bg-orange-50,
+html.dark .bg-orange-100,
+html.dark .bg-yellow-50 {
+  background-color: #382414 !important;
+  border-color: #4A301A !important;
+}
+html.dark .text-amber-700,
+html.dark .text-amber-600,
+html.dark .text-orange-700,
+html.dark .text-orange-600,
+html.dark .text-yellow-700 {
+  color: #FBBF24 !important;
+}
+
+/* Completed / Blue */
+html.dark .bg-blue-50,
+html.dark .bg-blue-100,
+html.dark .bg-sky-50,
+html.dark .bg-sky-100 {
+  background-color: #152A3D !important;
+  border-color: #1D4060 !important;
+}
+html.dark .text-blue-700,
+html.dark .text-blue-600,
+html.dark .text-sky-700,
+html.dark .text-sky-600 {
+  color: #60A5FA !important;
+}
+
+/* Workshop / Seminar / Purple */
+html.dark .bg-purple-50,
+html.dark .bg-purple-100,
+html.dark .bg-indigo-50 {
+  background-color: #2A1B38 !important;
+  border-color: #44295D !important;
+}
+html.dark .text-purple-700,
+html.dark .text-purple-600,
+html.dark .text-indigo-700 {
+  color: #C084FC !important;
+}
+
+/* Ayurvedic body type decorative leaf stroke in dark mode */
+html.dark svg path[stroke="#E7B98F"] {
+  stroke: #6E5832 !important;
+}
+
+/* Consultation Timer background ring in dark mode */
+html.dark rect[stroke="#F0E8E2"] {
+  stroke: #362C26 !important;
+}
+
+/* Shadows in dark mode */
+html.dark .shadow-sm,
+html.dark .shadow,
+html.dark .shadow-md,
+html.dark .shadow-lg,
+html.dark .shadow-xl,
+html.dark [class*="shadow-["] {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Custom dark scrollbar */
+html.dark ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+html.dark ::-webkit-scrollbar-track {
+  background: #181513;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #382E28;
+  border-radius: 4px;
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #4D3E36;
 }

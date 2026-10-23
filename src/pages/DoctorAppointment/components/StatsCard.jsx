@@ -4,14 +4,14 @@ const StatsCard = ({ value, title, border = true }) => {
       className={`
         flex flex-col items-center justify-center
         h-[115px]
-        ${border ? "border-l border-[#EEE4DD]" : ""}
+        ${border ? "border-l border-[#EEE4DD] dark:border-[#382E28]" : ""}
       `}
     >
-      <h2 className="text-[38px] font-bold text-[#593A2E]">
+      <h2 className="text-[38px] font-bold text-[#593A2E] dark:text-white">
         {value}
       </h2>
 
-      <p className="mt-1 text-[16px] text-[#7D7068]">
+      <p className="mt-1 text-[16px] text-[#7D7068] dark:text-[#A8988D]">
         {title}
       </p>
     </div>

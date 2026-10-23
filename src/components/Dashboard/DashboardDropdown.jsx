@@ -145,8 +145,11 @@ const DashboardDropdown = ({
 
                     border
                     border-[#E4D9C5]
+                    dark:border-[#382E28]
 
                     bg-[linear-gradient(90deg,#FFFDFB_0%,#F8F2EB_70%,#E4D9C5_9x0%)]
+                    dark:bg-none
+                    dark:bg-[#2C231F]
 
                     px-2.5
                     sm:px-4
@@ -156,6 +159,7 @@ const DashboardDropdown = ({
 
                     font-medium
                     text-[#59352C]
+                    dark:text-[#EDE3DA]
 
                     shadow-sm
 
@@ -236,10 +240,13 @@ const DashboardDropdown = ({
 
                         border
                         border-[#E4D9C5]
+                        dark:border-[#382E28]
 
                         bg-white
+                        dark:bg-[#241E1B]
 
                         shadow-[0_8px_20px_rgba(89,53,44,0.12)]
+                        dark:shadow-[0_8px_20px_rgba(0,0,0,0.6)]
                     "
                 >
 
@@ -289,14 +296,21 @@ const DashboardDropdown = ({
                                             isActive
                                                 ? `
                                                     bg-[linear-gradient(90deg,#FFFDFB_0%,#F8F2EB_40%,#E4D9C5_100%)]
+                                                    dark:bg-none
+                                                    dark:bg-[#362C26]
                                                     font-semibold
                                                     text-[#59352C]
+                                                    dark:text-white
                                                 `
                                                 : `
                                                     bg-white
+                                                    dark:bg-[#241E1B]
                                                     font-normal
                                                     text-[#555555]
+                                                    dark:text-[#A8988D]
                                                     hover:bg-[#FFF8F3]
+                                                    dark:hover:bg-[#2C231F]
+                                                    dark:hover:text-[#EDE3DA]
                                                 `
                                         }
                                     `}

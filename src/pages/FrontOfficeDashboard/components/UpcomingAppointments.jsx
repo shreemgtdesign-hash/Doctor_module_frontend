@@ -480,6 +480,7 @@ const Breakup = ({
                     text-[16px]
                     font-medium
                     text-[#4B2E2A]
+                    dark:text-[#A8988D]
                 "
             >
                 {title}
@@ -492,6 +493,7 @@ const Breakup = ({
                     text-[16px]
                     font-bold
                     text-[#4B2E2A]
+                    dark:text-white
                 "
             >
                 {value}

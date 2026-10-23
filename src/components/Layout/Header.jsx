@@ -11,6 +11,11 @@ import {
 } from "react-icons/hi";
 
 import {
+  HiOutlineSun,
+  HiOutlineMoon,
+} from "react-icons/hi2";
+
+import {
   useDispatch,
   useSelector,
 } from "react-redux";
@@ -18,6 +23,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import { loadNotifications, markAllNotificationsRead, markNotificationRead } from "../../redux/notifications/notificationThiunk";
 import { isNotificationForRole, getActiveRole, getNotificationRedirectUrl, resolveCorporateEventNotificationUrl } from "../../utils/notificationFilter";
+import { useTheme } from "../../context/ThemeContext";
 
 
 
@@ -28,6 +34,7 @@ const Header = ({
 }) => {
 
   const dispatch = useDispatch();
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   const navigate =
     useNavigate();
@@ -364,6 +371,8 @@ lg:h-[88px]
         border-b
         border-[#E4D9C580]
         bg-[#FFF8F2]
+        dark:bg-[#1F1A17]
+        dark:border-[#2E2621]
         pr-3
         sm:pr-5
         shadow-sm
@@ -418,6 +427,9 @@ lg:h-[88px]
             bg-[#FFEAD8]
             text-[#6A3F2D]
             hover:bg-[#FFDFC4]
+            dark:bg-[#362C26]
+            dark:text-[#EDE3DA]
+            dark:hover:bg-[#443831]
             transition-colors
             duration-200
           "
@@ -468,6 +480,8 @@ lg:h-[88px]
               border-2
               border-[#E7D5C8]
               bg-[#FFEAD8]
+              dark:border-[#3E3028]
+              dark:bg-[#362C26]
             "
           >
 
@@ -500,6 +514,7 @@ lg:h-[88px]
                   text-lg
                   font-semibold
                   text-[#6A3F2D]
+                  dark:text-[#EDE3DA]
                 "
               >
 
@@ -529,6 +544,7 @@ lg:h-[88px]
                 tracking-[2px]
                 sm:tracking-[3px]
                 text-gray-500
+                dark:text-[#A8988D]
               "
             >
               {isCorporate ? "SHREE AYURVEDA HOSPITAL" : "Shree Ayurvedic group"}
@@ -542,6 +558,7 @@ lg:h-[88px]
                 lg:text-2xl
                 font-semibold
                 text-[#4B2E2A]
+                dark:text-[#EDE3DA]
                 truncate
                 max-w-[160px]
                 xs:max-w-[220px]
@@ -567,70 +584,137 @@ lg:h-[88px]
 
 
       {/* ================================= */}
-      {/* NOTIFICATION */}
+      {/* RIGHT: THEME TOGGLE & NOTIFICATION */}
       {/* ================================= */}
 
       <div
-        ref={notificationRef}
         className="
-          relative
           flex
           items-center
-          justify-center
+          gap-2
+          sm:gap-3
         "
       >
 
         {/* ================================= */}
-        {/* BELL */}
+        {/* DARK / LIGHT THEME TOGGLE */}
         {/* ================================= */}
 
         <button
           type="button"
-          onClick={
-            handleBellClick
-          }
+          onClick={toggleDarkMode}
+          aria-label={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
           className="
             relative
             flex
-            h-14
-            w-14
+            h-10
+            w-10
+            sm:h-12
+            sm:w-12
+            lg:h-14
+            lg:w-14
             items-center
             justify-center
             rounded-full
             bg-[#FFEAD8]
-            transition
             hover:bg-[#F9DDC5]
+            text-[#6A3F2D]
+            dark:bg-[#362C26]
+            dark:hover:bg-[#443831]
+            dark:text-[#EDE3DA]
+            transition-colors
+            duration-200
+            cursor-pointer
+          "
+        >
+          {isDarkMode ? (
+            <HiOutlineSun
+              size={24}
+              className="text-[#EDE3DA]"
+            />
+          ) : (
+            <HiOutlineMoon
+              size={24}
+              className="text-[#6A3F2D]"
+            />
+          )}
+        </button>
+
+
+        {/* ================================= */}
+        {/* NOTIFICATION */}
+        {/* ================================= */}
+
+        <div
+          ref={notificationRef}
+          className="
+            relative
+            flex
+            items-center
+            justify-center
           "
         >
 
-          <HiOutlineBell
-            size={24}
-            className="text-[#6A3F2D]"
-          />
+          {/* ================================= */}
+          {/* BELL */}
+          {/* ================================= */}
 
+          <button
+            type="button"
+            onClick={
+              handleBellClick
+            }
+            className="
+              relative
+              flex
+              h-10
+              w-10
+              sm:h-12
+              sm:w-12
+              lg:h-14
+              lg:w-14
+              items-center
+              justify-center
+              rounded-full
+              bg-[#FFEAD8]
+              transition
+              hover:bg-[#F9DDC5]
+              dark:bg-[#362C26]
+              dark:hover:bg-[#443831]
+              cursor-pointer
+            "
+          >
 
-          {/* UNREAD DOT */}
-
-          {roleUnreadCount > 0 && (
-
-            <span
-              className="
-                absolute
-                right-3
-                top-3
-                flex
-                h-2.5
-                w-2.5
-                rounded-full
-                border-2
-                border-[#FFEAD8]
-                bg-red-500
-              "
+            <HiOutlineBell
+              size={24}
+              className="text-[#6A3F2D] dark:text-[#EDE3DA]"
             />
 
-          )}
 
-        </button>
+            {/* UNREAD DOT */}
+
+            {roleUnreadCount > 0 && (
+
+              <span
+                className="
+                  absolute
+                  right-3
+                  top-3
+                  flex
+                  h-2.5
+                  w-2.5
+                  rounded-full
+                  border-2
+                  border-[#FFEAD8]
+                  dark:border-[#362C26]
+                  bg-red-500
+                "
+              />
+
+            )}
+
+          </button>
 
 
         {/* ================================= */}
@@ -966,6 +1050,8 @@ lg:h-[88px]
           </div>
 
         )}
+
+      </div>
 
       </div>
 

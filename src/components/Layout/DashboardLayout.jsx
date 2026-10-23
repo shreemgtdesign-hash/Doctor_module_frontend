@@ -58,6 +58,11 @@ const DashboardLayout = ({
                     relative
                     min-h-screen
                     bg-[#F6F6F4]
+                    dark:bg-[#181513]
+                    text-[#2C1810]
+                    dark:text-[#EDE3DA]
+                    transition-colors
+                    duration-200
                 "
             >
 
