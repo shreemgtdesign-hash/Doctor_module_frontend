@@ -7,9 +7,11 @@ import {
   markNotificationAsRead,
   markAllNotificationsAsRead,
 } from "../../api/notificationApi";
+import { getNotificationRedirectUrl, resolveCorporateEventNotificationUrl, getActiveRole } from "../../utils/notificationFilter";
 
 const DEFAULT_TABS = [
   { key: "all", label: "All" },
+  { key: "events", label: "Corporate Events" },
   { key: "appointments", label: "Appointments" },
   { key: "therapies", label: "Therapies" },
   { key: "home_services", label: "Home Services" },
@@ -88,6 +90,17 @@ const FALLBACK_NOTIFICATIONS = [
     is_read: true,
     created_at: new Date(Date.now() - 27 * 60 * 1000).toISOString(),
   },
+  {
+    id: "notif-8",
+    category: "Events",
+    title: "New Corporate Event Request",
+    body: "Reliance Industries Limited requested a Yoga & Meditation session [ID:EVT-261022-708]",
+    icon_type: "success",
+    time_ago: "5 min",
+    is_read: false,
+    event_id: "EVT-261022-708",
+    created_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+  },
 ];
 
 const NotificationsPage = () => {
@@ -163,6 +176,16 @@ const NotificationsPage = () => {
       }
     }
 
+    // Role-aware navigation & status validation:
+    // - If already confirmed -> /corporate-cell/upcoming-events/:id
+    // - If under pending confirmation -> /corporate-cell/pending-events/:id
+    const currentRole = getActiveRole(null, localStorage.getItem("role"));
+    const redirectUrl = await resolveCorporateEventNotificationUrl(notif, currentRole);
+    if (redirectUrl && redirectUrl !== "/") {
+      navigate(redirectUrl);
+      return;
+    }
+
     // Direct url navigation
     const targetUrl = notif?.data?.url || notif?.url;
     if (targetUrl) {
@@ -173,7 +196,7 @@ const NotificationsPage = () => {
     const appointmentId =
       notif?.data?.appointment_id || notif?.appointment_id;
     if (appointmentId) {
-      const userRole = (localStorage.getItem("role") || "").toLowerCase();
+      const userRole = (currentRole || localStorage.getItem("role") || "").toLowerCase();
       if (userRole === "doctor") {
         navigate("/doctor/appointments");
       } else if (userRole.includes("duty")) {

@@ -382,14 +382,14 @@ const CorporateCellTodayEvent = () => {
                   {/* Check In Action Box */}
                   <div
                     onClick={handleCheckIn}
-                    className={`rounded-2xl border p-4.5 flex items-center gap-3.5 transition ${
+                    className={`rounded-2xl border p-4.5  flex items-center gap-3.5 m-2 transition ${
                       isCheckedIn
                         ? "border-[#7A4933] bg-[#FFF8F4] cursor-default"
                         : "border-[#EFE5DC] bg-white hover:border-[#D5C6BA] hover:shadow-2xs cursor-pointer"
                     }`}
                   >
                     <div
-                      className={`h-5 w-5 rounded flex items-center justify-center shrink-0 transition-colors ${
+                      className={`h-5 w-5 m-2 rounded flex items-center justify-center shrink-0 transition-colors ${
                         isCheckedIn
                           ? "bg-[#4D2E23] text-white"
                           : "border border-[#C5B7AD] bg-white"
@@ -433,7 +433,7 @@ const CorporateCellTodayEvent = () => {
                     }`}
                   >
                     <div
-                      className={`h-5 w-5 rounded flex items-center justify-center shrink-0 transition-colors ${
+                      className={`h-5 w-5 m-2 rounded flex items-center justify-center shrink-0 transition-colors ${
                         isCheckedOut
                           ? "bg-[#4D2E23] text-white"
                           : isCheckedIn

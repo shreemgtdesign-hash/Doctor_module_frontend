@@ -7,7 +7,8 @@ const showCustomToast = (
     title,
     message,
     type = "success",
-    toastId
+    toastId,
+    onClick
 ) => {
 
     toast.custom(
@@ -17,6 +18,7 @@ const showCustomToast = (
                 title={title}
                 message={message}
                 type={type}
+                onClick={onClick}
             />
         ),
         {
@@ -36,14 +38,16 @@ const showCustomToast = (
 export const showSuccessToast = (
     title,
     message,
-    toastId
+    toastId,
+    onClick
 ) => {
 
     showCustomToast(
         title,
         message,
         "success",
-        toastId
+        toastId,
+        onClick
     );
 
 };

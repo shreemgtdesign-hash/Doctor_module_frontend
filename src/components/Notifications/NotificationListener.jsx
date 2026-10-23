@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { onMessage } from "firebase/messaging";
 import { messaging, generateToken } from "../../firebase/firebase";
 import {
@@ -11,12 +12,15 @@ import {
   isNotificationForRole,
   getActiveRole,
   normalizeRole,
+  getNotificationRedirectUrl,
+  resolveCorporateEventNotificationUrl,
   syncActiveRoleToSW,
   clearActiveRoleFromSW,
 } from "../../utils/notificationFilter";
 
 const NotificationListener = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Read auth state directly from Redux
   const { token, role: reduxRole, user } = useSelector(
@@ -163,12 +167,28 @@ const NotificationListener = () => {
             }
           }
 
-          // STEP 7: Show UI Toast
+          // STEP 7: Show UI Toast with Click Navigation
           const toastId = `fcm::${eventKey}`;
           console.log(
             `[FCM] Showing toast for role "${activeNormRole}": "${title}"`
           );
-          showSuccessToast(title, body, toastId);
+          const notificationObj = { title, body, data: payload?.data };
+          const targetUrl = getNotificationRedirectUrl(
+            notificationObj,
+            activeNormRole
+          );
+
+          showSuccessToast(title, body, toastId, async () => {
+            const validatedUrl = await resolveCorporateEventNotificationUrl(
+              notificationObj,
+              activeNormRole
+            );
+            if (validatedUrl && validatedUrl !== "/") {
+              navigate(validatedUrl);
+            } else if (targetUrl && targetUrl !== "/") {
+              navigate(targetUrl);
+            }
+          });
 
           // STEP 8: Emit custom event so active role pages can refresh tables
           window.dispatchEvent(

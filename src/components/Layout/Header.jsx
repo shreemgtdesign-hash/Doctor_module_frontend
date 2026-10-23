@@ -17,7 +17,7 @@ import {
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { loadNotifications, markAllNotificationsRead, markNotificationRead } from "../../redux/notifications/notificationThiunk";
-import { isNotificationForRole, getActiveRole } from "../../utils/notificationFilter";
+import { isNotificationForRole, getActiveRole, getNotificationRedirectUrl, resolveCorporateEventNotificationUrl } from "../../utils/notificationFilter";
 
 
 
@@ -153,7 +153,7 @@ const Header = ({
   // NOTIFICATION CLICK
   // ==================================================
 
-  const handleNotificationClick = (
+  const handleNotificationClick = async (
     notification
   ) => {
 
@@ -177,8 +177,22 @@ const Header = ({
     setShowNotifications(false);
 
     // ----------------------------------------------
-    // DIRECT URL NAVIGATION
+    // ROLE-AWARE NOTIFICATION NAVIGATION & STATUS VALIDATION
+    // - If already confirmed -> /corporate-cell/upcoming-events/:id
+    // - If under pending confirmation -> /corporate-cell/pending-events/:id
     // ----------------------------------------------
+    const currentActiveRole = activeRole || role || user?.role;
+    const targetUrl = await resolveCorporateEventNotificationUrl(
+      notification,
+      currentActiveRole
+    );
+
+    if (targetUrl && targetUrl !== "/") {
+      navigate(targetUrl);
+      return;
+    }
+
+    // Direct url fallback if any
     const notificationUrl =
       notification?.data?.url ||
       notification?.url;
@@ -188,18 +202,14 @@ const Header = ({
       return;
     }
 
-    // ----------------------------------------------
-    // APPOINTMENT ID NAVIGATION ACCORDING TO USER ROLE
-    // ----------------------------------------------
-
+    // Appointment ID Navigation according to user role
     const appointmentId =
       notification?.data?.appointment_id ||
       notification?.appointment_id;
 
     if (appointmentId) {
       const currentRole = (
-        role ||
-        user?.role ||
+        currentActiveRole ||
         ""
       ).toLowerCase();
 

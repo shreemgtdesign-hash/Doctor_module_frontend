@@ -208,16 +208,18 @@ const CorporateCellEventDetails = ({ isReadOnly: isReadOnlyProp, isPending: isPe
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Determine read-only view:
-  // If explicitly read-only, or accessed via /corporate-cell/upcoming-events/:id
-  const isReadOnly = Boolean(
-    isReadOnlyProp ||
-    location.pathname.includes("/upcoming-events")
-  );
-
   const [activeTab, setActiveTab] = useState("resources"); // 'resources' | 'team'
   const [loading, setLoading] = useState(true);
   const [eventData, setEventData] = useState({});
+
+  // Determine read-only view:
+  // If explicitly read-only, or accessed via /corporate-cell/upcoming-events/:id, or status is confirmed
+  const isReadOnly = Boolean(
+    isReadOnlyProp ||
+    location.pathname.includes("/upcoming-events") ||
+    eventData?.status?.toLowerCase() === "confirmed" ||
+    eventData?.status?.toLowerCase() === "upcoming"
+  );
 
   // Resources state
   const [resourcesList, setResourcesList] = useState([]);
@@ -269,6 +271,25 @@ const CorporateCellEventDetails = ({ isReadOnly: isReadOnlyProp, isPending: isPe
       if (detailsRes.status === "fulfilled" && detailsRes.value?.data?.data) {
         const d = detailsRes.value.data.data;
         setEventData(d);
+
+        // Validate event status:
+        // - If event confirmation status is already confirmed -> redirect to /upcoming-events
+        // - If event request is under pending confirmation -> redirect to /pending-events
+        const currentStatus = (d.status || "").toLowerCase();
+        if (
+          (currentStatus === "confirmed" || currentStatus === "upcoming") &&
+          (location.pathname.includes("/pending-events") || location.pathname.includes("/pending-requests"))
+        ) {
+          navigate(`/corporate-cell/upcoming-events/${activeEventId}`, { replace: true });
+          return;
+        }
+        if (
+          currentStatus === "pending" &&
+          location.pathname.includes("/upcoming-events")
+        ) {
+          navigate(`/corporate-cell/pending-events/${activeEventId}`, { replace: true });
+          return;
+        }
 
         // If the pending event payload already contains resources
         if (Array.isArray(d.resources) && d.resources.length > 0) {

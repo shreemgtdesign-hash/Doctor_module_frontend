@@ -221,6 +221,7 @@ const CustomToast = ({
     title,
     message,
     type = "success",
+    onClick,
 }) => {
 
     const theme =
@@ -233,6 +234,12 @@ const CustomToast = ({
 
     return (
         <div
+            onClick={(e) => {
+                if (onClick) {
+                    onClick(e);
+                    toast.dismiss(t.id);
+                }
+            }}
             className={`
                 relative
                 flex
@@ -263,6 +270,8 @@ const CustomToast = ({
                         ? "translate-y-0 scale-100 opacity-100"
                         : "-translate-y-5 scale-[0.96] opacity-0"
                 }
+
+                ${onClick ? "cursor-pointer hover:shadow-[0_26px_75px_rgba(40,25,20,0.22)]" : ""}
             `}
         >
 
@@ -473,9 +482,10 @@ const CustomToast = ({
 
             <button
                 type="button"
-                onClick={() =>
-                    toast.dismiss(t.id)
-                }
+                onClick={(e) => {
+                    e.stopPropagation();
+                    toast.dismiss(t.id);
+                }}
                 className="
                     relative
                     flex

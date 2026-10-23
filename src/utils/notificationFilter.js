@@ -50,6 +50,16 @@ export const normalizeRole = (r) => {
   ) {
     return "therapist";
   }
+  if (
+    clean === "corporatecell" ||
+    clean === "corporate_cell" ||
+    clean === "corporate-cell" ||
+    clean === "corporateshell" ||
+    clean === "corporate_shell" ||
+    clean === "corporate-shell"
+  ) {
+    return "corporate_cell";
+  }
   if (clean === "corporate") {
     return "corporate";
   }
@@ -97,6 +107,7 @@ export const getActiveRole = (user = null, reduxRole = null) => {
   // Fallback: Infer from current URL route
   if (typeof window !== "undefined" && window.location?.pathname) {
     const path = window.location.pathname.toLowerCase();
+    if (path.startsWith("/corporate-cell")) return "corporate_cell";
     if (path.startsWith("/corporate")) return "corporate";
     if (path.startsWith("/pharmacist")) return "pharmacist";
     if (path.startsWith("/frontoffice")) return "frontoffice";
@@ -210,6 +221,17 @@ export const TYPE_ROLE_MAP = {
   duty_doctor_alert: ["dutydoctor"],
   duty_doctor: ["dutydoctor"],
   dutydoctor: ["dutydoctor"],
+
+  // Corporate Cell / Corporate Shell types
+  corporate_event: ["corporate_cell", "corporate"],
+  corporate_event_request: ["corporate_cell"],
+  corporate_event_requested: ["corporate_cell"],
+  corporate_request: ["corporate_cell"],
+  event_request: ["corporate_cell"],
+  new_event_request: ["corporate_cell"],
+  corporate_pending_request: ["corporate_cell"],
+  corporate_cell: ["corporate_cell"],
+  corporate_shell: ["corporate_cell"],
 };
 
 /**
@@ -329,6 +351,12 @@ export const isNotificationForRole = (
     if (targetUrl.includes("/therapist") && normRole !== "therapist") {
       console.log(
         `[FCM Filter] Dropped — URL is therapist (${targetUrl}), user role is ${normRole}`
+      );
+      return false;
+    }
+    if (targetUrl.includes("/corporate-cell") && normRole !== "corporate_cell") {
+      console.log(
+        `[FCM Filter] Dropped — URL is corporate-cell (${targetUrl}), user role is ${normRole}`
       );
       return false;
     }
@@ -484,7 +512,32 @@ export const isNotificationForRole = (
     text.includes("booked successfully") ||
     text.includes("assigned successfully");
 
+  const isCorporateCellSignal =
+    text.includes("corporate") ||
+    text.includes("event request") ||
+    text.includes("requested an event") ||
+    text.includes("request an event") ||
+    text.includes("wellness event") ||
+    text.includes("corporate cell") ||
+    text.includes("corporate shell") ||
+    text.includes("pending request") ||
+    text.includes("evt-") ||
+    text.includes("req-evt") ||
+    Boolean(extractCorporateEventId({ title, body, data: rawData }));
+
   switch (normRole) {
+    case "corporate_cell":
+      if (!isCorporateCellSignal) {
+        console.log(
+          `[FCM Filter] Dropped for corporate cell — no corporate event signal in: "${title}"`
+        );
+        return false;
+      }
+      return true;
+
+    case "corporate":
+      return isCorporateCellSignal;
+
     case "pharmacist":
       // Pharmacist ONLY receives pure pharmacy / dispensing notifications
       if (!isPharmacistSignal) {
@@ -558,6 +611,227 @@ export const isNotificationForRole = (
       );
       return false;
   }
+};
+
+/**
+ * Extracts a corporate event ID or request ID from a notification object or string.
+ */
+export const extractCorporateEventId = (notification) => {
+  if (!notification) return null;
+  const data = notification.data || notification;
+
+  // 1. Check direct fields in data or notification
+  const explicitId =
+    data.event_no ||
+    data.event_id ||
+    data.eventId ||
+    data.request_no ||
+    data.request_id ||
+    data.requestId ||
+    notification.event_no ||
+    notification.event_id;
+
+  if (explicitId && typeof explicitId === "string" && explicitId.trim()) {
+    return explicitId.trim();
+  }
+
+  // 2. Check direct URL for event ID
+  const rawUrl = data.url || data.link || notification.url || "";
+  if (rawUrl && typeof rawUrl === "string") {
+    const urlMatch = rawUrl.match(/\/corporate-cell\/(?:pending-events|pending-requests|events|upcoming-events)\/([^\/?#]+)/i);
+    if (urlMatch && urlMatch[1]) {
+      return urlMatch[1];
+    }
+  }
+
+  // 3. Search title and body for common event ID patterns
+  const text = `${notification.title || ""} ${notification.body || ""} ${data.title || ""} ${data.body || ""}`;
+
+  // Pattern [ID:EVT-xxxx] or [ID:xxxx]
+  const bracketMatch = text.match(/\[ID:\s*([A-Za-z0-9_-]+)\]/i);
+  if (bracketMatch && bracketMatch[1]) {
+    return bracketMatch[1];
+  }
+
+  // Pattern EVT-xxxxxx-xxx or EVTxxxxxx
+  const evtMatch = text.match(/\b(EVT(?:-[0-9]{4,8}-[A-Za-z0-9]+|[0-9]{6,12}[A-Za-z0-9]*))\b/i);
+  if (evtMatch && evtMatch[1]) {
+    return evtMatch[1];
+  }
+
+  // Pattern REQ-EVT-xxxxxx-xxx
+  const reqMatch = text.match(/\b(REQ-EVT-[A-Za-z0-9-]+)\b/i);
+  if (reqMatch && reqMatch[1]) {
+    return reqMatch[1];
+  }
+
+  // Pattern ce_evt_xxxx
+  const ceMatch = text.match(/\b(ce_evt_[A-Za-z0-9_]+)\b/i);
+  if (ceMatch && ceMatch[1]) {
+    return ceMatch[1];
+  }
+
+  // UUID in data.id if data is an event or request
+  if (
+    data.id &&
+    typeof data.id === "string" &&
+    (data.type?.includes("event") || data.category?.includes("event") || data.category?.includes("corporate"))
+  ) {
+    return data.id;
+  }
+
+  return null;
+};
+
+/**
+ * Resolves the target redirect URL for any given notification and role.
+ * Ensures Corporate Cell / Shell event requests navigate straight to the
+ * request's view details page (/corporate-cell/pending-events/:id)
+ * where resource assignment, team selection, and confirmation happen.
+ */
+export const getNotificationRedirectUrl = (notification, activeRole) => {
+  if (!notification) return "/";
+
+  const normRole = normalizeRole(activeRole || localStorage.getItem("role"));
+  const data = parsePayloadData(notification.data || notification);
+  const directUrl = data.url || data.link || notification.url;
+
+  // If explicit URL already provided:
+  if (directUrl && typeof directUrl === "string" && directUrl.startsWith("/")) {
+    return directUrl;
+  }
+
+  const text = `${notification.title || ""} ${notification.body || ""} ${data.title || ""} ${data.body || ""}`.toLowerCase();
+  const eventId = extractCorporateEventId(notification);
+
+  const isCorporateCellRole = normRole === "corporate_cell";
+  const isCorporateRequestSignal =
+    Boolean(eventId) ||
+    data.type?.includes("corporate") ||
+    data.type?.includes("event") ||
+    data.category?.includes("corporate") ||
+    data.category?.includes("event") ||
+    text.includes("corporate") ||
+    text.includes("event request") ||
+    text.includes("requested an event") ||
+    text.includes("request an event") ||
+    text.includes("wellness event") ||
+    text.includes("pending request");
+
+  // Corporate Cell / Corporate Shell:
+  // Validate status: if already confirmed -> /corporate-cell/upcoming-events
+  // if under pending confirmation -> /corporate-cell/pending-events
+  if (isCorporateCellRole || isCorporateRequestSignal) {
+    const statusInPayload = (
+      data.status ||
+      data.event_status ||
+      data.confirmation_status ||
+      notification.status ||
+      ""
+    ).toLowerCase();
+
+    const isConfirmed =
+      statusInPayload === "confirmed" ||
+      statusInPayload === "upcoming" ||
+      text.includes("event confirmed") ||
+      text.includes("confirmed event");
+
+    if (isConfirmed) {
+      return eventId
+        ? `/corporate-cell/upcoming-events/${eventId}`
+        : "/corporate-cell/upcoming-events";
+    }
+
+    if (eventId) {
+      return `/corporate-cell/pending-events/${eventId}`;
+    }
+    return "/corporate-cell/pending-events";
+  }
+
+  // Appointment ID navigation for clinical / front office roles
+  const appointmentId =
+    data.appointment_id ||
+    data.appointmentId ||
+    notification.appointment_id;
+
+  if (appointmentId) {
+    if (normRole === "doctor") {
+      return "/doctor/appointments";
+    } else if (normRole === "dutydoctor") {
+      return "/duty-doctor/dashboard";
+    } else if (normRole === "pharmacist") {
+      return "/pharmacist/appointments";
+    } else if (normRole === "therapist") {
+      return "/therapist/appointments";
+    } else {
+      return `/frontoffice/upcoming-appointments/${appointmentId}`;
+    }
+  }
+
+  return "/";
+};
+
+/**
+ * Validates the event confirmation status via payload and backend check:
+ * - If event confirmation status is already confirmed -> /corporate-cell/upcoming-events/:id
+ * - If event request is under pending confirmation -> /corporate-cell/pending-events/:id
+ */
+export const resolveCorporateEventNotificationUrl = async (notification, activeRole) => {
+  const syncUrl = getNotificationRedirectUrl(notification, activeRole);
+  const eventId = extractCorporateEventId(notification);
+
+  if (!eventId) {
+    return syncUrl;
+  }
+
+  const data = parsePayloadData(notification?.data || notification);
+  const statusInPayload = (
+    data.status ||
+    data.event_status ||
+    data.confirmation_status ||
+    notification?.status ||
+    ""
+  ).toLowerCase();
+
+  // If status is explicit in payload, return immediately
+  if (statusInPayload === "confirmed" || statusInPayload === "upcoming") {
+    return `/corporate-cell/upcoming-events/${eventId}`;
+  }
+  if (statusInPayload === "pending" || statusInPayload.includes("pending")) {
+    return `/corporate-cell/pending-events/${eventId}`;
+  }
+
+  // Validate dynamically against backend
+  const token = localStorage.getItem("token") || "";
+  const headers = {
+    Authorization: token ? `Bearer ${token}` : "",
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const res = await fetch(`/api/corporatecell/upcoming-events/${eventId}`, { headers });
+    if (res.ok) {
+      const json = await res.json();
+      const st = (json?.data?.status || "").toLowerCase();
+      if (st === "confirmed" || st === "upcoming" || json?.success) {
+        return `/corporate-cell/upcoming-events/${eventId}`;
+      }
+    }
+  } catch (_) {}
+
+  try {
+    const pRes = await fetch(`/api/corporatecell/pending-events/${eventId}`, { headers });
+    if (pRes.ok) {
+      const pJson = await pRes.json();
+      const pSt = (pJson?.data?.status || "").toLowerCase();
+      if (pSt === "confirmed" || pSt === "upcoming") {
+        return `/corporate-cell/upcoming-events/${eventId}`;
+      }
+      return `/corporate-cell/pending-events/${eventId}`;
+    }
+  } catch (_) {}
+
+  return syncUrl;
 };
 
 // ======================================================

@@ -132,10 +132,31 @@ function normalizeRoleSW(r) {
     ) {
         return "therapist";
     }
+    if (
+        clean === "corporatecell" ||
+        clean === "corporate_cell" ||
+        clean === "corporate-cell" ||
+        clean === "corporateshell" ||
+        clean === "corporate_shell"
+    ) {
+        return "corporate_cell";
+    }
+    if (clean === "corporate") {
+        return "corporate";
+    }
     return clean;
 }
 
 const SW_TYPE_ROLE_MAP = {
+    // Corporate Cell
+    corporate_event: ["corporate_cell", "corporate"],
+    corporate_event_request: ["corporate_cell"],
+    corporate_request: ["corporate_cell"],
+    event_request: ["corporate_cell"],
+    new_event_request: ["corporate_cell"],
+    corporate_pending_request: ["corporate_cell"],
+    corporate_cell: ["corporate_cell"],
+
     // Front Office
     appointment: ["frontoffice"],
     appointments: ["frontoffice"],
@@ -368,7 +389,25 @@ function isNotificationForRoleSW(role, title = "", body = "", data = {}) {
         text.includes("booked successfully") ||
         text.includes("assigned successfully");
 
+    const isCorporateCellSignal =
+        text.includes("corporate") ||
+        text.includes("event request") ||
+        text.includes("requested an event") ||
+        text.includes("request an event") ||
+        text.includes("wellness event") ||
+        text.includes("corporate cell") ||
+        text.includes("corporate shell") ||
+        text.includes("pending request") ||
+        text.includes("evt-") ||
+        text.includes("req-evt");
+
     switch (normRole) {
+        case "corporate_cell":
+            return isCorporateCellSignal;
+
+        case "corporate":
+            return isCorporateCellSignal;
+
         case "pharmacist":
             return isPharmacistSignal;
 
@@ -498,6 +537,21 @@ self.addEventListener("notificationclick", (event) => {
             targetUrl = "/pharmacist/appointments";
         } else if (role === "therapist") {
             targetUrl = "/therapist/appointments";
+        } else if (
+            role === "corporate_cell" ||
+            role === "corporatecell" ||
+            role === "corporateshell" ||
+            role === "corporate_shell"
+        ) {
+            const eventId =
+                notificationData.event_no ||
+                notificationData.event_id ||
+                notificationData.eventId ||
+                notificationData.request_no ||
+                notificationData.request_id;
+            targetUrl = eventId
+                ? `/corporate-cell/pending-events/${eventId}`
+                : "/corporate-cell/pending-events";
         } else if (appointmentId) {
             targetUrl = `/frontoffice/upcoming-appointments/${appointmentId}`;
         } else {
@@ -524,6 +578,19 @@ self.addEventListener("notificationclick", (event) => {
                             finalUrl = "/pharmacist/appointments";
                         } else if (client.url.includes("/therapist")) {
                             finalUrl = "/therapist/appointments";
+                        } else if (
+                            client.url.includes("/corporate-cell") ||
+                            role === "corporate_cell"
+                        ) {
+                            const eventId =
+                                notificationData.event_no ||
+                                notificationData.event_id ||
+                                notificationData.eventId ||
+                                notificationData.request_no ||
+                                notificationData.request_id;
+                            finalUrl = eventId
+                                ? `/corporate-cell/pending-events/${eventId}`
+                                : "/corporate-cell/pending-events";
                         } else if (
                             client.url.includes("/frontoffice") &&
                             appointmentId

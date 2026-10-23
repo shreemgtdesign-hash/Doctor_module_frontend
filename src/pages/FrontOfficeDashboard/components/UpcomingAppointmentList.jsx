@@ -1350,6 +1350,7 @@ const AppointmentRow = ({
                     border-[#EEE4DD]
                     px-2
                     py-4
+                    
                 "
             >
 
