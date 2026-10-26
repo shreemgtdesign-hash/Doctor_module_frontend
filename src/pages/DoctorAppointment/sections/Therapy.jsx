@@ -533,14 +533,14 @@ const Therapy = ({
                                                 </button>
 
                                                 {openDoctorDropdown === index && (
-                                                    <div className="absolute right-0 top-[50px] z-[100] max-h-[260px] w-[min(300px,calc(100vw-48px))] overflow-y-auto rounded-2xl border border-[#E7DBD3] bg-white shadow-xl hide-scrollbar">
+                                                    <div className="absolute right-0 top-[50px] z-[100] max-h-[260px] w-[min(300px,calc(100vw-48px))] overflow-y-auto rounded-2xl border border-[#E7DBD3] dark:border-[#382E28] bg-white dark:bg-[#241E1B] shadow-xl hide-scrollbar">
                                                         <button
                                                             type="button"
                                                             onClick={() => {
                                                                 updateTherapy(index, "doctor_name", "");
                                                                 setOpenDoctorDropdown(null);
                                                             }}
-                                                            className="flex w-full border-b border-[#F0E7E1] px-4 py-2.5 text-left text-[12px] text-[#9A8D84] hover:bg-[#FFF8F2]"
+                                                            className="flex w-full border-b border-[#F0E7E1] dark:border-[#382E28] px-4 py-2.5 text-left text-[12px] text-[#9A8D84] dark:text-[#A8988D] hover:bg-[#FFF8F2] dark:hover:bg-[#2C231F]"
                                                         >
                                                             Select Doctor
                                                         </button>
@@ -558,21 +558,21 @@ const Therapy = ({
                                                                         updateTherapy(index, "doctor_name", docName);
                                                                         setOpenDoctorDropdown(null);
                                                                     }}
-                                                                    className={`flex w-full items-center justify-between border-b border-[#F2E8E2] px-4 py-2.5 text-left last:border-b-0 transition hover:bg-[#FFF8F2] ${isSelected ? "bg-[#FFF8F2]" : "bg-white"
+                                                                    className={`flex w-full items-center justify-between border-b border-[#F2E8E2] dark:border-[#382E28] px-4 py-2.5 text-left last:border-b-0 transition hover:bg-[#FFF8F2] dark:hover:bg-[#2C231F] ${isSelected ? "bg-[#FFF8F2] dark:bg-[#362C27]" : "bg-white dark:bg-[#241E1B]"
                                                                         }`}
                                                                 >
                                                                     <div className="min-w-0">
-                                                                        <p className="truncate text-[13px] font-semibold text-[#4D2E23]">
+                                                                        <p className="truncate text-[13px] font-semibold text-[#4D2E23] dark:text-white">
                                                                             {docName}
                                                                         </p>
                                                                         {doc.category && (
-                                                                            <p className="mt-0.5 truncate text-[11px] text-[#8D8179]">
+                                                                            <p className="mt-0.5 truncate text-[11px] text-[#8D8179] dark:text-[#A8988D]">
                                                                                 {doc.category}
                                                                             </p>
                                                                         )}
                                                                     </div>
                                                                     {isSelected && (
-                                                                        <span className="ml-2 text-[12px] font-bold text-[#8A563B]">
+                                                                        <span className="ml-2 text-[12px] font-bold text-[#8A563B] dark:text-[#D4956B]">
                                                                             ✓
                                                                         </span>
                                                                     )}
@@ -765,27 +765,29 @@ const Therapy = ({
             {/* ========================================================= */}
             {/* ACTION BUTTONS (Back / Save & Continue) */}
             {/* ========================================================= */}
-            <div className="mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:gap-6">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                {/* Back Button */}
                 <button
                     type="button"
                     onClick={() => {
                         if (onBack) onBack();
                     }}
                     disabled={saving}
-                    className="flex h-14 flex-1 items-center justify-center gap-3 rounded-2xl border border-[#E3D2C7] bg-[#FFFDFB] text-[18px] font-semibold text-[#4D2E23] transition hover:bg-[#FFF5EE] disabled:opacity-60"
+                    className="flex h-14 sm:h-16 items-center justify-center gap-3 rounded-2xl sm:rounded-[22px] border border-[#E3D2C7] bg-[#FFF9F5] text-[18px] sm:text-[20px] font-semibold text-[#4D2E23] shadow-[0_2px_5px_rgba(0,0,0,0.04)] transition-all hover:bg-[#F9EDE4] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#382E28] dark:bg-[#2C231F] dark:text-[#EDE3DA] dark:hover:bg-[#362C26] cursor-pointer"
                 >
-                    <HiOutlineArrowLeft size={22} />
-                    Back
+                    <HiOutlineArrowLeft size={22} className="shrink-0" />
+                    <span>Back</span>
                 </button>
 
+                {/* Save & Continue */}
                 <button
                     type="button"
                     onClick={saveAll}
                     disabled={saving}
-                    className="flex h-14 flex-1 items-center justify-center gap-4 rounded-2xl bg-[#8A563B] text-[18px] font-semibold text-white transition hover:bg-[#754630] disabled:opacity-60 shadow-sm"
+                    className="flex h-14 sm:h-16 items-center justify-center gap-3 rounded-2xl sm:rounded-[22px] bg-[#8A563B] text-[18px] sm:text-[20px] font-semibold text-white shadow-[0_4px_12px_rgba(138,86,59,0.25)] transition-all hover:bg-[#754630] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#8A563B] dark:hover:bg-[#9E6344] cursor-pointer"
                 >
-                    <HiOutlineArrowRightOnRectangle size={22} />
-                    {saving ? "Saving..." : "Save & Continue"}
+                    <HiOutlineArrowRightOnRectangle size={22} className="shrink-0" />
+                    <span>{saving ? "Saving..." : "Save & Continue"}</span>
                 </button>
             </div>
         </div>

@@ -758,7 +758,7 @@ const Diagnosis = ({
         {/* Associate Doctors */}
         {/* ================================================= */}
 
-        <hr className="my-8 border-[#EFE4DC]" />
+        <hr className="my-8 border-[#EFE4DC] dark:border-[#382E28]" />
 
         <div>
 
@@ -769,6 +769,7 @@ const Diagnosis = ({
                 text-[24px]
                 font-semibold
                 text-[#4D2E23]
+                dark:text-white
               "
             >
               Associate Doctor
@@ -784,7 +785,10 @@ const Diagnosis = ({
                 items-center
                 gap-2
                 text-[#8B573D]
+                dark:text-[#D4956B]
                 hover:text-[#6F4632]
+                dark:hover:text-[#F5B880]
+                cursor-pointer
               "
             >
               <HiOutlinePlus size={18} />
@@ -796,7 +800,7 @@ const Diagnosis = ({
 
           {/* Doctors */}
 
-          <div className="grid grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
 
             {enrichedAssociateDoctors.length >
               0 ? (
@@ -809,7 +813,9 @@ const Diagnosis = ({
                       rounded-2xl
                       border
                       border-[#EFE4DC]
+                      dark:border-[#382E28]
                       bg-white
+                      dark:bg-[#1F1916]
                       p-6
                       text-center
                     "
@@ -825,6 +831,7 @@ const Diagnosis = ({
                         overflow-hidden
                         rounded-full
                         bg-[#F7EEE8]
+                        dark:bg-[#362C26]
                       "
                     >
 
@@ -854,6 +861,7 @@ const Diagnosis = ({
                             text-2xl
                             font-bold
                             text-[#8B573D]
+                            dark:text-[#E59850]
                           "
                         >
                           {(
@@ -873,6 +881,7 @@ const Diagnosis = ({
                         text-lg
                         font-semibold
                         text-[#4D2E23]
+                        dark:text-white
                       "
                     >
                       {doctor.doctor_name}
@@ -885,6 +894,7 @@ const Diagnosis = ({
                         mt-1
                         text-sm
                         text-[#8B7A70]
+                        dark:text-[#A8988D]
                       "
                     >
                       {doctor.role_label ||
@@ -905,12 +915,16 @@ const Diagnosis = ({
                         mt-5
                         rounded-xl
                         bg-red-50
+                        dark:bg-red-950/40
                         px-4
                         py-2
                         text-sm
                         font-medium
                         text-red-600
+                        dark:text-red-400
                         hover:bg-red-100
+                        dark:hover:bg-red-900/50
+                        cursor-pointer
                       "
                     >
                       Remove
@@ -922,9 +936,10 @@ const Diagnosis = ({
             ) : (
               <p
                 className="
-                  col-span-3
+                  col-span-1 sm:col-span-2 lg:col-span-3
                   text-center
                   text-[#8B7A70]
+                  dark:text-[#A8988D]
                 "
               >
                 No associate doctors added.
@@ -1041,9 +1056,9 @@ const Diagnosis = ({
             flex
             items-center
             justify-center
-            bg-black/45
+            bg-black/60
             px-4
-            backdrop-blur-[2px]
+            backdrop-blur-sm
           "
         >
 
@@ -1053,10 +1068,14 @@ const Diagnosis = ({
               max-w-[540px]
               rounded-[24px]
               bg-white
+              dark:bg-[#241E1B]
+              border
+              border-[#E8DDD5]
+              dark:border-[#382E28]
               px-8
               pb-8
               pt-9
-              shadow-[0_20px_60px_rgba(0,0,0,0.25)]
+              shadow-[0_20px_60px_rgba(0,0,0,0.5)]
             "
           >
 
@@ -1069,6 +1088,7 @@ const Diagnosis = ({
                   text-[22px]
                   font-bold
                   text-[#4D2E23]
+                  dark:text-white
                 "
               >
                 Unsaved Changes
@@ -1082,6 +1102,7 @@ const Diagnosis = ({
                   text-[18px]
                   leading-[1.45]
                   text-[#4D2E23]
+                  dark:text-[#D1C5BC]
                 "
               >
                 You have unsaved changes.
@@ -1109,13 +1130,17 @@ const Diagnosis = ({
                   rounded-[18px]
                   border
                   border-[#E5D3C5]
+                  dark:border-[#382E28]
                   bg-[#FFFBF7]
+                  dark:bg-[#2C231F]
                   text-[18px]
                   font-semibold
                   text-[#4D2E23]
+                  dark:text-[#EDE3DA]
                   shadow-[0_2px_5px_rgba(0,0,0,0.05)]
                   transition
                   hover:bg-[#FFF3E8]
+                  dark:hover:bg-[#362C26]
                   disabled:opacity-50
                 "
               >
@@ -1134,11 +1159,13 @@ const Diagnosis = ({
                   h-[62px]
                   rounded-[18px]
                   bg-[#8B573D]
+                  dark:bg-[#8A563B]
                   text-[18px]
                   font-semibold
                   text-white
                   transition
                   hover:bg-[#764733]
+                  dark:hover:bg-[#9E6344]
                   disabled:cursor-not-allowed
                   disabled:opacity-60
                 "
@@ -1168,17 +1195,24 @@ const Diagnosis = ({
             flex
             items-center
             justify-center
-            bg-black/40
+            bg-black/60
             backdrop-blur-sm
+            p-4
           "
         >
 
           <div
             className="
               w-[760px]
+              max-w-full
               rounded-[30px]
               bg-white
-              p-8
+              dark:bg-[#241E1B]
+              border
+              border-[#E8DDD5]
+              dark:border-[#382E28]
+              p-6
+              sm:p-8
               shadow-2xl
             "
           >
@@ -1190,12 +1224,13 @@ const Diagnosis = ({
                 text-[28px]
                 font-bold
                 text-[#4D2E23]
+                dark:text-white
               "
             >
               Associate Doctors
             </h2>
 
-            <p className="mt-2 text-[#8B7A70]">
+            <p className="mt-2 text-[#8B7A70] dark:text-[#A8988D]">
               Select a doctor
             </p>
 
@@ -1216,9 +1251,17 @@ const Diagnosis = ({
                 rounded-xl
                 border
                 border-[#E8DDD5]
+                dark:border-[#382E28]
+                bg-white
+                dark:bg-[#1D1714]
+                text-[#4D2E23]
+                dark:text-white
+                placeholder-[#8B7A70]
+                dark:placeholder-[#7D6F66]
                 px-4
                 outline-none
                 focus:border-[#8B573D]
+                dark:focus:border-[#8C5E3C]
               "
             />
 
@@ -1230,10 +1273,11 @@ const Diagnosis = ({
                 max-h-[420px]
                 overflow-y-auto
                 pr-2
+                hide-scrollbar
               "
             >
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 {doctorsList
                   .filter((doctor) =>
@@ -1265,8 +1309,8 @@ const Diagnosis = ({
 
                         ${selectedDoctor?.doctor_id ===
                           doctor.doctor_id
-                          ? "border-[#8B573D] bg-[#FFF5EF] shadow-md"
-                          : "border-[#E8DDD5] hover:border-[#8B573D] hover:bg-[#FFF9F5]"
+                          ? "border-[#8B573D] bg-[#FFF5EF] shadow-md dark:border-[#8C5E3C] dark:bg-[#362C27] dark:shadow-none"
+                          : "border-[#E8DDD5] hover:border-[#8B573D] hover:bg-[#FFF9F5] dark:border-[#382E28] dark:bg-[#1F1916] dark:hover:border-[#8C5E3C] dark:hover:bg-[#2C231F]"
                         }
                       `}
                     >
@@ -1283,6 +1327,7 @@ const Diagnosis = ({
                             overflow-hidden
                             rounded-full
                             bg-[#F8EEE7]
+                            dark:bg-[#362C26]
                           "
                         >
 
@@ -1312,6 +1357,7 @@ const Diagnosis = ({
                                 text-xl
                                 font-bold
                                 text-[#8B573D]
+                                dark:text-[#E59850]
                               "
                             >
                               {doctor.name?.charAt(
@@ -1332,6 +1378,7 @@ const Diagnosis = ({
                               text-[17px]
                               font-semibold
                               text-[#4D2E23]
+                              dark:text-white
                             "
                           >
                             {doctor.name}
@@ -1342,6 +1389,7 @@ const Diagnosis = ({
                               mt-1
                               text-sm
                               text-[#8B7A70]
+                              dark:text-[#A8988D]
                             "
                           >
                             {
@@ -1371,6 +1419,7 @@ const Diagnosis = ({
                 gap-4
                 border-t
                 border-[#EFE4DC]
+                dark:border-[#382E28]
                 pt-6
               "
             >
@@ -1386,11 +1435,17 @@ const Diagnosis = ({
                   rounded-xl
                   border
                   border-[#DDD]
+                  dark:border-[#382E28]
+                  bg-transparent
+                  dark:bg-[#2C231F]
                   px-7
                   py-3
                   font-medium
+                  text-[#4D2E23]
+                  dark:text-[#EDE3DA]
                   transition
                   hover:bg-gray-50
+                  dark:hover:bg-[#362C26]
                 "
               >
                 Cancel
@@ -1403,12 +1458,14 @@ const Diagnosis = ({
                 className="
                   rounded-xl
                   bg-[#8B573D]
+                  dark:bg-[#8A563B]
                   px-8
                   py-3
                   font-medium
                   text-white
                   transition
                   hover:bg-[#74442F]
+                  dark:hover:bg-[#9E6344]
                   disabled:cursor-not-allowed
                   disabled:opacity-50
                 "

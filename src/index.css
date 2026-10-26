@@ -136,6 +136,17 @@ html.dark .bg-\[\#f5f1ee\] {
 
 /* Highlighted / Selected card background */
 html.dark .bg-\[\#FFF9F5\],
+html.dark .bg-\[\#fff9f5\],
+html.dark .bg-\[\#FFF9F4\],
+html.dark .bg-\[\#fff9f4\],
+html.dark .bg-\[\#FFF9F3\],
+html.dark .bg-\[\#fff9f3\],
+html.dark .bg-\[\#FFFAF6\],
+html.dark .bg-\[\#fffaf6\],
+html.dark .bg-\[\#FFFAF5\],
+html.dark .bg-\[\#fffaf5\],
+html.dark .bg-\[\#FDF9F5\],
+html.dark .bg-\[\#fdf9f5\],
 html.dark .bg-\[\#FFF7F0\],
 html.dark .bg-\[\#FFF5ED\],
 html.dark .bg-\[\#FFF4ED\],
@@ -144,6 +155,8 @@ html.dark .bg-\[\#FFF3EB\],
 html.dark .bg-\[\#FFF1E4\],
 html.dark .bg-\[\#FFF0E2\],
 html.dark .bg-\[\#FAF3EB\],
+html.dark .bg-\[\#faf3eb\],
+html.dark .bg-\[\#faf4ef\],
 html.dark .bg-\[\#FEF1E4\],
 html.dark .bg-\[\#FEF2E6\],
 html.dark .bg-\[\#FDE8D7\],
@@ -254,6 +267,22 @@ html.dark .border-\[\#F2E8E1\],
 html.dark .border-\[\#F2E8E2\],
 html.dark .border-\[\#FFE8D6\],
 html.dark .border-\[\#FFEAD8\],
+html.dark .border-\[\#eadfd8\],
+html.dark .border-\[\#EADFD8\],
+html.dark .border-\[\#eadfd9\],
+html.dark .border-\[\#EADFD9\],
+html.dark .border-\[\#eaded4\],
+html.dark .border-\[\#EADED4\],
+html.dark .border-\[\#eadfd7\],
+html.dark .border-\[\#EADFD7\],
+html.dark .border-\[\#f0e9e4\],
+html.dark .border-\[\#F0E9E4\],
+html.dark .border-\[\#f4ece5\],
+html.dark .border-\[\#F4ECE5\],
+html.dark .border-\[\#EFE2D7\],
+html.dark .border-\[\#efe2d7\],
+html.dark .divide-\[\#EFE2D7\],
+html.dark .divide-\[\#efe2d7\],
 html.dark .border-stone-200,
 html.dark .border-stone-300,
 html.dark .border-gray-200,
@@ -517,22 +546,70 @@ html.dark select:focus {
 }
 
 /* ==========================================================================
-   10. TABLES ACROSS DASHBOARDS
+   10. TABLES ACROSS DASHBOARDS & APPOINTMENTS
    ========================================================================== */
 html.dark table {
   background-color: #241E1B !important;
   border-color: #382E28 !important;
 }
 
+/* Unified Table Header Container & Rows in Dark Mode */
+html.dark thead,
+html.dark thead tr,
+html.dark thead th,
 html.dark th {
   background-color: #2C231F !important;
-  color: #A8988D !important;
+  color: #FFFFFF !important;
+  border-color: #382E28 !important;
+}
+
+/* Ensure ALL text classes inside thead/th turn crisp white */
+html.dark thead [class*="text-"],
+html.dark thead th[class*="text-"],
+html.dark th[class*="text-"],
+html.dark thead tr[class*="text-"],
+html.dark thead p,
+html.dark thead span,
+html.dark thead div,
+html.dark thead th,
+html.dark th {
+  color: #FFFFFF !important;
+}
+
+/* Ensure ALL background classes inside thead/th turn into warm dark header #2C231F */
+html.dark thead [class*="bg-"],
+html.dark thead tr[class*="bg-"],
+html.dark thead th[class*="bg-"],
+html.dark th[class*="bg-"] {
+  background-color: #2C231F !important;
+}
+
+/* Ensure ALL border classes inside thead/th turn into standard dark border #382E28 */
+html.dark thead [class*="border-"],
+html.dark thead tr[class*="border-"],
+html.dark thead th[class*="border-"],
+html.dark th[class*="border-"],
+html.dark thead.divide-y > *,
+html.dark thead .divide-y > *,
+html.dark thead tr > th {
+  border-color: #382E28 !important;
+}
+
+/* Table body rows and cells */
+html.dark tbody tr {
+  background-color: #241E1B !important;
   border-color: #382E28 !important;
 }
 
 html.dark td {
   background-color: #241E1B !important;
   color: #EDE3DA !important;
+  border-color: #382E28 !important;
+}
+
+html.dark tbody.divide-y > *,
+html.dark tbody .divide-y > *,
+html.dark tbody tr > td {
   border-color: #382E28 !important;
 }
 
@@ -548,6 +625,7 @@ html.dark .bg-\[\#DDF6E5\],
 html.dark .bg-\[\#DDF9E5\],
 html.dark .bg-\[\#E8F8EC\],
 html.dark .bg-\[\#EAFBEF\],
+html.dark .bg-\[\#EAF8EC\],
 html.dark .bg-emerald-50,
 html.dark .bg-emerald-100,
 html.dark .bg-green-50,
@@ -557,6 +635,8 @@ html.dark .bg-green-100 {
 }
 html.dark .text-\[\#1E6A41\],
 html.dark .text-\[\#149647\],
+html.dark .text-\[\#2E6B41\],
+html.dark .text-\[\#378456\],
 html.dark .text-emerald-700,
 html.dark .text-emerald-600,
 html.dark .text-green-700,
@@ -564,7 +644,9 @@ html.dark .text-green-600 {
   color: #4ADE80 !important;
 }
 
-/* Waiting / Amber / Orange */
+/* Waiting / Amber / Orange / Pending */
+html.dark .bg-\[\#FFF3E5\],
+html.dark .bg-\[\#FFF3DD\],
 html.dark .bg-amber-50,
 html.dark .bg-amber-100,
 html.dark .bg-orange-50,
@@ -573,12 +655,31 @@ html.dark .bg-yellow-50 {
   background-color: #382414 !important;
   border-color: #4A301A !important;
 }
+html.dark .text-\[\#A15C00\],
+html.dark .text-\[\#A8732C\],
 html.dark .text-amber-700,
 html.dark .text-amber-600,
 html.dark .text-orange-700,
 html.dark .text-orange-600,
 html.dark .text-yellow-700 {
   color: #FBBF24 !important;
+}
+
+/* Cancelled / Red */
+html.dark .bg-\[\#FDECEC\],
+html.dark .bg-\[\#FDECEE\],
+html.dark .bg-red-50,
+html.dark .bg-red-100,
+html.dark .bg-rose-50 {
+  background-color: #3D1418 !important;
+  border-color: #5C1D24 !important;
+}
+html.dark .text-\[\#B42318\],
+html.dark .text-\[\#A45C66\],
+html.dark .text-\[\#D1293D\],
+html.dark .text-red-600,
+html.dark .text-red-700 {
+  color: #F87171 !important;
 }
 
 /* Completed / Blue */

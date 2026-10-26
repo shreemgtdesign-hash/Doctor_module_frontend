@@ -1946,32 +1946,31 @@ const Prescription = ({
 
 
 
-            <div className="mt-8 grid grid-cols-2 gap-5">
+            {/* ========================================================= */}
+            {/* ACTION BUTTONS (Back / Save & Continue) */}
+            {/* ========================================================= */}
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
 
                 {/* Back Button */}
-
                 <button
                     type="button"
                     onClick={() => onBack?.()}
-                    className="flex h-16 items-center justify-center gap-3 rounded-[22px] border border-[#DCC8BA] bg-[#FFF9F5] text-[20px] font-semibold text-[#4D2E23] transition hover:bg-[#F9F0EA]"
+                    disabled={loading}
+                    className="flex h-14 sm:h-16 items-center justify-center gap-3 rounded-2xl sm:rounded-[22px] border border-[#E3D2C7] bg-[#FFF9F5] text-[18px] sm:text-[20px] font-semibold text-[#4D2E23] shadow-[0_2px_5px_rgba(0,0,0,0.04)] transition-all hover:bg-[#F9EDE4] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[#382E28] dark:bg-[#2C231F] dark:text-[#EDE3DA] dark:hover:bg-[#362C26] cursor-pointer"
                 >
-                    <HiOutlineArrowLeft size={22} />
-                    Back
+                    <HiOutlineArrowLeft size={22} className="shrink-0" />
+                    <span>Back</span>
                 </button>
 
                 {/* Save & Continue */}
-
                 <button
                     type="button"
                     onClick={handleSaveAndContinue}
                     disabled={loading}
-                    className="flex h-16 items-center justify-center gap-3 rounded-[22px] bg-[#8A563B] text-[20px] font-semibold text-white transition hover:bg-[#74452E] disabled:opacity-70"
+                    className="flex h-14 sm:h-16 items-center justify-center gap-3 rounded-2xl sm:rounded-[22px] bg-[#8A563B] text-[18px] sm:text-[20px] font-semibold text-white shadow-[0_4px_12px_rgba(138,86,59,0.25)] transition-all hover:bg-[#754630] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#8A563B] dark:hover:bg-[#9E6344] cursor-pointer"
                 >
-                    <HiOutlineArrowRightOnRectangle size={22} />
-
-                    {loading
-                        ? "Saving..."
-                        : "Save & Continue"}
+                    <HiOutlineArrowRightOnRectangle size={22} className="shrink-0" />
+                    <span>{loading ? "Saving..." : "Save & Continue"}</span>
                 </button>
 
             </div>

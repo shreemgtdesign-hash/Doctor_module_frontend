@@ -323,7 +323,9 @@ const WellnessTable = () => {
           rounded-[18px]
           border
           border-[#E7DBD3]
+          dark:border-[#382E28]
           bg-white
+          dark:bg-[#241E1B]
         "
       >
 
@@ -339,7 +341,9 @@ const WellnessTable = () => {
               grid-cols-[1.35fr_1fr_0.85fr_0.85fr_1.25fr_0.75fr_0.8fr]
               border-b
               border-[#EFE2D7]
+              dark:border-[#382E28]
               bg-[#FFF9F3]
+              dark:bg-[#2C231F]
             "
           >
 
@@ -451,6 +455,10 @@ const WellnessTable = () => {
                     grid-cols-[1.35fr_1fr_0.85fr_0.85fr_1.25fr_0.75fr_0.8fr]
                     border-b
                     border-[#EFE2D7]
+                    dark:border-[#382E28]
+                    hover:bg-[#FFF9F5]
+                    dark:hover:bg-[#2C231F]
+                    transition
                     last:border-b-0
                   "
                 >
@@ -461,6 +469,7 @@ const WellnessTable = () => {
                     className="
                       border-r
                       border-[#EFE2D7]
+                      dark:border-[#382E28]
                       px-4
                       py-4
                     "
@@ -471,6 +480,7 @@ const WellnessTable = () => {
                         text-[16px]
                         font-semibold
                         text-[#4D2E23]
+                        dark:text-white
                       "
                     >
                       {item.patient_name ||
@@ -576,10 +586,11 @@ const HeaderCell = ({
       text-[16px]
       font-semibold
       text-[#4D2E23]
+      dark:text-white
 
       ${
         !last
-          ? "border-r border-[#EFE2D7]"
+          ? "border-r border-[#EFE2D7] dark:border-[#382E28]"
           : ""
       }
     `}
@@ -604,12 +615,14 @@ const BodyCell = ({
       justify-center
       border-r
       border-[#EFE2D7]
+      dark:border-[#382E28]
       px-4
       py-4
       text-center
       text-[15px]
       font-medium
       text-[#4D2E23]
+      dark:text-[#EDE3DA]
     "
   >
     {children}
@@ -631,7 +644,7 @@ const StatusBadge = ({
       .toLowerCase();
 
   let classes =
-    "bg-[#F2F2F2] text-[#777777]";
+    "bg-[#F2F2F2] dark:bg-[#2C231F] text-[#777777] dark:text-[#A8988D]";
 
   if (
     value === "completed" ||
@@ -639,7 +652,7 @@ const StatusBadge = ({
     value === "confirmed"
   ) {
     classes =
-      "bg-[#E8F8EC] text-[#378456]";
+      "bg-[#E8F8EC] dark:bg-[#163321] text-[#378456] dark:text-[#4ADE80] border border-transparent dark:border-[#1E462D]";
   }
 
   if (
@@ -647,7 +660,7 @@ const StatusBadge = ({
     value === "canceled"
   ) {
     classes =
-      "bg-[#FDECEE] text-[#A45C66]";
+      "bg-[#FDECEE] dark:bg-[#3D1418] text-[#A45C66] dark:text-[#F87171] border border-transparent dark:border-[#5C1D24]";
   }
 
   if (
@@ -655,7 +668,7 @@ const StatusBadge = ({
     value === "waiting"
   ) {
     classes =
-      "bg-[#FFF3DD] text-[#A8732C]";
+      "bg-[#FFF3DD] dark:bg-[#382414] text-[#A8732C] dark:text-[#FBBF24] border border-transparent dark:border-[#4A301A]";
   }
 
   return (

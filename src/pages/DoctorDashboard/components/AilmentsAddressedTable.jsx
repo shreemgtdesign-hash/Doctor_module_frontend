@@ -329,7 +329,9 @@ const AilmentsAddressedTable = () => {
           rounded-[28px]
           border
           border-[#E7DBD3]
+          dark:border-[#382E28]
           bg-white
+          dark:bg-[#241E1B]
         ">
 
           {/* Table Header */}
@@ -339,6 +341,10 @@ const AilmentsAddressedTable = () => {
               grid
               grid-cols-[1.1fr_1.6fr_1.3fr_1fr_1.2fr_1fr]
               bg-[#FFF9F3]
+              dark:bg-[#2C231F]
+              border-b
+              border-[#EFE2D7]
+              dark:border-[#382E28]
             "
           >
 
@@ -355,14 +361,15 @@ const AilmentsAddressedTable = () => {
                 key={item}
                 className="
                   border-r
-                  border-b
                   border-[#EFE2D7]
+                  dark:border-[#382E28]
                   px-6
                   py-5
                   text-center
                   text-[16px]
                   font-semibold
                   text-[#4D2E23]
+                  dark:text-white
                   last:border-r-0
                 "
               >
@@ -385,6 +392,13 @@ const AilmentsAddressedTable = () => {
                 className="
                   grid
                   grid-cols-[1.1fr_1.6fr_1.3fr_1fr_1.2fr_1fr]
+                  border-b
+                  border-[#EFE2D7]
+                  dark:border-[#382E28]
+                  last:border-b-0
+                  hover:bg-[#FFF9F5]
+                  dark:hover:bg-[#2C231F]
+                  transition
                 "
               >
 
@@ -397,11 +411,13 @@ const AilmentsAddressedTable = () => {
                     justify-center
                     border-r
                     border-[#EFE2D7]
+                    dark:border-[#382E28]
                     px-6
                     py-6
                     text-[16px]
                     font-semibold
                     text-[#4D2E23]
+                    dark:text-[#EDE3DA]
                   "
                 >
                   {row.ailment || "-"}
@@ -414,16 +430,17 @@ const AilmentsAddressedTable = () => {
                   className="
                     border-r
                     border-[#EFE2D7]
+                    dark:border-[#382E28]
                     px-6
                     py-6
                   "
                 >
 
-                  <h3 className="text-[16px] font-bold text-[#4D2E23]">
+                  <h3 className="text-[16px] font-bold text-[#4D2E23] dark:text-white">
                     {row.patient_name || "Unknown Patient"}
                   </h3>
 
-                  <p className="mt-1 text-[13px] text-[#7A6E67]">
+                  <p className="mt-1 text-[13px] text-[#7A6E67] dark:text-[#A8988D]">
                     Patient ID: {row.patient_id || "-"}
                   </p>
 
@@ -439,11 +456,13 @@ const AilmentsAddressedTable = () => {
                     justify-center
                     border-r
                     border-[#EFE2D7]
+                    dark:border-[#382E28]
                     px-6
                     py-6
                     text-[16px]
                     font-semibold
                     text-[#4D2E23]
+                    dark:text-[#EDE3DA]
                   "
                 >
                   {row.date || "-"}
@@ -459,11 +478,13 @@ const AilmentsAddressedTable = () => {
                     justify-center
                     border-r
                     border-[#EFE2D7]
+                    dark:border-[#382E28]
                     px-6
                     py-6
                     text-[16px]
                     font-semibold
                     text-[#4D2E23]
+                    dark:text-[#EDE3DA]
                   "
                 >
                   {row.time || "-"}
@@ -479,11 +500,13 @@ const AilmentsAddressedTable = () => {
                     justify-center
                     border-r
                     border-[#EFE2D7]
+                    dark:border-[#382E28]
                     px-6
                     py-6
                     text-[16px]
                     font-semibold
                     text-[#4D2E23]
+                    dark:text-[#EDE3DA]
                   "
                 >
                   {row.purpose || "-"}
@@ -502,6 +525,7 @@ const AilmentsAddressedTable = () => {
                     text-[16px]
                     font-bold
                     text-[#4D2E23]
+                    dark:text-white
                   "
                 >
                   ₹

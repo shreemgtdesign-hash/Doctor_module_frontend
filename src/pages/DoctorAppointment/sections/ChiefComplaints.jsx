@@ -487,10 +487,7 @@ const ChiefComplaints = ({
             "
           />
 
-          <HiOutlineMicrophone
-            className="absolute right-5 top-1/2 -translate-y-1/2 text-[#5B3428]"
-            size={22}
-          />
+          
 
           {/* Search Suggestions */}
 

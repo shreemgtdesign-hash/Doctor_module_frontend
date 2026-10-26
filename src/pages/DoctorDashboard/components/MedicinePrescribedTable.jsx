@@ -353,7 +353,9 @@ const MedicinePrescribedTable = () => {
           rounded-[22px]
           border
           border-[#E7DBD3]
+          dark:border-[#382E28]
           bg-white
+          dark:bg-[#241E1B]
         "
       >
 
@@ -373,7 +375,9 @@ const MedicinePrescribedTable = () => {
               grid-cols-[280px_170px_250px_290px_220px_140px]
               border-b
               border-[#EFE2D7]
+              dark:border-[#382E28]
               bg-[#FFF9F3]
+              dark:bg-[#2C231F]
             "
           >
 
@@ -381,11 +385,13 @@ const MedicinePrescribedTable = () => {
               className="
                 border-r
                 border-[#EFE2D7]
+                dark:border-[#382E28]
                 px-8
                 py-5
                 text-[17px]
                 font-semibold
                 text-[#4D2E23]
+                dark:text-white
               "
             >
               Medicine Details
@@ -396,12 +402,14 @@ const MedicinePrescribedTable = () => {
               className="
                 border-r
                 border-[#EFE2D7]
+                dark:border-[#382E28]
                 px-6
                 py-5
                 text-center
                 text-[17px]
                 font-semibold
                 text-[#4D2E23]
+                dark:text-white
               "
             >
               Category
@@ -412,12 +420,14 @@ const MedicinePrescribedTable = () => {
               className="
                 border-r
                 border-[#EFE2D7]
+                dark:border-[#382E28]
                 px-6
                 py-5
                 text-center
                 text-[17px]
                 font-semibold
                 text-[#4D2E23]
+                dark:text-white
               "
             >
               Manufacturer
@@ -428,12 +438,14 @@ const MedicinePrescribedTable = () => {
               className="
                 border-r
                 border-[#EFE2D7]
+                dark:border-[#382E28]
                 px-6
                 py-5
                 text-center
                 text-[17px]
                 font-semibold
                 text-[#4D2E23]
+                dark:text-white
               "
             >
               Patient Details
@@ -444,12 +456,14 @@ const MedicinePrescribedTable = () => {
               className="
                 border-r
                 border-[#EFE2D7]
+                dark:border-[#382E28]
                 px-6
                 py-5
                 text-center
                 text-[17px]
                 font-semibold
                 text-[#4D2E23]
+                dark:text-white
               "
             >
               Date
@@ -464,6 +478,7 @@ const MedicinePrescribedTable = () => {
                 text-[17px]
                 font-semibold
                 text-[#4D2E23]
+                dark:text-white
               "
             >
               Price
@@ -529,6 +544,10 @@ const MedicinePrescribedTable = () => {
                     grid-cols-[280px_170px_250px_290px_220px_140px]
                     border-b
                     border-[#EFE2D7]
+                    dark:border-[#382E28]
+                    hover:bg-[#FFF9F5]
+                    dark:hover:bg-[#2C231F]
+                    transition
                     last:border-b-0
                   "
                 >
@@ -541,6 +560,7 @@ const MedicinePrescribedTable = () => {
                     className="
                       border-r
                       border-[#EFE2D7]
+                      dark:border-[#382E28]
                       px-8
                       py-6
                     "
@@ -552,6 +572,7 @@ const MedicinePrescribedTable = () => {
                         font-semibold
                         leading-6
                         text-[#4D2E23]
+                        dark:text-white
                       "
                     >
                       {
