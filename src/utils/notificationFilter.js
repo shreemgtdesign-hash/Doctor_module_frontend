@@ -614,11 +614,54 @@ export const isNotificationForRole = (
 };
 
 /**
+ * Extracts a clinical / front office appointment ID from a notification object or string.
+ */
+export const extractAppointmentId = (notification) => {
+  if (!notification) return null;
+  const data = parsePayloadData(notification.data || notification);
+
+  const explicitId =
+    data.appointment_id ||
+    data.appointmentId ||
+    notification.appointment_id ||
+    notification.appointmentId;
+
+  if (explicitId && typeof explicitId === "string" && explicitId.trim()) {
+    return explicitId.trim();
+  }
+
+  // Check URL
+  const rawUrl = data.url || data.link || notification.url || "";
+  if (rawUrl && typeof rawUrl === "string") {
+    const urlMatch = rawUrl.match(/\/upcoming-appointments\/([^\/?#]+)/i);
+    if (urlMatch && urlMatch[1]) {
+      return urlMatch[1];
+    }
+  }
+
+  // Check bracket pattern [ID:IP002] or [ID:APP-xxx] that is NOT a corporate event
+  const text = `${notification.title || ""} ${notification.body || ""} ${data.title || ""} ${data.body || ""}`;
+  const bracketMatch = text.match(/\[ID:\s*([A-Za-z0-9_-]+)\]/i);
+  if (
+    bracketMatch &&
+    bracketMatch[1] &&
+    !bracketMatch[1].startsWith("EVT") &&
+    !bracketMatch[1].startsWith("REQ-EVT") &&
+    !bracketMatch[1].startsWith("ce_evt")
+  ) {
+    return bracketMatch[1];
+  }
+
+  return null;
+};
+
+/**
  * Extracts a corporate event ID or request ID from a notification object or string.
+ * Strictly avoids non-corporate IDs like [ID:IP002].
  */
 export const extractCorporateEventId = (notification) => {
   if (!notification) return null;
-  const data = notification.data || notification;
+  const data = parsePayloadData(notification.data || notification);
 
   // 1. Check direct fields in data or notification
   const explicitId =
@@ -632,7 +675,15 @@ export const extractCorporateEventId = (notification) => {
     notification.event_id;
 
   if (explicitId && typeof explicitId === "string" && explicitId.trim()) {
-    return explicitId.trim();
+    const cleanId = explicitId.trim();
+    if (
+      cleanId.startsWith("EVT") ||
+      cleanId.startsWith("REQ-EVT") ||
+      cleanId.startsWith("ce_evt") ||
+      cleanId.includes("-")
+    ) {
+      return cleanId;
+    }
   }
 
   // 2. Check direct URL for event ID
@@ -644,11 +695,11 @@ export const extractCorporateEventId = (notification) => {
     }
   }
 
-  // 3. Search title and body for common event ID patterns
+  // 3. Search title and body ONLY for explicit corporate event ID patterns
   const text = `${notification.title || ""} ${notification.body || ""} ${data.title || ""} ${data.body || ""}`;
 
-  // Pattern [ID:EVT-xxxx] or [ID:xxxx]
-  const bracketMatch = text.match(/\[ID:\s*([A-Za-z0-9_-]+)\]/i);
+  // Pattern [ID:EVT-xxxx] or [ID:REQ-EVT-xxxx]
+  const bracketMatch = text.match(/\[ID:\s*(EVT[A-Za-z0-9_-]*|REQ-EVT-[A-Za-z0-9_-]+|ce_evt_[A-Za-z0-9_]+)\]/i);
   if (bracketMatch && bracketMatch[1]) {
     return bracketMatch[1];
   }
@@ -671,23 +722,13 @@ export const extractCorporateEventId = (notification) => {
     return ceMatch[1];
   }
 
-  // UUID in data.id if data is an event or request
-  if (
-    data.id &&
-    typeof data.id === "string" &&
-    (data.type?.includes("event") || data.category?.includes("event") || data.category?.includes("corporate"))
-  ) {
-    return data.id;
-  }
-
   return null;
 };
 
 /**
  * Resolves the target redirect URL for any given notification and role.
- * Ensures Corporate Cell / Shell event requests navigate straight to the
- * request's view details page (/corporate-cell/pending-events/:id)
- * where resource assignment, team selection, and confirmation happen.
+ * Ensures each role (Front Office, Doctor, Corporate Cell, etc.) navigates
+ * strictly to their own respective portal tabs and detailed views.
  */
 export const getNotificationRedirectUrl = (notification, activeRole) => {
   if (!notification) return "/";
@@ -696,32 +737,27 @@ export const getNotificationRedirectUrl = (notification, activeRole) => {
   const data = parsePayloadData(notification.data || notification);
   const directUrl = data.url || data.link || notification.url;
 
-  // If explicit URL already provided:
+  // 1. If explicit valid internal URL is provided
   if (directUrl && typeof directUrl === "string" && directUrl.startsWith("/")) {
-    return directUrl;
+    // If user is front office, don't follow accidental corporate-cell URLs
+    if (normRole === "frontoffice" && directUrl.startsWith("/corporate-cell")) {
+      // Proceed to front office role routing below
+    } else {
+      return directUrl;
+    }
   }
 
+  const category = (notification.category || data.category || "").toLowerCase().replace(/\s+/g, "_");
+  const type = (notification.type || data.type || "").toLowerCase().replace(/\s+/g, "_");
   const text = `${notification.title || ""} ${notification.body || ""} ${data.title || ""} ${data.body || ""}`.toLowerCase();
+  const appointmentId = extractAppointmentId(notification);
   const eventId = extractCorporateEventId(notification);
+  const orderId = data.order_id || data.orderId || notification.order_id;
 
-  const isCorporateCellRole = normRole === "corporate_cell";
-  const isCorporateRequestSignal =
-    Boolean(eventId) ||
-    data.type?.includes("corporate") ||
-    data.type?.includes("event") ||
-    data.category?.includes("corporate") ||
-    data.category?.includes("event") ||
-    text.includes("corporate") ||
-    text.includes("event request") ||
-    text.includes("requested an event") ||
-    text.includes("request an event") ||
-    text.includes("wellness event") ||
-    text.includes("pending request");
-
-  // Corporate Cell / Corporate Shell:
-  // Validate status: if already confirmed -> /corporate-cell/upcoming-events
-  // if under pending confirmation -> /corporate-cell/pending-events
-  if (isCorporateCellRole || isCorporateRequestSignal) {
+  // ========================================================
+  // 1. CORPORATE CELL / CORPORATE SHELL ROLE
+  // ========================================================
+  if (normRole === "corporate_cell") {
     const statusInPayload = (
       data.status ||
       data.event_status ||
@@ -748,90 +784,213 @@ export const getNotificationRedirectUrl = (notification, activeRole) => {
     return "/corporate-cell/pending-events";
   }
 
-  // Appointment ID navigation for clinical / front office roles
-  const appointmentId =
-    data.appointment_id ||
-    data.appointmentId ||
-    notification.appointment_id;
+  // ========================================================
+  // 2. FRONT OFFICE ROLE
+  // Navigate to respective front office tabs and views
+  // ========================================================
+  if (normRole === "frontoffice") {
+    // A. THERAPIES
+    if (
+      category.includes("Pending payments") ||
+      text.includes("Payment Pending") 
 
-  if (appointmentId) {
-    if (normRole === "doctor") {
-      return "/doctor/appointments";
-    } else if (normRole === "dutydoctor") {
-      return "/duty-doctor/dashboard";
-    } else if (normRole === "pharmacist") {
-      return "/pharmacist/appointments";
-    } else if (normRole === "therapist") {
-      return "/therapist/appointments";
-    } else {
-      return `/frontoffice/upcoming-appointments/${appointmentId}`;
+    ) {
+      return "/frontoffice/billing/pending-payments/:id";
     }
+
+    // B. HOME SERVICES / HOME VISIT
+    if (
+      category.includes("home") ||
+      type.includes("home") ||
+      text.includes("home service") ||
+      text.includes("home visit")
+    ) {
+      return "/frontoffice/pending-actions/home-visit-confirmations";
+    }
+
+    // C. ONLINE ORDERS
+    if (
+      category.includes("order") ||
+      type.includes("order") ||
+      text.includes("online order") ||
+      text.includes("order placed") ||
+      text.includes("medicine purchase")
+    ) {
+      return orderId
+        ? `/frontoffice/pending-actions/online-orders/${orderId}`
+        : "/frontoffice/pending-actions/online-orders";
+    }
+
+    // D. PAYMENTS & BILLING
+    if (
+      category.includes("payment") ||
+      category.includes("billing") ||
+      type.includes("payment") ||
+      type.includes("billing") ||
+      text.includes("payment") ||
+      text.includes("billing") ||
+      text.includes("paid") ||
+      text.includes("invoice")
+    ) {
+      return appointmentId
+        ? `/frontoffice/billing/pending-payments/${appointmentId}`
+        : "/frontoffice/billing/pending-payments";
+    }
+
+    // E. MEDICAL CAMPS
+    if (
+      category.includes("camp") ||
+      type.includes("camp") ||
+      text.includes("camp") ||
+      text.includes("medcamp")
+    ) {
+      return "/frontoffice/medcamp-calender";
+    }
+
+    // F. PACKAGES
+    if (category.includes("package") || type.includes("package") || text.includes("package")) {
+      return "/frontoffice/packages-list";
+    }
+
+    // G. INSURANCE
+    if (category.includes("insurance") || type.includes("insurance") || text.includes("insurance")) {
+      return "/frontoffice/insurance-list";
+    }
+
+    // H. REFERRALS
+    if (category.includes("referral") || type.includes("referral") || text.includes("referral")) {
+      return "/frontoffice/referral-list";
+    }
+
+    // I. PATIENTS
+    if (category.includes("patient") || text.includes("patient registered") || text.includes("new patient")) {
+      return "/frontoffice/patients-table";
+    }
+
+    // J. APPOINTMENTS (Booked, Pending, Request, In-Person, etc.)
+    if (
+      category.includes("appointment") ||
+      type.includes("appointment") ||
+      text.includes("appointment") ||
+      text.includes("consultation") ||
+      text.includes("in-person") ||
+      text.includes("check-in") ||
+      Boolean(appointmentId)
+    ) {
+      const isPendingConfirmation =
+        text.includes("pending confirmation") ||
+        text.includes("requested an appointment") ||
+        text.includes("appointment request");
+
+      if (isPendingConfirmation) {
+        return "/frontoffice/pending-actions/appointment-confirmations";
+      }
+
+      return appointmentId
+        ? `/frontoffice/upcoming-appointments/${appointmentId}`
+        : "/frontoffice/upcoming-appointments";
+    }
+
+    return "/frontoffice/dashboard";
+  }
+
+  // ========================================================
+  // 3. CLINICAL & OTHER ROLES
+  // ========================================================
+  if (normRole === "doctor") {
+    return "/doctor/appointments";
+  }
+
+  if (normRole === "dutydoctor") {
+    return "/duty-doctor/dashboard";
+  }
+
+  if (normRole === "pharmacist") {
+    return "/pharmacist/appointments";
+  }
+
+  if (normRole === "therapist") {
+    return "/therapist/appointments";
+  }
+
+  if (normRole === "corporate") {
+    return "/corporate/dashboard";
+  }
+
+  // Default fallback if appointmentId exists
+  if (appointmentId) {
+    return `/frontoffice/upcoming-appointments/${appointmentId}`;
   }
 
   return "/";
 };
 
 /**
- * Validates the event confirmation status via payload and backend check:
- * - If event confirmation status is already confirmed -> /corporate-cell/upcoming-events/:id
- * - If event request is under pending confirmation -> /corporate-cell/pending-events/:id
+ * Validates the event confirmation status for Corporate Cell via backend check,
+ * and accurately delegates other roles directly to their appropriate portal tabs.
  */
 export const resolveCorporateEventNotificationUrl = async (notification, activeRole) => {
-  const syncUrl = getNotificationRedirectUrl(notification, activeRole);
-  const eventId = extractCorporateEventId(notification);
+  const normRole = normalizeRole(activeRole || localStorage.getItem("role"));
 
-  if (!eventId) {
-    return syncUrl;
-  }
+  // Only perform dynamic Corporate Cell API verification if the user is corporate_cell
+  if (normRole === "corporate_cell") {
+    const eventId = extractCorporateEventId(notification);
+    if (eventId) {
+      const data = parsePayloadData(notification?.data || notification);
+      const statusInPayload = (
+        data.status ||
+        data.event_status ||
+        data.confirmation_status ||
+        notification?.status ||
+        ""
+      ).toLowerCase();
 
-  const data = parsePayloadData(notification?.data || notification);
-  const statusInPayload = (
-    data.status ||
-    data.event_status ||
-    data.confirmation_status ||
-    notification?.status ||
-    ""
-  ).toLowerCase();
-
-  // If status is explicit in payload, return immediately
-  if (statusInPayload === "confirmed" || statusInPayload === "upcoming") {
-    return `/corporate-cell/upcoming-events/${eventId}`;
-  }
-  if (statusInPayload === "pending" || statusInPayload.includes("pending")) {
-    return `/corporate-cell/pending-events/${eventId}`;
-  }
-
-  // Validate dynamically against backend
-  const token = localStorage.getItem("token") || "";
-  const headers = {
-    Authorization: token ? `Bearer ${token}` : "",
-    "Content-Type": "application/json",
-  };
-
-  try {
-    const res = await fetch(`/api/corporatecell/upcoming-events/${eventId}`, { headers });
-    if (res.ok) {
-      const json = await res.json();
-      const st = (json?.data?.status || "").toLowerCase();
-      if (st === "confirmed" || st === "upcoming" || json?.success) {
+      if (statusInPayload === "confirmed" || statusInPayload === "upcoming") {
         return `/corporate-cell/upcoming-events/${eventId}`;
       }
-    }
-  } catch (_) {}
-
-  try {
-    const pRes = await fetch(`/api/corporatecell/pending-events/${eventId}`, { headers });
-    if (pRes.ok) {
-      const pJson = await pRes.json();
-      const pSt = (pJson?.data?.status || "").toLowerCase();
-      if (pSt === "confirmed" || pSt === "upcoming") {
-        return `/corporate-cell/upcoming-events/${eventId}`;
+      if (statusInPayload === "pending" || statusInPayload.includes("pending")) {
+        return `/corporate-cell/pending-events/${eventId}`;
       }
+
+      // Check backend API dynamically
+      const token =
+        typeof localStorage !== "undefined" && typeof localStorage.getItem === "function"
+          ? localStorage.getItem("token") || ""
+          : "";
+      const headers = {
+        Authorization: token ? `Bearer ${token}` : "",
+        "Content-Type": "application/json",
+      };
+
+      try {
+        const res = await fetch(`/api/corporatecell/upcoming-events/${eventId}`, { headers });
+        if (res.ok) {
+          const json = await res.json();
+          const st = (json?.data?.status || "").toLowerCase();
+          if (st === "confirmed" || st === "upcoming" || json?.success) {
+            return `/corporate-cell/upcoming-events/${eventId}`;
+          }
+        }
+      } catch (_) {}
+
+      try {
+        const pRes = await fetch(`/api/corporatecell/pending-events/${eventId}`, { headers });
+        if (pRes.ok) {
+          const pJson = await pRes.json();
+          const pSt = (pJson?.data?.status || "").toLowerCase();
+          if (pSt === "confirmed" || pSt === "upcoming") {
+            return `/corporate-cell/upcoming-events/${eventId}`;
+          }
+          return `/corporate-cell/pending-events/${eventId}`;
+        }
+      } catch (_) {}
+
       return `/corporate-cell/pending-events/${eventId}`;
     }
-  } catch (_) {}
+  }
 
-  return syncUrl;
+  // For all other roles (frontoffice, doctor, etc.), synchronously resolve the accurate role portal route
+  return getNotificationRedirectUrl(notification, activeRole);
 };
 
 // ======================================================

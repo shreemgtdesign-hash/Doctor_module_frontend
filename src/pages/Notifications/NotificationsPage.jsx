@@ -19,92 +19,9 @@ const DEFAULT_TABS = [
   { key: "payments", label: "Payments" },
 ];
 
-const FALLBACK_NOTIFICATIONS = [
-  {
-    id: "notif-1",
-    category: "Appointments",
-    title: "Appointment Booked",
-    body: "Meera Iyer has been scheduled for an In-Person Consultation with Dr. Jayasree Iyer [ID:IP002]",
-    icon_type: "success",
-    time_ago: "2 min",
-    is_read: false,
-    created_at: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "notif-2",
-    category: "Therapies",
-    title: "Therapy Request",
-    body: "Meera Iyer has Requested for a Shirodhara therapy. [ID:IP002]",
-    icon_type: "success",
-    time_ago: "4 min",
-    is_read: false,
-    created_at: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "notif-3",
-    category: "Online Orders",
-    title: "Online Order Placed",
-    body: "Meera Iyer has Placed an order for Anuthailam [ID:IP002]",
-    icon_type: "success",
-    time_ago: "7 min",
-    is_read: false,
-    created_at: new Date(Date.now() - 7 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "notif-4",
-    category: "Payments",
-    title: "Payment Successful",
-    body: "Payment of Rs.5670 for Meera Iyer was successful [ID:IP002]",
-    icon_type: "success",
-    time_ago: "11 min",
-    is_read: false,
-    created_at: new Date(Date.now() - 11 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "notif-5",
-    category: "Payments",
-    title: "Payment Failed",
-    body: "Payment of Rs.5670 for Meera Iyer has failed [ID:IP002]",
-    icon_type: "failed",
-    time_ago: "12 min",
-    is_read: false,
-    created_at: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "notif-6",
-    category: "Appointments",
-    title: "Appointment Booked",
-    body: "Meera Iyer has been scheduled for an In-Person Consultation with Dr. Jayasree Iyer [ID:IP002]",
-    icon_type: "success",
-    time_ago: "14 min",
-    is_read: true,
-    created_at: new Date(Date.now() - 14 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "notif-7",
-    category: "Therapies",
-    title: "Therapy Request",
-    body: "Meera Iyer has Requested for a Shirodhara therapy. [ID:IP002]",
-    icon_type: "success",
-    time_ago: "27 min",
-    is_read: true,
-    created_at: new Date(Date.now() - 27 * 60 * 1000).toISOString(),
-  },
-  {
-    id: "notif-8",
-    category: "Events",
-    title: "New Corporate Event Request",
-    body: "Reliance Industries Limited requested a Yoga & Meditation session [ID:EVT-261022-708]",
-    icon_type: "success",
-    time_ago: "5 min",
-    is_read: false,
-    event_id: "EVT-261022-708",
-    created_at: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
-  },
-];
-
-const NotificationsPage = () => {
+const NotificationsPage = ({ role } = {}) => {
   const navigate = useNavigate();
+  const currentRole = role || getActiveRole(null, localStorage.getItem("role"));
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [notifications, setNotifications] = useState([]);
   const [filterTabs, setFilterTabs] = useState(DEFAULT_TABS);
@@ -115,41 +32,36 @@ const NotificationsPage = () => {
     setLoading(true);
     try {
       const res = await getNotifications({ filter: filterKey });
-      if (res.data?.success && Array.isArray(res.data?.data)) {
-        setNotifications(res.data.data);
-        if (Array.isArray(res.data?.filters) && res.data.filters.length > 0) {
-          setFilterTabs(
-            res.data.filters.map((f) => ({
-              key: f.key,
-              label: f.label,
-              count: f.count,
-            }))
-          );
-        }
-        if (typeof res.data?.unread_count === "number") {
-          setUnreadCount(res.data.unread_count);
-        }
+      const rawData = res.data;
+      const list = Array.isArray(rawData?.data)
+        ? rawData.data
+        : Array.isArray(rawData?.notifications)
+        ? rawData.notifications
+        : Array.isArray(rawData)
+        ? rawData
+        : [];
+
+      setNotifications(list);
+
+      if (Array.isArray(rawData?.filters) && rawData.filters.length > 0) {
+        setFilterTabs(
+          rawData.filters.map((f) => ({
+            key: f.key,
+            label: f.label,
+            count: f.count,
+          }))
+        );
+      }
+
+      if (typeof rawData?.unread_count === "number") {
+        setUnreadCount(rawData.unread_count);
       } else {
-        // Fallback filter
-        const filteredFallback =
-          filterKey === "all"
-            ? FALLBACK_NOTIFICATIONS
-            : FALLBACK_NOTIFICATIONS.filter((item) => {
-                const cat = (item.category || "").toLowerCase().replace(/\s+/g, "_");
-                return cat === filterKey;
-              });
-        setNotifications(filteredFallback);
+        setUnreadCount(list.filter((n) => !n.is_read).length);
       }
     } catch (err) {
-      console.warn("Notifications API request failed, using fallback:", err);
-      const filteredFallback =
-        filterKey === "all"
-          ? FALLBACK_NOTIFICATIONS
-          : FALLBACK_NOTIFICATIONS.filter((item) => {
-              const cat = (item.category || "").toLowerCase().replace(/\s+/g, "_");
-              return cat === filterKey;
-            });
-      setNotifications(filteredFallback);
+      console.error("Notifications API request failed:", err);
+      setNotifications([]);
+      setUnreadCount(0);
     } finally {
       setLoading(false);
     }
@@ -258,7 +170,7 @@ const NotificationsPage = () => {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout role={currentRole}>
       <div className="min-h-[calc(100vh-88px)] w-full bg-[#FAF7F2] px-4 py-6 sm:px-8 sm:py-8 font-sans">
         {/* Header container */}
         <div className="max-w-6xl mx-auto">
@@ -294,13 +206,13 @@ const NotificationsPage = () => {
                     onClick={() => handleTabClick(tab.key)}
                     className={`relative pb-3 text-[14.5px] font-medium transition-colors ${
                       isActive
-                        ? "text-[#2C1810] font-bold"
-                        : "text-[#8A7D75] hover:text-[#4D2E23]"
+                        ? "text-[#2C1810] dark:text-white font-bold"
+                        : "text-[#8A7D75] dark:text-[#A8988D] hover:text-[#4D2E23] dark:hover:text-white"
                     }`}
                   >
                     <span>{tab.label}</span>
                     {isActive && (
-                      <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#4D2E23] rounded-full" />
+                      <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#4D2E23] dark:bg-[#E59850] rounded-full" />
                     )}
                   </button>
                 );
@@ -309,34 +221,34 @@ const NotificationsPage = () => {
           </div>
 
           {/* Notification List Content */}
-          <div className="mt-4 bg-white/70 backdrop-blur-xs rounded-2xl border border-[#EFE5DC] shadow-2xs overflow-hidden">
+          <div className="mt-4 bg-white/70 dark:bg-[#241E1B] backdrop-blur-xs rounded-2xl border border-[#EFE5DC] dark:border-[#382E28] shadow-2xs overflow-hidden">
             {loading ? (
-              <div className="flex items-center justify-center py-20 text-[#8A7D75] gap-2">
-                <HiRefresh className="animate-spin text-[#6F4432]" size={22} />
+              <div className="flex items-center justify-center py-20 text-[#8A7D75] dark:text-[#A8988D] gap-2">
+                <HiRefresh className="animate-spin text-[#6F4432] dark:text-[#E59850]" size={22} />
                 <span className="text-sm font-medium">Loading notifications...</span>
               </div>
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-24 text-center px-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F3ECE4] text-[#8A7D75] mb-3">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#F3ECE4] dark:bg-[#362C26] text-[#8A7D75] dark:text-[#E59850] mb-3">
                   <HiOutlineBell size={26} />
                 </div>
-                <p className="text-[15px] font-semibold text-[#2C1810]">
+                <p className="text-[15px] font-semibold text-[#2C1810] dark:text-white">
                   No notifications yet
                 </p>
-                <p className="text-xs text-[#8A7D75] mt-1">
+                <p className="text-xs text-[#8A7D75] dark:text-[#A8988D] mt-1">
                   You are all caught up for this section.
                 </p>
               </div>
             ) : (
-              <ul className="divide-y divide-[#F1E8DE]">
+              <ul className="divide-y divide-[#F1E8DE] dark:divide-[#382E28]">
                 {notifications.map((notif) => {
                   const isFailed = isFailedNotification(notif);
                   return (
                     <li
                       key={notif.id || `${notif.title}-${notif.created_at}`}
                       onClick={() => handleNotificationClick(notif)}
-                      className={`group flex items-start justify-between gap-4 px-5 py-4 transition-colors cursor-pointer hover:bg-[#FAF4EE] ${
-                        !notif.is_read ? "bg-[#FFFDFC]" : "bg-transparent"
+                      className={`group flex items-start justify-between gap-4 px-5 py-4 transition-colors cursor-pointer hover:bg-[#FAF4EE] dark:hover:bg-[#2C231F] ${
+                        !notif.is_read ? "bg-[#FFFDFC] dark:bg-[#1F1916]" : "bg-transparent"
                       }`}
                     >
                       {/* Left: Status Icon and Details */}
@@ -358,12 +270,12 @@ const NotificationsPage = () => {
                         <div className="min-w-0">
                           <h4
                             className={`text-[14.5px] font-semibold leading-snug tracking-tight ${
-                              isFailed ? "text-[#991B1B]" : "text-[#237839]"
+                              isFailed ? "text-[#991B1B] dark:text-[#F87171]" : "text-[#237839] dark:text-[#4ADE80]"
                             }`}
                           >
                             {notif.title || notif.category || "Notification"}
                           </h4>
-                          <p className="mt-0.5 text-[13.5px] text-[#4A4540] leading-relaxed break-words">
+                          <p className="mt-0.5 text-[13.5px] text-[#4A4540] dark:text-[#D1C5BC] leading-relaxed break-words">
                             {notif.body || notif.message || notif.description || ""}
                           </p>
                         </div>
@@ -371,7 +283,7 @@ const NotificationsPage = () => {
 
                       {/* Right: Time ago */}
                       <div className="shrink-0 text-right pt-0.5">
-                        <span className="text-[13px] text-[#8F847C] whitespace-nowrap">
+                        <span className="text-[13px] text-[#8F847C] dark:text-[#A8988D] whitespace-nowrap">
                           {formatTime(notif.time_ago, notif.created_at)}
                         </span>
                       </div>
