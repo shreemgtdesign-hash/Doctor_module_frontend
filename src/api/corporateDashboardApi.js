@@ -43,6 +43,30 @@ export const createCorporateCustomizeEvent = (payload) => {
 };
 
 // ==========================================
+// 5b. UPLOAD EMPLOYEES EXCEL FILE
+// POST /corporate/employees/upload
+// ==========================================
+export const uploadCorporateEmployees = (formData) => {
+  return api.post("/corporate/employees/upload", formData);
+};
+
+// ==========================================
+// 5c. SEND WHATSAPP & EMAIL NOTIFICATIONS
+// POST /corporate/employees/notify
+// ==========================================
+export const notifyCorporateEmployees = (payload = { send_all: true }) => {
+  return api.post("/corporate/employees/notify", payload);
+};
+
+// ==========================================
+// 5d. GET CORPORATE EMPLOYEES LIST
+// GET /corporate/employees
+// ==========================================
+export const getCorporateEmployees = (params = {}) => {
+  return api.get("/corporate/employees", { params });
+};
+
+// ==========================================
 // 6. CORPORATE EVENTS (LIST VIEW)
 // GET /corporate/events?month=...
 // ==========================================
@@ -121,4 +145,4 @@ export const verifyCorporateEmailOtp = (payload) => {
 export const resendCorporateOtp = (payload) => {
   return api.post("/corporate/resend-otp", payload);
 };
-
+
