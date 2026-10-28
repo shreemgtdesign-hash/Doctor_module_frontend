@@ -36,6 +36,7 @@ const emptyDoctor = {
   specialization: "",
   qualification: "",
   registration_no: "",
+  languages: "",
   consultation_fee: "",
   bio: "",
 };
@@ -156,6 +157,13 @@ const DoctorMaster = () => {
           return true;
         }
 
+        const languagesStr =
+          Array.isArray(doctor.languages)
+            ? doctor.languages.join(" ")
+            : typeof doctor.languages === "string"
+            ? doctor.languages
+            : "";
+
         return (
           doctor.name
             ?.toLowerCase()
@@ -166,6 +174,10 @@ const DoctorMaster = () => {
             .includes(value) ||
 
           doctor.qualification
+            ?.toLowerCase()
+            .includes(value) ||
+
+          languagesStr
             ?.toLowerCase()
             .includes(value) ||
 
@@ -232,6 +244,13 @@ const DoctorMaster = () => {
       doctor
     );
 
+    const languagesVal =
+      Array.isArray(doctor.languages)
+        ? doctor.languages.join(", ")
+        : typeof doctor.languages === "string"
+        ? doctor.languages
+        : "";
+
     setForm({
 
       name:
@@ -246,11 +265,18 @@ const DoctorMaster = () => {
       registration_no:
         doctor.registration_no || "",
 
+      languages:
+        languagesVal,
+
       consultation_fee:
-        doctor.consultation_fee || "",
+        doctor.consultation_fee !== undefined && doctor.consultation_fee !== null
+          ? doctor.consultation_fee
+          : doctor.fee_in_person !== undefined && doctor.fee_in_person !== null
+          ? doctor.fee_in_person
+          : "",
 
       bio:
-        doctor.bio || "",
+        doctor.bio || doctor.about || "",
 
     });
 
@@ -273,31 +299,107 @@ const DoctorMaster = () => {
 
     e.preventDefault();
 
-    const payload = {
-
-      ...form,
-
-      consultation_fee:
-        form.consultation_fee
-          ? Number(
-              form.consultation_fee
-            )
-          : 0,
-
-    };
-
-
     if (editingDoctor) {
+
+      const doctorId =
+        editingDoctor.id ||
+        editingDoctor._id ||
+        editingDoctor.doctor_id;
+
+      // Matches PUT /frontoffice/doctors/:id
+      const payload = {
+
+        name:
+          form.name?.trim() || editingDoctor.name,
+
+        doctor_code:
+          editingDoctor.doctor_code || editingDoctor.code,
+
+        email:
+          editingDoctor.email || editingDoctor.contact?.email,
+
+        phone:
+          editingDoctor.phone || editingDoctor.contact?.phone,
+
+        dob:
+          editingDoctor.dob,
+
+        gender:
+          editingDoctor.gender,
+
+        qualification:
+          form.qualification?.trim() || editingDoctor.qualification,
+
+        specialization:
+          form.specialization?.trim() || editingDoctor.specialization,
+
+        experience_years:
+          editingDoctor.experience_years !== undefined
+            ? Number(editingDoctor.experience_years)
+            : editingDoctor.experience
+            ? parseInt(editingDoctor.experience) || 0
+            : undefined,
+
+        registration_no:
+          form.registration_no?.trim() || editingDoctor.registration_no,
+
+        department:
+          editingDoctor.department,
+
+        employment_type:
+          editingDoctor.employment_type,
+
+        languages:
+          form.languages?.trim() || "",
+
+        about:
+          form.bio?.trim() ||
+          editingDoctor.about ||
+          editingDoctor.bio ||
+          "",
+
+        fee_in_person:
+          editingDoctor.fee_in_person !== undefined
+            ? Number(editingDoctor.fee_in_person)
+            : form.consultation_fee
+            ? Number(form.consultation_fee)
+            : undefined,
+
+        fee_video_call:
+          editingDoctor.fee_video_call !== undefined
+            ? Number(editingDoctor.fee_video_call)
+            : undefined,
+
+        fee_home_visit:
+          editingDoctor.fee_home_visit !== undefined
+            ? Number(editingDoctor.fee_home_visit)
+            : undefined,
+
+        shift_timings:
+          editingDoctor.shift_timings,
+
+        working_days:
+          editingDoctor.working_days,
+
+        consultation_fee:
+          form.consultation_fee
+            ? Number(form.consultation_fee)
+            : editingDoctor.consultation_fee !== undefined
+            ? Number(editingDoctor.consultation_fee)
+            : undefined,
+
+      };
+
+      // Remove undefined properties for clean JSON payload
+      Object.keys(payload).forEach(
+        (key) => payload[key] === undefined && delete payload[key]
+      );
 
       const result =
         await dispatch(
           updateFrontOfficeDoctor({
-            doctorId:
-              editingDoctor.id,
-
-            data:
-              payload,
-
+            doctorId,
+            data: payload,
           })
         );
 
@@ -324,6 +426,36 @@ const DoctorMaster = () => {
       }
 
     } else {
+
+      // Matches POST /frontoffice/doctors
+      const payload = {
+
+        name:
+          form.name?.trim(),
+
+        specialization:
+          form.specialization?.trim(),
+
+        qualification:
+          form.qualification?.trim(),
+
+        registration_no:
+          form.registration_no?.trim(),
+
+        languages:
+          form.languages?.trim() || "",
+
+        consultation_fee:
+          form.consultation_fee
+            ? Number(
+                form.consultation_fee
+              )
+            : 0,
+
+        bio:
+          form.bio?.trim() || "",
+
+      };
 
       const result =
         await dispatch(
@@ -448,7 +580,8 @@ const DoctorMaster = () => {
       <div
         className="
           min-h-screen
-          bg-white
+          bg-[#FDFBF9]
+          dark:bg-[#1A1412]
           px-6
           py-6
         "
@@ -458,81 +591,88 @@ const DoctorMaster = () => {
         {/* ==========================================
             HEADER
         ========================================== */}
-<div className="flex item-center justify-between">
-       <div
-    className="
-        mb-5
-        flex
-        items-start
-        justify-between
-    "
->
-    <div className="flex items-start gap-3">
-
-        <button
-            type="button"
-            onClick={() =>
-                navigate("/frontoffice/dashboard")
-            }
+        <div className="flex items-center justify-between">
+          <div
             className="
-                mt-0.5
-                flex
-                h-9
-                w-9
-                shrink-0
-                items-center
-                justify-center
-                rounded-full
-                border
-                border-[#E7DBD3]
-                bg-white
-                text-[#4B2E2A]
-                transition
-                hover:bg-[#F9F5F1]
+              mb-5
+              flex
+              items-start
+              justify-between
             "
-        >
-            <HiOutlineArrowLeft
-                size={17}
-            />
-        </button>
+          >
+            <div className="flex items-start gap-3">
 
-        <div>
-
-            <h1
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/frontoffice/dashboard")
+                }
                 className="
+                  mt-0.5
+                  flex
+                  h-9
+                  w-9
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-full
+                  border
+                  border-[#E7DBD3]
+                  dark:border-[#382D25]
+                  bg-white
+                  dark:bg-[#251E1A]
+                  text-[#4B2E2A]
+                  dark:text-[#EDE3DA]
+                  transition
+                  hover:bg-[#F9F5F1]
+                  dark:hover:bg-[#2E241F]
+                "
+              >
+                <HiOutlineArrowLeft
+                  size={17}
+                />
+              </button>
+
+              <div>
+
+                <h1
+                  className="
                     text-[24px]
                     font-semibold
                     text-[#292929]
-                "
-            >
-                Doctor Master
-            </h1>
+                    dark:text-[#EDE3DA]
+                  "
+                >
+                  Doctor Master
+                </h1>
 
-            <div
-                className="
+                <div
+                  className="
                     mt-2
                     flex
                     items-center
                     gap-2
                     text-[14px]
                     text-[#4D2E23]
-                "
-            >
-                <span
+                    dark:text-[#C5B4A8]
+                  "
+                >
+                  <span
                     className="
-                        h-2
-                        w-2
-                        rounded-full
-                        bg-[#4D2E23]
+                      h-2
+                      w-2
+                      rounded-full
+                      bg-[#4D2E23]
+                      dark:bg-[#C5B4A8]
                     "
-                />
+                  />
 
-                {doctors.length} Doctors
+                  {doctors.length} Doctors
+                </div>
+
+              </div>
+
             </div>
-
-        </div>
-
-    </div>
 
           </div>
 
@@ -557,13 +697,17 @@ const DoctorMaster = () => {
                 rounded-xl
                 border
                 border-[#E7D8CC]
+                dark:border-[#382D25]
                 bg-white
+                dark:bg-[#251E1A]
                 px-7
                 text-[14px]
                 font-semibold
                 text-[#4D2E23]
+                dark:text-[#EDE3DA]
                 transition
                 hover:bg-[#FFF8F3]
+                dark:hover:bg-[#2E241F]
               "
             >
 
@@ -607,8 +751,7 @@ const DoctorMaster = () => {
 
           </div>
 
-        
-</div>
+        </div>
 
         {/* ==========================================
             SEARCH
@@ -637,12 +780,16 @@ const DoctorMaster = () => {
               rounded-xl
               border
               border-[#E7D8CC]
+              dark:border-[#382D25]
               bg-white
+              dark:bg-[#251E1A]
               px-4
               text-sm
               text-[#4D2E23]
+              dark:text-[#EDE3DA]
               outline-none
               focus:border-[#8A5035]
+              placeholder:text-[#8B7A70]/60
             "
           />
 
@@ -661,11 +808,14 @@ const DoctorMaster = () => {
               rounded-xl
               border
               border-red-200
+              dark:border-red-900/50
               bg-red-50
+              dark:bg-red-950/20
               px-4
               py-3
               text-sm
               text-red-600
+              dark:text-red-400
             "
           >
 
@@ -689,7 +839,9 @@ const DoctorMaster = () => {
             rounded-2xl
             border
             border-[#E8D9CD]
+            dark:border-[#382D25]
             bg-white
+            dark:bg-[#241E1B]
           "
         >
 
@@ -701,7 +853,9 @@ const DoctorMaster = () => {
               grid-cols-[2.2fr_1.4fr_1fr_1.55fr_2fr_68px]
               border-b
               border-[#E8D9CD]
+              dark:border-[#382D25]
               bg-[#FFF9F4]
+              dark:bg-[#2D231E]
             "
           >
 
@@ -720,11 +874,13 @@ const DoctorMaster = () => {
                   className="
                     border-r
                     border-[#E8D9CD]
+                    dark:border-[#382D25]
                     px-4
                     py-4
                     text-[13px]
                     font-medium
                     text-[#4D2E23]
+                    dark:text-[#EDE3DA]
                     last:border-r-0
                   "
                 >
@@ -748,6 +904,7 @@ const DoctorMaster = () => {
                 text-center
                 text-[14px]
                 text-[#8B7A70]
+                dark:text-[#A8988E]
               "
             >
               Loading doctors...
@@ -763,6 +920,7 @@ const DoctorMaster = () => {
                 text-center
                 text-[14px]
                 text-[#8B7A70]
+                dark:text-[#A8988E]
               "
             >
               No doctors found.
@@ -784,6 +942,10 @@ const DoctorMaster = () => {
                     grid-cols-[2.2fr_1.4fr_1fr_1.55fr_2fr_68px]
                     border-b
                     border-[#EFE4DC]
+                    dark:border-[#382D25]
+                    hover:bg-[#FFFDFB]
+                    dark:hover:bg-[#2A221E]
+                    transition
                     last:border-b-0
                   "
                 >
@@ -799,6 +961,7 @@ const DoctorMaster = () => {
                       gap-3
                       border-r
                       border-[#EFE4DC]
+                      dark:border-[#382D25]
                       px-4
                       py-3
                     "
@@ -814,9 +977,11 @@ const DoctorMaster = () => {
                         justify-center
                         rounded-full
                         bg-[#F0EBE7]
+                        dark:bg-[#382D25]
                         text-[14px]
                         font-semibold
                         text-[#8A5035]
+                        dark:text-[#D5A794]
                       "
                     >
 
@@ -842,6 +1007,7 @@ const DoctorMaster = () => {
                           text-[14px]
                           font-semibold
                           text-[#4D2E23]
+                          dark:text-[#EDE3DA]
                         "
                       >
                         {doctor.name ||
@@ -855,10 +1021,18 @@ const DoctorMaster = () => {
                           truncate
                           text-[12px]
                           text-[#8B7A70]
+                          dark:text-[#A8988E]
                         "
                       >
                         {doctor.qualification ||
                           "Qualification not available"}
+                        {doctor.languages
+                          ? ` • ${
+                              Array.isArray(doctor.languages)
+                                ? doctor.languages.join(", ")
+                                : doctor.languages
+                            }`
+                          : ""}
                       </p>
 
                     </div>
@@ -876,6 +1050,7 @@ const DoctorMaster = () => {
                       items-center
                       border-r
                       border-[#EFE4DC]
+                      dark:border-[#382D25]
                       px-4
                       py-3
                     "
@@ -886,6 +1061,7 @@ const DoctorMaster = () => {
                         text-[14px]
                         font-semibold
                         text-[#4D2E23]
+                        dark:text-[#EDE3DA]
                       "
                     >
                       {doctor.specialization ||
@@ -905,6 +1081,7 @@ const DoctorMaster = () => {
                       items-center
                       border-r
                       border-[#EFE4DC]
+                      dark:border-[#382D25]
                       px-4
                       py-3
                     "
@@ -915,10 +1092,11 @@ const DoctorMaster = () => {
                         text-[14px]
                         font-semibold
                         text-[#4D2E23]
+                        dark:text-[#EDE3DA]
                       "
                     >
                       {doctor.experience ||
-                        "N/A"}
+                        (doctor.experience_years ? `${doctor.experience_years} yrs` : "N/A")}
                     </span>
 
                   </div>
@@ -934,6 +1112,7 @@ const DoctorMaster = () => {
                       items-center
                       border-r
                       border-[#EFE4DC]
+                      dark:border-[#382D25]
                       px-4
                       py-3
                     "
@@ -945,6 +1124,7 @@ const DoctorMaster = () => {
                         font-semibold
                         leading-5
                         text-[#4D2E23]
+                        dark:text-[#EDE3DA]
                       "
                     >
                       {doctor.consultation_type ||
@@ -966,6 +1146,7 @@ const DoctorMaster = () => {
                       justify-center
                       border-r
                       border-[#EFE4DC]
+                      dark:border-[#382D25]
                       px-4
                       py-3
                     "
@@ -977,9 +1158,11 @@ const DoctorMaster = () => {
                         text-[14px]
                         font-semibold
                         text-[#4D2E23]
+                        dark:text-[#EDE3DA]
                       "
                     >
                       {doctor.contact?.phone ||
+                        doctor.phone ||
                         "N/A"}
                     </span>
 
@@ -990,9 +1173,11 @@ const DoctorMaster = () => {
                         truncate
                         text-[12px]
                         text-[#8B7A70]
+                        dark:text-[#A8988E]
                       "
                     >
                       {doctor.contact?.email ||
+                        doctor.email ||
                         "N/A"}
                     </span>
 
@@ -1038,7 +1223,10 @@ const DoctorMaster = () => {
                         text-[22px]
                         font-bold
                         text-[#4D2E23]
+                        dark:text-[#EDE3DA]
                         hover:bg-[#FFF4EC]
+                        dark:hover:bg-[#342923]
+                        transition
                       "
                     >
                       ⋮
@@ -1064,7 +1252,9 @@ const DoctorMaster = () => {
                           rounded-2xl
                           border
                           border-[#E7D8CC]
+                          dark:border-[#3D322B]
                           bg-white
+                          dark:bg-[#261E1A]
                           shadow-lg
                         "
                       >
@@ -1089,7 +1279,10 @@ const DoctorMaster = () => {
                             text-[14px]
                             font-semibold
                             text-[#4D2E23]
+                            dark:text-[#EDE3DA]
                             hover:bg-[#FFF8F3]
+                            dark:hover:bg-[#342923]
+                            transition
                           "
                         >
 
@@ -1122,7 +1315,10 @@ const DoctorMaster = () => {
                             text-[14px]
                             font-semibold
                             text-[#4D2E23]
+                            dark:text-[#EDE3DA]
                             hover:bg-[#FFF8F3]
+                            dark:hover:bg-[#342923]
+                            transition
                           "
                         >
 
@@ -1158,7 +1354,10 @@ const DoctorMaster = () => {
                             text-[14px]
                             font-semibold
                             text-[#4D2E23]
+                            dark:text-[#EDE3DA]
                             hover:bg-[#FFF8F3]
+                            dark:hover:bg-[#342923]
+                            transition
                             disabled:opacity-50
                           "
                         >
@@ -1197,7 +1396,10 @@ const DoctorMaster = () => {
                             text-[14px]
                             font-semibold
                             text-red-600
+                            dark:text-red-400
                             hover:bg-red-50
+                            dark:hover:bg-red-950/30
+                            transition
                             disabled:opacity-50
                           "
                         >
@@ -1256,9 +1458,13 @@ const DoctorMaster = () => {
               }
               className="
                 w-full
-                max-w-[520px]
+                max-w-[540px]
                 rounded-2xl
                 bg-white
+                dark:bg-[#241E1B]
+                border
+                border-transparent
+                dark:border-[#382D25]
                 p-6
                 shadow-xl
               "
@@ -1277,6 +1483,7 @@ const DoctorMaster = () => {
                     text-[20px]
                     font-bold
                     text-[#4D2E23]
+                    dark:text-[#EDE3DA]
                   "
                 >
                   Doctor Profile
@@ -1297,7 +1504,10 @@ const DoctorMaster = () => {
                     items-center
                     justify-center
                     rounded-full
+                    text-[#4D2E23]
+                    dark:text-[#EDE3DA]
                     hover:bg-[#FFF4F0]
+                    dark:hover:bg-[#342923]
                   "
                 >
 
@@ -1328,9 +1538,11 @@ const DoctorMaster = () => {
                     justify-center
                     rounded-full
                     bg-[#F0EBE7]
+                    dark:bg-[#382D25]
                     text-xl
                     font-semibold
                     text-[#8A5035]
+                    dark:text-[#D5A794]
                   "
                 >
 
@@ -1351,6 +1563,7 @@ const DoctorMaster = () => {
                       text-[17px]
                       font-bold
                       text-[#4D2E23]
+                      dark:text-[#EDE3DA]
                     "
                   >
                     {selectedDoctor.name}
@@ -1362,6 +1575,7 @@ const DoctorMaster = () => {
                       mt-1
                       text-sm
                       text-[#8B7A70]
+                      dark:text-[#A8988E]
                     "
                   >
                     {selectedDoctor.specialization}
@@ -1382,11 +1596,11 @@ const DoctorMaster = () => {
               >
 
                 <div>
-                  <p className="text-xs text-[#8B7A70]">
+                  <p className="text-xs text-[#8B7A70] dark:text-[#A8988E]">
                     Qualification
                   </p>
 
-                  <p className="mt-1 text-sm font-semibold text-[#4D2E23]">
+                  <p className="mt-1 text-sm font-semibold text-[#4D2E23] dark:text-[#EDE3DA]">
                     {selectedDoctor.qualification ||
                       "N/A"}
                   </p>
@@ -1394,39 +1608,78 @@ const DoctorMaster = () => {
 
 
                 <div>
-                  <p className="text-xs text-[#8B7A70]">
+                  <p className="text-xs text-[#8B7A70] dark:text-[#A8988E]">
                     Experience
                   </p>
 
-                  <p className="mt-1 text-sm font-semibold text-[#4D2E23]">
+                  <p className="mt-1 text-sm font-semibold text-[#4D2E23] dark:text-[#EDE3DA]">
                     {selectedDoctor.experience ||
-                      "N/A"}
+                      (selectedDoctor.experience_years ? `${selectedDoctor.experience_years} years` : "N/A")}
                   </p>
                 </div>
 
 
                 <div>
-                  <p className="text-xs text-[#8B7A70]">
+                  <p className="text-xs text-[#8B7A70] dark:text-[#A8988E]">
+                    Languages
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold text-[#4D2E23] dark:text-[#EDE3DA]">
+                    {Array.isArray(selectedDoctor.languages)
+                      ? selectedDoctor.languages.join(", ")
+                      : selectedDoctor.languages || "N/A"}
+                  </p>
+                </div>
+
+
+                <div>
+                  <p className="text-xs text-[#8B7A70] dark:text-[#A8988E]">
+                    Registration No
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold text-[#4D2E23] dark:text-[#EDE3DA]">
+                    {selectedDoctor.registration_no || "N/A"}
+                  </p>
+                </div>
+
+
+                <div>
+                  <p className="text-xs text-[#8B7A70] dark:text-[#A8988E]">
                     Phone
                   </p>
 
-                  <p className="mt-1 text-sm font-semibold text-[#4D2E23]">
+                  <p className="mt-1 text-sm font-semibold text-[#4D2E23] dark:text-[#EDE3DA]">
                     {selectedDoctor.contact?.phone ||
+                      selectedDoctor.phone ||
                       "N/A"}
                   </p>
                 </div>
 
 
                 <div>
-                  <p className="text-xs text-[#8B7A70]">
+                  <p className="text-xs text-[#8B7A70] dark:text-[#A8988E]">
                     Email
                   </p>
 
-                  <p className="mt-1 break-all text-sm font-semibold text-[#4D2E23]">
+                  <p className="mt-1 break-all text-sm font-semibold text-[#4D2E23] dark:text-[#EDE3DA]">
                     {selectedDoctor.contact?.email ||
+                      selectedDoctor.email ||
                       "N/A"}
                   </p>
                 </div>
+
+
+                {(selectedDoctor.bio || selectedDoctor.about) && (
+                  <div className="col-span-2">
+                    <p className="text-xs text-[#8B7A70] dark:text-[#A8988E]">
+                      Doctor Bio / About
+                    </p>
+
+                    <p className="mt-1 text-sm text-[#4D2E23] dark:text-[#EDE3DA]">
+                      {selectedDoctor.bio || selectedDoctor.about}
+                    </p>
+                  </div>
+                )}
 
               </div>
 
@@ -1454,6 +1707,8 @@ const DoctorMaster = () => {
                     text-sm
                     font-semibold
                     text-white
+                    hover:bg-[#70402B]
+                    transition
                   "
                 >
                   Close
@@ -1503,6 +1758,10 @@ const DoctorMaster = () => {
                 overflow-y-auto
                 rounded-2xl
                 bg-white
+                dark:bg-[#241E1B]
+                border
+                border-transparent
+                dark:border-[#382D25]
                 p-6
                 shadow-xl
               "
@@ -1521,6 +1780,7 @@ const DoctorMaster = () => {
                     text-[20px]
                     font-bold
                     text-[#4D2E23]
+                    dark:text-[#EDE3DA]
                   "
                 >
                   {editingDoctor
@@ -1543,7 +1803,10 @@ const DoctorMaster = () => {
                     items-center
                     justify-center
                     rounded-full
+                    text-[#4D2E23]
+                    dark:text-[#EDE3DA]
                     hover:bg-[#FFF4F0]
+                    dark:hover:bg-[#342923]
                   "
                 >
 
@@ -1579,6 +1842,7 @@ const DoctorMaster = () => {
                       text-sm
                       font-medium
                       text-[#4D2E23]
+                      dark:text-[#D5C2B6]
                     "
                   >
                     Doctor Name
@@ -1593,16 +1857,23 @@ const DoctorMaster = () => {
                       handleChange
                     }
                     required
+                    placeholder="e.g. Dr. Rajkumar V"
                     className="
                       h-11
                       w-full
                       rounded-xl
                       border
                       border-[#E1D5CD]
+                      bg-white
                       px-4
                       text-sm
+                      text-[#4D2E23]
                       outline-none
+                      transition
                       focus:border-[#8A5035]
+                      dark:border-[#3D322B]
+                      dark:bg-[#1A1412]
+                      dark:text-[#EDE3DA]
                     "
                   />
 
@@ -1620,6 +1891,7 @@ const DoctorMaster = () => {
                       text-sm
                       font-medium
                       text-[#4D2E23]
+                      dark:text-[#D5C2B6]
                     "
                   >
                     Specialization
@@ -1634,16 +1906,23 @@ const DoctorMaster = () => {
                       handleChange
                     }
                     required
+                    placeholder="e.g. Kayachikitsa & General Medicine"
                     className="
                       h-11
                       w-full
                       rounded-xl
                       border
                       border-[#E1D5CD]
+                      bg-white
                       px-4
                       text-sm
+                      text-[#4D2E23]
                       outline-none
+                      transition
                       focus:border-[#8A5035]
+                      dark:border-[#3D322B]
+                      dark:bg-[#1A1412]
+                      dark:text-[#EDE3DA]
                     "
                   />
 
@@ -1661,6 +1940,7 @@ const DoctorMaster = () => {
                       text-sm
                       font-medium
                       text-[#4D2E23]
+                      dark:text-[#D5C2B6]
                     "
                   >
                     Qualification
@@ -1675,16 +1955,23 @@ const DoctorMaster = () => {
                       handleChange
                     }
                     required
+                    placeholder="e.g. BAMS, MD"
                     className="
                       h-11
                       w-full
                       rounded-xl
                       border
                       border-[#E1D5CD]
+                      bg-white
                       px-4
                       text-sm
+                      text-[#4D2E23]
                       outline-none
+                      transition
                       focus:border-[#8A5035]
+                      dark:border-[#3D322B]
+                      dark:bg-[#1A1412]
+                      dark:text-[#EDE3DA]
                     "
                   />
 
@@ -1702,6 +1989,7 @@ const DoctorMaster = () => {
                       text-sm
                       font-medium
                       text-[#4D2E23]
+                      dark:text-[#D5C2B6]
                     "
                   >
                     Registration Number
@@ -1715,16 +2003,71 @@ const DoctorMaster = () => {
                     onChange={
                       handleChange
                     }
+                    placeholder="e.g. AYU-2026-8941"
                     className="
                       h-11
                       w-full
                       rounded-xl
                       border
                       border-[#E1D5CD]
+                      bg-white
                       px-4
                       text-sm
+                      text-[#4D2E23]
                       outline-none
+                      transition
                       focus:border-[#8A5035]
+                      dark:border-[#3D322B]
+                      dark:bg-[#1A1412]
+                      dark:text-[#EDE3DA]
+                    "
+                  />
+
+                </div>
+
+
+                {/* LANGUAGES */}
+
+                <div>
+
+                  <label
+                    className="
+                      mb-1.5
+                      block
+                      text-sm
+                      font-medium
+                      text-[#4D2E23]
+                      dark:text-[#D5C2B6]
+                    "
+                  >
+                    Languages
+                  </label>
+
+                  <input
+                    name="languages"
+                    value={
+                      form.languages
+                    }
+                    onChange={
+                      handleChange
+                    }
+                    placeholder="e.g. English, Hindi, Sanskrit"
+                    className="
+                      h-11
+                      w-full
+                      rounded-xl
+                      border
+                      border-[#E1D5CD]
+                      bg-white
+                      px-4
+                      text-sm
+                      text-[#4D2E23]
+                      outline-none
+                      transition
+                      focus:border-[#8A5035]
+                      dark:border-[#3D322B]
+                      dark:bg-[#1A1412]
+                      dark:text-[#EDE3DA]
                     "
                   />
 
@@ -1742,6 +2085,7 @@ const DoctorMaster = () => {
                       text-sm
                       font-medium
                       text-[#4D2E23]
+                      dark:text-[#D5C2B6]
                     "
                   >
                     Consultation Fee
@@ -1757,16 +2101,23 @@ const DoctorMaster = () => {
                       handleChange
                     }
                     required
+                    placeholder="e.g. 600"
                     className="
                       h-11
                       w-full
                       rounded-xl
                       border
                       border-[#E1D5CD]
+                      bg-white
                       px-4
                       text-sm
+                      text-[#4D2E23]
                       outline-none
+                      transition
                       focus:border-[#8A5035]
+                      dark:border-[#3D322B]
+                      dark:bg-[#1A1412]
+                      dark:text-[#EDE3DA]
                     "
                   />
 
@@ -1788,6 +2139,7 @@ const DoctorMaster = () => {
                       text-sm
                       font-medium
                       text-[#4D2E23]
+                      dark:text-[#D5C2B6]
                     "
                   >
                     Doctor Bio
@@ -1802,16 +2154,23 @@ const DoctorMaster = () => {
                       handleChange
                     }
                     rows={4}
+                    placeholder="Senior Ayurvedic Physician with 10+ years experience in Panchakarma."
                     className="
                       w-full
                       rounded-xl
                       border
                       border-[#E1D5CD]
+                      bg-white
                       px-4
                       py-3
                       text-sm
+                      text-[#4D2E23]
                       outline-none
+                      transition
                       focus:border-[#8A5035]
+                      dark:border-[#3D322B]
+                      dark:bg-[#1A1412]
+                      dark:text-[#EDE3DA]
                     "
                   />
 
@@ -1841,11 +2200,16 @@ const DoctorMaster = () => {
                       rounded-xl
                       border
                       border-[#E1D5CD]
+                      dark:border-[#3D322B]
                       px-6
                       py-3
                       text-sm
                       font-semibold
                       text-[#4D2E23]
+                      dark:text-[#EDE3DA]
+                      hover:bg-[#FFF8F3]
+                      dark:hover:bg-[#2E241F]
+                      transition
                     "
                   >
                     Cancel
@@ -1866,6 +2230,8 @@ const DoctorMaster = () => {
                       font-semibold
                       text-white
                       disabled:opacity-50
+                      hover:bg-[#70402B]
+                      transition
                     "
                   >
 

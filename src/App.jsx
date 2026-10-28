@@ -74,6 +74,9 @@ import CorporateCellCompletedEvents from "./pages/CorporateCell/CorporateCellCom
 import CorporateCellCompletedEventDetails from "./pages/CorporateCell/CorporateCellCompletedEvents/CorporateCellCompletedEventDetails";
 import CorporateCellEditDashboard from "./pages/CorporateCell/CorporateCellEditDashboard/CorporateCellEditDashboard";
 import DashboardLayout from "./components/Layout/DashboardLayout";
+import PatientHome from "./pages/Patient/PatientHome/PatientHome";
+import PatientBookTherapy from "./pages/Patient/PatientBookTherapy/PatientBookTherapy";
+import PatientTherapyDetails from "./pages/Patient/PatientTherapyDetails/PatientTherapyDetails";
 
 function App() {
   return (
@@ -563,6 +566,28 @@ function App() {
   path="/corporate-cell/edit-dashboard"
   element={<CorporateCellEditDashboard />}
 />
+
+      {/* Patient */}
+      <Route
+        path="/patient/dashboard"
+        element={<PatientHome />}
+      />
+      <Route
+        path="/patient/home"
+        element={<PatientHome />}
+      />
+      <Route
+        path="/patient/book-therapy"
+        element={<PatientBookTherapy />}
+      />
+      <Route
+        path="/patient/book-therapy/:id"
+        element={<PatientTherapyDetails />}
+      />
+      <Route
+        path="/patient/therapy/:id"
+        element={<PatientTherapyDetails />}
+      />
 
 
 

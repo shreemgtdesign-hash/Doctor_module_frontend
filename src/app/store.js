@@ -21,6 +21,7 @@ import frontOfficeBillingReducer
     from "../redux/juniorDoctor/juniorDoctorAppointmentSlice";
 import corporateDashboardReducer
   from "../redux/corporate/corporateDashboardSlice";
+import patientReducer from "../redux/patient/patientSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -38,5 +39,6 @@ export const store = configureStore({
      juniorDoctorAppointment:juniorDoctorAppointmentReducer,
     juniorDoctorDashboard:juniorDoctorDashboardReducer,
     corporateDashboard:corporateDashboardReducer,
+    patient: patientReducer,
   },
 });
