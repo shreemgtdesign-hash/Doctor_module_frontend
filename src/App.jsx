@@ -77,6 +77,8 @@ import DashboardLayout from "./components/Layout/DashboardLayout";
 import PatientHome from "./pages/Patient/PatientHome/PatientHome";
 import PatientBookTherapy from "./pages/Patient/PatientBookTherapy/PatientBookTherapy";
 import PatientTherapyDetails from "./pages/Patient/PatientTherapyDetails/PatientTherapyDetails";
+import PatientBookAppointment from "./pages/Patient/PatientBookAppointment/PatientBookAppointment";
+import PatientDoctorDetails from "./pages/Patient/PatientDoctorDetails/PatientDoctorDetails";
 
 function App() {
   return (
@@ -210,6 +212,18 @@ function App() {
       <Route
         path="/frontoffice/doctors"
         element={<DoctorMaster />}
+      />
+      <Route
+        path="/frontoffice/doctors/add"
+        element={<DoctorMaster initialMode="add" />}
+      />
+      <Route
+        path="/frontoffice/doctors/edit/:id"
+        element={<DoctorMaster initialMode="edit" />}
+      />
+      <Route
+        path="/frontoffice/doctors/view/:id"
+        element={<DoctorMaster initialMode="view" />}
       />
 
       <Route
@@ -587,6 +601,22 @@ function App() {
       <Route
         path="/patient/therapy/:id"
         element={<PatientTherapyDetails />}
+      />
+      <Route
+        path="/patient/book-appointment"
+        element={<PatientBookAppointment />}
+      />
+      <Route
+        path="/patient/appointments"
+        element={<PatientBookAppointment />}
+      />
+      <Route
+        path="/patient/book-appointment/:id"
+        element={<PatientDoctorDetails />}
+      />
+      <Route
+        path="/patient/doctor/:id"
+        element={<PatientDoctorDetails />}
       />
 
 

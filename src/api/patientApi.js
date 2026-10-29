@@ -42,3 +42,28 @@ export const bookTreatmentApi = (payload) => {
   return api.post("/treatment-bookings", payload);
 };
 
+// ==========================================
+// 6. GET DOCTORS / PRACTITIONERS
+// GET /doctors?search=...&branch=...&doctor_type=...
+// ==========================================
+export const getDoctorsApi = (params = {}) => {
+  return api.get("/doctors", { params });
+};
+
+// ==========================================
+// 7. GET DOCTOR AVAILABLE SLOTS
+// GET /appointments/available-slots?doctor_id=...&date=...&branch=...
+// ==========================================
+export const getDoctorAvailableSlotsApi = (params = {}) => {
+  return api.get("/appointments/available-slots", { params });
+};
+
+// ==========================================
+// 8. BOOK DOCTOR APPOINTMENT
+// POST /appointments
+// ==========================================
+export const bookAppointmentApi = (payload) => {
+  return api.post("/appointments", payload);
+};
+
+

@@ -4,11 +4,17 @@ import {
   loadTreatments,
   loadAvailableSlots,
   bookTherapySession,
+  loadDoctors,
+  loadDoctorById,
+  loadDoctorAvailableSlots,
+  bookDoctorAppointment,
 } from "./patientThunk";
 import {
   DEFAULT_PATIENT_PROFILE,
   DEFAULT_TREATMENTS,
   DEFAULT_SLOTS,
+  DEFAULT_DOCTORS,
+  DEFAULT_DOCTOR_SLOTS,
 } from "../../services/patientService";
 
 const initialState = {
@@ -25,17 +31,40 @@ const initialState = {
   // Selected Treatment for Details & Booking
   selectedTreatment: null,
 
-  // Available Slots for Chosen Date
+  // Available Slots for Chosen Date (Therapy)
   availableSlots: DEFAULT_SLOTS,
   slotsLoading: false,
   slotsError: null,
   selectedDate: new Date().toISOString().split("T")[0],
   selectedSlotTime: "",
 
-  // Booking result
+  // Booking result (Therapy)
   bookingResult: null,
   bookingLoading: false,
   bookingError: null,
+
+  // Doctors / Practitioners Catalog
+  doctors: DEFAULT_DOCTORS,
+  doctorsLoading: false,
+  doctorsError: null,
+
+  // Selected Doctor for Consultation Details & Booking
+  selectedDoctor: null,
+  selectedDoctorLoading: false,
+  selectedDoctorError: null,
+
+  // Available Slots for Chosen Doctor, Date & Branch
+  doctorSlots: DEFAULT_DOCTOR_SLOTS,
+  doctorSlotsLoading: false,
+  doctorSlotsError: null,
+  selectedAppointmentDate: new Date().toISOString().split("T")[0],
+  selectedAppointmentSlot: null,
+  selectedBranch: "West Mambalam",
+
+  // Appointment Booking result
+  appointmentBookingResult: null,
+  appointmentBookingLoading: false,
+  appointmentBookingError: null,
 };
 
 const patientSlice = createSlice({
@@ -54,6 +83,23 @@ const patientSlice = createSlice({
     clearBookingResult: (state) => {
       state.bookingResult = null;
       state.bookingError = null;
+    },
+    // Doctor Appointment Reducers
+    setSelectedDoctor: (state, action) => {
+      state.selectedDoctor = action.payload;
+    },
+    setSelectedAppointmentDate: (state, action) => {
+      state.selectedAppointmentDate = action.payload;
+    },
+    setSelectedAppointmentSlot: (state, action) => {
+      state.selectedAppointmentSlot = action.payload;
+    },
+    setSelectedBranch: (state, action) => {
+      state.selectedBranch = action.payload;
+    },
+    clearAppointmentBookingResult: (state) => {
+      state.appointmentBookingResult = null;
+      state.appointmentBookingError = null;
     },
   },
   extraReducers: (builder) => {
@@ -87,7 +133,7 @@ const patientSlice = createSlice({
         state.treatmentsError = action.payload;
       });
 
-    // Slots
+    // Slots (Therapy)
     builder
       .addCase(loadAvailableSlots.pending, (state) => {
         state.slotsLoading = true;
@@ -116,6 +162,66 @@ const patientSlice = createSlice({
         state.bookingLoading = false;
         state.bookingError = action.payload;
       });
+
+    // Doctors Catalog
+    builder
+      .addCase(loadDoctors.pending, (state) => {
+        state.doctorsLoading = true;
+        state.doctorsError = null;
+      })
+      .addCase(loadDoctors.fulfilled, (state, action) => {
+        state.doctorsLoading = false;
+        state.doctors = action.payload;
+      })
+      .addCase(loadDoctors.rejected, (state, action) => {
+        state.doctorsLoading = false;
+        state.doctorsError = action.payload;
+      });
+
+    // Doctor by ID
+    builder
+      .addCase(loadDoctorById.pending, (state) => {
+        state.selectedDoctorLoading = true;
+        state.selectedDoctorError = null;
+      })
+      .addCase(loadDoctorById.fulfilled, (state, action) => {
+        state.selectedDoctorLoading = false;
+        state.selectedDoctor = action.payload;
+      })
+      .addCase(loadDoctorById.rejected, (state, action) => {
+        state.selectedDoctorLoading = false;
+        state.selectedDoctorError = action.payload;
+      });
+
+    // Doctor Available Slots
+    builder
+      .addCase(loadDoctorAvailableSlots.pending, (state) => {
+        state.doctorSlotsLoading = true;
+        state.doctorSlotsError = null;
+      })
+      .addCase(loadDoctorAvailableSlots.fulfilled, (state, action) => {
+        state.doctorSlotsLoading = false;
+        state.doctorSlots = action.payload;
+      })
+      .addCase(loadDoctorAvailableSlots.rejected, (state, action) => {
+        state.doctorSlotsLoading = false;
+        state.doctorSlotsError = action.payload;
+      });
+
+    // Book Doctor Appointment
+    builder
+      .addCase(bookDoctorAppointment.pending, (state) => {
+        state.appointmentBookingLoading = true;
+        state.appointmentBookingError = null;
+      })
+      .addCase(bookDoctorAppointment.fulfilled, (state, action) => {
+        state.appointmentBookingLoading = false;
+        state.appointmentBookingResult = action.payload;
+      })
+      .addCase(bookDoctorAppointment.rejected, (state, action) => {
+        state.appointmentBookingLoading = false;
+        state.appointmentBookingError = action.payload;
+      });
   },
 });
 
@@ -124,7 +230,13 @@ export const {
   setSelectedDate,
   setSelectedSlotTime,
   clearBookingResult,
+  setSelectedDoctor,
+  setSelectedAppointmentDate,
+  setSelectedAppointmentSlot,
+  setSelectedBranch,
+  clearAppointmentBookingResult,
 } = patientSlice.actions;
 
 export default patientSlice.reducer;
+
 

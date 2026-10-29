@@ -64,7 +64,11 @@ const PatientHeader = ({ profile }) => {
             {navItems.map((item) => {
               const isActive =
                 location.pathname === item.path ||
-                (item.path === "/patient/dashboard" && location.pathname === "/patient/home");
+                (item.path === "/patient/dashboard" && location.pathname === "/patient/home") ||
+                (item.label === "Appointments" &&
+                  (location.pathname.startsWith("/patient/book-appointment") ||
+                    location.pathname.startsWith("/patient/doctor") ||
+                    location.pathname.startsWith("/patient/appointments")));
 
               return (
                 <button

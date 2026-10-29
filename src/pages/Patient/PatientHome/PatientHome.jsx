@@ -41,7 +41,8 @@ const PatientHome = () => {
       id: "book_appt",
       label: "Book Appt.",
       icon: FaCalendarPlus,
-      action: () => toast("Doctor appointment booking is available soon!"),
+      action: () => navigate("/patient/book-appointment"),
+      highlight: true,
     },
     {
       id: "book_therapy",

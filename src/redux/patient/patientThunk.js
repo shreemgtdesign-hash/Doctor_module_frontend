@@ -4,6 +4,10 @@ import {
   fetchTreatments,
   fetchAvailableSlots,
   createTreatmentBooking,
+  fetchDoctors,
+  fetchDoctorById,
+  fetchDoctorSlots,
+  createAppointmentBooking,
 } from "../../services/patientService";
 
 // ==========================================
@@ -69,4 +73,69 @@ export const bookTherapySession = createAsyncThunk(
     }
   }
 );
+
+// ==========================================
+// 5. LOAD DOCTORS / PRACTITIONERS
+// ==========================================
+export const loadDoctors = createAsyncThunk(
+  "patient/loadDoctors",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      return await fetchDoctors(params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Failed to load doctors."
+      );
+    }
+  }
+);
+
+// ==========================================
+// 6. LOAD DOCTOR BY ID
+// ==========================================
+export const loadDoctorById = createAsyncThunk(
+  "patient/loadDoctorById",
+  async (id, { rejectWithValue }) => {
+    try {
+      return await fetchDoctorById(id);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Failed to load doctor."
+      );
+    }
+  }
+);
+
+// ==========================================
+// 7. LOAD DOCTOR AVAILABLE SLOTS
+// ==========================================
+export const loadDoctorAvailableSlots = createAsyncThunk(
+  "patient/loadDoctorAvailableSlots",
+  async (params, { rejectWithValue }) => {
+    try {
+      return await fetchDoctorSlots(params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Failed to load doctor slots."
+      );
+    }
+  }
+);
+
+// ==========================================
+// 8. BOOK DOCTOR APPOINTMENT
+// ==========================================
+export const bookDoctorAppointment = createAsyncThunk(
+  "patient/bookDoctorAppointment",
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await createAppointmentBooking(payload);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Failed to book appointment."
+      );
+    }
+  }
+);
+
 
