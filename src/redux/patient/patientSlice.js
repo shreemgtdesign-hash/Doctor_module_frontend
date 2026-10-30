@@ -8,6 +8,10 @@ import {
   loadDoctorById,
   loadDoctorAvailableSlots,
   bookDoctorAppointment,
+  loadHomeVisitDoctors,
+  loadHomeServiceAvailableSlots,
+  bookHomeService,
+  updatePatientAddress,
 } from "./patientThunk";
 import {
   DEFAULT_PATIENT_PROFILE,
@@ -15,6 +19,9 @@ import {
   DEFAULT_SLOTS,
   DEFAULT_DOCTORS,
   DEFAULT_DOCTOR_SLOTS,
+  DEFAULT_HOME_VISIT_DOCTORS,
+  DEFAULT_HOME_SERVICE_SLOTS,
+  DEFAULT_PATIENT_ADDRESS,
 } from "../../services/patientService";
 
 const initialState = {
@@ -65,6 +72,30 @@ const initialState = {
   appointmentBookingResult: null,
   appointmentBookingLoading: false,
   appointmentBookingError: null,
+
+  // ==========================================
+  // HOME VISIT STATE
+  // ==========================================
+  homeVisitDoctors: DEFAULT_HOME_VISIT_DOCTORS,
+  homeVisitDoctorsLoading: false,
+  homeVisitDoctorsError: null,
+
+  selectedHomeVisitDoctor: null,
+
+  homeVisitDoctorSlots: DEFAULT_HOME_SERVICE_SLOTS,
+  homeVisitDoctorSlotsLoading: false,
+  homeVisitDoctorSlotsError: null,
+
+  selectedHomeVisitDate: new Date().toISOString().split("T")[0],
+  selectedHomeVisitSlot: "17:00",
+
+  homeVisitBookingResult: null,
+  homeVisitBookingLoading: false,
+  homeVisitBookingError: null,
+
+  patientAddress: DEFAULT_PATIENT_ADDRESS,
+  addressUpdating: false,
+  addressUpdateError: null,
 };
 
 const patientSlice = createSlice({
@@ -84,6 +115,7 @@ const patientSlice = createSlice({
       state.bookingResult = null;
       state.bookingError = null;
     },
+
     // Doctor Appointment Reducers
     setSelectedDoctor: (state, action) => {
       state.selectedDoctor = action.payload;
@@ -101,6 +133,27 @@ const patientSlice = createSlice({
       state.appointmentBookingResult = null;
       state.appointmentBookingError = null;
     },
+
+    // Home Visit Reducers
+    setSelectedHomeVisitDoctor: (state, action) => {
+      state.selectedHomeVisitDoctor = action.payload;
+    },
+    setSelectedHomeVisitDate: (state, action) => {
+      state.selectedHomeVisitDate = action.payload;
+    },
+    setSelectedHomeVisitSlot: (state, action) => {
+      state.selectedHomeVisitSlot = action.payload;
+    },
+    clearHomeVisitBookingResult: (state) => {
+      state.homeVisitBookingResult = null;
+      state.homeVisitBookingError = null;
+    },
+    setPatientAddress: (state, action) => {
+      state.patientAddress = {
+        ...state.patientAddress,
+        ...action.payload,
+      };
+    },
   },
   extraReducers: (builder) => {
     // Profile
@@ -112,6 +165,19 @@ const patientSlice = createSlice({
       .addCase(loadPatientProfile.fulfilled, (state, action) => {
         state.profileLoading = false;
         state.profile = action.payload;
+        if (action.payload) {
+          state.patientAddress = {
+            name: `${action.payload.name || ""} ${action.payload.last_name || ""}`.trim() || state.patientAddress.name,
+            address: action.payload.address || state.patientAddress.address,
+            area: action.payload.area || state.patientAddress.area,
+            landmark: action.payload.landmark || state.patientAddress.landmark,
+            city: action.payload.city || state.patientAddress.city,
+            district: action.payload.district || state.patientAddress.district,
+            state: action.payload.state || state.patientAddress.state,
+            pincode: action.payload.pincode || state.patientAddress.pincode,
+            zip: action.payload.zip || action.payload.pincode || state.patientAddress.zip,
+          };
+        }
       })
       .addCase(loadPatientProfile.rejected, (state, action) => {
         state.profileLoading = false;
@@ -222,6 +288,71 @@ const patientSlice = createSlice({
         state.appointmentBookingLoading = false;
         state.appointmentBookingError = action.payload;
       });
+
+    // Home Visit Doctors
+    builder
+      .addCase(loadHomeVisitDoctors.pending, (state) => {
+        state.homeVisitDoctorsLoading = true;
+        state.homeVisitDoctorsError = null;
+      })
+      .addCase(loadHomeVisitDoctors.fulfilled, (state, action) => {
+        state.homeVisitDoctorsLoading = false;
+        state.homeVisitDoctors = action.payload;
+      })
+      .addCase(loadHomeVisitDoctors.rejected, (state, action) => {
+        state.homeVisitDoctorsLoading = false;
+        state.homeVisitDoctorsError = action.payload;
+      });
+
+    // Home Service Slots
+    builder
+      .addCase(loadHomeServiceAvailableSlots.pending, (state) => {
+        state.homeVisitDoctorSlotsLoading = true;
+        state.homeVisitDoctorSlotsError = null;
+      })
+      .addCase(loadHomeServiceAvailableSlots.fulfilled, (state, action) => {
+        state.homeVisitDoctorSlotsLoading = false;
+        state.homeVisitDoctorSlots = action.payload;
+      })
+      .addCase(loadHomeServiceAvailableSlots.rejected, (state, action) => {
+        state.homeVisitDoctorSlotsLoading = false;
+        state.homeVisitDoctorSlotsError = action.payload;
+      });
+
+    // Book Home Service
+    builder
+      .addCase(bookHomeService.pending, (state) => {
+        state.homeVisitBookingLoading = true;
+        state.homeVisitBookingError = null;
+      })
+      .addCase(bookHomeService.fulfilled, (state, action) => {
+        state.homeVisitBookingLoading = false;
+        state.homeVisitBookingResult = action.payload;
+      })
+      .addCase(bookHomeService.rejected, (state, action) => {
+        state.homeVisitBookingLoading = false;
+        state.homeVisitBookingError = action.payload;
+      });
+
+    // Update Address
+    builder
+      .addCase(updatePatientAddress.pending, (state) => {
+        state.addressUpdating = true;
+        state.addressUpdateError = null;
+      })
+      .addCase(updatePatientAddress.fulfilled, (state, action) => {
+        state.addressUpdating = false;
+        if (action.meta?.arg) {
+          state.patientAddress = {
+            ...state.patientAddress,
+            ...action.meta.arg,
+          };
+        }
+      })
+      .addCase(updatePatientAddress.rejected, (state, action) => {
+        state.addressUpdating = false;
+        state.addressUpdateError = action.payload;
+      });
   },
 });
 
@@ -235,8 +366,11 @@ export const {
   setSelectedAppointmentSlot,
   setSelectedBranch,
   clearAppointmentBookingResult,
+  setSelectedHomeVisitDoctor,
+  setSelectedHomeVisitDate,
+  setSelectedHomeVisitSlot,
+  clearHomeVisitBookingResult,
+  setPatientAddress,
 } = patientSlice.actions;
 
 export default patientSlice.reducer;
-
-

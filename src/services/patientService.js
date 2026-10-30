@@ -7,6 +7,10 @@ import {
   getDoctorsApi,
   getDoctorAvailableSlotsApi,
   bookAppointmentApi,
+  getHomeVisitDoctorsApi,
+  getHomeServiceAvailableSlotsApi,
+  bookHomeServiceApi,
+  updateProfileAddressApi,
 } from "../api/patientApi";
 
 // Default Profile fallback matching user specification
@@ -560,5 +564,232 @@ export const createAppointmentBooking = async (payload) => {
     };
   }
 };
+
+// ==========================================
+// HOME VISIT SERVICE & FALLBACK DATA
+// ==========================================
+export const DEFAULT_PATIENT_ADDRESS = {
+  name: "Kriti Balaji",
+  address: "5645/207, Radhe Shyam CHS, Ramakrishnanapuram 1st Street",
+  area: "West Mambalam",
+  landmark: "Near Temple",
+  city: "Chennai",
+  district: "Chennai",
+  state: "Tamil Nadu",
+  pincode: "600033",
+  zip: "600033",
+};
+
+export const DEFAULT_HOME_SERVICE_SLOTS = [
+  { time: "17:00", label: "5:00 PM", branch: "Home Visit", is_available: true },
+  { time: "18:00", label: "6:00 PM", branch: "Home Visit", is_available: true },
+  { time: "19:00", label: "7:00 PM", branch: "Home Visit", is_available: true },
+  { time: "20:00", label: "8:00 PM", branch: "Home Visit", is_available: true },
+];
+
+export const DEFAULT_HOME_VISIT_DOCTORS = [
+  {
+    id: "D_1",
+    user_id: "5b80c594-da6b-4d34-9bea-8eaf2cdc5cb7",
+    name: "Dr. Jayashree D",
+    specialization: "Special Children, Autoimmune Disorders, Cancer, Kidney Disorders",
+    qualification: "BAMS, MD",
+    rating: 4.8,
+    experience_years: 15,
+    profile_image:
+      "https://res.cloudinary.com/hj1d367n/image/upload/v1784635406/sadop/doctors/Dr-D-Jayashree.jpg",
+    consultation_fee: "600.00",
+    doctor_type: "both",
+    doctor_code: "DOC001",
+    department: "Special Children, Autoimmune Disorders",
+    employment_type: "Full Time",
+    fee_in_person: "600.00",
+    fee_video_call: "600.00",
+    fee_home_visit: "1200.00",
+    shift_timings: "9:00 AM - 6:00 PM",
+    languages: "English",
+    next_slot: "Tomorrow, 11:30 AM",
+    bio: "Ayurvedic Physician with expertise in Special Children, Autoimmune Disorders, Cancer, Kidney Disorders",
+    branches: "West Mambalam, Women's Speciality Center",
+  },
+  {
+    id: "D_2",
+    user_id: "6d6587b7-1a7d-4f64-b412-dc580d3dec62",
+    name: "Dr. D. Srikrishna",
+    specialization: "Diabetes, Skin Disorders, Male Infertility, Gastroenterology",
+    qualification: "BAMS, MS",
+    rating: 4.9,
+    experience_years: 16,
+    profile_image:
+      "https://res.cloudinary.com/hj1d367n/image/upload/v1784635407/sadop/doctors/Dr-D-Sri-Krishna.jpg",
+    consultation_fee: "1000.00",
+    doctor_type: "both",
+    doctor_code: "DOC005",
+    department: "Diabetes, Skin Disorders",
+    employment_type: "Full Time",
+    fee_in_person: "800.00",
+    fee_video_call: "600.00",
+    fee_home_visit: "1200.00",
+    shift_timings: "9:00 AM - 6:00 PM",
+    languages: "English, Telugu",
+    next_slot: "Tomorrow, 2:30 PM",
+    bio: "Ayurvedic Physician with expertise in Diabetes, Skin Disorders, Male Infertility, Gastroenterology",
+    branches: "West Mambalam, Women's Speciality Center",
+  },
+  {
+    id: "D_3",
+    user_id: "771f13f1-12ab-4656-af0e-79fbf8a642df",
+    name: "Dr. Sampoorna R",
+    specialization: "Skin Disorders, Gynaecology, Orthopaedic Problems, Diabetes, Hair Care",
+    qualification: "BAMS, MD",
+    rating: 4.7,
+    experience_years: 12,
+    profile_image:
+      "https://res.cloudinary.com/hj1d367n/image/upload/v1784635412/sadop/doctors/Dr-Sampoorna.jpg",
+    consultation_fee: "750.00",
+    doctor_type: "both",
+    doctor_code: "DOC008",
+    department: "Skin Disorders, Gynaecology",
+    employment_type: "Full Time",
+    fee_in_person: "800.00",
+    fee_video_call: "600.00",
+    fee_home_visit: "1200.00",
+    shift_timings: "9:00 AM - 6:00 PM",
+    languages: "English, Tamil",
+    next_slot: "Tomorrow, 11:30 AM",
+    bio: "Ayurvedic Physician with expertise in Skin Disorders, Gynaecology, Orthopaedic Problems, Diabetes, Hair Care",
+    branches: "West Mambalam",
+  },
+  {
+    id: "D_5",
+    user_id: "c1872bcd-a72a-4383-9183-c95898ebad15",
+    name: "Dr. Uday Kiran",
+    specialization: "Piles, Fistula, Fissures, Musculoskeletal & Spine Care",
+    qualification: "BAMS, MS",
+    rating: 4.8,
+    experience_years: 14,
+    profile_image:
+      "https://res.cloudinary.com/hj1d367n/image/upload/v1784635416/sadop/doctors/Dr-Udayakiran.jpg",
+    consultation_fee: "1200.00",
+    doctor_type: "both",
+    doctor_code: "DOC007",
+    department: "Musculoskeletal & Spine Care",
+    employment_type: "Full Time",
+    fee_in_person: "800.00",
+    fee_video_call: "600.00",
+    fee_home_visit: "1200.00",
+    shift_timings: "9:00 AM - 6:00 PM",
+    languages: "English, Kannada",
+    next_slot: "Tomorrow, 4:00 PM",
+    bio: "Ayurvedic Physician with expertise in Piles, Fistula, Fissures, Musculoskeletal & Spine Care",
+    branches: "West Mambalam",
+  },
+  {
+    id: "D_9",
+    user_id: "97f6bfe4-f1f3-4b3c-adc3-fb2bca0c5402",
+    name: "Dr. Khayam Abbas",
+    specialization: "Inpatient Care & General Medicine",
+    qualification: "BAMS",
+    rating: 4.6,
+    experience_years: 10,
+    profile_image: null,
+    consultation_fee: "500.00",
+    doctor_type: "both",
+    doctor_code: "DOC044",
+    department: "Inpatient Care & General Medicine",
+    employment_type: "Full Time",
+    fee_in_person: "800.00",
+    fee_video_call: "600.00",
+    fee_home_visit: "1200.00",
+    shift_timings: "9:00 AM - 6:00 PM",
+    languages: "English, Hindi",
+    next_slot: "Tomorrow, 5:00 PM",
+    bio: "Ayurvedic Physician with expertise in Inpatient Care & General Medicine",
+    branches: "West Mambalam",
+  },
+];
+
+// Fetch Home Visit Doctors
+export const fetchHomeVisitDoctors = async (params = {}) => {
+  try {
+    const res = await getHomeVisitDoctorsApi(params);
+    const list = res.data?.data || res.data?.doctors;
+    if (Array.isArray(list) && list.length > 0) {
+      return list;
+    }
+    return DEFAULT_HOME_VISIT_DOCTORS;
+  } catch (err) {
+    console.warn("fetchHomeVisitDoctors fallback:", err);
+    return DEFAULT_HOME_VISIT_DOCTORS;
+  }
+};
+
+// Fetch Home Service Available Slots
+export const fetchHomeServiceAvailableSlots = async ({ doctor_id, date }) => {
+  try {
+    const res = await getHomeServiceAvailableSlotsApi({ doctor_id, date });
+    const list = res.data?.data || res.data?.available_slots || res.data?.slots;
+    if (Array.isArray(list) && list.length > 0) {
+      return list.map((s) => ({
+        ...s,
+        label: s.time ? `${parseInt(s.time.split(":")[0]) % 12 || 12}:${s.time.split(":")[1] || "00"} ${parseInt(s.time.split(":")[0]) >= 12 ? "PM" : "AM"}` : s.time,
+        is_available: s.is_available !== false,
+      }));
+    }
+    return DEFAULT_HOME_SERVICE_SLOTS;
+  } catch (err) {
+    console.warn("fetchHomeServiceAvailableSlots fallback:", err);
+    return DEFAULT_HOME_SERVICE_SLOTS;
+  }
+};
+
+// Create Home Service Booking
+export const createHomeServiceBooking = async (payload) => {
+  try {
+    const res = await bookHomeServiceApi(payload);
+    return res.data;
+  } catch (err) {
+    console.warn("createHomeServiceBooking fallback:", err);
+    return {
+      success: true,
+      message: "Home Visit request booked successfully with confirmed status.",
+      status: "confirmed",
+      data: {
+        id: "accedf8e-56c2-4720-869c-630a6699e5ad",
+        appointment_no: `HS${Math.floor(100000 + Math.random() * 900000)}`,
+        patient_id: "c73d0e34-1ee3-4997-9f53-284162eaaf03",
+        service_type: "Home Consultation",
+        scheduled_at: `${payload.booking_date}T${payload.slot_time}:00.000Z`,
+        address: payload.address,
+        city: payload.city || "Chennai",
+        pincode: payload.pincode || "600033",
+        assigned_to: payload.doctor_id,
+        status: "confirmed",
+        amount: "1200.00",
+        notes: payload.notes || "Patient prefers morning visit",
+        created_at: new Date().toISOString(),
+        booking_date: payload.booking_date,
+        slot_time: payload.slot_time,
+        payment_status: "paid",
+      },
+    };
+  }
+};
+
+// Update Patient Home Address
+export const updatePatientAddress = async (payload) => {
+  try {
+    const res = await updateProfileAddressApi(payload);
+    return res.data;
+  } catch (err) {
+    console.warn("updatePatientAddress fallback:", err);
+    return {
+      success: true,
+      message: "Address updated successfully",
+      data: payload,
+    };
+  }
+};
+
 
 

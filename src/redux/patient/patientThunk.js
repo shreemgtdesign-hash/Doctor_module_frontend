@@ -8,6 +8,10 @@ import {
   fetchDoctorById,
   fetchDoctorSlots,
   createAppointmentBooking,
+  fetchHomeVisitDoctors,
+  fetchHomeServiceAvailableSlots,
+  createHomeServiceBooking,
+  updatePatientAddress as updatePatientAddressService,
 } from "../../services/patientService";
 
 // ==========================================
@@ -137,5 +141,70 @@ export const bookDoctorAppointment = createAsyncThunk(
     }
   }
 );
+
+// ==========================================
+// 9. LOAD HOME VISIT DOCTORS
+// ==========================================
+export const loadHomeVisitDoctors = createAsyncThunk(
+  "patient/loadHomeVisitDoctors",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      return await fetchHomeVisitDoctors(params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Failed to load home visit doctors."
+      );
+    }
+  }
+);
+
+// ==========================================
+// 10. LOAD HOME SERVICE AVAILABLE SLOTS
+// ==========================================
+export const loadHomeServiceAvailableSlots = createAsyncThunk(
+  "patient/loadHomeServiceAvailableSlots",
+  async (params, { rejectWithValue }) => {
+    try {
+      return await fetchHomeServiceAvailableSlots(params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Failed to load home service slots."
+      );
+    }
+  }
+);
+
+// ==========================================
+// 11. BOOK HOME SERVICE
+// ==========================================
+export const bookHomeService = createAsyncThunk(
+  "patient/bookHomeService",
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await createHomeServiceBooking(payload);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Failed to book home visit."
+      );
+    }
+  }
+);
+
+// ==========================================
+// 12. UPDATE PATIENT ADDRESS
+// ==========================================
+export const updatePatientAddress = createAsyncThunk(
+  "patient/updatePatientAddress",
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await updatePatientAddressService(payload);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || "Failed to update address."
+      );
+    }
+  }
+);
+
 
 

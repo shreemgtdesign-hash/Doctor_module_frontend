@@ -66,4 +66,42 @@ export const bookAppointmentApi = (payload) => {
   return api.post("/appointments", payload);
 };
 
+// ==========================================
+// 9. GET SEARCH HOME VISIT DOCTORS
+// GET /doctors?doctor_type=home_visit&search=...&branch=...
+// ==========================================
+export const getHomeVisitDoctorsApi = (params = {}) => {
+  return api.get("/doctors", {
+    params: {
+      doctor_type: "home_visit",
+      ...params,
+    },
+  });
+};
+
+// ==========================================
+// 10. GET AVAILABLE SLOTS HOME SERVICE
+// GET /home-services/available-slots?doctor_id=...&date=...
+// ==========================================
+export const getHomeServiceAvailableSlotsApi = (params = {}) => {
+  return api.get("/home-services/available-slots", { params });
+};
+
+// ==========================================
+// 11. POST BOOK HOME SERVICE
+// POST /home-services
+// ==========================================
+export const bookHomeServiceApi = (payload) => {
+  return api.post("/home-services", payload);
+};
+
+// ==========================================
+// 12. POST CHANGE HOME ADDRESS
+// POST /onboarding/profile/address
+// ==========================================
+export const updateProfileAddressApi = (payload) => {
+  return api.post("/onboarding/profile/address", payload);
+};
+
+
 

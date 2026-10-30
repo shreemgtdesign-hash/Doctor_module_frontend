@@ -79,6 +79,8 @@ import PatientBookTherapy from "./pages/Patient/PatientBookTherapy/PatientBookTh
 import PatientTherapyDetails from "./pages/Patient/PatientTherapyDetails/PatientTherapyDetails";
 import PatientBookAppointment from "./pages/Patient/PatientBookAppointment/PatientBookAppointment";
 import PatientDoctorDetails from "./pages/Patient/PatientDoctorDetails/PatientDoctorDetails";
+import PatientBookHomeService from "./pages/Patient/PatientBookHomeService/PatientBookHomeService";
+import PatientHomeVisitDetails from "./pages/Patient/PatientHomeVisitDetails/PatientHomeVisitDetails";
 
 function App() {
   return (
@@ -617,6 +619,18 @@ function App() {
       <Route
         path="/patient/doctor/:id"
         element={<PatientDoctorDetails />}
+      />
+      <Route
+        path="/patient/book-home-service"
+        element={<PatientBookHomeService />}
+      />
+      <Route
+        path="/patient/book-home-service/:id"
+        element={<PatientHomeVisitDetails />}
+      />
+      <Route
+        path="/patient/home-visit/:id"
+        element={<PatientHomeVisitDetails />}
       />
 
 

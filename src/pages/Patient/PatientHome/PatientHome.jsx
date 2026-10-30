@@ -55,7 +55,8 @@ const PatientHome = () => {
       id: "book_home",
       label: "Book Home Svc",
       icon: FaHome,
-      action: () => toast("Home Care services available in your area."),
+      action: () => navigate("/patient/book-home-service"),
+      highlight: true,
     },
     {
       id: "reports",
