@@ -8,6 +8,7 @@ import {
 } from "react-icons/hi2";
 
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
+import { formatConsultationType } from "../../../utils/consultationFormatter";
 
 import {
   confirmFrontOfficeAppointment,
@@ -247,7 +248,7 @@ const AppointmentConfirmation = () => {
               </p>
 
               <p className="mt-1 text-[14px] font-semibold text-[#4B2E2A]">
-                {doctor.consultation_type || "--"}
+                {formatConsultationType(doctor.consultation_type, "--")}
               </p>
             </div>
 

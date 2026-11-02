@@ -7,6 +7,7 @@ import {
     loadFrontOfficePatientProfile,
     updateFrontOfficePatient,
     deleteFrontOfficePatient,
+    createFrontOfficeIpdAdmission,
 } from "./frontOfficePatientThunk";
 
 
@@ -74,6 +75,21 @@ const initialState = {
     deletePatientMessage: "",
 
     deletePatientError: null,
+
+
+    // ==========================================
+    // IPD ADMISSION REGISTRATION
+    // ==========================================
+
+    ipdAdmissionLoading: false,
+
+    ipdAdmissionSuccess: false,
+
+    ipdAdmissionMessage: "",
+
+    ipdAdmissionData: null,
+
+    ipdAdmissionError: null,
 
 
     // ==========================================
@@ -167,6 +183,20 @@ const frontOfficePatientSlice =
                         initialState
                     );
 
+                },
+
+
+            // ==========================================
+            // CLEAR IPD ADMISSION RESULT
+            // ==========================================
+
+            clearIpdAdmissionResult:
+                (state) => {
+                    state.ipdAdmissionLoading = false;
+                    state.ipdAdmissionSuccess = false;
+                    state.ipdAdmissionMessage = "";
+                    state.ipdAdmissionData = null;
+                    state.ipdAdmissionError = null;
                 },
 
         },
@@ -571,6 +601,45 @@ const frontOfficePatientSlice =
                             state.deletePatientError;
 
                     }
+                )
+
+                // =====================================================
+                // REGISTER IPD ADMISSION
+                // =====================================================
+                .addCase(
+                    createFrontOfficeIpdAdmission.pending,
+                    (state) => {
+                        state.ipdAdmissionLoading = true;
+                        state.ipdAdmissionSuccess = false;
+                        state.ipdAdmissionError = null;
+                        state.error = null;
+                    }
+                )
+                .addCase(
+                    createFrontOfficeIpdAdmission.fulfilled,
+                    (state, action) => {
+                        state.ipdAdmissionLoading = false;
+                        state.ipdAdmissionSuccess = true;
+                        state.ipdAdmissionMessage =
+                            action.payload?.message ||
+                            "IPD patient registration submitted successfully";
+                        state.ipdAdmissionData =
+                            action.payload?.data || action.payload;
+                        state.ipdAdmissionError = null;
+                        state.message = state.ipdAdmissionMessage;
+                    }
+                )
+                .addCase(
+                    createFrontOfficeIpdAdmission.rejected,
+                    (state, action) => {
+                        state.ipdAdmissionLoading = false;
+                        state.ipdAdmissionSuccess = false;
+                        state.ipdAdmissionError =
+                            action.payload?.message ||
+                            action.payload ||
+                            "Failed to submit IPD registration.";
+                        state.error = state.ipdAdmissionError;
+                    }
                 );
 
         },
@@ -586,6 +655,7 @@ export const {
     clearFrontOfficePatientProfile,
     clearFrontOfficePatientMessage,
     clearFrontOfficePatientState,
+    clearIpdAdmissionResult,
 } =
     frontOfficePatientSlice.actions;
 
@@ -628,6 +698,27 @@ export const selectFrontOfficePatientDeleting =
     (state) =>
         state.frontOfficePatient?.deletingPatient ||
         false;
+
+export const selectIpdAdmissionLoading =
+    (state) =>
+        state.frontOfficePatient?.ipdAdmissionLoading ||
+        false;
+
+export const selectIpdAdmissionSuccess =
+    (state) =>
+        state.frontOfficePatient?.ipdAdmissionSuccess ||
+        false;
+
+export const selectIpdAdmissionData =
+    (state) =>
+        state.frontOfficePatient?.ipdAdmissionData ||
+        null;
+
+export const selectIpdAdmissionError =
+    (state) =>
+        state.frontOfficePatient?.ipdAdmissionError ||
+        null;
+
 
 
 // ==========================================

@@ -150,7 +150,7 @@ const patientSlice = createSlice({
     },
     setPatientAddress: (state, action) => {
       state.patientAddress = {
-        ...state.patientAddress,
+        ...(state.patientAddress || {}),
         ...action.payload,
       };
     },
@@ -166,16 +166,33 @@ const patientSlice = createSlice({
         state.profileLoading = false;
         state.profile = action.payload;
         if (action.payload) {
+          const prevAddr = state.patientAddress || {};
           state.patientAddress = {
-            name: `${action.payload.name || ""} ${action.payload.last_name || ""}`.trim() || state.patientAddress.name,
-            address: action.payload.address || state.patientAddress.address,
-            area: action.payload.area || state.patientAddress.area,
-            landmark: action.payload.landmark || state.patientAddress.landmark,
-            city: action.payload.city || state.patientAddress.city,
-            district: action.payload.district || state.patientAddress.district,
-            state: action.payload.state || state.patientAddress.state,
-            pincode: action.payload.pincode || state.patientAddress.pincode,
-            zip: action.payload.zip || action.payload.pincode || state.patientAddress.zip,
+            name:
+              `${action.payload.name || ""} ${action.payload.last_name || ""}`.trim() ||
+              prevAddr.name ||
+              "",
+            address:
+              action.payload.location ||
+              action.payload.address ||
+              prevAddr.address ||
+              "",
+            area: action.payload.area || prevAddr.area || "",
+            landmark: action.payload.landmark || prevAddr.landmark || "",
+            city: action.payload.city || prevAddr.city || "Chennai",
+            district: action.payload.district || prevAddr.district || "Chennai",
+            state: action.payload.state || prevAddr.state || "Tamil Nadu",
+            pincode:
+              action.payload.pincode ||
+              action.payload.postal_code ||
+              prevAddr.pincode ||
+              "",
+            zip:
+              action.payload.zip ||
+              action.payload.pincode ||
+              action.payload.postal_code ||
+              prevAddr.zip ||
+              "",
           };
         }
       })
@@ -344,7 +361,7 @@ const patientSlice = createSlice({
         state.addressUpdating = false;
         if (action.meta?.arg) {
           state.patientAddress = {
-            ...state.patientAddress,
+            ...(state.patientAddress || {}),
             ...action.meta.arg,
           };
         }

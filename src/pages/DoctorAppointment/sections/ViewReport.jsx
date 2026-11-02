@@ -17,6 +17,7 @@ import {
   loadPatientConsultationReport,
 } from "../../../redux/consultation/consultationThunk";
 import ConsultationTimer from "../components/ConsultationTimer";
+import { formatConsultationType } from "../../../utils/consultationFormatter";
 
 
 const ViewReport = ({
@@ -439,8 +440,7 @@ const ViewReport = ({
                   text-[#4D2E23]
                 "
               >
-                {doctor?.consultation_type ||
-                  "--"}
+                {formatConsultationType(doctor?.consultation_type, "--")}
               </p>
 
             </div>

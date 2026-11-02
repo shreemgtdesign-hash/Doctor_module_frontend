@@ -21,6 +21,8 @@ import {
     loadHomevisitConfirmationList,
 } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 
+import { formatConsultationType } from "../../../utils/consultationFormatter";
+
 import {
     selectHomevisitConfirmationList,
     selectHomevisitConfirmationListLoading,
@@ -373,7 +375,7 @@ const HomeVisitConfirmationList = () => {
                                                 "
                                             >
                                                 {
-                                                    doctor.consultation_type
+                                                    formatConsultationType(doctor.consultation_type, "--")
                                                 }
                                             </p>
 

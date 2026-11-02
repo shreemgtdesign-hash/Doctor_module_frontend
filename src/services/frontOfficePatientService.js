@@ -3,6 +3,7 @@ import {
     getPatientProfile,
     updatePatient,
     deletePatient,
+    registerIpdAdmission,
 } from "../api/frontOfficePatientApi";
 
 
@@ -69,6 +70,20 @@ export const fetchDeletePatient = async (
         await deletePatient(
             patientId
         );
+
+    return response.data;
+};
+
+
+// ==========================================
+// REGISTER IPD ADMISSION
+// ==========================================
+
+export const fetchRegisterIpdAdmission = async (
+    data
+) => {
+    const response =
+        await registerIpdAdmission(data);
 
     return response.data;
 };

@@ -68,14 +68,14 @@ const PatientHomeVisitDetails = () => {
 
   // Address edit state for the modal
   const [addressForm, setAddressForm] = useState({
-    address: patientAddress?.address || "5645/207, Radhe Shyam CHS, Ramakrishnanapuram 1st Street",
-    area: patientAddress?.area || "West Mambalam",
-    landmark: patientAddress?.landmark || "Near Temple",
-    city: patientAddress?.city || "Chennai",
-    district: patientAddress?.district || "Chennai",
-    state: patientAddress?.state || "Tamil Nadu",
-    pincode: patientAddress?.pincode || "600033",
-    zip: patientAddress?.zip || "600033",
+    address: patientAddress?.address || "",
+    area: patientAddress?.area || "",
+    landmark: patientAddress?.landmark || "",
+    city: patientAddress?.city || "",
+    district: patientAddress?.district || "",
+    state: patientAddress?.state || "",
+    pincode: patientAddress?.pincode || "",
+    zip: patientAddress?.zip || "",
   });
 
   // Generate next 14 upcoming dates
@@ -132,14 +132,14 @@ const PatientHomeVisitDetails = () => {
   useEffect(() => {
     if (patientAddress) {
       setAddressForm({
-        address: patientAddress.address || "5645/207, Radhe Shyam CHS, Ramakrishnanapuram 1st Street",
-        area: patientAddress.area || "West Mambalam",
-        landmark: patientAddress.landmark || "Near Temple",
-        city: patientAddress.city || "Chennai",
-        district: patientAddress.district || "Chennai",
-        state: patientAddress.state || "Tamil Nadu",
-        pincode: patientAddress.pincode || "600033",
-        zip: patientAddress.zip || patientAddress.pincode || "600033",
+        address: patientAddress.address || "",
+        area: patientAddress.area || "",
+        landmark: patientAddress.landmark || "",
+        city: patientAddress.city || "",
+        district: patientAddress.district || "",
+        state: patientAddress.state || "",
+        pincode: patientAddress.pincode || "",
+        zip: patientAddress.zip || patientAddress.pincode || "",
       });
     }
   }, [patientAddress]);
@@ -418,7 +418,7 @@ const PatientHomeVisitDetails = () => {
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <p className="text-base font-bold text-[#2C1810] dark:text-[#EDE3DA]">
-                  {patientAddress?.name || "Kriti Balaji"}
+                  {patientAddress?.name }
                 </p>
                 <p className="text-xs sm:text-[13px] text-[#7F726A] dark:text-[#A8988D] max-w-xl leading-relaxed">
                   {formattedAddress}

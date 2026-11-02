@@ -20,65 +20,7 @@ import {
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import DoctorForm from "./DoctorForm";
 import DoctorProfileView from "./DoctorProfileView";
-
-const SAMPLE_FALLBACK_DOCTORS = [
-  {
-    id: "D_7198",
-    name: "Dr. Preeti Nagarajan",
-    doctor_code: "DOC12345",
-    email: "p.nagarajan@shreeayurveda.com",
-    phone: "+91 9833400397",
-    mobile: "+91 9833400397",
-    dob: "1984-12-04",
-    gender: "Female",
-    qualification: "MD (Ayurveda)",
-    specialization: "Panchakarma Specialist",
-    experience_years: 12,
-    experience: "12 Years",
-    registration_no: "AYU/KAR/12345",
-    department: "Panchakarma",
-    employment_type: "Full Time",
-    languages: "English, Tamil, Kannada",
-    about: "Specialized in detox therapies, pain management and chronic lifestyle disorders.",
-    bio: "Specialized in detox therapies, pain management and chronic lifestyle disorders.",
-    fee_in_person: 800,
-    fee_video_call: 600,
-    fee_home_visit: 1200,
-    shift_timings: "9:00 AM - 6:00 PM",
-    working_days: ["Mon", "Tue", "Thu", "Fri", "Sat"],
-    consultation_type: "In-person, Video call, Home visit",
-    is_active: 1,
-    profile_image:
-      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=300",
-  },
-  {
-    id: "D_1",
-    name: "Dr. Jayashree D",
-    doctor_code: "DOC001",
-    email: "j.d@shreeayurveda.com",
-    phone: "+91 9840123456",
-    mobile: "+91 9840123456",
-    qualification: "BAMS, MD",
-    specialization: "Special Children, Autoimmune Disorders, Cancer, Kidney Disorders",
-    experience_years: 15,
-    experience: "15 Years",
-    registration_no: "AYU-2026-8941",
-    department: "Kayachikitsa & General Medicine",
-    employment_type: "Full Time",
-    languages: "English, Hindi, Sanskrit",
-    about: "Senior Ayurvedic Physician with 10+ years experience in Panchakarma.",
-    bio: "Senior Ayurvedic Physician with 10+ years experience in Panchakarma.",
-    fee_in_person: 600,
-    fee_video_call: 600,
-    fee_home_visit: 1200,
-    shift_timings: "9:00 AM - 6:00 PM",
-    working_days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
-    consultation_type: "In-person, Video call",
-    is_active: 1,
-    profile_image:
-      "https://res.cloudinary.com/hj1d367n/image/upload/v1784635406/sadop/doctors/Dr-D-Jayashree.jpg",
-  },
-];
+import { formatConsultationType } from "../../../utils/consultationFormatter";
 
 const DoctorMaster = ({ initialMode = "list" }) => {
   const dispatch = useDispatch();
@@ -114,7 +56,7 @@ const DoctorMaster = ({ initialMode = "list" }) => {
   // Sync with URL param if navigated with doctor ID
   useEffect(() => {
     if (urlDoctorId) {
-      const allDocs = doctors && doctors.length > 0 ? doctors : SAMPLE_FALLBACK_DOCTORS;
+      const allDocs = Array.isArray(doctors) ? doctors : [];
       const match = allDocs.find((d) => String(d.id) === String(urlDoctorId));
       if (match) {
         setSelectedDoctor(match);
@@ -133,7 +75,7 @@ const DoctorMaster = ({ initialMode = "list" }) => {
     };
   }, []);
 
-  const activeDoctors = doctors && doctors.length > 0 ? doctors : SAMPLE_FALLBACK_DOCTORS;
+  const activeDoctors = Array.isArray(doctors) ? doctors : [];
 
   // ==========================================
   // SEARCH FILTER
@@ -400,8 +342,7 @@ const DoctorMaster = ({ initialMode = "list" }) => {
                     {/* CONSULTATION TYPE */}
                     <div className="flex items-center border-r border-[#EFE4DC] dark:border-[#382D25] px-4 py-3">
                       <span className="text-[14px] font-medium leading-5 text-[#4D2E23] dark:text-[#EDE3DA] line-clamp-2">
-                        {doctor.consultation_type ||
-                          "In-person, Video call, Home visit"}
+                        {formatConsultationType(doctor.consultation_type)}
                       </span>
                     </div>
 

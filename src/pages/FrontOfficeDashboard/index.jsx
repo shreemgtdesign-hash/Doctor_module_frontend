@@ -149,7 +149,9 @@ const FrontOfficeDashboard = () => {
         <div
           className="
             grid
-            grid-cols-[1fr_220px]
+            grid-cols-1
+            lg:grid-cols-[1fr_210px_210px]
+            xl:grid-cols-[1fr_225px_225px]
             gap-4
           "
         >
@@ -161,7 +163,7 @@ const FrontOfficeDashboard = () => {
             }
           />
 
-          {/* Walk-in */}
+          {/* Add Direct Walk-in Appointment */}
 
           <div
             className="
@@ -170,31 +172,35 @@ const FrontOfficeDashboard = () => {
               border-[#E7DBD3]
               bg-white
               p-5
+              flex
+              flex-col
+              justify-between
             "
           >
 
-            <h3
-              className="
-                text-[16px]
-                font-semibold
-                text-[#4B2E2A]
-              "
-            >
-              Add Direct Walk-in
-              Appointment
-            </h3>
+            <div>
+              <h3
+                className="
+                  text-[15px]
+                  font-semibold
+                  text-[#4B2E2A]
+                  leading-snug
+                "
+              >
+                Add Direct Walk-in Appointment
+              </h3>
 
-            <p
-              className="
-                mt-3
-                text-[12px]
-                leading-5
-                text-[#7D726B]
-              "
-            >
-              Quickly add a new walk-in
-              patient and an appointment.
-            </p>
+              <p
+                className="
+                  mt-2.5
+                  text-[12px]
+                  leading-5
+                  text-[#7D726B]
+                "
+              >
+                Quickly add a new walk-in patient and an appointment.
+              </p>
+            </div>
 
             <button
               type="button"
@@ -202,17 +208,82 @@ const FrontOfficeDashboard = () => {
                 navigate("/frontoffice/direct-walkin")
               }
               className="
-    mt-5
-    w-full
-    rounded-xl
-    bg-[#8A4F32]
-    py-3
-    text-[14px]
-    font-semibold
-    text-white
-    transition
-    hover:bg-[#6A3F2D]
-  "
+                mt-4
+                w-full
+                rounded-xl
+                bg-[#8A4F32]
+                py-2.5
+                text-[13px]
+                font-semibold
+                text-white
+                transition
+                hover:bg-[#6A3F2D]
+                cursor-pointer
+              "
+            >
+              + Add Patient
+            </button>
+
+          </div>
+
+
+          {/* Inpatient Department */}
+
+          <div
+            className="
+              rounded-[18px]
+              border
+              border-[#E7DBD3]
+              bg-white
+              p-5
+              flex
+              flex-col
+              justify-between
+            "
+          >
+
+            <div>
+              <h3
+                className="
+                  text-[15px]
+                  font-semibold
+                  text-[#4B2E2A]
+                  leading-snug
+                "
+              >
+                Inpatient Department
+              </h3>
+
+              <p
+                className="
+                  mt-2.5
+                  text-[12px]
+                  leading-5
+                  text-[#7D726B]
+                "
+              >
+                Quickly add a Inpatient and an appointment.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                navigate("/frontoffice/ipd/admission")
+              }
+              className="
+                mt-4
+                w-full
+                rounded-xl
+                bg-[#8A4F32]
+                py-2.5
+                text-[13px]
+                font-semibold
+                text-white
+                transition
+                hover:bg-[#6A3F2D]
+                cursor-pointer
+              "
             >
               + Add Patient
             </button>

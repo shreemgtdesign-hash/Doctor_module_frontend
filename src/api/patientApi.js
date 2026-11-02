@@ -51,6 +51,14 @@ export const getDoctorsApi = (params = {}) => {
 };
 
 // ==========================================
+// 6b. GET SINGLE DOCTOR BY ID
+// GET /doctors/:id
+// ==========================================
+export const getDoctorByIdApi = (id) => {
+  return api.get(`/doctors/${id}`);
+};
+
+// ==========================================
 // 7. GET DOCTOR AVAILABLE SLOTS
 // GET /appointments/available-slots?doctor_id=...&date=...&branch=...
 // ==========================================

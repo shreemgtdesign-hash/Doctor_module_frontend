@@ -53,3 +53,16 @@ export const deletePatient = (
         `/frontoffice/patients/${patientId}`
     );
 };
+
+
+// ==========================================
+// IPD ADMISSION REGISTRATION
+// POST /frontoffice/ipd/admission
+// ==========================================
+
+export const registerIpdAdmission = (data) => {
+    return api.post(
+        "/frontoffice/ipd/admission",
+        data
+    );
+};

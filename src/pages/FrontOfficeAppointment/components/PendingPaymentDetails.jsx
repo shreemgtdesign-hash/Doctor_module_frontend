@@ -22,6 +22,7 @@ import {
     applyPendingPaymentDiscountThunk,
 } from "../../../redux/frontOffice/frontOfficeBillingThunk";
 import DashboardLayout from "../../../components/Layout/DashboardLayout";
+import { formatConsultationType } from "../../../utils/consultationFormatter";
 
 
 const PendingPaymentDetails = () => {
@@ -1984,8 +1985,7 @@ const InvoiceTable = ({
                                                         text-[#4B2E2A]
                                                     ">
                                                         {
-                                                            item?.consultation_type ||
-                                                            "—"
+                                                            formatConsultationType(item?.consultation_type, "—")
                                                         }
                                                     </p>
 

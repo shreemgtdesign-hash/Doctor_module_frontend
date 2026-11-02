@@ -21,6 +21,7 @@ import {
 
 import DashboardLayout
     from "../../../components/Layout/DashboardLayout";
+import { formatConsultationType } from "../../../utils/consultationFormatter";
 
 import {
     loadFrontOfficeHomevisitAppointmentConfirmation,
@@ -603,8 +604,7 @@ const HomeVisitConfirmation = () => {
                                 "
                             >
                                 {
-                                    doctor.consultation_type ||
-                                    "--"
+                                    formatConsultationType(doctor.consultation_type, "--")
                                 }
                             </p>
 

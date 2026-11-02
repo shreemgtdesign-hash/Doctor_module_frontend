@@ -7,6 +7,7 @@ import {
     fetchPatientProfile,
     fetchUpdatePatient,
     fetchDeletePatient,
+    fetchRegisterIpdAdmission,
 } from "../../services/frontOfficePatientService";
 
 
@@ -134,6 +135,40 @@ export const deleteFrontOfficePatient =
 
                 return await fetchDeletePatient(
                     patientId
+                );
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    error.response?.data ||
+                    error.message
+                );
+
+            }
+
+        }
+
+    );
+
+
+// ==========================================
+// REGISTER IPD ADMISSION
+// ==========================================
+
+export const createFrontOfficeIpdAdmission =
+    createAsyncThunk(
+
+        "frontOfficePatient/createIpdAdmission",
+
+        async (
+            payload,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                return await fetchRegisterIpdAdmission(
+                    payload
                 );
 
             } catch (error) {

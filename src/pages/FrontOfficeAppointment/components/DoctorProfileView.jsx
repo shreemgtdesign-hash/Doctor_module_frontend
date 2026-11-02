@@ -1,4 +1,5 @@
 import { HiOutlineArrowLeft, HiOutlinePencilSquare } from "react-icons/hi2";
+import { formatConsultationType } from "../../../utils/consultationFormatter";
 
 const FULL_DAYS_MAP = {
   Mon: "Monday",
@@ -34,13 +35,12 @@ const DoctorProfileView = ({ doctor, onBack, onEdit }) => {
   // Normalize languages
   const languagesDisplay = Array.isArray(doctor.languages)
     ? doctor.languages.join(", ")
-    : doctor.languages || "English, Tamil, Kannada";
+    : typeof doctor.languages === "object" && doctor.languages !== null
+    ? Object.keys(doctor.languages).join(", ")
+    : String(doctor.languages || "English, Tamil, Kannada");
 
   // Normalize consultation types
-  let consultationTypeDisplay = "In-person, Video call, Home visit";
-  if (doctor.consultation_type) {
-    consultationTypeDisplay = doctor.consultation_type;
-  }
+  const consultationTypeDisplay = formatConsultationType(doctor.consultation_type);
 
   const shiftTime = doctor.shift_timings || "9:00 AM - 6:00 PM";
   const experienceDisplay =
@@ -50,12 +50,25 @@ const DoctorProfileView = ({ doctor, onBack, onEdit }) => {
   const feeInPerson =
     doctor.fee_in_person !== undefined
       ? doctor.fee_in_person
+      : typeof doctor.consultation_type === "object" && doctor.consultation_type?.["In-person"] !== undefined
+      ? doctor.consultation_type["In-person"]
       : doctor.consultation_fee !== undefined
       ? doctor.consultation_fee
       : 800;
 
-  const feeVideoCall = doctor.fee_video_call !== undefined ? doctor.fee_video_call : 600;
-  const feeHomeVisit = doctor.fee_home_visit !== undefined ? doctor.fee_home_visit : 1200;
+  const feeVideoCall =
+    doctor.fee_video_call !== undefined
+      ? doctor.fee_video_call
+      : typeof doctor.consultation_type === "object" && doctor.consultation_type?.["Video Call"] !== undefined
+      ? doctor.consultation_type["Video Call"]
+      : 600;
+
+  const feeHomeVisit =
+    doctor.fee_home_visit !== undefined
+      ? doctor.fee_home_visit
+      : typeof doctor.consultation_type === "object" && doctor.consultation_type?.["Home Visit"] !== undefined
+      ? doctor.consultation_type["Home Visit"]
+      : 1200;
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">

@@ -22,6 +22,7 @@ import frontOfficeBillingReducer
 import corporateDashboardReducer
   from "../redux/corporate/corporateDashboardSlice";
 import patientReducer from "../redux/patient/patientSlice";
+import nurseReducer from "../redux/nurse/nurseSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -40,5 +41,6 @@ export const store = configureStore({
     juniorDoctorDashboard:juniorDoctorDashboardReducer,
     corporateDashboard:corporateDashboardReducer,
     patient: patientReducer,
+    nurse: nurseReducer,
   },
 });

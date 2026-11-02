@@ -28,6 +28,7 @@ const DashboardLayout = ({
         (location?.pathname?.startsWith("/therapist") ? "therapist" : undefined) ||
         (location?.pathname?.startsWith("/duty-doctor") ? "duty-doctor" : undefined) ||
         (location?.pathname?.startsWith("/junior-doctor") ? "junior-doctor" : undefined) ||
+        (location?.pathname?.startsWith("/nurse") ? "nurse" : undefined) ||
         (location?.pathname?.startsWith("/frontoffice") ? "frontoffice" : undefined) ||
         (location?.pathname?.startsWith("/doctor") ? "doctor" : undefined) ||
         storedRole;

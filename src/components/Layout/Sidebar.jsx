@@ -114,6 +114,53 @@ const dutyDoctorMenu = [
 ];
 
 // ==========================================
+// NURSE MENU
+// ==========================================
+
+const nurseMenu = [
+    {
+        name: "Dashboard",
+        icon: HiHome,
+        path: "/nurse/dashboard",
+    },
+    {
+        name: "Admit Patient",
+        icon: HiOutlineCalendar,
+        path: "/nurse/admit-patient",
+    },
+    {
+        name: "IPD Patients",
+        icon: FaBed,
+        path: "/nurse/ipd-patients",
+    },
+    {
+        name: "Rooms",
+        icon: FaUserMd,
+        path: "/nurse/rooms",
+    },
+    {
+        name: "Meals & Diet",
+        icon: FaLifeRing,
+        path: "/nurse/meals-diet",
+    },
+    {
+        name: "Activities",
+        icon: FaClipboardCheck,
+        path: "/nurse/activities",
+    },
+    {
+        name: "Profile",
+        icon: HiOutlineUserCircle,
+        path: "/nurse/profile",
+    },
+    {
+        name: "Settings",
+        icon: FaCog,
+        path: "/nurse/settings",
+    },
+];
+
+// ==========================================
 // CORPORATE MENU
 // ==========================================
 
@@ -418,6 +465,11 @@ const Sidebar = ({
         location.pathname.startsWith("/corporate")
     ) {
         currentMenu = corporateMenu;
+    } else if (
+        role === "nurse" ||
+        location.pathname.startsWith("/nurse")
+    ) {
+        currentMenu = nurseMenu;
     }
 
 
@@ -578,6 +630,7 @@ const Sidebar = ({
                             const isHash = !item.path || item.path === "#";
                             const isCurrentlyActive = !isHash && (
                                 location.pathname === item.path ||
+                                (item.path === "/frontoffice/patients-table" && (location.pathname.startsWith("/frontoffice/patient") || location.pathname.startsWith("/frontoffice/ipd"))) ||
                                 (item.path === "/corporate-cell/completed-events" && location.pathname.startsWith("/corporate-cell/completed-events")) ||
                                 (item.path === "/corporate-cell/pending-events" && (location.pathname.startsWith("/corporate-cell/pending-events") || location.pathname.startsWith("/corporate-cell/pending-requests"))) ||
                                 (item.path === "/corporate-cell/upcoming-events" && location.pathname.startsWith("/corporate-cell/upcoming-events")) ||

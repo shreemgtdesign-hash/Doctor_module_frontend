@@ -31,6 +31,7 @@ import DirectWalkIn from "./pages/FrontOfficeAppointment/components/DirectWalkIn
 import FrontofficePatientTable from "./pages/FrontOfficePatient/components/FrontofficePatientTable";
 import ViewPatientProfile from "./pages/FrontOfficePatient/components/ViewPatientProfile";
 import EditPatient from "./pages/FrontOfficePatient/components/EditPatient";
+import IpdAdmissionRegistration from "./pages/FrontOfficePatient/components/IpdAdmissionRegistration";
 import PendingActionScreen from "./pages/FrontOfficeAppointment/components/PendingActionScreen";
 import AppointmentConfirmationList from "./pages/FrontOfficeAppointment/components/AppointmentConfirmationList";
 import UpcomingAppointmentsList from "./pages/FrontOfficeDashboard/components/UpcomingAppointmentList";
@@ -81,6 +82,11 @@ import PatientBookAppointment from "./pages/Patient/PatientBookAppointment/Patie
 import PatientDoctorDetails from "./pages/Patient/PatientDoctorDetails/PatientDoctorDetails";
 import PatientBookHomeService from "./pages/Patient/PatientBookHomeService/PatientBookHomeService";
 import PatientHomeVisitDetails from "./pages/Patient/PatientHomeVisitDetails/PatientHomeVisitDetails";
+import NurseDashboard from "./pages/Nurse/NurseDashboard/NurseDashboard";
+import NursePatientsList from "./pages/Nurse/NursePatients/NursePatientsList";
+import NurseAdmitPatientDetails from "./pages/Nurse/NurseAdmitPatient/NurseAdmitPatientDetails";
+import NursePatientDailyLog from "./pages/Nurse/NursePatientDailyLog/NursePatientDailyLog";
+import NursePendingMedicines from "./pages/Nurse/NursePendingActions/NursePendingMedicines";
 
 function App() {
   return (
@@ -305,6 +311,15 @@ function App() {
       <Route
         path="/frontoffice/direct-walkin"
         element={<DirectWalkIn />}
+      />
+
+      <Route
+        path="/frontoffice/ipd/admission"
+        element={<IpdAdmissionRegistration />}
+      />
+      <Route
+        path="/frontoffice/ipd-registration"
+        element={<IpdAdmissionRegistration />}
       />
 
       <Route
@@ -631,6 +646,76 @@ function App() {
       <Route
         path="/patient/home-visit/:id"
         element={<PatientHomeVisitDetails />}
+      />
+
+      {/* Nurse Module */}
+      <Route
+        path="/nurse"
+        element={<Navigate to="/nurse/dashboard" replace />}
+      />
+      <Route
+        path="/nurse/dashboard"
+        element={<NurseDashboard />}
+      />
+      <Route
+        path="/nurse/ipd-patients"
+        element={<NursePatientsList />}
+      />
+      <Route
+        path="/nurse/patients"
+        element={<NursePatientsList />}
+      />
+      <Route
+        path="/nurse/admit-patient"
+        element={<NurseAdmitPatientDetails />}
+      />
+      <Route
+        path="/nurse/admit-patient/:id"
+        element={<NurseAdmitPatientDetails />}
+      />
+      <Route
+        path="/nurse/admissions/:id"
+        element={<NurseAdmitPatientDetails />}
+      />
+      <Route
+        path="/nurse/patient-logs"
+        element={<NursePatientDailyLog />}
+      />
+      <Route
+        path="/nurse/patients/:id/daily-log"
+        element={<NursePatientDailyLog />}
+      />
+      <Route
+        path="/nurse/pending-actions/medicines"
+        element={<NursePendingMedicines />}
+      />
+      <Route
+        path="/nurse/medicines"
+        element={<NursePendingMedicines />}
+      />
+      <Route
+        path="/nurse/rooms"
+        element={<Navigate to="/nurse/ipd-patients?tab=admitted" replace />}
+      />
+      <Route
+        path="/nurse/meals-diet"
+        element={<NursePatientDailyLog />}
+      />
+      <Route
+        path="/nurse/activities"
+        element={<NursePatientDailyLog />}
+      />
+      <Route
+        path="/nurse/photo-uploads"
+        element={<NursePatientDailyLog />}
+      />
+      <Route
+        path="/nurse/pending-actions/therapies"
+        element={<NursePatientDailyLog />}
+      />
+      <Route
+        path="/nurse/pending-actions/meals"
+        element={<NursePatientDailyLog />}
       />
 
 

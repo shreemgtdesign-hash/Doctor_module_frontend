@@ -84,10 +84,17 @@ const DoctorForm = ({ mode = "add", doctor = null, onBack, onSuccess }) => {
         home_visit: true,
       };
       if (doctor.consultation_type) {
-        const ct = String(doctor.consultation_type).toLowerCase();
-        consultTypes.in_person = ct.includes("in-person") || ct.includes("in person");
-        consultTypes.video_call = ct.includes("video");
-        consultTypes.home_visit = ct.includes("home");
+        if (typeof doctor.consultation_type === "object" && !Array.isArray(doctor.consultation_type)) {
+          const ct = doctor.consultation_type;
+          consultTypes.in_person = Boolean(ct.in_person ?? ct["In-person"] ?? ct["in-person"]);
+          consultTypes.video_call = Boolean(ct.video_call ?? ct["Video Call"] ?? ct["video_call"] ?? ct["video call"]);
+          consultTypes.home_visit = Boolean(ct.home_visit ?? ct["Home Visit"] ?? ct["home_visit"] ?? ct["home visit"]);
+        } else {
+          const ct = String(doctor.consultation_type).toLowerCase();
+          consultTypes.in_person = ct.includes("in-person") || ct.includes("in person");
+          consultTypes.video_call = ct.includes("video");
+          consultTypes.home_visit = ct.includes("home");
+        }
       }
 
       setFormData({
@@ -114,13 +121,23 @@ const DoctorForm = ({ mode = "add", doctor = null, onBack, onSuccess }) => {
         fee_in_person:
           doctor.fee_in_person !== undefined
             ? Number(doctor.fee_in_person)
+            : typeof doctor.consultation_type === "object" && doctor.consultation_type?.["In-person"] !== undefined
+            ? Number(doctor.consultation_type["In-person"])
             : doctor.consultation_fee
             ? Number(doctor.consultation_fee)
             : 800,
         fee_video_call:
-          doctor.fee_video_call !== undefined ? Number(doctor.fee_video_call) : 600,
+          doctor.fee_video_call !== undefined
+            ? Number(doctor.fee_video_call)
+            : typeof doctor.consultation_type === "object" && doctor.consultation_type?.["Video Call"] !== undefined
+            ? Number(doctor.consultation_type["Video Call"])
+            : 600,
         fee_home_visit:
-          doctor.fee_home_visit !== undefined ? Number(doctor.fee_home_visit) : 1200,
+          doctor.fee_home_visit !== undefined
+            ? Number(doctor.fee_home_visit)
+            : typeof doctor.consultation_type === "object" && doctor.consultation_type?.["Home Visit"] !== undefined
+            ? Number(doctor.consultation_type["Home Visit"])
+            : 1200,
         working_days: wDays,
         shift_timings: doctor.shift_timings || "9:00 AM - 6:00 PM",
         profile_image: doctor.profile_image || null,

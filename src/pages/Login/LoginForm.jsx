@@ -78,6 +78,10 @@ const LoginForm = () => {
                     navigate("/junior-doctor/dashboard", { replace: true });
                     break;
 
+                case "nurse":
+                    navigate("/nurse/dashboard", { replace: true });
+                    break;
+
                 default:
                     console.error("Unknown user role:", result.role);
             }
