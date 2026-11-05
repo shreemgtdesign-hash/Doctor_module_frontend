@@ -637,6 +637,10 @@ const Sidebar = ({
                                 (item.path === "/corporate/dashboard" && (location.pathname === "/corporate" || location.pathname === "/corporate/dashboard")) ||
                                 (item.path === "/corporate/my-events" && (location.pathname === "/corporate/my-events" || location.pathname.startsWith("/corporate/events/"))) ||
                                 (item.path === "/corporate/packages" && (location.pathname === "/corporate/packages" || location.pathname === "/corporate/events/request" || location.pathname === "/corporate/customize-event")) ||
+                                (item.path === "/nurse/meals-diet" && (location.pathname === "/nurse/meals-diet" || location.pathname === "/nurse/pending-meals" || location.pathname.startsWith("/nurse/pending-actions/meals"))) ||
+                                (item.path === "/nurse/activities" && (location.pathname === "/nurse/activities" || location.pathname === "/nurse/activities-incomplete")) ||
+                                (item.path === "/nurse/ipd-patients" && (location.pathname === "/nurse/ipd-patients" || location.pathname === "/nurse/patients")) ||
+                                (item.path === "/nurse/admit-patient" && (location.pathname.startsWith("/nurse/admit-patient") || location.pathname.startsWith("/nurse/admissions/"))) ||
                                 (item.path === "/doctordashboard" && (location.pathname === "/" || location.pathname === "/doctordashboard"))
                             );
 

@@ -130,6 +130,9 @@ const NurseAdmitPatientDetails = () => {
     // Room Assignment
     room_number: "",
     room_type: "",
+    attendee_name: "",
+    attendee_phone: "",
+    attendee_gender: "Male",
     sr_doctor: "",
     day_doctor: "",
     night_doctor: "",
@@ -155,13 +158,13 @@ const NurseAdmitPatientDetails = () => {
   // Populate form by merging patient details from route state, list cache, and API admission detail
   useEffect(() => {
     const rawData = admission?.data || admission || {};
-    const nestedPatient = rawData.patient || rawData.admission || {};
+    const nestedAdmission = rawData.admission || rawData.patient || {};
 
     const source = {
       ...(patientFromList || {}),
       ...(patientFromState || {}),
       ...(rawData || {}),
-      ...(nestedPatient || {}),
+      ...(nestedAdmission || {}),
     };
 
     const v =
@@ -210,11 +213,33 @@ const NurseAdmitPatientDetails = () => {
       source.patient?.email ||
       "";
 
-    const attendantVal = source.attendee
-      ? source.attendee.has_attendee
-        ? (source.attendee_name || "Yes")
-        : "No"
-      : (source.attendant || source.attendee_name || "");
+    const attendantVal =
+      source.attendant ||
+      (source.has_attendee ? "Yes" : source.has_attendee === false ? "No" : "");
+
+    const pAttendeeName =
+      source.attendee_name ||
+      source.attendee?.name ||
+      source.attendant_name ||
+      source.attendantName ||
+      "";
+
+    const pAttendeePhone =
+      source.attendee_phone ||
+      source.attendee?.phone ||
+      source.attendee?.mobile ||
+      source.attendant_phone ||
+      source.attendantPhone ||
+      source.attendant_mobile ||
+      "";
+
+    const rawAttendeeGender =
+      source.attendee_gender ||
+      source.attendee?.gender ||
+      source.attendant_gender ||
+      "";
+
+    const pAttendeeGender = rawAttendeeGender ? normalizeGender(rawAttendeeGender) : "Male";
 
     const firstRoom = dropdowns.available_rooms?.[0];
     const defaultRoom = firstRoom
@@ -275,18 +300,21 @@ const NurseAdmitPatientDetails = () => {
         upload_reports: v.upload_reports || source.upload_reports || prev.upload_reports,
         room_number: defaultRoom || prev.room_number,
         room_type: rType || prev.room_type,
+        attendee_name: pAttendeeName || prev.attendee_name,
+        attendee_phone: pAttendeePhone || prev.attendee_phone,
+        attendee_gender: pAttendeeGender || prev.attendee_gender || "Male",
         sr_doctor: defaultSrDoctor || prev.sr_doctor,
         day_doctor: defaultDayDoctor || prev.day_doctor,
         night_doctor: defaultNightDoctor || prev.night_doctor,
-        admission_date: source.admission_date || source.date || prev.admission_date,
+        admission_date: source.admission_date || source.admission_date_iso || source.date || prev.admission_date,
         no_of_days: Number(source.no_of_days) || prev.no_of_days || 10,
         floor: defaultFloor || prev.floor,
         ward: defaultWard || prev.ward,
-        other_comments: source.other_comments || prev.other_comments,
+        other_comments: source.other_comments || source.comments || prev.other_comments,
       }));
 
-      setDateHeader(source.date || source.admission_date || "");
-      setTimeHeader(source.time || "");
+      setDateHeader(source.admission_date || source.date || "29 June, 2026");
+      setTimeHeader(source.admission_time || source.time || "10:30 AM");
     }
   }, [admission, patientFromState, patientFromList]);
 
@@ -354,6 +382,9 @@ const NurseAdmitPatientDetails = () => {
     const payload = {
       room_number: formData.room_number,
       room_type: formData.room_type,
+      attendee_name: formData.attendee_name,
+      attendee_phone: formData.attendee_phone,
+      attendee_gender: formData.attendee_gender,
       sr_doctor: formData.sr_doctor,
       day_doctor: formData.day_doctor,
       night_doctor: formData.night_doctor,
@@ -377,6 +408,8 @@ const NurseAdmitPatientDetails = () => {
 
   const isFemale = normalizeGender(formData.gender) === "Female";
   const isMale = normalizeGender(formData.gender) === "Male";
+  const isAttendeeFemale = normalizeGender(formData.attendee_gender) === "Female";
+  const isAttendeeMale = normalizeGender(formData.attendee_gender) === "Male";
 
   return (
     <DashboardLayout role="nurse">
@@ -395,22 +428,22 @@ const NurseAdmitPatientDetails = () => {
               </p>
             </div>
 
-            {(dateHeader || timeHeader) && (
-              <div className="flex items-center gap-3 text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
-                {dateHeader && (
-                  <div className="flex items-center gap-2 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 py-2">
-                    <HiOutlineCalendar size={15} className="text-[#8A4F32]" />
-                    <span>{dateHeader}</span>
-                  </div>
-                )}
-                {timeHeader && (
-                  <div className="flex items-center gap-2 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 py-2">
-                    <HiOutlineClock size={15} className="text-[#8A4F32]" />
-                    <span>{timeHeader}</span>
-                  </div>
-                )}
+            <div className="flex items-center gap-4 text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
+              <div className="space-y-1">
+                <span className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">Date</span>
+                <div className="flex items-center gap-2 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 py-2">
+                  <HiOutlineCalendar size={15} className="text-[#8A4F32]" />
+                  <span>{dateHeader || "29 June, 2026"}</span>
+                </div>
               </div>
-            )}
+              <div className="space-y-1">
+                <span className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">Time</span>
+                <div className="flex items-center gap-2 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 py-2">
+                  <HiOutlineClock size={15} className="text-[#8A4F32]" />
+                  <span>{timeHeader || "10:30 AM"}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {error && !formData.name && (
@@ -694,59 +727,133 @@ const NurseAdmitPatientDetails = () => {
                 </div>
               </div>
 
-              {/* 3. ASSIGN ROOM & DOCTOR SECTION */}
+              {/* 3. ROOM DETAILS */}
               <div className="space-y-4 pt-2">
-                {/* Assign Room Number */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
-                    Assign Room Number
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={formData.room_number}
-                      onChange={(e) => handleRoomSelect(e.target.value)}
-                      className="appearance-none w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-4 pr-9 text-xs font-semibold text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32] cursor-pointer"
-                    >
-                      {roomOptions.length === 0 ? (
-                        <option value={formData.room_number || ""}>
-                          {formData.room_number || "No rooms available"}
-                        </option>
-                      ) : (
-                        roomOptions.map((rm, idx) => {
-                          const val = getRoomValue(rm);
-                          const lbl = getRoomLabel(rm);
-                          const key = getOptionKey(rm, idx, "room");
-                          return (
-                            <option key={key} value={val}>
-                              {lbl}
-                            </option>
-                          );
-                        })
-                      )}
-                    </select>
-                    <HiOutlineChevronDown
-                      size={14}
-                      className="pointer-events-none absolute right-3.5 top-3.5 text-[#8A7D75]"
+                <h2 className="text-sm font-bold text-[#2C1810] dark:text-[#EDE3DA]">
+                  Room Details
+                </h2>
+
+                {/* Row 1: Assign Room Number & Room Type (2 columns) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                      Assign Room Number
+                    </label>
+                    <div className="relative">
+                      <select
+                        name="room_number"
+                        value={formData.room_number}
+                        onChange={(e) => handleRoomSelect(e.target.value)}
+                        className="appearance-none w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-4 pr-9 text-xs font-semibold text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32] cursor-pointer"
+                      >
+                        {roomOptions.length === 0 ? (
+                          <option value={formData.room_number || ""}>
+                            {formData.room_number || "No rooms available"}
+                          </option>
+                        ) : (
+                          roomOptions.map((rm, idx) => {
+                            const val = getRoomValue(rm);
+                            const lbl = getRoomLabel(rm);
+                            const key = getOptionKey(rm, idx, "room");
+                            return (
+                              <option key={key} value={val}>
+                                {lbl}
+                              </option>
+                            );
+                          })
+                        )}
+                      </select>
+                      <HiOutlineChevronDown
+                        size={14}
+                        className="pointer-events-none absolute right-3.5 top-3.5 text-[#8A7D75]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                      Room Type
+                    </label>
+                    <input
+                      type="text"
+                      name="room_type"
+                      value={formData.room_type}
+                      onChange={handleChange}
+                      className="w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-4 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32]"
+                      placeholder="AC / Non-AC / Garden"
                     />
                   </div>
                 </div>
 
-                {/* Room Type */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
-                    Room Type
-                  </label>
-                  <input
-                    type="text"
-                    name="room_type"
-                    value={formData.room_type}
-                    onChange={handleChange}
-                    className="w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-[#FAF8F5] dark:bg-[#1E1714] px-4 text-xs font-semibold text-[#2C1810] dark:text-[#EDE3DA] outline-none"
-                    placeholder="AC / Non-AC / Garden"
-                  />
-                </div>
+                {/* Row 2: Attendant Name, Mobile Number, Gender (3 columns) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                      Attendant Name
+                    </label>
+                    <input
+                      type="text"
+                      name="attendee_name"
+                      value={formData.attendee_name}
+                      onChange={handleChange}
+                      placeholder="Attendant Name"
+                      className="w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-4 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32]"
+                    />
+                  </div>
 
-                {/* 3 Doctors: Sr. Doctor, Day Doctor, Night Doctor */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                      Mobile Number
+                    </label>
+                    <input
+                      type="text"
+                      name="attendee_phone"
+                      value={formData.attendee_phone}
+                      onChange={handleChange}
+                      placeholder="Mobile Number"
+                      className="w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-4 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32]"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                      Gender
+                    </label>
+                    <div className="flex items-center gap-2 h-11">
+                      <button
+                        type="button"
+                        onClick={() => setFormData((p) => ({ ...p, attendee_gender: "Female" }))}
+                        className={`flex-1 h-full rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                          isAttendeeFemale
+                            ? "border-[#542F1E] dark:border-[#D5A794] bg-[#FFFDFC] dark:bg-[#2F241F] text-[#542F1E] dark:text-[#EDE3DA] shadow-xs font-bold"
+                            : "border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] text-[#7D726B] hover:bg-[#FAF6F2]"
+                        }`}
+                      >
+                        <span>♀</span> Female
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData((p) => ({ ...p, attendee_gender: "Male" }))}
+                        className={`flex-1 h-full rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                          isAttendeeMale
+                            ? "border-[#542F1E] dark:border-[#D5A794] bg-[#FFFDFC] dark:bg-[#2F241F] text-[#542F1E] dark:text-[#EDE3DA] shadow-xs font-bold"
+                            : "border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] text-[#7D726B] hover:bg-[#FAF6F2]"
+                        }`}
+                      >
+                        <span>♂</span> Male
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. DOCTOR DETAILS */}
+              <div className="space-y-4 pt-2">
+                <h2 className="text-sm font-bold text-[#2C1810] dark:text-[#EDE3DA]">
+                  Doctor Details
+                </h2>
+
+                {/* Row 1: Sr. Doctor, Day Doctor, Night Doctor */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
@@ -854,17 +961,18 @@ const NurseAdmitPatientDetails = () => {
                   </div>
                 </div>
 
-                {/* Admission Date, No. of Days, Ward / Floor */}
+                {/* Row 2: Admission Date, No. of Days, Ward / Floor */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
                       Admission Date
                     </label>
                     <input
-                      type="date"
+                      type="text"
                       name="admission_date"
                       value={formData.admission_date}
                       onChange={handleChange}
+                      placeholder="28 Oct 2026"
                       className="w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32]"
                     />
                   </div>
@@ -940,7 +1048,7 @@ const NurseAdmitPatientDetails = () => {
                   </div>
                 </div>
 
-                {/* Other Comments */}
+                {/* Row 3: Other Comments */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
                     Other Comments (Optional)

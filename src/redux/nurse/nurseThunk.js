@@ -6,7 +6,16 @@ import {
   submitAssignRoomAndAdmit,
   fetchPatientDailyLog,
   submitPatientDailyLog,
+  fetchMealsMenu,
   fetchPendingMedicines,
+  fetchPendingMeals,
+  fetchActivitiesIncomplete,
+  fetchPhotoUploadsDue,
+  fetchWardSummary,
+  fetchNurseNotifications,
+  markNurseNotificationRead,
+  markAllNurseNotificationsRead,
+  fetchPendingPatientLogs,
 } from "../../services/nurseService";
 
 export const loadNurseDashboard = createAsyncThunk(
@@ -99,6 +108,21 @@ export const updatePatientDailyLog = createAsyncThunk(
   }
 );
 
+export const loadMealsMenu = createAsyncThunk(
+  "nurse/loadMealsMenu",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await fetchMealsMenu();
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load meals menu."
+      );
+    }
+  }
+);
+
 export const loadPendingMedicines = createAsyncThunk(
   "nurse/loadPendingMedicines",
   async (params = {}, { rejectWithValue }) => {
@@ -109,6 +133,126 @@ export const loadPendingMedicines = createAsyncThunk(
         error.response?.data?.message ||
           error.message ||
           "Failed to load pending medicines."
+      );
+    }
+  }
+);
+
+export const loadPendingMeals = createAsyncThunk(
+  "nurse/loadPendingMeals",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      return await fetchPendingMeals(params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load pending meals."
+      );
+    }
+  }
+);
+
+export const loadActivitiesIncomplete = createAsyncThunk(
+  "nurse/loadActivitiesIncomplete",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      return await fetchActivitiesIncomplete(params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load incomplete activities."
+      );
+    }
+  }
+);
+
+export const loadPhotoUploadsDue = createAsyncThunk(
+  "nurse/loadPhotoUploadsDue",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      return await fetchPhotoUploadsDue(params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load photo uploads due."
+      );
+    }
+  }
+);
+
+export const loadWardSummary = createAsyncThunk(
+  "nurse/loadWardSummary",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      return await fetchWardSummary(params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load ward summary."
+      );
+    }
+  }
+);
+
+export const loadNurseNotifications = createAsyncThunk(
+  "nurse/loadNotifications",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      return await fetchNurseNotifications(params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load nurse notifications."
+      );
+    }
+  }
+);
+
+export const readNurseNotification = createAsyncThunk(
+  "nurse/readNotification",
+  async (id, { rejectWithValue }) => {
+    try {
+      return await markNurseNotificationRead(id);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to mark notification as read."
+      );
+    }
+  }
+);
+
+export const readAllNurseNotifications = createAsyncThunk(
+  "nurse/readAllNotifications",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await markAllNurseNotificationsRead();
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to mark all notifications as read."
+      );
+    }
+  }
+);
+
+export const loadPendingPatientLogs = createAsyncThunk(
+  "nurse/loadPendingPatientLogs",
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      return await fetchPendingPatientLogs(params);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load pending patient logs."
       );
     }
   }

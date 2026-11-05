@@ -234,9 +234,18 @@ const NurseDashboard = () => {
         {/* ========================================================= */}
         <div className="rounded-[20px] border border-[#E7DBD3] dark:border-[#382D25] bg-gradient-to-br from-white to-[#FAF6F2] dark:from-[#241E1B] dark:to-[#1C1613] p-6 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-[17px] font-bold text-[#2C1810] dark:text-[#EDE3DA]">
-              Ward Summary
-            </h2>
+            <div
+              onClick={() => navigate("/nurse/ward-summary")}
+              className="flex items-center gap-1.5 group cursor-pointer"
+            >
+              <h2 className="text-[17px] font-bold text-[#2C1810] dark:text-[#EDE3DA] group-hover:text-[#8A5035] transition">
+                Ward Summary
+              </h2>
+              <HiOutlineChevronRight
+                size={16}
+                className="text-[#8A7D75] group-hover:text-[#8A5035] group-hover:translate-x-0.5 transition"
+              />
+            </div>
 
             <div className="relative inline-flex items-center">
               <select
@@ -264,7 +273,10 @@ const NurseDashboard = () => {
           {/* 3 Occupancy Cards matching design */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4.5">
             {/* Card 1: AC Occupancy */}
-            <div className="rounded-2xl border border-[#EFE5DC] dark:border-[#382E28] bg-white dark:bg-[#1E1714] p-5 shadow-xs">
+            <div
+              onClick={() => navigate("/nurse/ward-summary")}
+              className="rounded-2xl border border-[#EFE5DC] dark:border-[#382E28] bg-white dark:bg-[#1E1714] p-5 shadow-xs hover:border-[#CBB4A5] transition cursor-pointer"
+            >
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-[#FBF1EA] dark:bg-[#342923] flex items-center justify-center text-[#8A4F32] dark:text-[#D5A794] shrink-0">
                   <WardLeafIcon className="h-4.5 w-4.5" />
@@ -282,7 +294,10 @@ const NurseDashboard = () => {
             </div>
 
             {/* Card 2: Non-AC Occupancy */}
-            <div className="rounded-2xl border border-[#EFE5DC] dark:border-[#382E28] bg-white dark:bg-[#1E1714] p-5 shadow-xs">
+            <div
+              onClick={() => navigate("/nurse/ward-summary")}
+              className="rounded-2xl border border-[#EFE5DC] dark:border-[#382E28] bg-white dark:bg-[#1E1714] p-5 shadow-xs hover:border-[#CBB4A5] transition cursor-pointer"
+            >
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-[#FBF1EA] dark:bg-[#342923] flex items-center justify-center text-[#8A4F32] dark:text-[#D5A794] shrink-0">
                   <WardLeafIcon className="h-4.5 w-4.5" />
@@ -300,7 +315,10 @@ const NurseDashboard = () => {
             </div>
 
             {/* Card 3: Garden Occupancy */}
-            <div className="rounded-2xl border border-[#EFE5DC] dark:border-[#382E28] bg-white dark:bg-[#1E1714] p-5 shadow-xs">
+            <div
+              onClick={() => navigate("/nurse/ward-summary")}
+              className="rounded-2xl border border-[#EFE5DC] dark:border-[#382E28] bg-white dark:bg-[#1E1714] p-5 shadow-xs hover:border-[#CBB4A5] transition cursor-pointer"
+            >
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-[#FBF1EA] dark:bg-[#342923] flex items-center justify-center text-[#8A4F32] dark:text-[#D5A794] shrink-0">
                   <WardLeafIcon className="h-4.5 w-4.5" />
@@ -430,17 +448,17 @@ const NurseDashboard = () => {
                   {
                     label: "Patient Logs",
                     count: nurse_actions.patient_logs ?? 12,
-                    path: "/nurse/patient-logs",
+                    path: "/nurse/pending-actions/patient-logs",
                   },
                   {
                     label: "Activities Incomplete",
                     count: nurse_actions.activities_incomplete ?? 9,
-                    path: "/nurse/activities",
+                    path: "/nurse/activities-incomplete",
                   },
                   {
                     label: "Photo Uploads Due",
                     count: nurse_actions.photo_uploads_due ?? 4,
-                    path: "/nurse/photo-uploads",
+                    path: "/nurse/upload-photos",
                   },
                   {
                     label: "Pending Medicines",
@@ -455,7 +473,7 @@ const NurseDashboard = () => {
                   {
                     label: "Pending Meals",
                     count: nurse_actions.pending_meals ?? 4,
-                    path: "/nurse/pending-actions/meals",
+                    path: "/nurse/pending-meals",
                   },
                 ].map((act) => (
                   <div

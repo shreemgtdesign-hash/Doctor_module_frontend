@@ -5,7 +5,16 @@ import {
   assignRoomAndAdmitPatient,
   getPatientDailyLog,
   savePatientDailyLog,
+  getMealsMenu,
   getPendingMedicines,
+  getPendingMeals,
+  getActivitiesIncomplete,
+  getPhotoUploadsDue,
+  getWardSummary,
+  getNurseNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+  getPendingPatientLogs,
 } from "../api/nurseApi";
 
 export const fetchNurseDashboard = async (params = {}) => {
@@ -117,12 +126,102 @@ export const submitPatientDailyLog = async (patientId, payload) => {
   }
 };
 
+export const fetchMealsMenu = async () => {
+  try {
+    const response = await getMealsMenu();
+    return response.data?.data || response.data;
+  } catch (error) {
+    console.warn("fetchMealsMenu error:", error);
+    throw error;
+  }
+};
+
 export const fetchPendingMedicines = async (params = {}) => {
   try {
     const response = await getPendingMedicines(params);
     return response.data?.data || response.data;
   } catch (error) {
     console.warn("fetchPendingMedicines error:", error);
+    throw error;
+  }
+};
+
+export const fetchPendingMeals = async (params = {}) => {
+  try {
+    const response = await getPendingMeals(params);
+    return response.data;
+  } catch (error) {
+    console.warn("fetchPendingMeals error:", error);
+    throw error;
+  }
+};
+
+export const fetchActivitiesIncomplete = async (params = {}) => {
+  try {
+    const response = await getActivitiesIncomplete(params);
+    return response.data;
+  } catch (error) {
+    console.warn("fetchActivitiesIncomplete error:", error);
+    throw error;
+  }
+};
+
+export const fetchPhotoUploadsDue = async (params = {}) => {
+  try {
+    const response = await getPhotoUploadsDue(params);
+    return response.data;
+  } catch (error) {
+    console.warn("fetchPhotoUploadsDue error:", error);
+    throw error;
+  }
+};
+
+export const fetchWardSummary = async (params = {}) => {
+  try {
+    const response = await getWardSummary(params);
+    return response.data;
+  } catch (error) {
+    console.warn("fetchWardSummary error:", error);
+    throw error;
+  }
+};
+
+export const fetchNurseNotifications = async (params = {}) => {
+  try {
+    const response = await getNurseNotifications(params);
+    return response.data;
+  } catch (error) {
+    console.warn("fetchNurseNotifications error:", error);
+    throw error;
+  }
+};
+
+export const markNurseNotificationRead = async (id) => {
+  try {
+    const response = await markNotificationRead(id);
+    return response.data;
+  } catch (error) {
+    console.warn("markNurseNotificationRead error:", error);
+    throw error;
+  }
+};
+
+export const markAllNurseNotificationsRead = async () => {
+  try {
+    const response = await markAllNotificationsRead();
+    return response.data;
+  } catch (error) {
+    console.warn("markAllNurseNotificationsRead error:", error);
+    throw error;
+  }
+};
+
+export const fetchPendingPatientLogs = async (params = {}) => {
+  try {
+    const response = await getPendingPatientLogs(params);
+    return response.data;
+  } catch (error) {
+    console.warn("fetchPendingPatientLogs error:", error);
     throw error;
   }
 };

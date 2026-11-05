@@ -152,7 +152,11 @@ const Header = ({
 
   const handleBellClick = () => {
     setShowNotifications(false);
-    navigate("/notifications");
+    if (activeRole === "nurse" || location.pathname.startsWith("/nurse")) {
+      navigate("/nurse/notifications");
+    } else {
+      navigate("/notifications");
+    }
   };
 
 

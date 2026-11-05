@@ -52,11 +52,89 @@ export const savePatientDailyLog = (patientId, data) => {
 };
 
 // ==========================================
+// MEALS MENU API
+// GET /nurse/meals-menu
+// ==========================================
+export const getMealsMenu = () => {
+  return api.get("/nurse/meals-menu");
+};
+
+// ==========================================
 // PENDING MEDICINES API
 // GET /nurse/pending-actions/medicines
 // ==========================================
 export const getPendingMedicines = (params = {}) => {
   return api.get("/nurse/pending-actions/medicines", {
+    params,
+  });
+};
+
+// ==========================================
+// PENDING MEAL LOGS API
+// GET /nurse/pending-meals?date=YYYY-MM-DD&meal_type=all|breakfast|lunch|dinner
+// ==========================================
+export const getPendingMeals = (params = {}) => {
+  return api.get("/nurse/pending-meals", {
+    params,
+  });
+};
+
+// ==========================================
+// ACTIVITIES INCOMPLETE API
+// GET /nurse/activities-incomplete?date=YYYY-MM-DD&category=all|morning|therapy|evening
+// ==========================================
+export const getActivitiesIncomplete = (params = {}) => {
+  return api.get("/nurse/activities-incomplete", {
+    params,
+  });
+};
+
+// ==========================================
+// PHOTO UPLOADS DUE API
+// GET /nurse/upload-photos?date=YYYY-MM-DD
+// ==========================================
+export const getPhotoUploadsDue = (params = {}) => {
+  return api.get("/nurse/upload-photos", {
+    params,
+  });
+};
+
+// ==========================================
+// WARD SUMMARY API
+// GET /nurse/ward-summary
+// ==========================================
+export const getWardSummary = (params = {}) => {
+  return api.get("/nurse/ward-summary", {
+    params,
+  });
+};
+
+// ==========================================
+// NOTIFICATIONS API
+// GET /nurse/notifications?tab=all|admissions|meals|activities|medicines|discharges
+// PUT /nurse/notifications/:id/read
+// PUT /nurse/notifications/read-all
+// ==========================================
+export const getNurseNotifications = (params = {}) => {
+  return api.get("/nurse/notifications", {
+    params,
+  });
+};
+
+export const markNotificationRead = (id) => {
+  return api.put(`/nurse/notifications/${id}/read`);
+};
+
+export const markAllNotificationsRead = () => {
+  return api.put("/nurse/notifications/read-all");
+};
+
+// ==========================================
+// PENDING ACTIONS > PATIENT LOGS API
+// GET /nurse/pending-actions/patient-logs?date=YYYY-MM-DD
+// ==========================================
+export const getPendingPatientLogs = (params = {}) => {
+  return api.get("/nurse/pending-actions/patient-logs", {
     params,
   });
 };

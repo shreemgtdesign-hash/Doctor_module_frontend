@@ -87,6 +87,12 @@ import NursePatientsList from "./pages/Nurse/NursePatients/NursePatientsList";
 import NurseAdmitPatientDetails from "./pages/Nurse/NurseAdmitPatient/NurseAdmitPatientDetails";
 import NursePatientDailyLog from "./pages/Nurse/NursePatientDailyLog/NursePatientDailyLog";
 import NursePendingMedicines from "./pages/Nurse/NursePendingActions/NursePendingMedicines";
+import NursePendingMeals from "./pages/Nurse/NursePendingMeals/NursePendingMeals";
+import NurseActivitiesIncomplete from "./pages/Nurse/NurseActivitiesIncomplete/NurseActivitiesIncomplete";
+import NursePhotoUploads from "./pages/Nurse/NursePhotoUploads/NursePhotoUploads";
+import NurseWardSummary from "./pages/Nurse/NurseWardSummary/NurseWardSummary";
+import NurseNotifications from "./pages/Nurse/NurseNotifications/NurseNotifications";
+import NursePendingPatientLogs from "./pages/Nurse/NursePendingActions/NursePendingPatientLogs";
 
 function App() {
   return (
@@ -679,7 +685,11 @@ function App() {
       />
       <Route
         path="/nurse/patient-logs"
-        element={<NursePatientDailyLog />}
+        element={<NursePendingPatientLogs />}
+      />
+      <Route
+        path="/nurse/pending-actions/patient-logs"
+        element={<NursePendingPatientLogs />}
       />
       <Route
         path="/nurse/patients/:id/daily-log"
@@ -698,23 +708,43 @@ function App() {
         element={<Navigate to="/nurse/ipd-patients?tab=admitted" replace />}
       />
       <Route
-        path="/nurse/meals-diet"
-        element={<NursePatientDailyLog />}
-      />
-      <Route
-        path="/nurse/activities"
-        element={<NursePatientDailyLog />}
-      />
-      <Route
-        path="/nurse/photo-uploads"
-        element={<NursePatientDailyLog />}
-      />
-      <Route
-        path="/nurse/pending-actions/therapies"
-        element={<NursePatientDailyLog />}
+        path="/nurse/pending-meals"
+        element={<NursePendingMeals />}
       />
       <Route
         path="/nurse/pending-actions/meals"
+        element={<NursePendingMeals />}
+      />
+      <Route
+        path="/nurse/meals-diet"
+        element={<NursePendingMeals />}
+      />
+      <Route
+        path="/nurse/activities-incomplete"
+        element={<NurseActivitiesIncomplete />}
+      />
+      <Route
+        path="/nurse/activities"
+        element={<NurseActivitiesIncomplete />}
+      />
+      <Route
+        path="/nurse/upload-photos"
+        element={<NursePhotoUploads />}
+      />
+      <Route
+        path="/nurse/photo-uploads"
+        element={<NursePhotoUploads />}
+      />
+      <Route
+        path="/nurse/ward-summary"
+        element={<NurseWardSummary />}
+      />
+      <Route
+        path="/nurse/notifications"
+        element={<NurseNotifications />}
+      />
+      <Route
+        path="/nurse/pending-actions/therapies"
         element={<NursePatientDailyLog />}
       />
 
