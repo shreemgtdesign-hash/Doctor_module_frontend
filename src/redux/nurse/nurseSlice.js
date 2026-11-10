@@ -92,9 +92,25 @@ const initialState = {
 
   // Ward Summary (detail page)
   wardSummaryDetails: {
-    data: {},
+    data: [],
+    filters: {
+      selected_type: "ac",
+      selected_status: "all",
+      types: [],
+      statuses: [],
+    },
+    counts: {
+      total_rooms: 0,
+      occupied: 0,
+      available: 0,
+      maintenance: 0,
+      ac_rooms: 0,
+      non_ac_rooms: 0,
+      garden_rooms: 0,
+    },
     summary: { engaged: 0, free: 0, maintenance: 0, total_rooms: 0 },
     header: {},
+    count: 0,
     loading: false,
     error: null,
   },
@@ -359,9 +375,24 @@ const nurseSlice = createSlice({
       .addCase(loadWardSummary.fulfilled, (state, action) => {
         state.wardSummaryDetails.loading = false;
         const res = action.payload || {};
-        state.wardSummaryDetails.data = res.data || {};
-        state.wardSummaryDetails.summary = res.summary || { engaged: 0, free: 0, maintenance: 0, total_rooms: 0 };
+        const roomsList = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data?.rooms)
+          ? res.data.rooms
+          : Array.isArray(res.rooms)
+          ? res.rooms
+          : [];
+        state.wardSummaryDetails.data = roomsList;
+        state.wardSummaryDetails.filters = res.filters || {
+          selected_type: "ac",
+          selected_status: "all",
+          types: [],
+          statuses: [],
+        };
+        state.wardSummaryDetails.counts = res.counts || res.summary || {};
+        state.wardSummaryDetails.summary = res.summary || res.counts || { engaged: 0, free: 0, maintenance: 0, total_rooms: 0 };
         state.wardSummaryDetails.header = res.header || {};
+        state.wardSummaryDetails.count = res.count || roomsList.length;
         state.wardSummaryDetails.error = null;
       })
       .addCase(loadWardSummary.rejected, (state, action) => {
@@ -480,11 +511,14 @@ export const selectNursePhotoUploadsLoading = (state) => state.nurse?.photoUploa
 export const selectNursePhotoUploadsError = (state) => state.nurse?.photoUploads?.error;
 
 // Ward Summary Selectors
-export const selectNurseWardSummaryDetails = (state) => state.nurse?.wardSummaryDetails?.data || {};
-export const selectNurseWardSummaryOverview = (state) => state.nurse?.wardSummaryDetails?.summary || {};
+export const selectNurseWardSummaryRooms = (state) => state.nurse?.wardSummaryDetails?.data || [];
+export const selectNurseWardSummaryFilters = (state) => state.nurse?.wardSummaryDetails?.filters || {};
+export const selectNurseWardSummaryCounts = (state) => state.nurse?.wardSummaryDetails?.counts || {};
 export const selectNurseWardSummaryHeader = (state) => state.nurse?.wardSummaryDetails?.header || {};
 export const selectNurseWardSummaryLoading = (state) => state.nurse?.wardSummaryDetails?.loading || false;
 export const selectNurseWardSummaryError = (state) => state.nurse?.wardSummaryDetails?.error;
+export const selectNurseWardSummaryDetails = (state) => state.nurse?.wardSummaryDetails?.data || [];
+export const selectNurseWardSummaryOverview = (state) => state.nurse?.wardSummaryDetails?.counts || state.nurse?.wardSummaryDetails?.summary || {};
 
 // Notifications Selectors
 export const selectNurseNotifications = (state) => state.nurse?.notifications?.data || [];

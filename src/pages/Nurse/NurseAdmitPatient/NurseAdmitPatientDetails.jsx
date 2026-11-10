@@ -6,6 +6,8 @@ import {
   HiOutlineClock,
   HiOutlineArrowUpTray,
   HiOutlineChevronDown,
+  HiOutlineArrowRightOnRectangle,
+  HiOutlineCheckCircle,
 } from "react-icons/hi2";
 import toast from "react-hot-toast";
 
@@ -14,6 +16,7 @@ import {
   loadNurseAdmissionDetail,
   admitPatientAndAssignRoom,
 } from "../../../redux/nurse/nurseThunk";
+import { loadFrontOfficeDoctors } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 import {
   selectNurseSelectedAdmission,
   selectNurseAdmissionLoading,
@@ -24,6 +27,38 @@ import {
   selectNursePatientsList,
   resetAdmitActionState,
 } from "../../../redux/nurse/nurseSlice";
+
+const DEFAULT_DOCTORS = [
+  { id: "doc-1", name: "Dr. Jayasree", specialization: "Senior Ayurvedic Consultant" },
+  { id: "doc-2", name: "Dr. Sharma", specialization: "General Medicine" },
+  { id: "doc-3", name: "Dr. Nair", specialization: "Panchakarma Specialist" },
+  { id: "doc-4", name: "Dr. Patel", specialization: "Clinical Specialist" },
+  { id: "doc-5", name: "Dr. Abhinaya", specialization: "Inpatient Care" },
+  { id: "doc-6", name: "Dr. Menon", specialization: "Ayurvedic Medicine" },
+  { id: "doc-7", name: "Dr. Iyer", specialization: "Kayachikitsa" },
+  { id: "doc-8", name: "Dr. Savitri", specialization: "Ayurvedic Medicine" },
+  { id: "doc-9", name: "Dr. Jayashree D", specialization: "Autoimmune & General Medicine" },
+  { id: "doc-10", name: "Dr. Divya", specialization: "Clinical Coordination" },
+  { id: "doc-11", name: "Dr. Preeti Nagarajan", specialization: "Panchakarma Specialist" },
+  { id: "doc-12", name: "Dr. Malavika", specialization: "Ayurvedic General Medicine" },
+];
+
+const DEFAULT_ROOMS = [
+  { id: "rm-101", room_number: "Rm 101", room_type: "AC", floor: "Floor 1", label: "Rm 101 — AC" },
+  { id: "rm-102", room_number: "Rm 102", room_type: "AC", floor: "Floor 1", label: "Rm 102 — AC" },
+  { id: "rm-103", room_number: "Rm 103", room_type: "AC", floor: "Floor 1", label: "Rm 103 — AC" },
+  { id: "rm-104", room_number: "Rm 104", room_type: "AC", floor: "Floor 1", label: "Rm 104 — AC" },
+  { id: "rm-105", room_number: "Rm 105", room_type: "AC", floor: "Floor 1", label: "Rm 105 — AC" },
+  { id: "rm-112", room_number: "Rm 112", room_type: "Garden", floor: "Floor 1", label: "Rm 112 — Garden" },
+  { id: "rm-201", room_number: "Rm 201", room_type: "Non-AC", floor: "Floor 2", label: "Rm 201 — Non-AC" },
+];
+
+const DEFAULT_WARDS = [
+  "Floor 1",
+  "Floor 2",
+  "Floor 3",
+  "Garden Ward",
+];
 
 const DEFAULT_DURATIONS = [
   { value: 3, label: "3 Days" },
@@ -145,15 +180,25 @@ const NurseAdmitPatientDetails = () => {
 
   const [dateHeader, setDateHeader] = useState("");
   const [timeHeader, setTimeHeader] = useState("");
+  const [isCheckingOutToday, setIsCheckingOutToday] = useState(false);
+  const [checkoutComments, setCheckoutComments] = useState("Patient discharged in good health");
+  const [lastActionType, setLastActionType] = useState("checkin"); // "checkin" | "checkout"
 
   useEffect(() => {
-    if (!id && !patientFromState) {
+    const targetAdmissionId =
+      id ||
+      patientFromState?.id ||
+      patientFromState?.admission_no ||
+      patientFromList?.id;
+
+    if (!id && !patientFromState && !patientFromList) {
       // If accessed without a specific patient ID, redirect to upcoming patients list
       navigate("/nurse/ipd-patients?tab=upcoming", { replace: true });
-    } else if (id) {
-      dispatch(loadNurseAdmissionDetail(id));
+    } else if (targetAdmissionId) {
+      dispatch(loadNurseAdmissionDetail(targetAdmissionId));
     }
-  }, [dispatch, id, navigate, patientFromState]);
+    dispatch(loadFrontOfficeDoctors());
+  }, [dispatch, id, navigate, patientFromState, patientFromList]);
 
   // Populate form by merging patient details from route state, list cache, and API admission detail
   useEffect(() => {
@@ -242,32 +287,34 @@ const NurseAdmitPatientDetails = () => {
     const pAttendeeGender = rawAttendeeGender ? normalizeGender(rawAttendeeGender) : "Male";
 
     const firstRoom = dropdowns.available_rooms?.[0];
-    const defaultRoom = firstRoom
-      ? getRoomValue(firstRoom)
-      : (source.room_number || source.room_no || "");
+    const defaultRoom =
+      source.room_number ||
+      source.room_no ||
+      (firstRoom ? getRoomValue(firstRoom) : "");
 
-    const firstSrDoctor = dropdowns.sr_doctors?.[0];
-    const defaultSrDoctor = firstSrDoctor
-      ? getDoctorName(firstSrDoctor)
-      : (source.sr_doctor || source.doctor_name || "");
+    const firstSrDoctor = dropdowns.sr_doctors?.[0] || dropdowns.doctors?.[0];
+    const defaultSrDoctor =
+      source.sr_doctor ||
+      source.doctor_name ||
+      (firstSrDoctor ? getDoctorName(firstSrDoctor) : "Dr. Jayasree");
 
-    const firstDayDoctor = dropdowns.day_doctors?.[0];
-    const defaultDayDoctor = firstDayDoctor
-      ? getDoctorName(firstDayDoctor)
-      : (source.day_doctor || "");
+    const firstDayDoctor = dropdowns.day_doctors?.[0] || dropdowns.doctors?.[0];
+    const defaultDayDoctor =
+      source.day_doctor ||
+      (firstDayDoctor ? getDoctorName(firstDayDoctor) : "Dr. Sharma");
 
-    const firstNightDoctor = dropdowns.night_doctors?.[0];
-    const defaultNightDoctor = firstNightDoctor
-      ? getDoctorName(firstNightDoctor)
-      : (source.night_doctor || "");
+    const firstNightDoctor = dropdowns.night_doctors?.[0] || dropdowns.doctors?.[0];
+    const defaultNightDoctor =
+      source.night_doctor ||
+      (firstNightDoctor ? getDoctorName(firstNightDoctor) : "Dr. Sharma");
 
     const firstWard = dropdowns.wards_and_floors?.[0];
-    const defaultWard = firstWard
-      ? getWardValue(firstWard)
-      : (source.ward || "");
-    const defaultFloor = firstWard
-      ? (getWardValue(firstWard).includes("Floor 2") ? "Floor 2" : "Floor 1")
-      : (source.floor || "Floor 1");
+    const defaultWard =
+      source.ward ||
+      (firstWard ? getWardValue(firstWard) : "Floor 1 Ward");
+    const defaultFloor =
+      source.floor ||
+      (defaultWard.includes("Floor 2") ? "Floor 2" : "Floor 1");
 
     const rType =
       (typeof firstRoom === "object" && (firstRoom.type || firstRoom.room_type)) ||
@@ -320,11 +367,17 @@ const NurseAdmitPatientDetails = () => {
 
   useEffect(() => {
     if (actionSuccess) {
-      toast.success("Patient admitted and room assigned successfully!");
-      dispatch(resetAdmitActionState());
-      navigate("/nurse/ipd-patients?tab=admitted");
+      if (lastActionType === "checkout") {
+        toast.success("Patient checked out successfully and room released!");
+        dispatch(resetAdmitActionState());
+        navigate("/nurse/ipd-patients?tab=discharged");
+      } else {
+        toast.success("Patient admitted successfully and room assigned!");
+        dispatch(resetAdmitActionState());
+        navigate("/nurse/ipd-patients?tab=admitted");
+      }
     }
-  }, [actionSuccess, dispatch, navigate]);
+  }, [actionSuccess, dispatch, navigate, lastActionType]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -372,12 +425,19 @@ const NurseAdmitPatientDetails = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     const targetId = id || patientFromState?.id || patientFromList?.id || admission?.id;
     if (!targetId) {
       toast.error("Invalid patient admission reference.");
       return;
     }
+
+    if (!formData.room_number) {
+      toast.error("Please assign a room before proceeding.");
+      return;
+    }
+
+    setLastActionType("checkin");
 
     const payload = {
       room_number: formData.room_number,
@@ -389,21 +449,140 @@ const NurseAdmitPatientDetails = () => {
       day_doctor: formData.day_doctor,
       night_doctor: formData.night_doctor,
       admission_date: formData.admission_date,
+      checkin: true,
+      checkout: false,
       no_of_days: Number(formData.no_of_days) || 10,
       floor: formData.floor,
       ward: formData.ward,
-      other_comments: formData.other_comments,
+      other_comments: formData.other_comments || "Room assigned by Nurse",
     };
 
     dispatch(admitPatientAndAssignRoom({ admissionId: targetId, payload }));
   };
 
-  const dropdownOptions = admission?.dropdown_options || {};
-  const roomOptions = dropdownOptions.available_rooms || [];
-  const srDoctors = dropdownOptions.sr_doctors || [];
-  const dayDoctors = dropdownOptions.day_doctors || [];
-  const nightDoctors = dropdownOptions.night_doctors || [];
-  const wards = dropdownOptions.wards_and_floors || [];
+  const handleConfirmCheckout = () => {
+    const targetId = id || patientFromState?.id || patientFromList?.id || admission?.id;
+    if (!targetId) {
+      toast.error("Invalid patient admission reference.");
+      return;
+    }
+
+    setLastActionType("checkout");
+
+    const payload = {
+      checkin: true,
+      checkout: true,
+      other_comments: checkoutComments || formData.other_comments || "Patient discharged in good health",
+    };
+
+    dispatch(admitPatientAndAssignRoom({ admissionId: targetId, payload }));
+  };
+
+  const rawAdmissionData = admission?.data || admission || {};
+  const nestedAdmission = rawAdmissionData.admission || rawAdmissionData.patient || {};
+  const source = {
+    ...(patientFromList || {}),
+    ...(patientFromState || {}),
+    ...(rawAdmissionData || {}),
+    ...(nestedAdmission || {}),
+  };
+
+  const isCheckedIn = Boolean(
+    source.checkin === true ||
+    source.status === "admitted" ||
+    Boolean(source.checkin_date) ||
+    rawAdmissionData.checkin === true ||
+    nestedAdmission.checkin === true
+  );
+
+  const isDischarged = Boolean(
+    source.checkout === true ||
+    source.status === "discharged" ||
+    Boolean(source.checkout_date) ||
+    rawAdmissionData.checkout === true ||
+    nestedAdmission.checkout === true
+  );
+
+  const isFirstTimeAdmission = !isCheckedIn && !isDischarged;
+
+  const isLastDay = Boolean(
+    source.is_checkout_today === true ||
+    rawAdmissionData.is_checkout_today === true ||
+    nestedAdmission.is_checkout_today === true ||
+    (source.expected_discharge_date && (() => {
+      try {
+        const todayStr = new Date().toISOString().split("T")[0];
+        const expStr = new Date(source.expected_discharge_date).toISOString().split("T")[0];
+        return todayStr >= expStr;
+      } catch {
+        return false;
+      }
+    })())
+  );
+
+  useEffect(() => {
+    if (isLastDay) {
+      setIsCheckingOutToday(true);
+    }
+  }, [isLastDay]);
+
+  const dropdownOptions =
+    rawAdmissionData?.dropdown_options ||
+    admission?.dropdown_options ||
+    {};
+
+  const frontOfficeDoctors = useSelector(
+    (state) => state.frontOfficeAppointment?.doctors || []
+  );
+
+  // Combine all available doctors with fallback
+  const masterDoctors = (() => {
+    const list = [];
+    if (Array.isArray(dropdownOptions.doctors) && dropdownOptions.doctors.length > 0) {
+      list.push(...dropdownOptions.doctors);
+    }
+    if (Array.isArray(frontOfficeDoctors) && frontOfficeDoctors.length > 0) {
+      list.push(...frontOfficeDoctors);
+    }
+    list.push(...DEFAULT_DOCTORS);
+
+    const seen = new Set();
+    const deduped = [];
+    for (const doc of list) {
+      const name = getDoctorName(doc);
+      if (name && !seen.has(name.toLowerCase())) {
+        seen.add(name.toLowerCase());
+        deduped.push(doc);
+      }
+    }
+    return deduped;
+  })();
+
+  const srDoctors =
+    Array.isArray(dropdownOptions.sr_doctors) && dropdownOptions.sr_doctors.length > 0
+      ? dropdownOptions.sr_doctors
+      : masterDoctors;
+
+  const dayDoctors =
+    Array.isArray(dropdownOptions.day_doctors) && dropdownOptions.day_doctors.length > 0
+      ? dropdownOptions.day_doctors
+      : masterDoctors;
+
+  const nightDoctors =
+    Array.isArray(dropdownOptions.night_doctors) && dropdownOptions.night_doctors.length > 0
+      ? dropdownOptions.night_doctors
+      : masterDoctors;
+
+  const roomOptions =
+    Array.isArray(dropdownOptions.available_rooms) && dropdownOptions.available_rooms.length > 0
+      ? dropdownOptions.available_rooms
+      : DEFAULT_ROOMS;
+
+  const wards =
+    Array.isArray(dropdownOptions.wards_and_floors) && dropdownOptions.wards_and_floors.length > 0
+      ? dropdownOptions.wards_and_floors
+      : DEFAULT_WARDS;
+
   const durationOptions = dropdownOptions.duration_options || DEFAULT_DURATIONS;
 
   const isFemale = normalizeGender(formData.gender) === "Female";
@@ -420,11 +599,25 @@ const NurseAdmitPatientDetails = () => {
           {/* ========================================================= */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#E7DBD3] dark:border-[#382D25] pb-5">
             <div>
-              <h1 className="text-2xl font-bold text-[#2C1810] dark:text-[#EDE3DA] tracking-tight">
-                Enter Patient Details
-              </h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold text-[#2C1810] dark:text-[#EDE3DA] tracking-tight">
+                  {isCheckedIn ? "Patient Admission & Room Details" : "Enter Patient Details"}
+                </h1>
+                {isCheckedIn && !isDischarged && (
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#E7F3EC] dark:bg-[#1A3326] text-[#2E7D32] dark:text-[#81C784]">
+                    Admitted
+                  </span>
+                )}
+                {isDischarged && (
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300">
+                    Discharged
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-[#7D726B] dark:text-[#A8988D] mt-1">
-                Admit patient and assign a room.
+                {isCheckedIn
+                  ? "View and manage room allotment, doctors, and confirm checkout."
+                  : "Admit patient and assign a room."}
               </p>
             </div>
 
@@ -742,26 +935,27 @@ const NurseAdmitPatientDetails = () => {
                     <div className="relative">
                       <select
                         name="room_number"
-                        value={formData.room_number}
+                        value={formData.room_number || ""}
                         onChange={(e) => handleRoomSelect(e.target.value)}
                         className="appearance-none w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-4 pr-9 text-xs font-semibold text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32] cursor-pointer"
                       >
-                        {roomOptions.length === 0 ? (
-                          <option value={formData.room_number || ""}>
-                            {formData.room_number || "No rooms available"}
-                          </option>
-                        ) : (
-                          roomOptions.map((rm, idx) => {
-                            const val = getRoomValue(rm);
-                            const lbl = getRoomLabel(rm);
-                            const key = getOptionKey(rm, idx, "room");
-                            return (
-                              <option key={key} value={val}>
-                                {lbl}
-                              </option>
-                            );
-                          })
-                        )}
+                        <option value="">Select Room</option>
+                        {formData.room_number &&
+                          !roomOptions.some(
+                            (rm) => getRoomValue(rm)?.toLowerCase() === formData.room_number?.toLowerCase()
+                          ) && (
+                            <option value={formData.room_number}>{formData.room_number}</option>
+                          )}
+                        {roomOptions.map((rm, idx) => {
+                          const val = getRoomValue(rm);
+                          const lbl = getRoomLabel(rm);
+                          const key = getOptionKey(rm, idx, "room");
+                          return (
+                            <option key={key} value={val}>
+                              {lbl}
+                            </option>
+                          );
+                        })}
                       </select>
                       <HiOutlineChevronDown
                         size={14}
@@ -862,26 +1056,27 @@ const NurseAdmitPatientDetails = () => {
                     <div className="relative">
                       <select
                         name="sr_doctor"
-                        value={formData.sr_doctor}
+                        value={formData.sr_doctor || ""}
                         onChange={handleChange}
                         className="appearance-none w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 pr-8 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32] cursor-pointer"
                       >
-                        {srDoctors.length === 0 ? (
-                          <option value={formData.sr_doctor || ""}>
-                            {formData.sr_doctor || "Select Doctor"}
-                          </option>
-                        ) : (
-                          srDoctors.map((doc, idx) => {
-                            const val = getDoctorName(doc);
-                            const lbl = getDoctorLabel(doc);
-                            const key = getOptionKey(doc, idx, "sr-doc");
-                            return (
-                              <option key={key} value={val}>
-                                {lbl}
-                              </option>
-                            );
-                          })
-                        )}
+                        <option value="">Select Doctor</option>
+                        {formData.sr_doctor &&
+                          !srDoctors.some(
+                            (d) => getDoctorName(d)?.toLowerCase() === formData.sr_doctor?.toLowerCase()
+                          ) && (
+                            <option value={formData.sr_doctor}>{formData.sr_doctor}</option>
+                          )}
+                        {srDoctors.map((doc, idx) => {
+                          const val = getDoctorName(doc);
+                          const lbl = getDoctorLabel(doc);
+                          const key = getOptionKey(doc, idx, "sr-doc");
+                          return (
+                            <option key={key} value={val}>
+                              {lbl}
+                            </option>
+                          );
+                        })}
                       </select>
                       <HiOutlineChevronDown
                         size={14}
@@ -897,26 +1092,27 @@ const NurseAdmitPatientDetails = () => {
                     <div className="relative">
                       <select
                         name="day_doctor"
-                        value={formData.day_doctor}
+                        value={formData.day_doctor || ""}
                         onChange={handleChange}
                         className="appearance-none w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 pr-8 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32] cursor-pointer"
                       >
-                        {dayDoctors.length === 0 ? (
-                          <option value={formData.day_doctor || ""}>
-                            {formData.day_doctor || "Select Doctor"}
-                          </option>
-                        ) : (
-                          dayDoctors.map((doc, idx) => {
-                            const val = getDoctorName(doc);
-                            const lbl = getDoctorLabel(doc);
-                            const key = getOptionKey(doc, idx, "day-doc");
-                            return (
-                              <option key={key} value={val}>
-                                {lbl}
-                              </option>
-                            );
-                          })
-                        )}
+                        <option value="">Select Doctor</option>
+                        {formData.day_doctor &&
+                          !dayDoctors.some(
+                            (d) => getDoctorName(d)?.toLowerCase() === formData.day_doctor?.toLowerCase()
+                          ) && (
+                            <option value={formData.day_doctor}>{formData.day_doctor}</option>
+                          )}
+                        {dayDoctors.map((doc, idx) => {
+                          const val = getDoctorName(doc);
+                          const lbl = getDoctorLabel(doc);
+                          const key = getOptionKey(doc, idx, "day-doc");
+                          return (
+                            <option key={key} value={val}>
+                              {lbl}
+                            </option>
+                          );
+                        })}
                       </select>
                       <HiOutlineChevronDown
                         size={14}
@@ -932,26 +1128,27 @@ const NurseAdmitPatientDetails = () => {
                     <div className="relative">
                       <select
                         name="night_doctor"
-                        value={formData.night_doctor}
+                        value={formData.night_doctor || ""}
                         onChange={handleChange}
                         className="appearance-none w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 pr-8 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32] cursor-pointer"
                       >
-                        {nightDoctors.length === 0 ? (
-                          <option value={formData.night_doctor || ""}>
-                            {formData.night_doctor || "Select Doctor"}
-                          </option>
-                        ) : (
-                          nightDoctors.map((doc, idx) => {
-                            const val = getDoctorName(doc);
-                            const lbl = getDoctorLabel(doc);
-                            const key = getOptionKey(doc, idx, "night-doc");
-                            return (
-                              <option key={key} value={val}>
-                                {lbl}
-                              </option>
-                            );
-                          })
-                        )}
+                        <option value="">Select Doctor</option>
+                        {formData.night_doctor &&
+                          !nightDoctors.some(
+                            (d) => getDoctorName(d)?.toLowerCase() === formData.night_doctor?.toLowerCase()
+                          ) && (
+                            <option value={formData.night_doctor}>{formData.night_doctor}</option>
+                          )}
+                        {nightDoctors.map((doc, idx) => {
+                          const val = getDoctorName(doc);
+                          const lbl = getDoctorLabel(doc);
+                          const key = getOptionKey(doc, idx, "night-doc");
+                          return (
+                            <option key={key} value={val}>
+                              {lbl}
+                            </option>
+                          );
+                        })}
                       </select>
                       <HiOutlineChevronDown
                         size={14}
@@ -1012,7 +1209,7 @@ const NurseAdmitPatientDetails = () => {
                     <div className="relative">
                       <select
                         name="ward"
-                        value={formData.ward}
+                        value={formData.ward || ""}
                         onChange={(e) => {
                           const val = e.target.value;
                           setFormData((p) => ({
@@ -1023,22 +1220,23 @@ const NurseAdmitPatientDetails = () => {
                         }}
                         className="appearance-none w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 pr-8 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32] cursor-pointer"
                       >
-                        {wards.length === 0 ? (
-                          <option value={formData.ward || ""}>
-                            {formData.ward || "Select Ward / Floor"}
-                          </option>
-                        ) : (
-                          wards.map((w, idx) => {
-                            const val = getWardValue(w);
-                            const lbl = getWardLabel(w);
-                            const key = getOptionKey(w, idx, "ward");
-                            return (
-                              <option key={key} value={val}>
-                                {lbl}
-                              </option>
-                            );
-                          })
-                        )}
+                        <option value="">Select Ward / Floor</option>
+                        {formData.ward &&
+                          !wards.some(
+                            (w) => getWardValue(w)?.toLowerCase() === formData.ward?.toLowerCase()
+                          ) && (
+                            <option value={formData.ward}>{formData.ward}</option>
+                          )}
+                        {wards.map((w, idx) => {
+                          const val = getWardValue(w);
+                          const lbl = getWardLabel(w);
+                          const key = getOptionKey(w, idx, "ward");
+                          return (
+                            <option key={key} value={val}>
+                              {lbl}
+                            </option>
+                          );
+                        })}
                       </select>
                       <HiOutlineChevronDown
                         size={14}
@@ -1064,30 +1262,184 @@ const NurseAdmitPatientDetails = () => {
                 </div>
               </div>
 
-              {/* ACTION BUTTONS (Cancel and Register ->) */}
-              <div className="pt-4 flex items-center justify-end gap-4 border-t border-[#E7DBD3] dark:border-[#382D25]">
+              {/* 5. CHECKOUT & DISCHARGE CONFIRMATION (Rendered for admitted patients / last day of stay) */}
+              {isCheckedIn && !isDischarged && (
+                <div className="space-y-4 pt-2">
+                  <div className="rounded-2xl border-2 border-[#D5A794] dark:border-[#542F1E] bg-[#FFFDFC] dark:bg-[#251D18] p-5 shadow-xs space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#E7DBD3] dark:border-[#382D25] pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#6E3C27]/10 dark:bg-[#6E3C27]/30 text-[#6E3C27] dark:text-[#D5A794]">
+                          <HiOutlineArrowRightOnRectangle size={20} />
+                        </span>
+                        <div>
+                          <h2 className="text-sm font-bold text-[#2C1810] dark:text-[#EDE3DA]">
+                            Checkout & Discharge Confirmation
+                          </h2>
+                          <p className="text-xs text-[#7D726B] dark:text-[#A8988D]">
+                            {isLastDay
+                              ? "Today is the last day of the patient's admission period."
+                              : `Expected discharge date: ${source.expected_discharge_date || "Scheduled at end of stay"}`}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {isLastDay && (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300">
+                            Discharge Due Today
+                          </span>
+                        )}
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#E7F3EC] dark:bg-[#1A3326] text-[#2E7D32] dark:text-[#81C784]">
+                          Admitted · {formData.room_number || "Room Assigned"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Question: Is the patient checking out today? */}
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-bold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                          Is the patient checking out today?
+                        </label>
+                        <span className="text-xs text-[#8A4F32] font-semibold">*</span>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setIsCheckingOutToday(true)}
+                          className={`flex-1 px-5 py-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
+                            isCheckingOutToday
+                              ? "border-[#6E3C27] bg-[#6E3C27] text-white shadow-xs"
+                              : "border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] text-[#7D726B] hover:bg-[#FAF6F2]"
+                          }`}
+                        >
+                          <span className="text-sm font-bold">✓</span>
+                          <span>Yes, patient is checking out today</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setIsCheckingOutToday(false)}
+                          className={`flex-1 px-5 py-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
+                            !isCheckingOutToday
+                              ? "border-[#4B2E2A] dark:border-[#D5A794] bg-[#F5ECE5] dark:bg-[#2E241E] text-[#4B2E2A] dark:text-[#EDE3DA]"
+                              : "border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] text-[#7D726B] hover:bg-[#FAF6F2]"
+                          }`}
+                        >
+                          <span>✕</span>
+                          <span>No, continue stay</span>
+                        </button>
+                      </div>
+
+                      {isCheckingOutToday && (
+                        <div className="space-y-3 pt-3 border-t border-[#E7DBD3]/60 dark:border-[#382D25]/60">
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                              Checkout Comments
+                            </label>
+                            <input
+                              type="text"
+                              value={checkoutComments}
+                              onChange={(e) => setCheckoutComments(e.target.value)}
+                              placeholder="Patient discharged in good health"
+                              className="w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32]"
+                            />
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
+                            <p className="text-[11px] text-[#7D726B] dark:text-[#A8988D]">
+                              Triggering checkout captures checkout time, releases room {formData.room_number || ""} back to free, and updates status to discharged.
+                            </p>
+                            <button
+                              type="button"
+                              onClick={handleConfirmCheckout}
+                              disabled={actionLoading}
+                              className="rounded-xl bg-[#8A4F32] hover:bg-[#6E3C27] text-white px-6 py-2.5 text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shrink-0"
+                            >
+                              {actionLoading ? (
+                                <span>Processing Checkout...</span>
+                              ) : (
+                                <>
+                                  <HiOutlineArrowRightOnRectangle size={15} />
+                                  <span>Confirm Checkout (checkout = true)</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ACTION BUTTONS */}
+              <div className="pt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-t border-[#E7DBD3] dark:border-[#382D25]">
                 <button
                   type="button"
-                  onClick={() => navigate("/nurse/ipd-patients?tab=upcoming")}
+                  onClick={() => navigate("/nurse/ipd-patients?tab=" + (isCheckedIn ? "admitted" : "upcoming"))}
                   className="rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-7 py-3 text-xs font-bold text-[#4B2E2A] dark:text-[#EDE3DA] hover:bg-[#FAF6F2] transition cursor-pointer"
                 >
                   Cancel
                 </button>
 
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="rounded-xl bg-[#6E3C27] hover:bg-[#582F1E] text-white px-8 py-3 text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
-                >
-                  {actionLoading ? (
-                    <span>Registering...</span>
+                <div className="flex items-center gap-3">
+                  {isFirstTimeAdmission ? (
+                    // Scenario A: First time filling the form -> Check-in button
+                    <button
+                      type="submit"
+                      disabled={actionLoading}
+                      className="rounded-xl bg-[#6E3C27] hover:bg-[#582F1E] text-white px-8 py-3 text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                    >
+                      {actionLoading ? (
+                        <span>Checking in Patient...</span>
+                      ) : (
+                        <>
+                          <span>Check-in Patient</span>
+                          <span>→</span>
+                        </>
+                      )}
+                    </button>
+                  ) : isCheckedIn && !isDischarged ? (
+                    isCheckingOutToday ? (
+                      <button
+                        type="button"
+                        onClick={handleConfirmCheckout}
+                        disabled={actionLoading}
+                        className="rounded-xl bg-[#8A4F32] hover:bg-[#6E3C27] text-white px-8 py-3 text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {actionLoading ? (
+                          <span>Processing Checkout...</span>
+                        ) : (
+                          <>
+                            <HiOutlineArrowRightOnRectangle size={15} />
+                            <span>Confirm Checkout & Release Room</span>
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        type="submit"
+                        disabled={actionLoading}
+                        className="rounded-xl bg-[#6E3C27] hover:bg-[#582F1E] text-white px-8 py-3 text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {actionLoading ? (
+                          <span>Updating...</span>
+                        ) : (
+                          <>
+                            <span>Update Admission Details</span>
+                            <span>→</span>
+                          </>
+                        )}
+                      </button>
+                    )
                   ) : (
-                    <>
-                      <span>Register</span>
-                      <span>→</span>
-                    </>
+                    <span className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gray-100 dark:bg-neutral-800 text-xs font-bold text-gray-600 dark:text-gray-300">
+                      Patient Discharged
+                    </span>
                   )}
-                </button>
+                </div>
               </div>
             </form>
           )}

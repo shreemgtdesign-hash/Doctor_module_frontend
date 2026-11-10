@@ -28,48 +28,7 @@ import {
   updateCorporateCellEventTeam,
 } from "../../../api/corporateCellApi";
 
-const DEFAULT_SAMPLE_EMPLOYEES = [
-  {
-    id: "7d37c547-6869-477b-8791-da539d503383",
-    employee_code: "EMP001",
-    name: "Dinesh",
-    mobile: "8681020094",
-    email: "dineshdheena182001@gmail.com",
-    department: "Information Technology",
-  },
-  {
-    id: "54aa0267-3c26-4bf7-951c-d699ca375449",
-    employee_code: "EMP002",
-    name: "Khristal",
-    mobile: "9344672887",
-    email: "khristal@majestyglobaltech.com",
-    department: "Human Resources",
-  },
-  {
-    id: "449f76be-151c-4e71-a16f-b610b021276f",
-    employee_code: "EMP003",
-    name: "Musthafa",
-    mobile: "8667614703",
-    email: "musthamirzu15@gmail.com",
-    department: "Finance & Accounts",
-  },
-  {
-    id: "4bb7db40-19ff-44d8-af73-cd6e7f70f289",
-    employee_code: "EMP004",
-    name: "Ashuthosh",
-    mobile: "9324042860",
-    email: "shree.mgtdesign@gmail.com",
-    department: "Marketing",
-  },
-  {
-    id: "d810cbc6-d42f-4f23-aceb-ed92b6bb6716",
-    employee_code: "EMP005",
-    name: "Prasanth",
-    mobile: "9600776521",
-    email: "prasanthabel29@gmail.com",
-    department: "Operations",
-  },
-];
+
 
 const EMPTY_TEAM_OPTIONS = {
   coordinators: [],

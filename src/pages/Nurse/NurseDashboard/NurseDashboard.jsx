@@ -274,7 +274,7 @@ const NurseDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4.5">
             {/* Card 1: AC Occupancy */}
             <div
-              onClick={() => navigate("/nurse/ward-summary")}
+              onClick={() => navigate("/nurse/ward-summary?type=ac")}
               className="rounded-2xl border border-[#EFE5DC] dark:border-[#382E28] bg-white dark:bg-[#1E1714] p-5 shadow-xs hover:border-[#CBB4A5] transition cursor-pointer"
             >
               <div className="flex items-center gap-3">
@@ -295,7 +295,7 @@ const NurseDashboard = () => {
 
             {/* Card 2: Non-AC Occupancy */}
             <div
-              onClick={() => navigate("/nurse/ward-summary")}
+              onClick={() => navigate("/nurse/ward-summary?type=non-ac")}
               className="rounded-2xl border border-[#EFE5DC] dark:border-[#382E28] bg-white dark:bg-[#1E1714] p-5 shadow-xs hover:border-[#CBB4A5] transition cursor-pointer"
             >
               <div className="flex items-center gap-3">
@@ -316,7 +316,7 @@ const NurseDashboard = () => {
 
             {/* Card 3: Garden Occupancy */}
             <div
-              onClick={() => navigate("/nurse/ward-summary")}
+              onClick={() => navigate("/nurse/ward-summary?type=garden")}
               className="rounded-2xl border border-[#EFE5DC] dark:border-[#382E28] bg-white dark:bg-[#1E1714] p-5 shadow-xs hover:border-[#CBB4A5] transition cursor-pointer"
             >
               <div className="flex items-center gap-3">
@@ -401,7 +401,7 @@ const NurseDashboard = () => {
                           {adm.department || "IPD"}
                         </span>
                         <span className="text-xs text-[#7D726B] dark:text-[#A8988D] w-16">
-                          {adm.time || "10:43 AM"}
+                          {adm.admission_time}
                         </span>
                       </div>
                     </div>

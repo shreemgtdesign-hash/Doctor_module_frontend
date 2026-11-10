@@ -238,8 +238,8 @@ const NursePatientsList = () => {
                       )}
                     </div>
 
-                    {roomType && (
-                      <div className="shrink-0 flex items-center gap-3">
+                    <div className="shrink-0 flex items-center gap-3">
+                      {roomType && (
                         <span
                           className={`inline-block px-5 py-1.5 rounded-full text-xs font-bold tracking-wide ${getRoomBadgeColor(
                             roomType
@@ -247,8 +247,21 @@ const NursePatientsList = () => {
                         >
                           {roomType}
                         </span>
-                      </div>
-                    )}
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const targetId = patient.id || patient.admission_no || patient.patient_id;
+                          navigate(`/nurse/admit-patient/${targetId}`, {
+                            state: { patient },
+                          });
+                        }}
+                        className="rounded-xl border border-[#D5C2B4] dark:border-[#4B392F] bg-white dark:bg-[#2C211B] px-5 py-2.5 text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA] hover:bg-[#FAF4ED] dark:hover:bg-[#382B23] transition cursor-pointer shrink-0"
+                      >
+                        {patient.is_checkout_today ? "Confirm Checkout" : "Manage Admission"}
+                      </button>
+                    </div>
                   </div>
                 );
               }
