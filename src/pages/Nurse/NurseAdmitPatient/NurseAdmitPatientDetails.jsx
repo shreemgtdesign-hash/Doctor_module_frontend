@@ -167,7 +167,7 @@ const NurseAdmitPatientDetails = () => {
     room_type: "",
     attendee_name: "",
     attendee_phone: "",
-    attendee_gender: "Male",
+    attendee_gender: "",
     sr_doctor: "",
     day_doctor: "",
     night_doctor: "",
@@ -204,6 +204,7 @@ const NurseAdmitPatientDetails = () => {
   useEffect(() => {
     const rawData = admission?.data || admission || {};
     const nestedAdmission = rawData.admission || rawData.patient || {};
+    console.log(rawData,"admission")
 
     const source = {
       ...(patientFromList || {}),
@@ -349,12 +350,12 @@ const NurseAdmitPatientDetails = () => {
         room_type: rType || prev.room_type,
         attendee_name: pAttendeeName || prev.attendee_name,
         attendee_phone: pAttendeePhone || prev.attendee_phone,
-        attendee_gender: pAttendeeGender || prev.attendee_gender || "Male",
+        attendee_gender: pAttendeeGender ,
         sr_doctor: defaultSrDoctor || prev.sr_doctor,
         day_doctor: defaultDayDoctor || prev.day_doctor,
         night_doctor: defaultNightDoctor || prev.night_doctor,
-        admission_date: source.admission_date || source.admission_date_iso || source.date || prev.admission_date,
-        no_of_days: Number(source.no_of_days) || prev.no_of_days || 10,
+        admission_date: source.admission_date,
+        no_of_days: Number(source.no_of_days),
         floor: defaultFloor || prev.floor,
         ward: defaultWard || prev.ward,
         other_comments: source.other_comments || source.comments || prev.other_comments,
@@ -451,7 +452,7 @@ const NurseAdmitPatientDetails = () => {
       admission_date: formData.admission_date,
       checkin: true,
       checkout: false,
-      no_of_days: Number(formData.no_of_days) || 10,
+      no_of_days: Number(formData.no_of_days),
       floor: formData.floor,
       ward: formData.ward,
       other_comments: formData.other_comments || "Room assigned by Nurse",
