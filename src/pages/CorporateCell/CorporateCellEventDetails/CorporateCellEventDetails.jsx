@@ -716,7 +716,7 @@ const CorporateCellEventDetails = ({ isReadOnly: isReadOnlyProp, isPending: isPe
                     {eventData.event_date_formatted || "21st October, 2026"}
                   </h4>
                   <p className="text-[12.5px] text-[#7F726A] dark:text-[#A8988D] mt-0.5">
-                    {eventData.time_display || "10 AM- 11:30 AM"}
+                    {eventData.time_display}
                   </p>
                 </div>
               </div>

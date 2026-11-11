@@ -34,7 +34,7 @@ const formatMessageTime = (dateStr) => {
 
 const formatTimeSlot = (time) => {
   if (!time) return "";
-  if (time.includes("AM") || time.includes("PM")) return time;
+  
   const [hour, minute] = time.split(":");
   const h = Number(hour);
   if (isNaN(h)) return time;

@@ -298,7 +298,7 @@ const CorporateCellTodayEvent = () => {
                     TIME
                   </span>
                   <h4 className="text-[14px] font-bold text-[#2C1810] mt-1 truncate">
-                    {infoTiles.time || eventData.time_display || "10 AM – 11:30 AM"}
+                    {infoTiles.time || eventData.time_display}
                   </h4>
                 </div>
 

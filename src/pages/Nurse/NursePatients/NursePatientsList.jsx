@@ -207,7 +207,7 @@ const NursePatientsList = () => {
                       onClick={() => {
                         const targetId = patient.id || patient.admission_no || patient.patient_id;
                         navigate(`/nurse/admit-patient/${targetId}`, {
-                          state: { patient },
+                          state: { patient, fromTab: "upcoming" },
                         });
                       }}
                       className="rounded-xl border border-[#D5C2B4] dark:border-[#4B392F] bg-white dark:bg-[#2C211B] px-5 py-2.5 text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA] hover:bg-[#FAF4ED] dark:hover:bg-[#382B23] transition cursor-pointer shrink-0"
@@ -254,7 +254,7 @@ const NursePatientsList = () => {
                         onClick={() => {
                           const targetId = patient.id || patient.admission_no || patient.patient_id;
                           navigate(`/nurse/admit-patient/${targetId}`, {
-                            state: { patient },
+                            state: { patient, fromTab: "admitted" },
                           });
                         }}
                         className="rounded-xl border border-[#D5C2B4] dark:border-[#4B392F] bg-white dark:bg-[#2C211B] px-5 py-2.5 text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA] hover:bg-[#FAF4ED] dark:hover:bg-[#382B23] transition cursor-pointer shrink-0"

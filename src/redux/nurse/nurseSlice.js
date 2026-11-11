@@ -150,6 +150,11 @@ const nurseSlice = createSlice({
       state.admitActionSuccess = false;
       state.admitActionError = null;
     },
+    clearSelectedAdmission: (state) => {
+      state.selectedAdmission = null;
+      state.admissionError = null;
+      state.admissionLoading = false;
+    },
     clearNurseError: (state) => {
       state.dashboardError = null;
       state.patientsError = null;
@@ -460,6 +465,7 @@ export const {
   setNursePeriod,
   setActivePatientsTab,
   resetAdmitActionState,
+  clearSelectedAdmission,
   clearNurseError,
 } = nurseSlice.actions;
 

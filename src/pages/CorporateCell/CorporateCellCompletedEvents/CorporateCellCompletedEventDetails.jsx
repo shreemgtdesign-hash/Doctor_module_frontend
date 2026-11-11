@@ -339,7 +339,7 @@ const CorporateCellCompletedEventDetails = () => {
                     </p>
                   )}
                   <p className="text-[13px] text-[#8C7E74] mt-0.5">
-                    {eventData?.time_display || "10 AM- 11:30 AM"}
+                    {eventData?.time_display}
                     <span className="mx-2">|</span>
                     <span>{eventData?.mode || eventData?.location || "On-site"}</span>
                   </p>

@@ -26,6 +26,7 @@ import {
   selectAdmitActionError,
   selectNursePatientsList,
   resetAdmitActionState,
+  clearSelectedAdmission,
 } from "../../../redux/nurse/nurseSlice";
 
 const DEFAULT_DOCTORS = [
@@ -138,6 +139,12 @@ const NurseAdmitPatientDetails = () => {
       item.patient_code === id
   );
 
+  const targetId =
+    id ||
+    patientFromState?.id ||
+    patientFromState?.admission_no ||
+    patientFromList?.id;
+
   const admission = useSelector(selectNurseSelectedAdmission);
   const loading = useSelector(selectNurseAdmissionLoading);
   const error = useSelector(selectNurseAdmissionError);
@@ -195,22 +202,43 @@ const NurseAdmitPatientDetails = () => {
       // If accessed without a specific patient ID, redirect to upcoming patients list
       navigate("/nurse/ipd-patients?tab=upcoming", { replace: true });
     } else if (targetAdmissionId) {
+      dispatch(clearSelectedAdmission());
       dispatch(loadNurseAdmissionDetail(targetAdmissionId));
     }
     dispatch(loadFrontOfficeDoctors());
+
+    return () => {
+      dispatch(clearSelectedAdmission());
+    };
   }, [dispatch, id, navigate, patientFromState, patientFromList]);
 
   // Populate form by merging patient details from route state, list cache, and API admission detail
   useEffect(() => {
+    const targetAdmissionId =
+      id ||
+      patientFromState?.id ||
+      patientFromState?.admission_no ||
+      patientFromList?.id;
+
     const rawData = admission?.data || admission || {};
     const nestedAdmission = rawData.admission || rawData.patient || {};
-    console.log(rawData,"admission")
+
+    const isMatchingAdmission = Boolean(
+      rawData.id === targetAdmissionId ||
+      rawData.admission_no === targetAdmissionId ||
+      nestedAdmission.id === targetAdmissionId ||
+      nestedAdmission.admission_no === targetAdmissionId ||
+      !id
+    );
+
+    const safeAdmissionData = isMatchingAdmission ? rawData : {};
+    const safeNested = isMatchingAdmission ? nestedAdmission : {};
 
     const source = {
+      ...(safeAdmissionData || {}),
+      ...(safeNested || {}),
       ...(patientFromList || {}),
       ...(patientFromState || {}),
-      ...(rawData || {}),
-      ...(nestedAdmission || {}),
     };
 
     const v =
@@ -362,7 +390,7 @@ const NurseAdmitPatientDetails = () => {
       }));
 
       setDateHeader(source.admission_date || source.date || "29 June, 2026");
-      setTimeHeader(source.admission_time || source.time || "10:30 AM");
+      setTimeHeader(source.admission_time || source.time );
     }
   }, [admission, patientFromState, patientFromList]);
 
@@ -481,51 +509,126 @@ const NurseAdmitPatientDetails = () => {
 
   const rawAdmissionData = admission?.data || admission || {};
   const nestedAdmission = rawAdmissionData.admission || rawAdmissionData.patient || {};
+
+  const isMatchingAdmission = Boolean(
+    rawAdmissionData.id === targetId ||
+    rawAdmissionData.admission_no === targetId ||
+    nestedAdmission.id === targetId ||
+    nestedAdmission.admission_no === targetId ||
+    !id
+  );
+
+  const safeAdmissionData = isMatchingAdmission ? rawAdmissionData : {};
+  const safeNested = isMatchingAdmission ? nestedAdmission : {};
+
   const source = {
+    ...(safeAdmissionData || {}),
+    ...(safeNested || {}),
     ...(patientFromList || {}),
     ...(patientFromState || {}),
-    ...(rawAdmissionData || {}),
-    ...(nestedAdmission || {}),
   };
 
+  const fromUpcomingTab =
+    location.state?.fromTab === "upcoming" ||
+    patientFromState?.fromTab === "upcoming" ||
+    (patientsList?.tab === "upcoming" && !location.state?.fromTab);
+
+  const isUpcomingPatient = Boolean(
+    fromUpcomingTab ||
+    patientFromState?.status === "pending_nurse_admission" ||
+    patientFromState?.status === "upcoming" ||
+    patientFromState?.status === "pending" ||
+    patientFromList?.status === "pending_nurse_admission" ||
+    patientFromList?.status === "upcoming" ||
+    patientFromList?.status === "pending" ||
+    source.status === "pending_nurse_admission" ||
+    source.status === "upcoming" ||
+    source.status === "pending" ||
+    (!source.checkin && !source.checkin_time && !source.checkin_date && source.status !== "admitted" && source.status !== "discharged")
+  );
+
   const isCheckedIn = Boolean(
-    source.checkin === true ||
-    source.status === "admitted" ||
-    Boolean(source.checkin_date) ||
-    rawAdmissionData.checkin === true ||
-    nestedAdmission.checkin === true
+    !isUpcomingPatient &&
+    (source.checkin === true || safeAdmissionData.checkin === true || safeNested.checkin === true) &&
+    (source.status === "admitted" || safeAdmissionData.status === "admitted" || safeNested.status === "admitted")
   );
 
   const isDischarged = Boolean(
-    source.checkout === true ||
-    source.status === "discharged" ||
-    Boolean(source.checkout_date) ||
-    rawAdmissionData.checkout === true ||
-    nestedAdmission.checkout === true
+    !isUpcomingPatient &&
+    (source.checkout === true || source.status === "discharged" || safeAdmissionData.status === "discharged")
   );
 
   const isFirstTimeAdmission = !isCheckedIn && !isDischarged;
 
-  const isLastDay = Boolean(
-    source.is_checkout_today === true ||
-    rawAdmissionData.is_checkout_today === true ||
-    nestedAdmission.is_checkout_today === true ||
-    (source.expected_discharge_date && (() => {
+  const isLastDayOfStay = (() => {
+    // Checkout is ONLY possible for patients who are currently admitted
+    if (!isCheckedIn || isDischarged || isUpcomingPatient) {
+      return false;
+    }
+
+    // 1. Explicit flag from server
+    if (
+      source.is_checkout_today === true ||
+      safeAdmissionData.is_checkout_today === true ||
+      safeNested.is_checkout_today === true
+    ) {
+      return true;
+    }
+
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+
+    // 2. Expected discharge date
+    const expDateVal =
+      source.expected_discharge_date ||
+      safeAdmissionData.expected_discharge_date ||
+      safeNested.expected_discharge_date;
+
+    if (expDateVal) {
       try {
-        const todayStr = new Date().toISOString().split("T")[0];
-        const expStr = new Date(source.expected_discharge_date).toISOString().split("T")[0];
-        return todayStr >= expStr;
-      } catch {
-        return false;
+        const expDate = new Date(expDateVal);
+        if (!isNaN(expDate.getTime())) {
+          const expDateStr = expDate.toISOString().split("T")[0];
+          return todayStr >= expDateStr;
+        }
+      } catch (err) {
+        console.warn("Error parsing expected_discharge_date", err);
       }
-    })())
-  );
+    }
+
+    // 3. Registered number of days completed from checkin/admission date
+    const admDateVal =
+      source.checkin_date ||
+      source.admission_date_iso ||
+      source.admission_date ||
+      formData.admission_date;
+
+    const registeredDays = Number(source.no_of_days || formData.no_of_days);
+
+    if (admDateVal && registeredDays > 0) {
+      try {
+        const admDate = new Date(admDateVal);
+        if (!isNaN(admDate.getTime())) {
+          const dischargeDate = new Date(admDate);
+          dischargeDate.setDate(dischargeDate.getDate() + registeredDays);
+          const dischargeDateStr = dischargeDate.toISOString().split("T")[0];
+          return todayStr >= dischargeDateStr;
+        }
+      } catch (err) {
+        console.warn("Error calculating discharge date", err);
+      }
+    }
+
+    return false;
+  })();
 
   useEffect(() => {
-    if (isLastDay) {
+    if (isLastDayOfStay) {
       setIsCheckingOutToday(true);
+    } else {
+      setIsCheckingOutToday(false);
     }
-  }, [isLastDay]);
+  }, [isLastDayOfStay]);
 
   const dropdownOptions =
     rawAdmissionData?.dropdown_options ||
@@ -1188,7 +1291,7 @@ const NurseAdmitPatientDetails = () => {
                       >
                         {durationOptions.map((dur) => {
                           const val = typeof dur === "object" ? dur.value : dur;
-                          const lbl = typeof dur === "object" ? dur.label : `${dur} Days`;
+                          const lbl = typeof dur === "object" ? dur.label : `${2} Days`;
                           return (
                             <option key={val} value={val}>
                               {lbl}
@@ -1263,8 +1366,8 @@ const NurseAdmitPatientDetails = () => {
                 </div>
               </div>
 
-              {/* 5. CHECKOUT & DISCHARGE CONFIRMATION (Rendered for admitted patients / last day of stay) */}
-              {isCheckedIn && !isDischarged && (
+              {/* 5. CHECKOUT & DISCHARGE CONFIRMATION (Rendered ONLY on the last day of the admitted period) */}
+              {isCheckedIn && !isDischarged && isLastDayOfStay && (
                 <div className="space-y-4 pt-2">
                   <div className="rounded-2xl border-2 border-[#D5A794] dark:border-[#542F1E] bg-[#FFFDFC] dark:bg-[#251D18] p-5 shadow-xs space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#E7DBD3] dark:border-[#382D25] pb-3">
@@ -1277,19 +1380,15 @@ const NurseAdmitPatientDetails = () => {
                             Checkout & Discharge Confirmation
                           </h2>
                           <p className="text-xs text-[#7D726B] dark:text-[#A8988D]">
-                            {isLastDay
-                              ? "Today is the last day of the patient's admission period."
-                              : `Expected discharge date: ${source.expected_discharge_date || "Scheduled at end of stay"}`}
+                            Today is the last day of the patient's admission period ({formData.no_of_days || source.no_of_days} days).
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        {isLastDay && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300">
-                            Discharge Due Today
-                          </span>
-                        )}
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300">
+                          Discharge Due Today
+                        </span>
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#E7F3EC] dark:bg-[#1A3326] text-[#2E7D32] dark:text-[#81C784]">
                           Admitted · {formData.room_number || "Room Assigned"}
                         </span>
@@ -1403,7 +1502,7 @@ const NurseAdmitPatientDetails = () => {
                       )}
                     </button>
                   ) : isCheckedIn && !isDischarged ? (
-                    isCheckingOutToday ? (
+                    isLastDayOfStay && isCheckingOutToday ? (
                       <button
                         type="button"
                         onClick={handleConfirmCheckout}
