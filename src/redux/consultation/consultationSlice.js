@@ -753,8 +753,19 @@ const consultationSlice = createSlice({
 
                     state.loading = false;
 
-                    state.patientWellness =
-                        action.payload;
+                    if (action.payload) {
+                        state.patientWellness = {
+                            ...(state.patientWellness || {}),
+                            ...action.payload,
+                            history:
+                                (Array.isArray(action.payload.history) && action.payload.history.length > 0)
+                                    ? action.payload.history
+                                    : (state.patientWellness?.history || []),
+                            today:
+                                action.payload.today ||
+                                (action.payload.is_today ? action.payload : state.patientWellness?.today),
+                        };
+                    }
 
                     state.error = null;
 

@@ -1,6 +1,8 @@
 import {
   useEffect,
   useState,
+  useMemo,
+  useRef,
 } from "react";
 
 import {
@@ -9,9 +11,10 @@ import {
 } from "react-redux";
 
 import {
-
   HiChevronRight,
+  HiOutlineChevronDown,
   HiOutlineCalendarDays,
+  HiCheck,
 } from "react-icons/hi2";
 
 import VitalCard
@@ -26,6 +29,10 @@ import FinishButton
 import {
   loadPatientWellness,
 } from "../../../redux/consultation/consultationThunk";
+
+import {
+  getPatientWellness,
+} from "../../../api/doctorAppointmentApi";
 
 
 const PatientOverview = ({
@@ -51,32 +58,35 @@ const PatientOverview = ({
 
 
   // ==========================================
-  // LOCAL STATE
+  // LOCAL STATE & REFS
   // ==========================================
+
+  const dropdownRef = useRef(null);
 
   const [
     showPastVitals,
     setShowPastVitals,
   ] = useState(false);
 
-
   const [
     selectedVitalDate,
     setSelectedVitalDate,
   ] = useState(null);
 
+  const [
+    isViewingPast,
+    setIsViewingPast,
+  ] = useState(false);
 
   const [
-    previousDates,
-    setPreviousDates,
-  ] = useState([]);
-
+    selectedDateLabel,
+    setSelectedDateLabel,
+  ] = useState("Today");
 
   const [
     loadingVitals,
     setLoadingVitals,
   ] = useState(false);
-
 
   // ==========================================
   // PATIENT ID
@@ -87,151 +97,199 @@ const PatientOverview = ({
     selectedPatient?.patientId ||
     selectedPatient?.id;
 
+  // ==========================================
+  // FORMAT DATE DISPLAY HELPER
+  // ==========================================
+
+  const formatDateDisplay = (item) => {
+    if (!item) return "";
+    if (item.formatted_date) return item.formatted_date;
+    if (item.label) return item.label;
+    if (item.date) {
+      try {
+        const d = new Date(item.date);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          });
+        }
+      } catch (e) {
+        // fallback
+      }
+      return String(item.date);
+    }
+    return "Recorded Vitals";
+  };
 
   // ==========================================
-  // GET TODAY'S VITALS + HISTORY
+  // PREVIOUS DATES FROM HISTORY
+  // ==========================================
+
+  const previousDates = useMemo(() => {
+    const raw =
+      patientWellness?.history ||
+      patientWellness?.past_vitals ||
+      patientWellness?.vitals_history ||
+      patientWellness?.records ||
+      [];
+    let list = Array.isArray(raw) ? raw.filter((item) => item && !item.is_today) : [];
+    if (
+      list.length === 0 &&
+      patientWellness?.previous &&
+      typeof patientWellness.previous === "object" &&
+      !patientWellness.previous.is_today
+    ) {
+      list = [patientWellness.previous];
+    }
+    return list;
+  }, [patientWellness]);
+
+  // ==========================================
+  // HELPER: MATCH PAST RECORD FROM API RESPONSE
+  // ==========================================
+
+  const findRecordForDate = (resData, targetItem) => {
+    if (!resData || typeof resData !== "object") return null;
+
+    const targetDate = targetItem?.date;
+    const targetId = targetItem?.id;
+
+    // 1. Look in history array
+    const historyList =
+      resData.history ||
+      resData.past_vitals ||
+      resData.vitals_history ||
+      resData.records;
+    if (Array.isArray(historyList) && historyList.length > 0) {
+      if (targetDate) {
+        const matchByDate = historyList.find(
+          (h) => h && h.date === targetDate && !h.is_today
+        );
+        if (matchByDate) return matchByDate;
+      }
+      if (targetId) {
+        const matchById = historyList.find(
+          (h) => h && h.id === targetId && !h.is_today
+        );
+        if (matchById) return matchById;
+      }
+      if (targetDate) {
+        const matchAnyDate = historyList.find((h) => h && h.date === targetDate);
+        if (matchAnyDate) return matchAnyDate;
+      }
+    }
+
+    // 2. Check previous
+    if (resData.previous && typeof resData.previous === "object") {
+      if (
+        (targetDate && resData.previous.date === targetDate) ||
+        (targetId && resData.previous.id === targetId) ||
+        !resData.previous.is_today
+      ) {
+        return resData.previous;
+      }
+    }
+
+    // 3. Check vitals property if present and not today
+    if (resData.vitals && typeof resData.vitals === "object") {
+      if (
+        (targetDate && (resData.date === targetDate || resData.vitals.date === targetDate)) ||
+        !resData.vitals.is_today
+      ) {
+        return resData.vitals;
+      }
+    }
+
+    // 4. Check resData itself if matching date and not today
+    if (
+      resData.date &&
+      targetDate &&
+      resData.date === targetDate &&
+      !resData.is_today
+    ) {
+      return resData;
+    }
+
+    // NEVER fallback to resData.today or resData (which contains today's vitals)
+    return null;
+  };
+
+  // ==========================================
+  // RESET ON PATIENT CHANGE
   // ==========================================
 
   useEffect(() => {
+    setIsViewingPast(false);
+    setSelectedVitalDate(null);
+    setSelectedDateLabel("Today");
+    setShowPastVitals(false);
+  }, [patientId]);
 
+  // ==========================================
+  // GET TODAY'S VITALS ON PATIENT LOAD
+  // ==========================================
+
+  useEffect(() => {
     if (!patientId) {
       return;
     }
 
-
-    const loadTodayVitals =
-      async () => {
-
-        setLoadingVitals(true);
-
-
-        try {
-
-          const result =
-            await dispatch(
-              loadPatientWellness({
-                patientId,
-                period: "today",
-              })
-            ).unwrap();
-
-
-          console.log(
-            "Patient Wellness:",
-            result
-          );
-
-
-          // ====================================
-          // TODAY'S RECORD
-          // ====================================
-
-          const today =
-            result?.today ||
-            result;
-
-
-          setSelectedVitalDate(
-            today
-          );
-
-
-          // ====================================
-          // PREVIOUS DATES
-          // ====================================
-
-          if (
-            Array.isArray(
-              result?.history
-            )
-          ) {
-
-            const previous =
-              result.history.filter(
-                (item) =>
-                  !item.is_today
-              );
-
-
-            setPreviousDates(
-              previous
-            );
-
-          }
-
-        } catch (error) {
-
-          console.error(
-            "Failed to load patient wellness:",
-            error
-          );
-
-        } finally {
-
-          setLoadingVitals(false);
-
-        }
-
-      };
-
+    const loadTodayVitals = async () => {
+      setLoadingVitals(true);
+      try {
+        await dispatch(
+          loadPatientWellness({
+            patientId,
+            period: "today",
+          })
+        ).unwrap();
+      } catch (error) {
+        console.error("Failed to load patient wellness:", error);
+      } finally {
+        setLoadingVitals(false);
+      }
+    };
 
     loadTodayVitals();
-
-  }, [
-    dispatch,
-    patientId,
-  ]);
-
+  }, [dispatch, patientId]);
 
   // ==========================================
-  // SYNC WITH REDUX
+  // SYNC WITH REDUX (WHEN NOT VIEWING PAST)
   // ==========================================
 
   useEffect(() => {
-
     if (!patientWellness) {
       return;
     }
 
+    if (!isViewingPast) {
+      const today = patientWellness?.today || patientWellness;
+      setSelectedVitalDate(today);
+      setSelectedDateLabel("Today");
+    }
+  }, [patientWellness, isViewingPast]);
 
-    // Today's vitals
+  // ==========================================
+  // CLICK OUTSIDE LISTENER TO CLOSE DROPDOWN
+  // ==========================================
 
-    if (
-      patientWellness?.today
-    ) {
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowPastVitals(false);
+      }
+    };
 
-      setSelectedVitalDate(
-        patientWellness.today
-      );
-
+    if (showPastVitals) {
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
-
-    // Previous appointment dates
-
-    if (
-      Array.isArray(
-        patientWellness?.history
-      )
-    ) {
-
-      const previous =
-        patientWellness.history.filter(
-          (item) =>
-            !item.is_today
-        );
-
-
-      setPreviousDates(
-        previous
-      );
-
-    }
-
-  }, [
-    patientWellness,
-  ]);
-
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showPastVitals]);
 
   // ==========================================
   // CURRENT VITALS
@@ -243,197 +301,65 @@ const PatientOverview = ({
     patientWellness ||
     {};
 
-
-  // ==========================================
-  // SELECTED DATE LABEL
-  // ==========================================
-
-  const selectedDateLabel =
-    currentVitals?.is_today
-      ? "Today"
-      : currentVitals?.formatted_date ||
-      currentVitals?.label ||
-      "View Past Vitals";
-
-
   // ==========================================
   // SELECT PREVIOUS VITALS
   // ==========================================
 
-  const handleDateChange =
-    async (
-      historyItem
-    ) => {
+  const handleDateChange = async (historyItem) => {
+    if (!historyItem) {
+      return;
+    }
 
-      if (
-        !patientId ||
-        !historyItem?.date
-      ) {
-        return;
-      }
+    setShowPastVitals(false);
+    setIsViewingPast(true);
 
+    const label = formatDateDisplay(historyItem);
+    setSelectedDateLabel(label);
 
-      setShowPastVitals(
-        false
-      );
+    // 1. Immediately apply any inline vitals data available
+    const inlineData = historyItem.vitals
+      ? { ...historyItem, ...historyItem.vitals, formatted_date: label, is_today: false }
+      : { ...historyItem, formatted_date: label, is_today: false };
 
+    setSelectedVitalDate(inlineData);
 
-      setLoadingVitals(
-        true
-      );
-
-
+    // 2. Fetch remote vitals if patientId and date exist
+    if (patientId && historyItem.date) {
+      setLoadingVitals(true);
       try {
+        const response = await getPatientWellness(patientId, {
+          date: historyItem.date,
+        });
+        const resData = response?.data?.data || response?.data;
+        const remoteRecord = findRecordForDate(resData, historyItem);
 
-        console.log(
-          "Loading vitals for date:",
-          historyItem.date
-        );
-
-
-        const result =
-          await dispatch(
-            loadPatientWellness({
-              patientId,
-              date: historyItem.date,
-            })
-          ).unwrap();
-
-
-        console.log(
-          "Previous Vitals Response:",
-          result
-        );
-
-
-        /*
-         * For a date request, the backend may return
-         * the selected record in `today`, `previous`,
-         * or directly in the response.
-         */
-
-        const selectedRecord =
-          result?.today ||
-          result?.previous ||
-          result;
-
-
-        setSelectedVitalDate(
-          selectedRecord
-        );
-
-
-        /*
-         * Keep the complete history list.
-         */
-
-        if (
-          Array.isArray(
-            result?.history
-          )
-        ) {
-
-          setPreviousDates(
-            result.history.filter(
-              (item) =>
-                !item.is_today
-            )
-          );
-
+        if (remoteRecord && typeof remoteRecord === "object") {
+          setSelectedVitalDate({
+            ...inlineData,
+            ...remoteRecord,
+            formatted_date: label,
+            is_today: false,
+          });
         }
-
-      } catch (error) {
-
-        console.error(
-          "Failed to load previous vitals:",
-          error
-        );
-
+      } catch (err) {
+        console.warn("Could not fetch remote vitals for date, using inline data:", err);
       } finally {
-
-        setLoadingVitals(
-          false
-        );
-
+        setLoadingVitals(false);
       }
-
-    };
-
+    }
+  };
 
   // ==========================================
   // GO BACK TO TODAY
   // ==========================================
 
-  const handleToday =
-    async () => {
-
-      if (!patientId) {
-        return;
-      }
-
-
-      setShowPastVitals(
-        false
-      );
-
-
-      setLoadingVitals(
-        true
-      );
-
-
-      try {
-
-        const result =
-          await dispatch(
-            loadPatientWellness({
-              patientId,
-              period: "today",
-            })
-          ).unwrap();
-
-
-        setSelectedVitalDate(
-          result?.today ||
-          result
-        );
-
-
-        /*
-         * Restore history.
-         */
-
-        if (
-          Array.isArray(
-            result?.history
-          )
-        ) {
-
-          setPreviousDates(
-            result.history.filter(
-              (item) =>
-                !item.is_today
-            )
-          );
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          "Failed to load today's vitals:",
-          error
-        );
-
-      } finally {
-
-        setLoadingVitals(
-          false
-        );
-
-      }
-
-    };
+  const handleToday = () => {
+    setShowPastVitals(false);
+    setIsViewingPast(false);
+    setSelectedDateLabel("Today");
+    const today = patientWellness?.today || patientWellness || {};
+    setSelectedVitalDate(today);
+  };
 
 
   return (
@@ -714,8 +640,11 @@ const PatientOverview = ({
           relative
           mt-1
           flex
-          justify-end
+          flex-col
+          items-end
+          gap-1
         "
+        ref={dropdownRef}
       >
 
         <button
@@ -743,25 +672,42 @@ const PatientOverview = ({
             hover:text-[#8A563B]
             disabled:cursor-not-allowed
             disabled:opacity-50
+            cursor-pointer
           "
         >
 
           <span>
-            {currentVitals?.is_today
-              ? "View Past Vitals"
-              : selectedDateLabel}
+            {isViewingPast
+              ? selectedDateLabel
+              : "View Past Vitals"}
           </span>
 
-
-          <HiChevronRight
-            size={14}
-            className="
-              text-[#8A563B]
-            "
+          <HiOutlineChevronDown
+            size={13}
+            className={`text-[#8A563B] transition-transform duration-200 ${
+              showPastVitals ? "rotate-180" : ""
+            }`}
           />
 
         </button>
 
+        {/* STATUS INDICATOR WHEN VIEWING PAST */}
+        {isViewingPast && (
+          <div className="flex items-center gap-1.5 text-[10px] text-[#8A7A71]">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#8A563B]" />
+            <span>
+              Showing vitals for{" "}
+              <strong className="text-[#59352C]">{selectedDateLabel}</strong>
+            </span>
+            <button
+              type="button"
+              onClick={handleToday}
+              className="ml-1 font-bold text-[#6E3C27] hover:underline cursor-pointer"
+            >
+              (Back to Today)
+            </button>
+          </div>
+        )}
 
         {/* ==========================================
             PAST VITALS DROPDOWN
@@ -773,15 +719,15 @@ const PatientOverview = ({
             className="
               absolute
               right-0
-              top-9
+              top-7
               z-50
-              w-[205px]
+              w-[215px]
               overflow-hidden
               rounded-xl
               border
               border-[#EBDDD2]
               bg-white
-              shadow-[0_8px_25px_rgba(89,53,44,0.12)]
+              shadow-[0_8px_25px_rgba(89,53,44,0.14)]
             "
           >
 
@@ -794,21 +740,21 @@ const PatientOverview = ({
                 justify-between
                 border-b
                 border-[#F0E5DE]
-                px-3
+                px-3.5
                 py-2.5
+                bg-[#FAF6F2]
               "
             >
 
               <span
                 className="
                   text-[11px]
-                  font-semibold
+                  font-bold
                   text-[#59352C]
                 "
               >
                 Previous Vitals
               </span>
-
 
               <HiOutlineCalendarDays
                 size={14}
@@ -819,7 +765,6 @@ const PatientOverview = ({
 
             </div>
 
-
             {/* TODAY */}
 
             <button
@@ -827,38 +772,45 @@ const PatientOverview = ({
               onClick={
                 handleToday
               }
-              className="
+              className={`
                 flex
                 w-full
                 items-center
                 justify-between
                 border-b
                 border-[#F5ECE6]
-                px-3
-                py-2.5
+                px-3.5
+                py-2
                 text-left
                 text-[11px]
-                font-medium
-                text-[#59352C]
                 transition
                 hover:bg-[#FFF8F3]
-              "
+                cursor-pointer
+                ${!isViewingPast
+                  ? "bg-[#FFF4EC] font-bold text-[#6E3C27]"
+                  : "font-medium text-[#59352C]"}
+              `}
             >
 
               <span>
                 Today
               </span>
 
-
-              <HiChevronRight
-                size={13}
-                className="
-                  text-[#8A563B]
-                "
-              />
+              {!isViewingPast ? (
+                <HiCheck
+                  size={14}
+                  className="text-[#2E7D32]"
+                />
+              ) : (
+                <HiChevronRight
+                  size={13}
+                  className="
+                    text-[#8A563B]
+                  "
+                />
+              )}
 
             </button>
-
 
             {/* ======================================
                 PREVIOUS DATES
@@ -885,11 +837,12 @@ const PatientOverview = ({
                       item.date ||
                       index;
 
+                    const label = formatDateDisplay(item);
 
                     const isSelected =
-                      currentVitals?.date ===
-                      item.date;
-
+                      isViewingPast &&
+                      (selectedVitalDate?.date === item.date ||
+                        selectedDateLabel === label);
 
                     return (
 
@@ -910,33 +863,37 @@ const PatientOverview = ({
                           justify-between
                           rounded-lg
                           px-3
-                          py-2.5
+                          py-2
                           text-left
                           text-[11px]
-                          text-[#59352C]
                           transition
                           hover:bg-[#FFF8F3]
+                          cursor-pointer
                           ${isSelected
-                            ? "bg-[#FFF4EC] font-semibold"
-                            : ""
+                            ? "bg-[#FFF4EC] font-bold text-[#6E3C27]"
+                            : "text-[#59352C]"
                           }
                         `}
                       >
 
                         <span>
-                          {item.formatted_date ||
-                            item.label ||
-                            item.date}
+                          {label}
                         </span>
 
-
-                        <HiChevronRight
-                          size={13}
-                          className="
-                            shrink-0
-                            text-[#8A563B]
-                          "
-                        />
+                        {isSelected ? (
+                          <HiCheck
+                            size={14}
+                            className="text-[#2E7D32]"
+                          />
+                        ) : (
+                          <HiChevronRight
+                            size={13}
+                            className="
+                              shrink-0
+                              text-[#8A563B]
+                            "
+                          />
+                        )}
 
                       </button>
 
@@ -951,7 +908,7 @@ const PatientOverview = ({
 
               <div
                 className="
-                  px-3
+                  px-3.5
                   py-3
                   text-[11px]
                   text-[#8A7A71]
@@ -967,7 +924,6 @@ const PatientOverview = ({
         )}
 
       </div>
-
 
       {/* ==========================================
           LOADING
@@ -987,38 +943,6 @@ const PatientOverview = ({
         </div>
 
       )}
-
-
-      {/* ==========================================
-          SELECTED PREVIOUS DATE
-      ========================================== */}
-
-      {!currentVitals?.is_today &&
-        currentVitals?.formatted_date && (
-
-          <div
-            className="
-              mt-1
-              text-right
-              text-[10px]
-              text-[#8A7A71]
-            "
-          >
-
-            Showing vitals for{" "}
-
-            <span
-              className="
-                font-medium
-                text-[#59352C]
-              "
-            >
-              {currentVitals.formatted_date}
-            </span>
-
-          </div>
-
-        )}
 
 
 
