@@ -152,3 +152,12 @@ export const submitNurseStayFeedback = (admissionId, data) => {
   return api.post(`/nurse/admissions/${admissionId}/feedback`, data);
 };
 
+// ==========================================
+// EXTEND EXPECTED DISCHARGE DATE API
+// PUT /nurse/admissions/:admission_id/extend-discharge
+// ==========================================
+export const extendNurseDischargeDate = (admissionId, data) => {
+  return api.put(`/nurse/admissions/${admissionId}/extend-discharge`, data);
+};
+
+

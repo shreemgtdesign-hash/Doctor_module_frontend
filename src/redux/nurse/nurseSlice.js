@@ -18,6 +18,7 @@ import {
   loadMealsMenu,
   loadStayFeedback,
   saveStayFeedback,
+  extendDischargePeriod,
 } from "./nurseThunk";
 
 const initialState = {
@@ -142,6 +143,12 @@ const initialState = {
   stayFeedbackError: null,
   stayFeedbackSaving: false,
   stayFeedbackSuccess: false,
+
+  // Extend Discharge
+  extendDischargeLoading: false,
+  extendDischargeSuccess: false,
+  extendDischargeError: null,
+  extendDischargeData: null,
 };
 
 const nurseSlice = createSlice({
@@ -173,6 +180,11 @@ const nurseSlice = createSlice({
     },
     resetStayFeedbackSuccess: (state) => {
       state.stayFeedbackSuccess = false;
+    },
+    resetExtendDischargeState: (state) => {
+      state.extendDischargeLoading = false;
+      state.extendDischargeSuccess = false;
+      state.extendDischargeError = null;
     },
     clearNurseError: (state) => {
       state.dashboardError = null;
@@ -510,6 +522,41 @@ const nurseSlice = createSlice({
         state.stayFeedbackSaving = false;
         state.stayFeedbackSuccess = false;
         state.stayFeedbackError = action.payload || "Failed to submit stay feedback.";
+      })
+      // Extend Expected Discharge Date
+      .addCase(extendDischargePeriod.pending, (state) => {
+        state.extendDischargeLoading = true;
+        state.extendDischargeSuccess = false;
+        state.extendDischargeError = null;
+      })
+      .addCase(extendDischargePeriod.fulfilled, (state, action) => {
+        state.extendDischargeLoading = false;
+        state.extendDischargeSuccess = true;
+        state.extendDischargeError = null;
+        state.extendDischargeData = action.payload;
+
+        // If selected admission is loaded, update its fields directly
+        if (state.selectedAdmission) {
+          const adm = state.selectedAdmission.data || state.selectedAdmission;
+          if (adm) {
+            adm.no_of_days = action.payload?.updated_no_of_days ?? adm.no_of_days;
+            adm.expected_discharge_date = action.payload?.expected_discharge_date ?? adm.expected_discharge_date;
+            adm.is_checkout_today = action.payload?.is_checkout_today ?? false;
+            if (action.payload?.extension_history) {
+              adm.extension_history = action.payload.extension_history;
+            }
+          }
+          if (state.selectedAdmission.admission) {
+            state.selectedAdmission.admission.no_of_days = action.payload?.updated_no_of_days ?? state.selectedAdmission.admission.no_of_days;
+            state.selectedAdmission.admission.expected_discharge_date = action.payload?.expected_discharge_date ?? state.selectedAdmission.admission.expected_discharge_date;
+            state.selectedAdmission.admission.is_checkout_today = action.payload?.is_checkout_today ?? false;
+          }
+        }
+      })
+      .addCase(extendDischargePeriod.rejected, (state, action) => {
+        state.extendDischargeLoading = false;
+        state.extendDischargeSuccess = false;
+        state.extendDischargeError = action.payload || "Failed to extend expected discharge date.";
       });
   },
 });
@@ -521,6 +568,7 @@ export const {
   clearSelectedAdmission,
   clearStayFeedback,
   resetStayFeedbackSuccess,
+  resetExtendDischargeState,
   clearNurseError,
 } = nurseSlice.actions;
 
@@ -602,5 +650,11 @@ export const selectNurseStayFeedbackLoading = (state) => state.nurse?.stayFeedba
 export const selectNurseStayFeedbackSaving = (state) => state.nurse?.stayFeedbackSaving || false;
 export const selectNurseStayFeedbackSuccess = (state) => state.nurse?.stayFeedbackSuccess || false;
 export const selectNurseStayFeedbackError = (state) => state.nurse?.stayFeedbackError;
+
+// Extend Discharge Selectors
+export const selectExtendDischargeLoading = (state) => state.nurse?.extendDischargeLoading || false;
+export const selectExtendDischargeSuccess = (state) => state.nurse?.extendDischargeSuccess || false;
+export const selectExtendDischargeError = (state) => state.nurse?.extendDischargeError;
+export const selectExtendDischargeData = (state) => state.nurse?.extendDischargeData;
 
 export default nurseSlice.reducer;

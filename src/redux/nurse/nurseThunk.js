@@ -18,6 +18,7 @@ import {
   fetchPendingPatientLogs,
   fetchStayFeedback,
   postStayFeedback,
+  extendAdmissionDischarge,
 } from "../../services/nurseService";
 
 export const loadNurseDashboard = createAsyncThunk(
@@ -289,4 +290,20 @@ export const saveStayFeedback = createAsyncThunk(
     }
   }
 );
+
+export const extendDischargePeriod = createAsyncThunk(
+  "nurse/extendDischargePeriod",
+  async ({ admissionId, payload }, { rejectWithValue }) => {
+    try {
+      return await extendAdmissionDischarge(admissionId, payload);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to extend expected discharge date."
+      );
+    }
+  }
+);
+
 

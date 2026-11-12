@@ -17,6 +17,7 @@ import {
   getPendingPatientLogs,
   getNurseStayFeedback,
   submitNurseStayFeedback,
+  extendNurseDischargeDate,
 } from "../api/nurseApi";
 
 export const fetchNurseDashboard = async (params = {}) => {
@@ -247,4 +248,15 @@ export const postStayFeedback = async (admissionId, payload) => {
     throw error;
   }
 };
+
+export const extendAdmissionDischarge = async (admissionId, payload) => {
+  try {
+    const response = await extendNurseDischargeDate(admissionId, payload);
+    return response.data?.data || response.data;
+  } catch (error) {
+    console.warn("extendAdmissionDischarge error:", error);
+    throw error;
+  }
+};
+
 

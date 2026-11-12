@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
@@ -15,6 +15,7 @@ import DashboardLayout from "../../../components/Layout/DashboardLayout";
 import {
   loadNurseAdmissionDetail,
   admitPatientAndAssignRoom,
+  extendDischargePeriod,
 } from "../../../redux/nurse/nurseThunk";
 import { loadFrontOfficeDoctors } from "../../../redux/frontOffice/frontOfficeAppointmentThunk";
 import {
@@ -27,6 +28,10 @@ import {
   selectNursePatientsList,
   resetAdmitActionState,
   clearSelectedAdmission,
+  selectExtendDischargeLoading,
+  selectExtendDischargeSuccess,
+  selectExtendDischargeError,
+  resetExtendDischargeState,
 } from "../../../redux/nurse/nurseSlice";
 
 const DEFAULT_DOCTORS = [
@@ -158,6 +163,9 @@ const NurseAdmitPatientDetails = () => {
   const actionLoading = useSelector(selectAdmitActionLoading);
   const actionSuccess = useSelector(selectAdmitActionSuccess);
   const actionError = useSelector(selectAdmitActionError);
+  const extendLoading = useSelector(selectExtendDischargeLoading);
+  const extendSuccess = useSelector(selectExtendDischargeSuccess);
+  const extendError = useSelector(selectExtendDischargeError);
 
   // Form State initialized empty, populated dynamically from the patient ID data
   const [formData, setFormData] = useState({
@@ -197,6 +205,11 @@ const NurseAdmitPatientDetails = () => {
   const [isCheckingOutToday, setIsCheckingOutToday] = useState(false);
   const [checkoutComments, setCheckoutComments] = useState("Patient discharged in good health");
   const [lastActionType, setLastActionType] = useState("checkin"); // "checkin" | "checkout"
+  const [wantToExtend, setWantToExtend] = useState(false);
+  const [additionalDays, setAdditionalDays] = useState(2);
+  const [extendReason, setExtendReason] = useState(
+    "Doctor recommended extending the treatment for another 2 days."
+  );
 
   useEffect(() => {
     const targetAdmissionId =
@@ -748,6 +761,99 @@ const NurseAdmitPatientDetails = () => {
     safeAdmissionData.is_checkout_today,
     safeNested.is_checkout_today,
   ]);
+
+  const currentDuration = parseInt(String(formData.no_of_days ?? source.no_of_days ?? 7), 10) || 7;
+  const additionalDaysCount = parseInt(String(additionalDays), 10) || 0;
+  const calculatedTotalDays = currentDuration + additionalDaysCount;
+
+  const newExpectedDischargeDateStr = (() => {
+    const admDateVal =
+      source.checkin_date ||
+      source.admission_date_iso ||
+      source.admission_date ||
+      formData.admission_date;
+
+    if (admDateVal && calculatedTotalDays > 0) {
+      try {
+        const d = new Date(admDateVal);
+        if (!isNaN(d.getTime())) {
+          d.setDate(d.getDate() + calculatedTotalDays);
+          return d.toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          });
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    return "";
+  })();
+
+  const extensionHistory =
+    safeNested.extension_history ||
+    safeAdmissionData.extension_history ||
+    source.extension_history ||
+    admission?.data?.extension_history ||
+    [];
+
+  const handleExtendDischarge = async () => {
+    const targetAdmissionId =
+      id ||
+      patientFromState?.id ||
+      patientFromList?.id ||
+      admission?.id ||
+      admission?.admission?.id ||
+      targetId;
+
+    if (!targetAdmissionId) {
+      toast.error("Invalid patient admission reference.");
+      return;
+    }
+
+    const addDays = parseInt(String(additionalDays), 10);
+    if (isNaN(addDays) || addDays <= 0) {
+      toast.error("Please enter a valid number of days to extend.");
+      return;
+    }
+
+    const payload = {
+      additional_days: addDays,
+      reason: (extendReason || "").trim() || "Doctor recommended extending the treatment for another 2 days.",
+    };
+
+    try {
+      const resultAction = await dispatch(
+        extendDischargePeriod({ admissionId: targetAdmissionId, payload })
+      );
+
+      if (extendDischargePeriod.fulfilled.match(resultAction)) {
+        const respData = resultAction.payload?.data || resultAction.payload || {};
+        const newDays = respData.updated_no_of_days ?? (currentDuration + addDays);
+
+        toast.success(
+          resultAction.payload?.message ||
+          `Expected discharge date extended by ${addDays} days! (Total: ${newDays} days)`
+        );
+
+        setFormData((prev) => ({
+          ...prev,
+          no_of_days: newDays,
+        }));
+
+        setIsCheckingOutToday(false);
+        setWantToExtend(false);
+      } else {
+        const errMsg = resultAction.payload || "Failed to extend expected discharge date.";
+        toast.error(errMsg);
+      }
+    } catch (err) {
+      console.error("Error extending discharge:", err);
+      toast.error("An error occurred while extending the discharge date.");
+    }
+  };
+
 
   const dropdownOptions =
     rawAdmissionData?.dropdown_options ||
@@ -1558,6 +1664,15 @@ const NurseAdmitPatientDetails = () => {
 
                     {/* Question: Is the patient checking out today? */}
                     <div className="space-y-3">
+                      {isLastDayOfStay && (
+                        <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 p-3 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                          <span className="text-sm">⚠️</span>
+                          <span>
+                            <strong>Scheduled Discharge Day:</strong> Today is the scheduled discharge date for this patient. Please confirm checkout or choose to extend the stay duration below.
+                          </span>
+                        </div>
+                      )}
+
                       <div className="flex items-center gap-2">
                         <label className="text-xs font-bold text-[#4B2E2A] dark:text-[#EDE3DA]">
                           Is the patient checking out today?
@@ -1568,7 +1683,9 @@ const NurseAdmitPatientDetails = () => {
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                         <button
                           type="button"
-                          onClick={() => setIsCheckingOutToday(true)}
+                          onClick={() => {
+                            setIsCheckingOutToday(true);
+                          }}
                           className={`flex-1 px-5 py-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
                             isCheckingOutToday
                               ? "border-[#6E3C27] bg-[#6E3C27] text-white shadow-xs"
@@ -1581,7 +1698,10 @@ const NurseAdmitPatientDetails = () => {
 
                         <button
                           type="button"
-                          onClick={() => setIsCheckingOutToday(false)}
+                          onClick={() => {
+                            setIsCheckingOutToday(false);
+                            if (isLastDayOfStay) setWantToExtend(true);
+                          }}
                           className={`flex-1 px-5 py-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer ${
                             !isCheckingOutToday
                               ? "border-[#4B2E2A] dark:border-[#D5A794] bg-[#F5ECE5] dark:bg-[#2E241E] text-[#4B2E2A] dark:text-[#EDE3DA]"
@@ -1630,10 +1750,207 @@ const NurseAdmitPatientDetails = () => {
                           </div>
                         </div>
                       ) : (
-                        <div className="pt-2">
+                        <div className="pt-2 space-y-4">
                           <div className="rounded-xl bg-[#F5ECE5]/60 dark:bg-[#2E241E]/40 border border-[#E7DBD3] dark:border-[#382D25] p-3 text-xs text-[#7D726B] dark:text-[#A8988D] flex items-center gap-2">
                             <span>ℹ️</span>
                             <span>Patient stay will remain active. Room <strong>{formData.room_number || "assigned room"}</strong> remains occupied.</span>
+                          </div>
+
+                          {/* Stay Extension Card */}
+                          <div className="rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-[#FAF6F2]/70 dark:bg-[#1E1714]/60 p-4 space-y-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <label className="text-xs font-bold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                                    Do you want to extend the admitted stay period?
+                                  </label>
+                                  {isLastDayOfStay && (
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 font-bold">
+                                      Discharge Day Option
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-[#7D726B] dark:text-[#A8988D] mt-0.5">
+                                  Doctor recommended extensions add extra treatment days to the current duration.
+                                </p>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setWantToExtend(true)}
+                                  className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                                    wantToExtend
+                                      ? "border border-[#6E3C27] bg-[#6E3C27] text-white shadow-xs"
+                                      : "border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] text-[#7D726B] hover:bg-[#FAF6F2]"
+                                  }`}
+                                >
+                                  <span>✓</span>
+                                  <span>Yes, extend stay</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setWantToExtend(false)}
+                                  className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                                    !wantToExtend
+                                      ? "border border-[#4B2E2A] dark:border-[#D5A794] bg-[#F5ECE5] dark:bg-[#2E241E] text-[#4B2E2A] dark:text-[#EDE3DA]"
+                                      : "border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] text-[#7D726B] hover:bg-[#FAF6F2]"
+                                  }`}
+                                >
+                                  <span>✕</span>
+                                  <span>No, keep current duration</span>
+                                </button>
+                              </div>
+                            </div>
+
+                            {wantToExtend && (
+                              <div className="pt-3 border-t border-[#E7DBD3] dark:border-[#382D25] space-y-4">
+                                {/* 1. Quick Select Days */}
+                                <div className="space-y-2">
+                                  <label className="text-xs font-bold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                                    Select Additional Days to Extend:
+                                  </label>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    {[1, 2, 3, 4, 5, 7, 10, 14].map((d) => (
+                                      <button
+                                        key={d}
+                                        type="button"
+                                        onClick={() => setAdditionalDays(d)}
+                                        className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                                          Number(additionalDays) === d
+                                            ? "bg-[#6E3C27] text-white shadow-xs"
+                                            : "border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] text-[#4B2E2A] dark:text-[#EDE3DA] hover:bg-[#F5ECE5]"
+                                        }`}
+                                      >
+                                        +{d} {d === 1 ? "Day" : "Days"}
+                                      </button>
+                                    ))}
+                                    <div className="flex items-center gap-1.5 ml-1">
+                                      <span className="text-xs text-[#7D726B]">Custom:</span>
+                                      <input
+                                        type="number"
+                                        min="1"
+                                        max="90"
+                                        value={additionalDays}
+                                        onChange={(e) => setAdditionalDays(e.target.value)}
+                                        className="w-16 h-8 text-center rounded-lg border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] text-xs font-bold text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32]"
+                                      />
+                                      <span className="text-xs text-[#7D726B]">days</span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* 2. Calculation preview */}
+                                <div className="rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] p-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+                                  <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+                                    <div className="space-y-0.5">
+                                      <span className="text-[10px] uppercase tracking-wider text-[#8A7D75] font-semibold">Previous Duration</span>
+                                      <div className="font-bold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                                        {currentDuration} Days
+                                      </div>
+                                    </div>
+                                    <span className="text-sm font-bold text-[#8A4F32]">+</span>
+                                    <div className="space-y-0.5">
+                                      <span className="text-[10px] uppercase tracking-wider text-[#8A7D75] font-semibold">Extension</span>
+                                      <div className="font-bold text-[#8A4F32]">
+                                        {Number(additionalDays) || 0} Days
+                                      </div>
+                                    </div>
+                                    <span className="text-sm font-bold text-[#8A4F32]">=</span>
+                                    <div className="space-y-0.5">
+                                      <span className="text-[10px] uppercase tracking-wider text-[#8A7D75] font-semibold">Updated Total Duration</span>
+                                      <div className="font-bold text-[#2E7D32] dark:text-[#81C784]">
+                                        {currentDuration + (Number(additionalDays) || 0)} Days
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {newExpectedDischargeDateStr && (
+                                    <div className="sm:text-right border-t sm:border-t-0 pt-2 sm:pt-0 border-[#E7DBD3] dark:border-[#382D25]">
+                                      <span className="text-[10px] uppercase tracking-wider text-[#8A7D75] font-semibold">New Expected Discharge</span>
+                                      <div className="font-bold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                                        {newExpectedDischargeDateStr}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* 3. Reason Input */}
+                                <div className="space-y-1.5">
+                                  <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
+                                    Reason for Extension <span className="text-[#8A4F32]">*</span>
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={extendReason}
+                                    onChange={(e) => setExtendReason(e.target.value)}
+                                    placeholder="Doctor recommended extending the treatment for another 2 days."
+                                    className="w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32]"
+                                  />
+                                </div>
+
+                                {extendError && (
+                                  <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 p-3 text-xs text-red-600 dark:text-red-400">
+                                    {typeof extendError === "string" ? extendError : "Failed to extend expected discharge date."}
+                                  </div>
+                                )}
+
+                                {/* 4. Action Button */}
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
+                                  <p className="text-[11px] text-[#7D726B] dark:text-[#A8988D]">
+                                    This updates the admitted duration, recalculates the expected discharge date, and records the extension history.
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={handleExtendDischarge}
+                                    disabled={extendLoading || !Number(additionalDays)}
+                                    className="rounded-xl bg-[#6E3C27] hover:bg-[#542F1E] text-white px-6 py-2.5 text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shrink-0"
+                                  >
+                                    {extendLoading ? (
+                                      <span>Extending Stay...</span>
+                                    ) : (
+                                      <>
+                                        <span>Extend Expected Discharge Date (+{Number(additionalDays) || 0} Days)</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Extension History (if any exists) */}
+                            {Array.isArray(extensionHistory) && extensionHistory.length > 0 && (
+                              <div className="p-3 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] space-y-2">
+                                <div className="text-[11px] font-bold text-[#4B2E2A] dark:text-[#EDE3DA] flex items-center gap-1.5">
+                                  <span>🕒 Extension History ({extensionHistory.length})</span>
+                                </div>
+                                <div className="space-y-1.5">
+                                  {extensionHistory.map((item, idx) => (
+                                    <div key={idx} className="text-[11px] text-[#7D726B] dark:text-[#A8988D] flex flex-wrap items-center gap-2">
+                                      <span className="font-semibold text-[#8A4F32]">+{item.additional_days} Days</span>
+                                      <span>·</span>
+                                      <span>Total: {item.updated_no_of_days} days</span>
+                                      {item.extended_by && (
+                                        <>
+                                          <span>·</span>
+                                          <span>By: {item.extended_by}</span>
+                                        </>
+                                      )}
+                                      {item.extended_at && (
+                                        <>
+                                          <span>·</span>
+                                          <span>{new Date(item.extended_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
+                                        </>
+                                      )}
+                                      {item.reason && (
+                                        <span className="italic text-[#4B2E2A] dark:text-[#EDE3DA]">"{item.reason}"</span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       )}
@@ -1718,3 +2035,4 @@ const NurseAdmitPatientDetails = () => {
 };
 
 export default NurseAdmitPatientDetails;
+

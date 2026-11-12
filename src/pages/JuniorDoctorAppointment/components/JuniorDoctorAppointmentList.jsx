@@ -654,7 +654,7 @@ const JuniorDoctorAppointmentList = ({
                                         >
                                             {
                                                 formatTime(
-                                                    appointment.slot_time
+                                                    appointment.slot_time || appo
                                                 )
                                             }
                                         </span>
