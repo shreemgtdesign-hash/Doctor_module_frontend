@@ -399,14 +399,50 @@ const NurseAdmitPatientDetails = () => {
       if (lastActionType === "checkout") {
         toast.success("Patient checked out successfully and room released!");
         dispatch(resetAdmitActionState());
-        navigate("/nurse/ipd-patients?tab=discharged");
+        const effectiveId =
+          targetId ||
+          id ||
+          admission?.admission?.id ||
+          admission?.id ||
+          patientFromState?.id;
+        navigate(`/nurse/admissions/${effectiveId}/feedback`, {
+          state: {
+            admissionId: effectiveId,
+            patient: {
+              ...(patientFromState || {}),
+              ...(patientFromList || {}),
+              ...(admission?.admission || {}),
+              ...(admission || {}),
+              admission_id: effectiveId,
+              patient_name: formData.name,
+              name: formData.name,
+              patient_code: formData.patient_code,
+              room_number: formData.room_number,
+              room_type: formData.room_type,
+            },
+          },
+        });
       } else {
         toast.success("Patient admitted successfully and room assigned!");
         dispatch(resetAdmitActionState());
         navigate("/nurse/ipd-patients?tab=admitted");
       }
     }
-  }, [actionSuccess, dispatch, navigate, lastActionType]);
+  }, [
+    actionSuccess,
+    dispatch,
+    navigate,
+    lastActionType,
+    targetId,
+    id,
+    admission,
+    patientFromState,
+    patientFromList,
+    formData.name,
+    formData.patient_code,
+    formData.room_number,
+    formData.room_type,
+  ]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -1291,7 +1327,7 @@ const NurseAdmitPatientDetails = () => {
                       >
                         {durationOptions.map((dur) => {
                           const val = typeof dur === "object" ? dur.value : dur;
-                          const lbl = typeof dur === "object" ? dur.label : `${2} Days`;
+                          const lbl = typeof dur === "object" ? dur.label : `${dur} Days`;
                           return (
                             <option key={val} value={val}>
                               {lbl}

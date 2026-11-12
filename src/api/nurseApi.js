@@ -138,3 +138,17 @@ export const getPendingPatientLogs = (params = {}) => {
     params,
   });
 };
+
+// ==========================================
+// STAY FEEDBACK API
+// GET /nurse/admissions/:admission_id/feedback
+// POST /nurse/admissions/:admission_id/feedback
+// ==========================================
+export const getNurseStayFeedback = (admissionId) => {
+  return api.get(`/nurse/admissions/${admissionId}/feedback`);
+};
+
+export const submitNurseStayFeedback = (admissionId, data) => {
+  return api.post(`/nurse/admissions/${admissionId}/feedback`, data);
+};
+

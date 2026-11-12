@@ -290,6 +290,22 @@ const NursePatientsList = () => {
                     <span className="inline-block px-4 py-1.5 rounded-full text-xs font-semibold bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-300">
                       Discharged
                     </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const targetId =
+                          patient.admission_id ||
+                          patient.id ||
+                          patient.admission_no ||
+                          patient.patient_id;
+                        navigate(`/nurse/admissions/${targetId}/feedback`, {
+                          state: { patient, fromTab: "discharged", admissionId: targetId },
+                        });
+                      }}
+                      className="rounded-xl border border-[#D5C2B4] dark:border-[#4B392F] bg-white dark:bg-[#2C211B] px-4 py-2 text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA] hover:bg-[#FAF4ED] dark:hover:bg-[#382B23] transition cursor-pointer"
+                    >
+                      Feedback
+                    </button>
                   </div>
                 </div>
               );

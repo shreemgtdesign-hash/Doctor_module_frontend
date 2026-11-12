@@ -93,6 +93,7 @@ import NursePhotoUploads from "./pages/Nurse/NursePhotoUploads/NursePhotoUploads
 import NurseWardSummary from "./pages/Nurse/NurseWardSummary/NurseWardSummary";
 import NurseNotifications from "./pages/Nurse/NurseNotifications/NurseNotifications";
 import NursePendingPatientLogs from "./pages/Nurse/NursePendingActions/NursePendingPatientLogs";
+import NurseStayFeedback from "./pages/Nurse/NurseStayFeedback/NurseStayFeedback";
 
 function App() {
   return (
@@ -682,6 +683,14 @@ function App() {
       <Route
         path="/nurse/admissions/:id"
         element={<NurseAdmitPatientDetails />}
+      />
+      <Route
+        path="/nurse/admissions/:id/feedback"
+        element={<NurseStayFeedback />}
+      />
+      <Route
+        path="/nurse/feedback/:id"
+        element={<NurseStayFeedback />}
       />
       <Route
         path="/nurse/patient-logs"

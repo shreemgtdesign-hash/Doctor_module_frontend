@@ -16,6 +16,8 @@ import {
   readAllNurseNotifications,
   loadPendingPatientLogs,
   loadMealsMenu,
+  loadStayFeedback,
+  saveStayFeedback,
 } from "./nurseThunk";
 
 const initialState = {
@@ -133,6 +135,13 @@ const initialState = {
     loading: false,
     error: null,
   },
+
+  // Stay Feedback
+  stayFeedback: null,
+  stayFeedbackLoading: false,
+  stayFeedbackError: null,
+  stayFeedbackSaving: false,
+  stayFeedbackSuccess: false,
 };
 
 const nurseSlice = createSlice({
@@ -154,6 +163,16 @@ const nurseSlice = createSlice({
       state.selectedAdmission = null;
       state.admissionError = null;
       state.admissionLoading = false;
+    },
+    clearStayFeedback: (state) => {
+      state.stayFeedback = null;
+      state.stayFeedbackLoading = false;
+      state.stayFeedbackError = null;
+      state.stayFeedbackSaving = false;
+      state.stayFeedbackSuccess = false;
+    },
+    resetStayFeedbackSuccess: (state) => {
+      state.stayFeedbackSuccess = false;
     },
     clearNurseError: (state) => {
       state.dashboardError = null;
@@ -458,6 +477,40 @@ const nurseSlice = createSlice({
         state.pendingPatientLogs.loading = false;
         state.pendingPatientLogs.error = action.payload || "Failed to load pending patient logs.";
       });
+
+    // ----------------------------------------------------
+    // Stay Feedback
+    // ----------------------------------------------------
+    builder
+      .addCase(loadStayFeedback.pending, (state) => {
+        state.stayFeedbackLoading = true;
+        state.stayFeedbackError = null;
+      })
+      .addCase(loadStayFeedback.fulfilled, (state, action) => {
+        state.stayFeedbackLoading = false;
+        state.stayFeedback = action.payload;
+        state.stayFeedbackError = null;
+      })
+      .addCase(loadStayFeedback.rejected, (state, action) => {
+        state.stayFeedbackLoading = false;
+        state.stayFeedbackError = action.payload || "Failed to load stay feedback.";
+      })
+      .addCase(saveStayFeedback.pending, (state) => {
+        state.stayFeedbackSaving = true;
+        state.stayFeedbackSuccess = false;
+        state.stayFeedbackError = null;
+      })
+      .addCase(saveStayFeedback.fulfilled, (state, action) => {
+        state.stayFeedbackSaving = false;
+        state.stayFeedbackSuccess = true;
+        state.stayFeedback = action.payload;
+        state.stayFeedbackError = null;
+      })
+      .addCase(saveStayFeedback.rejected, (state, action) => {
+        state.stayFeedbackSaving = false;
+        state.stayFeedbackSuccess = false;
+        state.stayFeedbackError = action.payload || "Failed to submit stay feedback.";
+      });
   },
 });
 
@@ -466,6 +519,8 @@ export const {
   setActivePatientsTab,
   resetAdmitActionState,
   clearSelectedAdmission,
+  clearStayFeedback,
+  resetStayFeedbackSuccess,
   clearNurseError,
 } = nurseSlice.actions;
 
@@ -539,5 +594,13 @@ export const selectNursePendingPatientLogs = (state) => state.nurse?.pendingPati
 export const selectNursePendingPatientLogsHeader = (state) => state.nurse?.pendingPatientLogs?.header || {};
 export const selectNursePendingPatientLogsLoading = (state) => state.nurse?.pendingPatientLogs?.loading || false;
 export const selectNursePendingPatientLogsError = (state) => state.nurse?.pendingPatientLogs?.error;
+
+// Stay Feedback Selectors
+export const selectNurseStayFeedback = (state) => state.nurse?.stayFeedback;
+export const selectNurseStayFeedbackData = (state) => state.nurse?.stayFeedback?.data || state.nurse?.stayFeedback;
+export const selectNurseStayFeedbackLoading = (state) => state.nurse?.stayFeedbackLoading || false;
+export const selectNurseStayFeedbackSaving = (state) => state.nurse?.stayFeedbackSaving || false;
+export const selectNurseStayFeedbackSuccess = (state) => state.nurse?.stayFeedbackSuccess || false;
+export const selectNurseStayFeedbackError = (state) => state.nurse?.stayFeedbackError;
 
 export default nurseSlice.reducer;

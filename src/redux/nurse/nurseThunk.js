@@ -16,6 +16,8 @@ import {
   markNurseNotificationRead,
   markAllNurseNotificationsRead,
   fetchPendingPatientLogs,
+  fetchStayFeedback,
+  postStayFeedback,
 } from "../../services/nurseService";
 
 export const loadNurseDashboard = createAsyncThunk(
@@ -257,3 +259,34 @@ export const loadPendingPatientLogs = createAsyncThunk(
     }
   }
 );
+
+export const loadStayFeedback = createAsyncThunk(
+  "nurse/loadStayFeedback",
+  async (admissionId, { rejectWithValue }) => {
+    try {
+      return await fetchStayFeedback(admissionId);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to load stay feedback."
+      );
+    }
+  }
+);
+
+export const saveStayFeedback = createAsyncThunk(
+  "nurse/saveStayFeedback",
+  async ({ admissionId, payload }, { rejectWithValue }) => {
+    try {
+      return await postStayFeedback(admissionId, payload);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to submit stay feedback."
+      );
+    }
+  }
+);
+

@@ -15,6 +15,8 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   getPendingPatientLogs,
+  getNurseStayFeedback,
+  submitNurseStayFeedback,
 } from "../api/nurseApi";
 
 export const fetchNurseDashboard = async (params = {}) => {
@@ -225,3 +227,24 @@ export const fetchPendingPatientLogs = async (params = {}) => {
     throw error;
   }
 };
+
+export const fetchStayFeedback = async (admissionId) => {
+  try {
+    const response = await getNurseStayFeedback(admissionId);
+    return response.data?.data || response.data;
+  } catch (error) {
+    console.warn("fetchStayFeedback error:", error);
+    throw error;
+  }
+};
+
+export const postStayFeedback = async (admissionId, payload) => {
+  try {
+    const response = await submitNurseStayFeedback(admissionId, payload);
+    return response.data?.data || response.data;
+  } catch (error) {
+    console.warn("postStayFeedback error:", error);
+    throw error;
+  }
+};
+
