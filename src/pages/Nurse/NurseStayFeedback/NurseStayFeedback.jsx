@@ -98,6 +98,22 @@ const NurseStayFeedback = () => {
     "Therapies helped my back pain. Nurses were kind. Please serve dinner warmer."
   );
 
+  // Determine if feedback is completed / submitted and should be read-only
+  const isReadOnly = useMemo(() => {
+    return Boolean(
+      feedbackData?.is_submitted === true ||
+      feedbackData?.is_completed === true ||
+      feedbackData?.feedback_submitted === true ||
+      feedbackData?.screen_1?.is_completed === true ||
+      feedbackData?.initial_feedback_submitted === true ||
+      feedbackData?.detailed_feedback_submitted === true ||
+      feedbackData?.admission?.feedback_submitted === true ||
+      feedbackData?.admission?.initial_feedback_submitted === true ||
+      passedPatient?.feedback_submitted === true ||
+      location.state?.isReadOnly === true
+    );
+  }, [feedbackData, passedPatient, location.state]);
+
   // Load Feedback data from API on mount
   useEffect(() => {
     if (admissionId) {
@@ -170,6 +186,7 @@ const NurseStayFeedback = () => {
   }, [saveSuccess, dispatch, navigate]);
 
   const handleRatingChange = (key, value) => {
+    if (isReadOnly) return;
     setRatings((prev) => ({
       ...prev,
       [key]: value,
@@ -177,6 +194,7 @@ const NurseStayFeedback = () => {
   };
 
   const handleChoiceChange = (key, value) => {
+    if (isReadOnly) return;
     setChoices((prev) => ({
       ...prev,
       [key]: value,
@@ -185,6 +203,11 @@ const NurseStayFeedback = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (isReadOnly) {
+      toast("Feedback is already completed and in read-only mode.");
+      return;
+    }
 
     if (!admissionId) {
       toast.error("Admission ID not found. Cannot submit feedback.");
@@ -312,11 +335,19 @@ const NurseStayFeedback = () => {
                 <HiOutlineArrowLeft size={14} />
               </button>
               <h1 className="text-2xl font-bold text-[#2C1810] dark:text-[#EDE3DA] tracking-tight">
-                Stay feedback
+                {isReadOnly ? "View Stay Feedback" : "Stay feedback"}
               </h1>
+              {isReadOnly && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#E7F3EC] dark:bg-[#1A3326] text-[#2E7D32] dark:text-[#81C784]">
+                  <HiOutlineCheckCircle size={14} />
+                  <span>Completed (Read-only)</span>
+                </span>
+              )}
             </div>
             <p className="text-xs font-normal text-[#7D726B] dark:text-[#A8988D] mt-1">
-              A short form about your inpatient stay. Rate each part, then add a comment.
+              {isReadOnly
+                ? "View recorded inpatient stay feedback for this patient."
+                : "A short form about your inpatient stay. Rate each part, then add a comment."}
             </p>
           </div>
 
@@ -391,11 +422,14 @@ const NurseStayFeedback = () => {
                             <button
                               key={opt}
                               type="button"
+                              disabled={isReadOnly}
                               onClick={() => handleRatingChange(q.key, opt)}
-                              className={`rounded-full px-4 py-1.5 text-xs font-medium transition cursor-pointer select-none ${
+                              className={`rounded-full px-4 py-1.5 text-xs font-medium transition select-none ${
                                 isSelected
-                                  ? "border-2 border-[#2C1810] dark:border-[#EDE3DA] bg-white dark:bg-[#1C1613] text-[#2C1810] dark:text-[#EDE3DA] font-bold shadow-xs"
-                                  : "border border-transparent bg-transparent text-[#7D726B] dark:text-[#A8988D] hover:text-[#2C1810] dark:hover:text-[#EDE3DA]"
+                                  ? "border-2 border-[#2C1810] dark:border-[#EDE3DA] bg-white dark:bg-[#1C1613] text-[#2C1810] dark:text-[#EDE3DA] font-bold shadow-xs cursor-default"
+                                  : isReadOnly
+                                  ? "border border-transparent bg-transparent text-[#7D726B]/30 dark:text-[#A8988D]/30 cursor-default opacity-40"
+                                  : "border border-transparent bg-transparent text-[#7D726B] dark:text-[#A8988D] hover:text-[#2C1810] dark:hover:text-[#EDE3DA] cursor-pointer"
                               }`}
                             >
                               {opt}
@@ -431,11 +465,14 @@ const NurseStayFeedback = () => {
                         <button
                           key={opt}
                           type="button"
+                          disabled={isReadOnly}
                           onClick={() => handleChoiceChange("recommend_hospital", opt)}
-                          className={`rounded-full px-4 py-1.5 text-xs font-medium transition cursor-pointer select-none ${
+                          className={`rounded-full px-4 py-1.5 text-xs font-medium transition select-none ${
                             isSelected
-                              ? "border-2 border-[#2C1810] dark:border-[#EDE3DA] bg-white dark:bg-[#1C1613] text-[#2C1810] dark:text-[#EDE3DA] font-bold shadow-xs"
-                              : "border border-transparent bg-transparent text-[#7D726B] dark:text-[#A8988D] hover:text-[#2C1810] dark:hover:text-[#EDE3DA]"
+                              ? "border-2 border-[#2C1810] dark:border-[#EDE3DA] bg-white dark:bg-[#1C1613] text-[#2C1810] dark:text-[#EDE3DA] font-bold shadow-xs cursor-default"
+                              : isReadOnly
+                              ? "border border-transparent bg-transparent text-[#7D726B]/30 dark:text-[#A8988D]/30 cursor-default opacity-40"
+                              : "border border-transparent bg-transparent text-[#7D726B] dark:text-[#A8988D] hover:text-[#2C1810] dark:hover:text-[#EDE3DA] cursor-pointer"
                           }`}
                         >
                           {opt}
@@ -457,11 +494,14 @@ const NurseStayFeedback = () => {
                         <button
                           key={opt}
                           type="button"
+                          disabled={isReadOnly}
                           onClick={() => handleChoiceChange("would_return", opt)}
-                          className={`rounded-full px-4 py-1.5 text-xs font-medium transition cursor-pointer select-none ${
+                          className={`rounded-full px-4 py-1.5 text-xs font-medium transition select-none ${
                             isSelected
-                              ? "border-2 border-[#2C1810] dark:border-[#EDE3DA] bg-white dark:bg-[#1C1613] text-[#2C1810] dark:text-[#EDE3DA] font-bold shadow-xs"
-                              : "border border-transparent bg-transparent text-[#7D726B] dark:text-[#A8988D] hover:text-[#2C1810] dark:hover:text-[#EDE3DA]"
+                              ? "border-2 border-[#2C1810] dark:border-[#EDE3DA] bg-white dark:bg-[#1C1613] text-[#2C1810] dark:text-[#EDE3DA] font-bold shadow-xs cursor-default"
+                              : isReadOnly
+                              ? "border border-transparent bg-transparent text-[#7D726B]/30 dark:text-[#A8988D]/30 cursor-default opacity-40"
+                              : "border border-transparent bg-transparent text-[#7D726B] dark:text-[#A8988D] hover:text-[#2C1810] dark:hover:text-[#EDE3DA] cursor-pointer"
                           }`}
                         >
                           {opt}
@@ -483,11 +523,14 @@ const NurseStayFeedback = () => {
                         <button
                           key={opt}
                           type="button"
+                          disabled={isReadOnly}
                           onClick={() => handleChoiceChange("attendant_support", opt)}
-                          className={`rounded-full px-4 py-1.5 text-xs font-medium transition cursor-pointer select-none ${
+                          className={`rounded-full px-4 py-1.5 text-xs font-medium transition select-none ${
                             isSelected
-                              ? "border-2 border-[#2C1810] dark:border-[#EDE3DA] bg-white dark:bg-[#1C1613] text-[#2C1810] dark:text-[#EDE3DA] font-bold shadow-xs"
-                              : "border border-transparent bg-transparent text-[#7D726B] dark:text-[#A8988D] hover:text-[#2C1810] dark:hover:text-[#EDE3DA]"
+                              ? "border-2 border-[#2C1810] dark:border-[#EDE3DA] bg-white dark:bg-[#1C1613] text-[#2C1810] dark:text-[#EDE3DA] font-bold shadow-xs cursor-default"
+                              : isReadOnly
+                              ? "border border-transparent bg-transparent text-[#7D726B]/30 dark:text-[#A8988D]/30 cursor-default opacity-40"
+                              : "border border-transparent bg-transparent text-[#7D726B] dark:text-[#A8988D] hover:text-[#2C1810] dark:hover:text-[#EDE3DA] cursor-pointer"
                           }`}
                         >
                           {opt}
@@ -510,33 +553,51 @@ const NurseStayFeedback = () => {
 
               <textarea
                 rows={4}
+                readOnly={isReadOnly}
                 value={comments}
                 onChange={(e) => setComments(e.target.value)}
                 placeholder="Therapies helped my back pain. Nurses were kind. Please serve dinner warmer."
-                className="w-full rounded-2xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#201A17] p-4 text-xs font-normal text-[#2C1810] dark:text-[#EDE3DA] outline-none min-h-[110px] resize-none focus:border-[#CBB4A5] transition leading-relaxed"
+                className={`w-full rounded-2xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#201A17] p-4 text-xs font-normal text-[#2C1810] dark:text-[#EDE3DA] outline-none min-h-[110px] resize-none transition leading-relaxed ${
+                  isReadOnly
+                    ? "cursor-default bg-[#FAF8F5]/60 dark:bg-[#231C18]"
+                    : "focus:border-[#CBB4A5]"
+                }`}
               />
             </div>
 
             {/* Footer Row */}
             <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <p className="text-xs font-normal text-[#7D726B] dark:text-[#A8988D]">
-                Your feedback stays with the nursing team.
+                {isReadOnly
+                  ? "This feedback has been submitted and is locked for editing."
+                  : "Your feedback stays with the nursing team."}
               </p>
 
-              <button
-                type="submit"
-                disabled={saving || loading}
-                className="rounded-xl bg-[#7A4B3A] hover:bg-[#653D2F] active:scale-[0.99] text-white px-7 py-2.5 text-xs font-semibold tracking-wide transition shadow-xs cursor-pointer flex items-center justify-center gap-2 self-end sm:self-auto disabled:opacity-50"
-              >
-                {saving ? (
-                  <>
-                    <div className="h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Sending feedback...</span>
-                  </>
-                ) : (
-                  <span>Send feedback</span>
-                )}
-              </button>
+              {isReadOnly ? (
+                <button
+                  type="button"
+                  onClick={() => navigate("/nurse/ipd-patients?tab=discharged")}
+                  className="rounded-xl border border-[#D5C2B4] dark:border-[#4B392F] bg-white dark:bg-[#201A17] hover:bg-[#FAF4ED] text-[#4B2E2A] dark:text-[#EDE3DA] px-6 py-2.5 text-xs font-bold transition shadow-xs cursor-pointer flex items-center justify-center gap-2 self-end sm:self-auto"
+                >
+                  <HiOutlineArrowLeft size={14} />
+                  <span>Back to Discharged Patients</span>
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={saving || loading}
+                  className="rounded-xl bg-[#7A4B3A] hover:bg-[#653D2F] active:scale-[0.99] text-white px-7 py-2.5 text-xs font-semibold tracking-wide transition shadow-xs cursor-pointer flex items-center justify-center gap-2 self-end sm:self-auto disabled:opacity-50"
+                >
+                  {saving ? (
+                    <>
+                      <div className="h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Sending feedback...</span>
+                    </>
+                  ) : (
+                    <span>Send feedback</span>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </form>

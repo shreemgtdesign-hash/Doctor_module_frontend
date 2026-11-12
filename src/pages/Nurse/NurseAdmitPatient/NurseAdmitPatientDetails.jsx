@@ -62,12 +62,19 @@ const DEFAULT_WARDS = [
 ];
 
 const DEFAULT_DURATIONS = [
+  { value: 1, label: "1 Day" },
+  { value: 2, label: "2 Days" },
   { value: 3, label: "3 Days" },
+  { value: 4, label: "4 Days" },
   { value: 5, label: "5 Days" },
+  { value: 6, label: "6 Days" },
   { value: 7, label: "7 Days" },
+  { value: 8, label: "8 Days" },
+  { value: 9, label: "9 Days" },
   { value: 10, label: "10 Days" },
   { value: 14, label: "14 Days" },
   { value: 21, label: "21 Days" },
+  { value: 30, label: "30 Days" },
 ];
 
 const BODY_TYPES = ["Select", "Pitta", "Vata", "Kapha", "Vata-Pitta", "Pitta-Kapha", "Tridoshic"];
@@ -179,7 +186,7 @@ const NurseAdmitPatientDetails = () => {
     day_doctor: "",
     night_doctor: "",
     admission_date: new Date().toISOString().split("T")[0],
-    no_of_days: 10,
+    no_of_days: "",
     floor: "",
     ward: "",
     other_comments: "",
@@ -235,10 +242,10 @@ const NurseAdmitPatientDetails = () => {
     const safeNested = isMatchingAdmission ? nestedAdmission : {};
 
     const source = {
-      ...(safeAdmissionData || {}),
-      ...(safeNested || {}),
       ...(patientFromList || {}),
       ...(patientFromState || {}),
+      ...(safeAdmissionData || {}),
+      ...(safeNested || {}),
     };
 
     const v =
@@ -382,8 +389,16 @@ const NurseAdmitPatientDetails = () => {
         sr_doctor: defaultSrDoctor || prev.sr_doctor,
         day_doctor: defaultDayDoctor || prev.day_doctor,
         night_doctor: defaultNightDoctor || prev.night_doctor,
-        admission_date: source.admission_date,
-        no_of_days: Number(source.no_of_days),
+        admission_date: source.admission_date || prev.admission_date,
+        no_of_days: (() => {
+          const rawDays =
+            safeNested.no_of_days ??
+            safeAdmissionData.no_of_days ??
+            source.no_of_days ??
+            patientFromState?.no_of_days;
+          const parsed = parseInt(String(rawDays), 10);
+          return !isNaN(parsed) && parsed > 0 ? parsed : (prev.no_of_days || 7);
+        })(),
         floor: defaultFloor || prev.floor,
         ward: defaultWard || prev.ward,
         other_comments: source.other_comments || source.comments || prev.other_comments,
@@ -448,7 +463,7 @@ const NurseAdmitPatientDetails = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "no_of_days" ? (parseInt(String(value), 10) || value) : value,
     }));
   };
 
@@ -535,8 +550,20 @@ const NurseAdmitPatientDetails = () => {
     setLastActionType("checkout");
 
     const payload = {
+      room_number: formData.room_number,
+      room_type: formData.room_type,
+      attendee_name: formData.attendee_name,
+      attendee_phone: formData.attendee_phone,
+      attendee_gender: formData.attendee_gender,
+      sr_doctor: formData.sr_doctor,
+      day_doctor: formData.day_doctor,
+      night_doctor: formData.night_doctor,
+      admission_date: formData.admission_date,
       checkin: true,
       checkout: true,
+      no_of_days: Number(formData.no_of_days),
+      floor: formData.floor,
+      ward: formData.ward,
       other_comments: checkoutComments || formData.other_comments || "Patient discharged in good health",
     };
 
@@ -558,10 +585,10 @@ const NurseAdmitPatientDetails = () => {
   const safeNested = isMatchingAdmission ? nestedAdmission : {};
 
   const source = {
-    ...(safeAdmissionData || {}),
-    ...(safeNested || {}),
     ...(patientFromList || {}),
     ...(patientFromState || {}),
+    ...(safeAdmissionData || {}),
+    ...(safeNested || {}),
   };
 
   const fromUpcomingTab =
@@ -639,7 +666,8 @@ const NurseAdmitPatientDetails = () => {
       source.admission_date ||
       formData.admission_date;
 
-    const registeredDays = Number(source.no_of_days || formData.no_of_days);
+    const rawDays = formData.no_of_days ?? source.no_of_days;
+    const registeredDays = parseInt(String(rawDays), 10);
 
     if (admDateVal && registeredDays > 0) {
       try {
@@ -658,13 +686,68 @@ const NurseAdmitPatientDetails = () => {
     return false;
   })();
 
-  useEffect(() => {
-    if (isLastDayOfStay) {
-      setIsCheckingOutToday(true);
-    } else {
-      setIsCheckingOutToday(false);
+  // Checkout functionality is visible for all checked-in patients, including on the admission date
+  const canAccessCheckout = (() => {
+    // Only patients who are already admitted/checked-in and not yet discharged can checkout
+    if (!isCheckedIn || isDischarged || isUpcomingPatient) {
+      return false;
     }
-  }, [isLastDayOfStay]);
+
+    return true;
+  })();
+
+  const stayPeriodText = (() => {
+    const rawTotal = formData.no_of_days ?? source.no_of_days;
+    const daysTotal = parseInt(String(rawTotal), 10) || 7;
+    const admDateVal =
+      source.checkin_date ||
+      source.admission_date_iso ||
+      source.admission_date ||
+      formData.admission_date;
+
+    if (admDateVal) {
+      try {
+        const admDate = new Date(admDateVal);
+        const today = new Date();
+        if (!isNaN(admDate.getTime())) {
+          const admMidnight = new Date(admDate.getFullYear(), admDate.getMonth(), admDate.getDate());
+          const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          const diffDays = Math.floor((todayMidnight - admMidnight) / (1000 * 60 * 60 * 24)) + 1;
+          const formattedAdmDate = admDate.toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          });
+          if (diffDays >= 1) {
+            return `Day ${diffDays} of ${daysTotal} days duration (Admitted on ${formattedAdmDate})`;
+          }
+          return `Admitted on ${formattedAdmDate} · Total ${daysTotal} days duration`;
+        }
+      } catch (err) {
+        // fallback
+      }
+    }
+    return `Admission period: ${daysTotal} days`;
+  })();
+
+  useEffect(() => {
+    const isDueToday = Boolean(
+      location.state?.isCheckingOutToday ||
+      source.is_checkout_today === true ||
+      safeAdmissionData.is_checkout_today === true ||
+      safeNested.is_checkout_today === true ||
+      isLastDayOfStay
+    );
+    if (isDueToday) {
+      setIsCheckingOutToday(true);
+    }
+  }, [
+    location.state?.isCheckingOutToday,
+    isLastDayOfStay,
+    source.is_checkout_today,
+    safeAdmissionData.is_checkout_today,
+    safeNested.is_checkout_today,
+  ]);
 
   const dropdownOptions =
     rawAdmissionData?.dropdown_options ||
@@ -723,7 +806,51 @@ const NurseAdmitPatientDetails = () => {
       ? dropdownOptions.wards_and_floors
       : DEFAULT_WARDS;
 
-  const durationOptions = dropdownOptions.duration_options || DEFAULT_DURATIONS;
+  const durationOptions = useMemo(() => {
+    const raw =
+      Array.isArray(dropdownOptions.duration_options) && dropdownOptions.duration_options.length > 0
+        ? dropdownOptions.duration_options
+        : DEFAULT_DURATIONS;
+
+    const list = raw.map((item) => {
+      if (typeof item === "object" && item !== null) {
+        const numericVal = parseInt(String(item.value ?? item.days ?? item.label ?? 0), 10);
+        const daysCount = !isNaN(numericVal) && numericVal > 0 ? numericVal : item.value;
+        const cleanLabel =
+          typeof item.label === "string"
+            ? item.label.replace(/\s*days?/gi, "").trim()
+            : String(daysCount);
+        return {
+          value: daysCount,
+          label: daysCount === 1 ? "1 Day" : `${cleanLabel || daysCount} Days`,
+        };
+      }
+      const numericVal = parseInt(String(item), 10);
+      if (!isNaN(numericVal) && numericVal > 0) {
+        return {
+          value: numericVal,
+          label: numericVal === 1 ? "1 Day" : `${numericVal} Days`,
+        };
+      }
+      return {
+        value: item,
+        label: String(item),
+      };
+    });
+
+    // Ensure the current patient's no_of_days is present in the options list
+    const rawDays = formData.no_of_days ?? source.no_of_days;
+    const currentDays = parseInt(String(rawDays || 0), 10);
+    if (currentDays > 0 && !list.some((opt) => Number(opt.value) === currentDays)) {
+      list.push({
+        value: currentDays,
+        label: currentDays === 1 ? "1 Day" : `${currentDays} Days`,
+      });
+      list.sort((a, b) => Number(a.value) - Number(b.value));
+    }
+
+    return list;
+  }, [dropdownOptions.duration_options, formData.no_of_days, source.no_of_days]);
 
   const isFemale = normalizeGender(formData.gender) === "Female";
   const isMale = normalizeGender(formData.gender) === "Male";
@@ -1321,19 +1448,15 @@ const NurseAdmitPatientDetails = () => {
                     <div className="relative">
                       <select
                         name="no_of_days"
-                        value={formData.no_of_days}
+                        value={parseInt(String(formData.no_of_days), 10) || formData.no_of_days || ""}
                         onChange={handleChange}
                         className="appearance-none w-full h-11 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 pr-8 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] outline-none focus:border-[#8A4F32] cursor-pointer"
                       >
-                        {durationOptions.map((dur) => {
-                          const val = typeof dur === "object" ? dur.value : dur;
-                          const lbl = typeof dur === "object" ? dur.label : `${dur} Days`;
-                          return (
-                            <option key={val} value={val}>
-                              {lbl}
-                            </option>
-                          );
-                        })}
+                        {durationOptions.map((dur) => (
+                          <option key={dur.value} value={dur.value}>
+                            {dur.label}
+                          </option>
+                        ))}
                       </select>
                       <HiOutlineChevronDown
                         size={14}
@@ -1402,8 +1525,8 @@ const NurseAdmitPatientDetails = () => {
                 </div>
               </div>
 
-              {/* 5. CHECKOUT & DISCHARGE CONFIRMATION (Rendered ONLY on the last day of the admitted period) */}
-              {isCheckedIn && !isDischarged && isLastDayOfStay && (
+              {/* 5. CHECKOUT & DISCHARGE CONFIRMATION (Visible for all checked-in/admitted patients, including on the admission date) */}
+              {canAccessCheckout && (
                 <div className="space-y-4 pt-2">
                   <div className="rounded-2xl border-2 border-[#D5A794] dark:border-[#542F1E] bg-[#FFFDFC] dark:bg-[#251D18] p-5 shadow-xs space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#E7DBD3] dark:border-[#382D25] pb-3">
@@ -1413,18 +1536,20 @@ const NurseAdmitPatientDetails = () => {
                         </span>
                         <div>
                           <h2 className="text-sm font-bold text-[#2C1810] dark:text-[#EDE3DA]">
-                            Checkout & Discharge Confirmation
+                            Checkout & Discharge Option
                           </h2>
                           <p className="text-xs text-[#7D726B] dark:text-[#A8988D]">
-                            Today is the last day of the patient's admission period ({formData.no_of_days || source.no_of_days} days).
+                            {stayPeriodText}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300">
-                          Discharge Due Today
-                        </span>
+                        {isLastDayOfStay && (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300">
+                            Scheduled Discharge Day
+                          </span>
+                        )}
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#E7F3EC] dark:bg-[#1A3326] text-[#2E7D32] dark:text-[#81C784]">
                           Admitted · {formData.room_number || "Room Assigned"}
                         </span>
@@ -1468,7 +1593,7 @@ const NurseAdmitPatientDetails = () => {
                         </button>
                       </div>
 
-                      {isCheckingOutToday && (
+                      {isCheckingOutToday ? (
                         <div className="space-y-3 pt-3 border-t border-[#E7DBD3]/60 dark:border-[#382D25]/60">
                           <div className="space-y-1.5">
                             <label className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">
@@ -1485,7 +1610,7 @@ const NurseAdmitPatientDetails = () => {
 
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
                             <p className="text-[11px] text-[#7D726B] dark:text-[#A8988D]">
-                              Triggering checkout captures checkout time, releases room {formData.room_number || ""} back to free, and updates status to discharged.
+                              Triggering checkout captures checkout time, releases room {formData.room_number || ""} back to free, and opens stay feedback.
                             </p>
                             <button
                               type="button"
@@ -1498,10 +1623,17 @@ const NurseAdmitPatientDetails = () => {
                               ) : (
                                 <>
                                   <HiOutlineArrowRightOnRectangle size={15} />
-                                  <span>Confirm Checkout (checkout = true)</span>
+                                  <span>Confirm Checkout</span>
                                 </>
                               )}
                             </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="pt-2">
+                          <div className="rounded-xl bg-[#F5ECE5]/60 dark:bg-[#2E241E]/40 border border-[#E7DBD3] dark:border-[#382D25] p-3 text-xs text-[#7D726B] dark:text-[#A8988D] flex items-center gap-2">
+                            <span>ℹ️</span>
+                            <span>Patient stay will remain active. Room <strong>{formData.room_number || "assigned room"}</strong> remains occupied.</span>
                           </div>
                         </div>
                       )}
@@ -1538,7 +1670,7 @@ const NurseAdmitPatientDetails = () => {
                       )}
                     </button>
                   ) : isCheckedIn && !isDischarged ? (
-                    isLastDayOfStay && isCheckingOutToday ? (
+                    canAccessCheckout && isCheckingOutToday ? (
                       <button
                         type="button"
                         onClick={handleConfirmCheckout}

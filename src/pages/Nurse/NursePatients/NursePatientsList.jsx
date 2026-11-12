@@ -254,7 +254,11 @@ const NursePatientsList = () => {
                         onClick={() => {
                           const targetId = patient.id || patient.admission_no || patient.patient_id;
                           navigate(`/nurse/admit-patient/${targetId}`, {
-                            state: { patient, fromTab: "admitted" },
+                            state: {
+                              patient,
+                              fromTab: "admitted",
+                              isCheckingOutToday: Boolean(patient.is_checkout_today),
+                            },
                           });
                         }}
                         className="rounded-xl border border-[#D5C2B4] dark:border-[#4B392F] bg-white dark:bg-[#2C211B] px-5 py-2.5 text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA] hover:bg-[#FAF4ED] dark:hover:bg-[#382B23] transition cursor-pointer shrink-0"
@@ -299,12 +303,17 @@ const NursePatientsList = () => {
                           patient.admission_no ||
                           patient.patient_id;
                         navigate(`/nurse/admissions/${targetId}/feedback`, {
-                          state: { patient, fromTab: "discharged", admissionId: targetId },
+                          state: {
+                            patient,
+                            fromTab: "discharged",
+                            admissionId: targetId,
+                            isReadOnly: Boolean(patient.feedback_submitted),
+                          },
                         });
                       }}
                       className="rounded-xl border border-[#D5C2B4] dark:border-[#4B392F] bg-white dark:bg-[#2C211B] px-4 py-2 text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA] hover:bg-[#FAF4ED] dark:hover:bg-[#382B23] transition cursor-pointer"
                     >
-                      Feedback
+                      {patient.feedback_submitted ? "View Feedback" : "Feedback"}
                     </button>
                   </div>
                 </div>
