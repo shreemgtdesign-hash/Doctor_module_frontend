@@ -33,11 +33,20 @@ const formatMessageTime = (dateStr) => {
 };
 
 const formatTimeSlot = (time) => {
-  if (!time) return "";
+  if (!time || typeof time !== "string") return "";
+  const clean = time.trim();
+  if (
+    !clean ||
+    clean === "null" ||
+    clean === "undefined" ||
+    clean === "Invalid Date"
+  ) {
+    return "";
+  }
   
-  const [hour, minute] = time.split(":");
+  const [hour, minute] = clean.split(":");
   const h = Number(hour);
-  if (isNaN(h)) return time;
+  if (isNaN(h)) return "";
   return `${((h + 11) % 12) + 1}:${minute || "00"} ${h >= 12 ? "PM" : "AM"}`;
 };
 

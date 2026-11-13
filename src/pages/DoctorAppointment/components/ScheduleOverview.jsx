@@ -3,7 +3,7 @@ import { HiChevronDown } from "react-icons/hi2";
 import StatsCard from "./StatsCard";
 
 const ScheduleOverview = ({ overview, period, setPeriod, }) => {
-    const periods = ["today", "week", "month"];
+    const periods = ["today", "week", "month", "all"];
     
     const handlePeriodChange = () => {
         const currentIndex = periods.indexOf(period);

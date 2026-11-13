@@ -47,6 +47,10 @@ const JuniorAppointmentScheduleOverview = ({
             value: "month",
             label: "This Month",
         },
+        {
+            value: "all",
+            label: "All",
+        },
     ];
 
 

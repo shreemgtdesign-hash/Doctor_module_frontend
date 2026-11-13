@@ -88,7 +88,9 @@ const juniorDoctorAppointmentSlice =
                             false;
 
                         const period =
-                            action.meta.arg ||
+                            (typeof action.meta.arg === "object" && action.meta.arg !== null
+                                ? action.meta.arg.period
+                                : action.meta.arg) ||
                             "today";
 
                         state.appointments[

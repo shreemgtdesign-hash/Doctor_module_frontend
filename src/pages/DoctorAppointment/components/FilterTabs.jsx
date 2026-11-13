@@ -18,6 +18,10 @@ const tabs = [
         label: "Diagnosis Completed",
         value: "basic_diagnosis_complete",
     },
+    {
+        label: "IPD",
+        value: "ipd",
+    },
 ];
 
 

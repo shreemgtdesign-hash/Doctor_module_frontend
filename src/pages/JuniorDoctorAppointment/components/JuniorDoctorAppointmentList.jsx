@@ -18,6 +18,10 @@ import {
     loadJuniorDoctorAppointments,
 } from "../../../redux/juniorDoctor/JuniorDoctorAppointmentThunk";
 
+import {
+    clearSelectedPatient,
+} from "../../../redux/consultation/consultationSlice";
+
 const tabs = [
     {
         label: "All",
@@ -34,6 +38,10 @@ const tabs = [
     {
         label: "Completed",
         value: "completed",
+    },
+    {
+        label: "IPD",
+        value: "ipd",
     },
 ];
 
@@ -57,6 +65,13 @@ const JuniorDoctorAppointmentList = ({
             state.juniorDoctorAppointment
     );
 
+    const {
+        selectedPatient,
+    } = useSelector(
+        (state) =>
+            state.consultation
+    );
+
 
     const [activeTab, setActiveTab] =
         useState("all");
@@ -72,20 +87,17 @@ const JuniorDoctorAppointmentList = ({
 
     useEffect(() => {
 
-        if (!appointments?.[period]) {
-
-            dispatch(
-                loadJuniorDoctorAppointments(
-                    period
-                )
-            );
-
-        }
+        dispatch(
+            loadJuniorDoctorAppointments({
+                period,
+                status: activeTab === "all" ? "" : activeTab,
+            })
+        );
 
     }, [
         dispatch,
         period,
-        appointments,
+        activeTab,
     ]);
 
 
@@ -99,6 +111,49 @@ const JuniorDoctorAppointmentList = ({
 
     const appointmentList =
         appointmentData?.data || [];
+
+
+    // ==========================================
+    // SYNC SELECTION WITH APPOINTMENT LIST
+    // ==========================================
+
+    useEffect(() => {
+        setSelectedPatientId(selectedPatient?.id || null);
+    }, [selectedPatient?.id]);
+
+    useEffect(() => {
+        if (appointmentsLoading) {
+            return;
+        }
+
+        // When there are no appointments for the current period, clear stale selection
+        if (appointmentList.length === 0) {
+            if (selectedPatient) {
+                dispatch(clearSelectedPatient());
+            }
+            setSelectedPatientId(null);
+            return;
+        }
+
+        // When appointments exist, ensure the selected patient belongs to this list
+        if (selectedPatient) {
+            const patientExists = appointmentList.some(
+                (apt) =>
+                    apt.id === selectedPatient?.id ||
+                    (selectedPatient?.admission_id && apt.admission_id === selectedPatient.admission_id) ||
+                    (selectedPatient?.appointment_no && apt.appointment_no === selectedPatient.appointment_no)
+            );
+            if (!patientExists) {
+                dispatch(clearSelectedPatient());
+                setSelectedPatientId(null);
+            }
+        }
+    }, [
+        appointmentsLoading,
+        appointmentList,
+        selectedPatient,
+        dispatch,
+    ]);
 
 
     // ==========================================
@@ -123,6 +178,10 @@ const JuniorDoctorAppointmentList = ({
                 result =
                     result.filter(
                         (appointment) => {
+
+                            if (activeTab === "ipd") {
+                                return isIpdPatient(appointment);
+                            }
 
                             const status =
                                 appointment?.status
@@ -193,44 +252,123 @@ const JuniorDoctorAppointmentList = ({
 
 
     // ==========================================
-    // TIME
+    // TIME FORMATTER (SAFE & RESILIENT)
     // ==========================================
 
-    const formatTime = (
-        time
-    ) => {
-
-        if (!time) {
+    const formatTime = (time) => {
+        if (!time || typeof time !== "string") {
             return "--";
         }
 
-        const [
-            hours,
-            minutes,
-        ] =
-            time.split(":");
+        const clean = time.trim();
+        if (
+            !clean ||
+            clean === "null" ||
+            clean === "undefined" ||
+            clean === "Invalid Date"
+        ) {
+            return "--";
+        }
 
+        // If already formatted like "10:30 AM" or "09:15 PM"
+        if (/^\d{1,2}:\d{2}\s*(AM|PM)$/i.test(clean)) {
+            return clean.toUpperCase();
+        }
 
-        const date =
-            new Date();
-
-        date.setHours(
-            Number(hours),
-            Number(minutes)
-        );
-
-
-        return date.toLocaleTimeString(
-            "en-IN",
-            {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
+        // Standard time string "HH:mm" or "HH:mm:ss"
+        if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(clean)) {
+            const [hoursStr, minutesStr] = clean.split(":");
+            const hours = Number(hoursStr);
+            const minutes = Number(minutesStr);
+            if (
+                !isNaN(hours) &&
+                !isNaN(minutes) &&
+                hours >= 0 &&
+                hours < 24 &&
+                minutes >= 0 &&
+                minutes < 60
+            ) {
+                const h = hours % 12 || 12;
+                const ampm = hours >= 12 ? "PM" : "AM";
+                const m = String(minutes).padStart(2, "0");
+                return `${h}:${m} ${ampm}`;
             }
-        );
+        }
 
+        // ISO or parseable Date string with time
+        try {
+            // Ignore date-only strings like "2026-11-12"
+            if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
+                return "--";
+            }
+            const date = new Date(clean);
+            if (!isNaN(date.getTime())) {
+                return date.toLocaleTimeString("en-IN", {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                });
+            }
+        } catch {
+            // fallback
+        }
+
+        return "--";
     };
 
+    // ==========================================
+    // CHECK IF PATIENT IS IPD
+    // ==========================================
+
+    const isIpdPatient = (appointment) => {
+        if (!appointment) return false;
+        const status = appointment.status?.toLowerCase() || "";
+        const patientType = (
+            appointment.patient_type ||
+            appointment.type ||
+            appointment.appointment_type ||
+            ""
+        ).toLowerCase();
+
+        return (
+            Boolean(appointment.is_ipd) ||
+            patientType === "ipd" ||
+            patientType === "inpatient" ||
+            Boolean(appointment.admission_id) ||
+            Boolean(appointment.admission_no) ||
+            Boolean(appointment.room_number) ||
+            Boolean(appointment.room_no) ||
+            Boolean(appointment.ward) ||
+            status === "admitted" ||
+            status === "admission" ||
+            status === "inpatient"
+        );
+    };
+
+    // ==========================================
+    // APPOINTMENT TIME / IPD DISPLAY
+    // ==========================================
+
+    const getAppointmentTimeDisplay = (appointment) => {
+        if (!appointment) return "--";
+
+        if (isIpdPatient(appointment)) {
+            const room = appointment.room_number || appointment.room_no;
+            if (room) {
+                return String(room).toLowerCase().startsWith("rm")
+                    ? String(room)
+                    : `Rm ${room}`;
+            }
+            return "IPD";
+        }
+
+        const slot =
+            appointment.slot_time ||
+            appointment.appointment_time ||
+            appointment.time;
+
+        return formatTime(slot);
+    };
 
     // ==========================================
     // STATUS STYLE
@@ -260,6 +398,14 @@ const JuniorDoctorAppointmentList = ({
                 return "bg-[#F0F0F0] text-[#666666]";
 
 
+            case "admitted":
+            case "admission":
+            case "ipd":
+            case "inpatient":
+
+                return "bg-[#FFF0E6] text-[#8B5037] border border-[#F0D5C3]";
+
+
             default:
 
                 return "bg-[#F5F1ED] text-[#6F625A]";
@@ -267,6 +413,20 @@ const JuniorDoctorAppointmentList = ({
 
     };
 
+
+    const getPeriodLabel = () => {
+        switch (period) {
+            case "week":
+                return "Weekly Appointments";
+            case "month":
+                return "Monthly Appointments";
+            case "all":
+                return "All Appointments";
+            case "today":
+            default:
+                return "Today's Appointments";
+        }
+    };
 
     return (
 
@@ -299,7 +459,7 @@ const JuniorDoctorAppointmentList = ({
                                 text-[#4B2E2A]
                             "
                         >
-                            Today's Appointments
+                            {getPeriodLabel()}
                         </h2>
 
                         <p
@@ -584,7 +744,7 @@ const JuniorDoctorAppointmentList = ({
                                         <span
                                             className="
                                                 rounded-lg
-                                                bg-[#FFF5EE]
+                                                bg-[#FFF4ED]
                                                 px-3
                                                 py-1.5
                                                 text-[13px]
@@ -595,9 +755,12 @@ const JuniorDoctorAppointmentList = ({
                                             #
                                             {
                                                 appointment.token_no ??
+                                                appointment.token ??
+                                                appointment.admission_no?.slice(-3) ??
                                                 appointment.appointment_no?.slice(
                                                     -2
                                                 ) ??
+                                                appointment.patient_code ??
                                                 "--"
                                             }
                                         </span>
@@ -653,8 +816,8 @@ const JuniorDoctorAppointmentList = ({
                                             "
                                         >
                                             {
-                                                formatTime(
-                                                    appointment.slot_time || appointment.time || appointment.appointment_time
+                                                getAppointmentTimeDisplay(
+                                                    appointment
                                                 )
                                             }
                                         </span>

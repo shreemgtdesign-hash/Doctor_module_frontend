@@ -7,12 +7,92 @@ const formatStatus = (status) => {
 };
 
 const formatTime = (time) => {
-  if (!time) return "--";
+  if (!time || typeof time !== "string") return "--";
+  const clean = time.trim();
+  if (
+    !clean ||
+    clean === "null" ||
+    clean === "undefined" ||
+    clean === "Invalid Date"
+  ) {
+    return "--";
+  }
 
-  const [hour, minute] = time.split(":");
-  const h = Number(hour);
+  if (/^\d{1,2}:\d{2}\s*(AM|PM)$/i.test(clean)) {
+    return clean.toUpperCase();
+  }
 
-  return `${((h + 11) % 12) + 1}:${minute} ${h >= 12 ? "PM" : "AM"}`;
+  if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(clean)) {
+    const [hour, minute] = clean.split(":");
+    const h = Number(hour);
+    const m = Number(minute);
+    if (!isNaN(h) && !isNaN(m) && h >= 0 && h < 24 && m >= 0 && m < 60) {
+      const displayH = h % 12 || 12;
+      const ampm = h >= 12 ? "PM" : "AM";
+      const displayM = String(m).padStart(2, "0");
+      return `${displayH}:${displayM} ${ampm}`;
+    }
+  }
+
+  try {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
+      return "--";
+    }
+    const date = new Date(clean);
+    if (!isNaN(date.getTime())) {
+      return date.toLocaleTimeString("en-IN", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    }
+  } catch {
+    // fallback
+  }
+
+  return "--";
+};
+
+const isIpdPatient = (patient) => {
+  if (!patient) return false;
+  const status = patient.status?.toLowerCase() || "";
+  const patientType = (
+    patient.patient_type ||
+    patient.type ||
+    patient.appointment_type ||
+    ""
+  ).toLowerCase();
+
+  return (
+    Boolean(patient.is_ipd) ||
+    patientType === "ipd" ||
+    patientType === "inpatient" ||
+    Boolean(patient.admission_id) ||
+    Boolean(patient.admission_no) ||
+    Boolean(patient.room_number) ||
+    Boolean(patient.room_no) ||
+    Boolean(patient.ward) ||
+    status === "admitted" ||
+    status === "admission" ||
+    status === "inpatient"
+  );
+};
+
+const getAppointmentTimeDisplay = (patient) => {
+  if (!patient) return "--";
+
+  if (isIpdPatient(patient)) {
+    const room = patient.room_number || patient.room_no;
+    if (room) {
+      return String(room).toLowerCase().startsWith("rm")
+        ? String(room)
+        : `Rm ${room}`;
+    }
+    return "IPD";
+  }
+
+  const slot = patient.slot_time || patient.appointment_time || patient.time;
+  return formatTime(slot);
 };
 
 const AppointmentCard = ({
@@ -44,7 +124,11 @@ const AppointmentCard = ({
 
         <div className="rounded-xl bg-[#FFF4ED] px-3 py-2">
           <span className="text-[16px] font-bold text-[#4D2E23]">
-            #{patient.token ?? "--"}
+            #
+            {patient.token_no ??
+              patient.token ??
+              
+              "--"}
           </span>
         </div>
       </div>
@@ -64,7 +148,7 @@ const AppointmentCard = ({
         </span>
 
         <span className="text-[16px] font-semibold text-[#2F2623]">
-          {formatTime(patient.slot_time)}
+          {getAppointmentTimeDisplay(patient)}
         </span>
       </div>
     </div>

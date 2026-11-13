@@ -107,7 +107,7 @@ const JuniorPatientProfile = ({
     const CONSULTATION_DURATION =
         15 * 60;
 
-
+    
     const [
         consultationTimeLeft,
         setConsultationTimeLeft,
@@ -439,24 +439,45 @@ const JuniorPatientProfile = ({
                 className="
                     h-[720px]
                     min-h-0
+                    min-w-0
                     rounded-[30px]
                     border
                     border-[#E7DBD3]
                     bg-white
                     flex
+                    flex-col
                     items-center
                     justify-center
+                    p-8
+                    text-center
                 "
             >
 
-                <p
-                    className="
-                        text-[15px]
-                        text-[#8B7A70]
-                    "
-                >
-                    Select a patient to begin
-                </p>
+                <div className="flex flex-col items-center justify-center max-w-sm">
+                    <div className="w-16 h-16 rounded-full bg-[#FFF5EE] flex items-center justify-center mb-4 text-[#8B5037]">
+                        <svg
+                            width="32"
+                            height="32"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <line x1="19" y1="8" x2="19" y2="14" />
+                            <line x1="22" y1="11" x2="16" y2="11" />
+                        </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-[#4B2E2A]">
+                        Select a patient to begin
+                    </h3>
+                    <p className="mt-2 text-sm text-[#8B7A70]">
+                        Choose an appointment from the list to view patient details and record vitals.
+                    </p>
+                </div>
 
             </div>
         );

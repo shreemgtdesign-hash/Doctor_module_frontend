@@ -14,6 +14,7 @@ import SearchBar from "./SearchBar";
 import FilterTabs from "./FilterTabs";
 
 import {
+  clearSelectedPatient,
   setSelectedPatient,
 } from "../../../redux/consultation/consultationSlice";
 
@@ -80,10 +81,39 @@ const AppointmentList = ({
       case "month":
         return "Monthly Appointments";
 
+      case "all":
+        return "All Appointments";
+
       case "today":
       default:
         return "Today's Appointments";
     }
+  };
+
+  const isIpdPatient = (patient) => {
+    if (!patient) return false;
+    const status = patient.status?.toLowerCase() || "";
+    const patientType = (
+      patient.patient_type ||
+      patient.type ||
+      patient.appointment_type ||
+      ""
+    ).toLowerCase();
+
+    return (
+      Boolean(patient.is_ipd) ||
+      patientType === "ipd" ||
+      patientType === "inpatient" ||
+      Boolean(patient.admission_id) ||
+      Boolean(patient.admission_no) ||
+      Boolean(patient.room_number) ||
+      Boolean(patient.room_no) ||
+      Boolean(patient.ward) ||
+      status === "admitted" ||
+      status === "admission" ||
+      status === "inpatient" ||
+      status === "ipd"
+    );
   };
 
   // ==========================================
@@ -157,6 +187,10 @@ const AppointmentList = ({
 
       result = result.filter(
         (patient) => {
+
+          if (normalizedFilter === "ipd") {
+            return isIpdPatient(patient);
+          }
 
           const status =
             patient?.status
@@ -332,6 +366,9 @@ useEffect(() => {
 
     // No appointments for the current period.
     if (!appointments.length) {
+        if (selectedPatient) {
+            dispatch(clearSelectedPatient());
+        }
         return;
     }
 

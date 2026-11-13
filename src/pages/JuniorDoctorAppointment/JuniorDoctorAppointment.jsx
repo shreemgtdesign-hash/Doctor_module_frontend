@@ -1,4 +1,5 @@
 import {
+    useEffect,
     useState,
 } from "react";
 
@@ -10,6 +11,7 @@ import DashboardLayout
     from "../../components/Layout/DashboardLayout";
 
 import {
+    clearSelectedPatient,
     setActiveFilter,
     setSelectedPatient,
 } from "../../redux/consultation/consultationSlice";
@@ -49,6 +51,18 @@ const JuniorDoctorAppointment = () => {
     ] = useState("today");
 
 
+    // =====================================================
+    // CLEAR STALE PATIENT CONSULTATION ON MOUNT & UNMOUNT
+    // =====================================================
+
+    useEffect(() => {
+        dispatch(clearSelectedPatient());
+        return () => {
+            dispatch(clearSelectedPatient());
+        };
+    }, [dispatch]);
+
+
     const handlePeriodChange = (
         newPeriod
     ) => {
@@ -59,6 +73,10 @@ const JuniorDoctorAppointment = () => {
 
         dispatch(
             setActiveFilter("")
+        );
+
+        dispatch(
+            clearSelectedPatient()
         );
 
         setActiveSection(

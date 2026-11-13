@@ -4,7 +4,10 @@ import { useLayoutEffect, useRef } from "react";
 
 import DashboardLayout from "../../components/Layout/DashboardLayout";
 
-import { setActiveFilter } from "../../redux/consultation/consultationSlice";
+import {
+    clearSelectedPatient,
+    setActiveFilter,
+} from "../../redux/consultation/consultationSlice";
 
 import ScheduleOverview from "./components/ScheduleOverview";
 import AppointmentList from "./components/AppointmentList";
@@ -100,6 +103,16 @@ const DoctorAppointment = () => {
 
 
     // ==========================================
+    // CLEANUP STALE PATIENT ON UNMOUNT
+    // ==========================================
+
+    useEffect(() => {
+        return () => {
+            dispatch(clearSelectedPatient());
+        };
+    }, [dispatch]);
+
+    // ==========================================
     // PERIOD CHANGE
     // ==========================================
 
@@ -112,6 +125,11 @@ const DoctorAppointment = () => {
         // Reset appointment filter
         dispatch(
             setActiveFilter("")
+        );
+
+        // Clear stale selected patient
+        dispatch(
+            clearSelectedPatient()
         );
 
         // Optional:

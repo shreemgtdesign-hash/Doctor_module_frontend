@@ -5,12 +5,14 @@ import {
 
 
 export const fetchJuniorDoctorAppointments = async (
-    period = "today"
+    period = "today",
+    status = ""
 ) => {
 
     const response =
         await getJuniorDoctorAppointments(
-            period
+            period,
+            status
         );
 
     return response.data;

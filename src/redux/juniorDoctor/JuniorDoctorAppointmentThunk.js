@@ -16,14 +16,24 @@ export const loadJuniorDoctorAppointments =
         "juniorDoctorAppointment/loadAppointments",
 
         async (
-            period = "today",
+            args = "today",
             { rejectWithValue }
         ) => {
 
             try {
+                const period =
+                    typeof args === "object" && args !== null
+                        ? args.period || "today"
+                        : args || "today";
+
+                const status =
+                    typeof args === "object" && args !== null
+                        ? args.status || ""
+                        : "";
 
                 return await fetchJuniorDoctorAppointments(
-                    period
+                    period,
+                    status
                 );
 
             } catch (error) {
