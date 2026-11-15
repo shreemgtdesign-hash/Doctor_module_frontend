@@ -160,4 +160,14 @@ export const extendNurseDischargeDate = (admissionId, data) => {
   return api.put(`/nurse/admissions/${admissionId}/extend-discharge`, data);
 };
 
+// ==========================================
+// PATIENTS ADMITTED LIST API
+// GET /nurse/dashboard/patients-admitted?period=month&search=...&page=1&limit=9
+// ==========================================
+export const getPatientsAdmitted = (params = {}) => {
+  return api.get("/nurse/dashboard/patients-admitted", {
+    params,
+  });
+};
+
 

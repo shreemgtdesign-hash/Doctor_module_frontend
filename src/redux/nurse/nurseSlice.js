@@ -19,6 +19,7 @@ import {
   loadStayFeedback,
   saveStayFeedback,
   extendDischargePeriod,
+  loadPatientsAdmitted,
 } from "./nurseThunk";
 
 const initialState = {
@@ -149,6 +150,24 @@ const initialState = {
   extendDischargeSuccess: false,
   extendDischargeError: null,
   extendDischargeData: null,
+
+  // Patients Admitted List
+  patientsAdmitted: {
+    data: [],
+    count: 0,
+    total_records: 0,
+    period: "month",
+    pagination: {
+      total: 0,
+      total_records: 0,
+      showing_from: 1,
+      showing_to: 0,
+      showing_text: "",
+    },
+    showing_text: "",
+  },
+  patientsAdmittedLoading: false,
+  patientsAdmittedError: null,
 };
 
 const nurseSlice = createSlice({
@@ -558,6 +577,30 @@ const nurseSlice = createSlice({
         state.extendDischargeSuccess = false;
         state.extendDischargeError = action.payload || "Failed to extend expected discharge date.";
       });
+
+    // ==========================================
+    // LOAD PATIENTS ADMITTED
+    // ==========================================
+    builder
+      .addCase(loadPatientsAdmitted.pending, (state) => {
+        state.patientsAdmittedLoading = true;
+        state.patientsAdmittedError = null;
+      })
+      .addCase(loadPatientsAdmitted.fulfilled, (state, action) => {
+        state.patientsAdmittedLoading = false;
+        state.patientsAdmitted = action.payload || {
+          data: [],
+          count: 0,
+          total_records: 0,
+          period: "month",
+          pagination: {},
+          showing_text: "",
+        };
+      })
+      .addCase(loadPatientsAdmitted.rejected, (state, action) => {
+        state.patientsAdmittedLoading = false;
+        state.patientsAdmittedError = action.payload || "Failed to load admitted patients.";
+      });
   },
 });
 
@@ -656,5 +699,13 @@ export const selectExtendDischargeLoading = (state) => state.nurse?.extendDischa
 export const selectExtendDischargeSuccess = (state) => state.nurse?.extendDischargeSuccess || false;
 export const selectExtendDischargeError = (state) => state.nurse?.extendDischargeError;
 export const selectExtendDischargeData = (state) => state.nurse?.extendDischargeData;
+
+// Patients Admitted Selectors
+export const selectNursePatientsAdmitted = (state) => state.nurse?.patientsAdmitted;
+export const selectNursePatientsAdmittedData = (state) => state.nurse?.patientsAdmitted?.data || [];
+export const selectNursePatientsAdmittedLoading = (state) => state.nurse?.patientsAdmittedLoading || false;
+export const selectNursePatientsAdmittedError = (state) => state.nurse?.patientsAdmittedError;
+export const selectNursePatientsAdmittedPagination = (state) => state.nurse?.patientsAdmitted?.pagination || {};
+export const selectNursePatientsAdmittedShowingText = (state) => state.nurse?.patientsAdmitted?.showing_text || state.nurse?.patientsAdmitted?.pagination?.showing_text || "";
 
 export default nurseSlice.reducer;

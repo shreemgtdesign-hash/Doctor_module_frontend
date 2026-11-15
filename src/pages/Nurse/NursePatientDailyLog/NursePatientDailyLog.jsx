@@ -143,7 +143,7 @@ const NursePatientDailyLog = () => {
     location.state?.patient?.patient_name || location.state?.patient?.name || "Kriti Balaji"
   );
   const [patientCode, setPatientCode] = useState(
-    location.state?.patient?.patient_code || location.state?.patient?.code || "PAT123456"
+    location.state?.patient?.display_patient_id || location.state?.patient?.patient_code || location.state?.patient?.code || "PAT123456"
   );
   const [gender, setGender] = useState(location.state?.patient?.gender || "Female");
   const [notes, setNotes] = useState("");

@@ -102,17 +102,27 @@ const NurseDashboard = () => {
         {/* ========================================================= */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Patients Admitted & Room Breakdown (9 cols) */}
-          <div className="lg:col-span-9 rounded-[20px] border border-[#E7DBD3] dark:border-[#382D25] bg-gradient-to-br from-white to-[#FAF6F2] dark:from-[#241E1B] dark:to-[#1C1613] p-6 shadow-xs flex flex-col justify-between">
+          <div
+            onClick={(e) => {
+              if (e.target.closest("select") || e.target.closest("button")) return;
+              navigate("/nurse/patients-admitted");
+            }}
+            className="lg:col-span-9 rounded-[20px] border border-[#E7DBD3] dark:border-[#382D25] bg-gradient-to-br from-white to-[#FAF6F2] dark:from-[#241E1B] dark:to-[#1C1613] p-6 shadow-xs flex flex-col justify-between cursor-pointer hover:border-[#CBB4A5] transition group"
+          >
             {/* Top row */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-[26px] font-bold text-[#2C1810] dark:text-[#EDE3DA] tracking-tight">
-                  {patients_admitted}
-                </span>
-                <span className="text-[18px] font-bold text-[#2C1810] dark:text-[#EDE3DA] tracking-tight">
-                   Patients Admitted
-                </span>
+                  <span className="text-[26px] font-bold text-[#2C1810] dark:text-[#EDE3DA] tracking-tight group-hover:text-[#8A4F32] transition">
+                    {patients_admitted}
+                  </span>
+                  <span className="text-[18px] font-bold text-[#2C1810] dark:text-[#EDE3DA] tracking-tight group-hover:text-[#8A4F32] transition">
+                    Patients Admitted
+                  </span>
+                  <HiOutlineChevronRight
+                    size={16}
+                    className="text-[#8A7D75] group-hover:text-[#8A4F32] group-hover:translate-x-0.5 transition"
+                  />
                 </div>
                 <span className="inline-flex items-center text-xs font-semibold text-[#15803D] bg-[#EBF8EE] dark:bg-[#16331E] px-2 py-0.5 rounded-full">
                   {growth_comparison}

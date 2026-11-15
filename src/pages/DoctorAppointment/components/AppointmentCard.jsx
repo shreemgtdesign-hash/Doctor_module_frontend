@@ -12,8 +12,7 @@ const formatTime = (time) => {
   if (
     !clean ||
     clean === "null" ||
-    clean === "undefined" ||
-    clean === "Invalid Date"
+    ""
   ) {
     return "--";
   }
