@@ -1034,7 +1034,7 @@ const NurseAdmitPatientDetails = () => {
                 <span className="text-xs font-semibold text-[#4B2E2A] dark:text-[#EDE3DA]">Time</span>
                 <div className="flex items-center gap-2 rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-3.5 py-2">
                   <HiOutlineClock size={15} className="text-[#8A4F32]" />
-                  <span>{timeHeader || "10:30 AM"}</span>
+                  <span>{timeHeader}</span>
                 </div>
               </div>
             </div>
