@@ -44,9 +44,14 @@ const DEFAULT_DOCTORS = [
   { id: "doc-7", name: "Dr. Iyer", specialization: "Kayachikitsa" },
   { id: "doc-8", name: "Dr. Savitri", specialization: "Ayurvedic Medicine" },
   { id: "doc-9", name: "Dr. Jayashree D", specialization: "Autoimmune & General Medicine" },
-  { id: "doc-10", name: "Dr. Divya", specialization: "Clinical Coordination" },
-  { id: "doc-11", name: "Dr. Preeti Nagarajan", specialization: "Panchakarma Specialist" },
-  { id: "doc-12", name: "Dr. Malavika", specialization: "Ayurvedic General Medicine" },
+  { id: "doc-10", name: "Dr. Preeti Nagarajan", specialization: "Panchakarma Specialist" },
+  { id: "doc-11", name: "Dr. Khayam Abbas", specialization: "Inpatient Care & General Medicine" },
+];
+
+const DEFAULT_JUNIOR_DOCTORS = [
+  { id: "JRDOC001", name: "Dr. Malavika" },
+  { id: "JRDOC002", name: "Dr. Jimmy" },
+  { id: "JRDOC003", name: "Dr. Subitsha" },
 ];
 
 const DEFAULT_ROOMS = [
@@ -341,21 +346,24 @@ const NurseAdmitPatientDetails = () => {
       source.room_no ||
       (firstRoom ? getRoomValue(firstRoom) : "");
 
-    const firstSrDoctor = dropdowns.sr_doctors?.[0] || dropdowns.doctors?.[0];
+    const firstSrDoctor = dropdowns.doctors?.[0] || dropdowns.sr_doctors?.[0];
     const defaultSrDoctor =
       source.sr_doctor ||
       source.doctor_name ||
       (firstSrDoctor ? getDoctorName(firstSrDoctor) : "Dr. Jayasree");
 
-    const firstDayDoctor = dropdowns.day_doctors?.[0] || dropdowns.doctors?.[0];
+    const firstDayDoctor = dropdowns.junior_doctors?.[0] || dropdowns.day_doctors?.[0];
     const defaultDayDoctor =
       source.day_doctor ||
-      (firstDayDoctor ? getDoctorName(firstDayDoctor) : "Dr. Sharma");
+      (firstDayDoctor ? getDoctorName(firstDayDoctor) : "Dr. Malavika");
 
-    const firstNightDoctor = dropdowns.night_doctors?.[0] || dropdowns.doctors?.[0];
+    const firstNightDoctor =
+      dropdowns.junior_doctors?.[1] ||
+      dropdowns.junior_doctors?.[0] ||
+      dropdowns.night_doctors?.[0];
     const defaultNightDoctor =
       source.night_doctor ||
-      (firstNightDoctor ? getDoctorName(firstNightDoctor) : "Dr. Sharma");
+      (firstNightDoctor ? getDoctorName(firstNightDoctor) : "Dr. Jimmy");
 
     const firstWard = dropdowns.wards_and_floors?.[0];
     const defaultWard =
@@ -856,24 +864,30 @@ const NurseAdmitPatientDetails = () => {
 
 
   const dropdownOptions =
+    safeAdmissionData?.dropdown_options ||
     rawAdmissionData?.dropdown_options ||
     admission?.dropdown_options ||
+    admission?.data?.dropdown_options ||
     {};
 
   const frontOfficeDoctors = useSelector(
     (state) => state.frontOfficeAppointment?.doctors || []
   );
 
-  // Combine all available doctors with fallback
-  const masterDoctors = (() => {
+  // Sr. Doctor: Only the main doctors (dropdownOptions.doctors, or frontOfficeDoctors, or DEFAULT_DOCTORS)
+  const srDoctors = (() => {
     const list = [];
     if (Array.isArray(dropdownOptions.doctors) && dropdownOptions.doctors.length > 0) {
       list.push(...dropdownOptions.doctors);
+    } else if (Array.isArray(dropdownOptions.sr_doctors) && dropdownOptions.sr_doctors.length > 0) {
+      list.push(...dropdownOptions.sr_doctors);
     }
     if (Array.isArray(frontOfficeDoctors) && frontOfficeDoctors.length > 0) {
       list.push(...frontOfficeDoctors);
     }
-    list.push(...DEFAULT_DOCTORS);
+    if (list.length === 0) {
+      list.push(...DEFAULT_DOCTORS);
+    }
 
     const seen = new Set();
     const deduped = [];
@@ -887,20 +901,34 @@ const NurseAdmitPatientDetails = () => {
     return deduped;
   })();
 
-  const srDoctors =
-    Array.isArray(dropdownOptions.sr_doctors) && dropdownOptions.sr_doctors.length > 0
-      ? dropdownOptions.sr_doctors
-      : masterDoctors;
+  // Day & Night Doctor: ONLY junior doctors list (dropdownOptions.junior_doctors, fallback to DEFAULT_JUNIOR_DOCTORS)
+  const juniorDoctors = (() => {
+    const list = [];
+    if (Array.isArray(dropdownOptions.junior_doctors) && dropdownOptions.junior_doctors.length > 0) {
+      list.push(...dropdownOptions.junior_doctors);
+    } else if (Array.isArray(dropdownOptions.day_doctors) && dropdownOptions.day_doctors.length > 0) {
+      list.push(...dropdownOptions.day_doctors);
+    } else if (Array.isArray(dropdownOptions.night_doctors) && dropdownOptions.night_doctors.length > 0) {
+      list.push(...dropdownOptions.night_doctors);
+    }
+    if (list.length === 0) {
+      list.push(...DEFAULT_JUNIOR_DOCTORS);
+    }
 
-  const dayDoctors =
-    Array.isArray(dropdownOptions.day_doctors) && dropdownOptions.day_doctors.length > 0
-      ? dropdownOptions.day_doctors
-      : masterDoctors;
+    const seen = new Set();
+    const deduped = [];
+    for (const doc of list) {
+      const name = getDoctorName(doc);
+      if (name && !seen.has(name.toLowerCase())) {
+        seen.add(name.toLowerCase());
+        deduped.push(doc);
+      }
+    }
+    return deduped;
+  })();
 
-  const nightDoctors =
-    Array.isArray(dropdownOptions.night_doctors) && dropdownOptions.night_doctors.length > 0
-      ? dropdownOptions.night_doctors
-      : masterDoctors;
+  const dayDoctors = juniorDoctors;
+  const nightDoctors = juniorDoctors;
 
   const roomOptions =
     Array.isArray(dropdownOptions.available_rooms) && dropdownOptions.available_rooms.length > 0
