@@ -3244,13 +3244,7 @@ const InvoiceTable = ({
 
 
                                         const price =
-                                            item?.formatted_price !== undefined
-                                                ? item.formatted_price
-                                                : item?.price !== undefined
-                                                ? item.price
-                                                : item?.amount !== undefined
-                                                ? item.amount
-                                                : 0;
+                                            item?.price
 
 
                                         const lineTotal =
