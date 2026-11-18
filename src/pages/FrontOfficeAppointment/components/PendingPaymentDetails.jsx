@@ -172,6 +172,14 @@ const PendingPaymentDetails = () => {
               [];
 
 
+    const meals =
+        invoiceDetails?.meals?.length
+            ? invoiceDetails.meals
+            : invoiceDetails?.meal?.length
+            ? invoiceDetails.meal
+            : [];
+
+
     const paymentModes =
         invoiceDetails?.available_payment_modes ||
         [];
@@ -272,6 +280,24 @@ const PendingPaymentDetails = () => {
         }
 
 
+        if (
+            category ===
+            "meals" ||
+            category ===
+            "meal"
+        ) {
+
+            return Number(
+                item?.price ??
+                item?.amount ??
+                item?.cost ??
+                item?.total_amount ??
+                0
+            );
+
+        }
+
+
         return Number(
             item?.amount ??
             item?.total_amount ??
@@ -363,7 +389,7 @@ const PendingPaymentDetails = () => {
     ) => {
 
         return (
-            `${category}-${item?.id || index}`
+            `${category}-${item?.meal_id || item?.id || index}`
         );
 
     };
@@ -536,7 +562,7 @@ const PendingPaymentDetails = () => {
 
         if (
             !appointmentId ||
-            !item?.id
+            (!item?.id && !item?.meal_id)
         ) {
             return;
         }
@@ -597,7 +623,7 @@ const PendingPaymentDetails = () => {
                     appointmentId,
 
                     itemId:
-                        item.id,
+                        item.id || item.meal_id,
 
                     category,
 
@@ -687,16 +713,31 @@ const PendingPaymentDetails = () => {
         );
 
 
+    const mealsTotal =
+        meals.length > 0
+            ? calculateSectionTotal(
+                  meals,
+                  "meals"
+              )
+            : Number(
+                  invoiceDetails?.meals_amount ||
+                  invoiceDetails?.meals_total ||
+                  0
+              );
+
+
     const calculatedGrandTotal =
         consultationTotal +
         therapyTotal +
-        prescriptionTotal;
+        prescriptionTotal +
+        mealsTotal;
 
 
     const hasInvoiceLineItems =
         consultations.length > 0 ||
         therapies.length > 0 ||
-        prescriptions.length > 0;
+        prescriptions.length > 0 ||
+        meals.length > 0;
 
 
     const displayGrandTotal =
@@ -1390,6 +1431,35 @@ const PendingPaymentDetails = () => {
                     formatCurrency
                 }
             />
+
+
+            {/* ================================================= */}
+            {/* MEALS */}
+            {/* ================================================= */}
+
+            {meals.length > 0 && (
+                <InvoiceTable
+                    title="Meals"
+                    type="meals"
+                    items={meals}
+                    total={mealsTotal}
+                    getLineEdit={getLineEdit}
+                    updateLineEdit={updateLineEdit}
+                    calculateLineTotal={calculateLineTotal}
+                    handleApplyLineEdit={
+                        handleApplyLineEdit
+                    }
+                    savingLineKey={
+                        savingLineKey
+                    }
+                    applyingPendingPaymentDiscount={
+                        applyingPendingPaymentDiscount
+                    }
+                    formatCurrency={
+                        formatCurrency
+                    }
+                />
+            )}
 
         </div>
         </DashboardLayout>
@@ -3023,6 +3093,406 @@ const InvoiceTable = ({
                             <InvoiceTotalRow
                                 colSpan={
                                     7
+                                }
+                                total={
+                                    total
+                                }
+                                formatCurrency={
+                                    formatCurrency
+                                }
+
+                            />
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        );
+
+    }
+
+
+    // =====================================================
+    // MEALS
+    // =====================================================
+
+    if (
+        type === "meals" ||
+        type === "meal"
+    ) {
+
+        return (
+
+            <div className="
+                mt-6
+            ">
+
+                <h2 className="
+                    mb-3
+                    text-[17px]
+                    font-semibold
+                    text-[#2F2F2F]
+                ">
+                    {title || "Meals"}
+                </h2>
+
+
+                <div className="
+                    overflow-hidden
+                    rounded-2xl
+                    border
+                    border-[#EFE4DC]
+                    bg-white
+                ">
+
+                    <table className="
+                        w-full
+                        border-collapse
+                    ">
+
+                        <thead>
+
+                            <tr className="
+                                bg-[#FFF9F4]
+                            ">
+
+                                <HeaderCell>
+                                    Meal Type
+                                </HeaderCell>
+
+
+                                <HeaderCell>
+                                    Date & Time
+                                </HeaderCell>
+
+
+                                <HeaderCell>
+                                    Menu Item
+                                </HeaderCell>
+
+
+                                <HeaderCell center>
+                                    Price(₹)
+                                </HeaderCell>
+
+
+                                <HeaderCell center>
+                                    Discount(%)
+                                </HeaderCell>
+
+
+                                <HeaderCell>
+                                    Remarks
+                                </HeaderCell>
+
+
+                                <HeaderCell
+                                    center
+                                    last
+                                >
+                                    Total
+                                    <br />
+                                    Amount(₹)
+                                </HeaderCell>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {items.length > 0 ? (
+
+                                items.map(
+                                    (
+                                        item,
+                                        index
+                                    ) => {
+
+                                        const mealType =
+                                            item?.meal_type ||
+                                            item?.type ||
+                                            `Meal ${index + 1}`;
+
+
+                                        const menuName =
+                                            item?.menu_name ||
+                                            item?.menu ||
+                                            item?.name ||
+                                            "—";
+
+
+                                        const dateVal =
+                                            getDate(item) !== "—"
+                                                ? getDate(item)
+                                                : item?.date ||
+                                                  item?.log_date ||
+                                                  "—";
+
+
+                                        const timeVal =
+                                            getTime(item) !== "—"
+                                                ? getTime(item)
+                                                : item?.served_at ||
+                                                  item?.time ||
+                                                  "";
+
+
+                                        const price =
+                                            item?.formatted_price !== undefined
+                                                ? item.formatted_price
+                                                : item?.price !== undefined
+                                                ? item.price
+                                                : item?.amount !== undefined
+                                                ? item.amount
+                                                : 0;
+
+
+                                        const lineTotal =
+                                            calculateLineTotal(
+                                                item,
+                                                type,
+                                                index
+                                            );
+
+
+                                        return (
+
+                                            <tr
+                                                key={
+                                                    item?.meal_id ||
+                                                    item?.id ||
+                                                    index
+                                                }
+                                                className="
+                                                    border-t
+                                                    border-[#EFE4DC]
+                                                "
+                                            >
+
+                                                {/* MEAL TYPE */}
+
+                                                <td className="
+                                                    border-r
+                                                    border-[#EFE4DC]
+                                                    px-3
+                                                    py-3
+                                                    align-top
+                                                ">
+
+                                                    <p className="
+                                                        text-[12px]
+                                                        font-semibold
+                                                        text-[#4B2E2A]
+                                                    ">
+                                                        {mealType}
+                                                    </p>
+
+                                                    <p className="
+                                                        mt-1
+                                                        text-[10px]
+                                                        text-[#8A817B]
+                                                    ">
+                                                        {item?.status || "Served"}
+                                                    </p>
+
+                                                </td>
+
+
+                                                {/* DATE & TIME */}
+
+                                                <td className="
+                                                    border-r
+                                                    border-[#EFE4DC]
+                                                    px-3
+                                                    py-3
+                                                    align-top
+                                                ">
+
+                                                    <p className="
+                                                        text-[12px]
+                                                        font-semibold
+                                                        text-[#4B2E2A]
+                                                    ">
+                                                        {dateVal}
+                                                    </p>
+
+                                                    {timeVal && (
+
+                                                        <p className="
+                                                            mt-1
+                                                            text-[10px]
+                                                            text-[#88807B]
+                                                        ">
+                                                            {timeVal}
+                                                        </p>
+
+                                                    )}
+
+                                                </td>
+
+
+                                                {/* MENU ITEM */}
+
+                                                <td className="
+                                                    border-r
+                                                    border-[#EFE4DC]
+                                                    px-3
+                                                    py-3
+                                                    align-top
+                                                ">
+
+                                                    <p className="
+                                                        text-[12px]
+                                                        font-semibold
+                                                        text-[#4B2E2A]
+                                                    ">
+                                                        {menuName}
+                                                    </p>
+
+                                                    {item?.diet_category && (
+
+                                                        <p className="
+                                                            mt-1
+                                                            text-[10px]
+                                                            text-[#8A817B]
+                                                        ">
+                                                            {item.diet_category}
+                                                        </p>
+
+                                                    )}
+
+                                                </td>
+
+
+                                                {/* PRICE */}
+
+                                                <td className="
+                                                    border-r
+                                                    border-[#EFE4DC]
+                                                    px-3
+                                                    py-3
+                                                    text-center
+                                                    align-top
+                                                    text-[12px]
+                                                    font-semibold
+                                                    text-[#4B2E2A]
+                                                ">
+
+                                                    {formatCurrency(
+                                                        price
+                                                    )}
+
+                                                </td>
+
+
+                                                {/* DISCOUNT */}
+
+                                                <td className="
+                                                    border-r
+                                                    border-[#EFE4DC]
+                                                    px-3
+                                                    py-3
+                                                    text-center
+                                                    align-top
+                                                ">
+
+                                                    <DiscountInput
+                                                        item={item}
+                                                        category={type}
+                                                        index={index}
+                                                        getLineEdit={getLineEdit}
+                                                        updateLineEdit={updateLineEdit}
+                                                        handleApplyLineEdit={handleApplyLineEdit}
+                                                        savingLineKey={savingLineKey}
+                                                        applyingPendingPaymentDiscount={applyingPendingPaymentDiscount}
+                                                    />
+
+                                                </td>
+
+
+                                                {/* REMARKS */}
+
+                                                <td className="
+                                                    border-r
+                                                    border-[#EFE4DC]
+                                                    px-3
+                                                    py-3
+                                                    align-top
+                                                ">
+
+                                                    <RemarksInput
+                                                        item={item}
+                                                        category={type}
+                                                        index={index}
+                                                        getLineEdit={getLineEdit}
+                                                        updateLineEdit={updateLineEdit}
+                                                        handleApplyLineEdit={handleApplyLineEdit}
+                                                        savingLineKey={savingLineKey}
+                                                        applyingPendingPaymentDiscount={applyingPendingPaymentDiscount}
+                                                    />
+
+                                                </td>
+
+
+                                                {/* TOTAL */}
+
+                                                <td className="
+                                                    px-3
+                                                    py-3
+                                                    text-center
+                                                    align-top
+                                                    text-[12px]
+                                                    font-semibold
+                                                    text-[#4B2E2A]
+                                                ">
+
+                                                    {formatCurrency(
+                                                        lineTotal
+                                                    )}
+
+                                                </td>
+
+                                            </tr>
+
+                                        );
+
+                                    }
+                                )
+
+                            ) : (
+
+                                <tr>
+
+                                    <td
+                                        colSpan={
+                                            7
+                                        }
+                                        className="
+                                            px-4
+                                            py-8
+                                            text-center
+                                            text-[11px]
+                                            text-[#8B7A70]
+                                        "
+                                    >
+                                        No meals details
+                                        available.
+                                    </td>
+
+                                </tr>
+
+                            )}
+
+
+                            <InvoiceTotalRow
+                                colSpan={
+                                    6
                                 }
                                 total={
                                     total

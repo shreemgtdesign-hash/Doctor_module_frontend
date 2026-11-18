@@ -29,64 +29,64 @@ const LOG_TABS = ["All", "Vitals", "Meals", "Activities", "Medicines", "Therapy"
 
 // Default meals template
 const DEFAULT_MEALS = [
-  { meal_type: "Pre-Breakfast", menu: "", status: "Pending", served_at: null },
-  { meal_type: "Kashayam", menu: "", status: "Pending", served_at: null },
-  { meal_type: "Breakfast", menu: "", status: "Pending", served_at: null },
-  { meal_type: "Lunch", menu: "", status: "Pending", served_at: null },
-  { meal_type: "Snacks", menu: "", status: "Pending", served_at: null },
-  { meal_type: "Dinner", menu: "", status: "Pending", served_at: null },
-  { meal_type: "Post-Dinner", menu: "", status: "Pending", served_at: null },
+  { meal_type: "Pre-Breakfast", menu: "", price: 0, formatted_price: "", status: "Pending", served_at: null },
+  { meal_type: "Kashayam", menu: "", price: 0, formatted_price: "", status: "Pending", served_at: null },
+  { meal_type: "Breakfast", menu: "", price: 0, formatted_price: "", status: "Pending", served_at: null },
+  { meal_type: "Lunch", menu: "", price: 0, formatted_price: "", status: "Pending", served_at: null },
+  { meal_type: "Snacks", menu: "", price: 0, formatted_price: "", status: "Pending", served_at: null },
+  { meal_type: "Dinner", menu: "", price: 0, formatted_price: "", status: "Pending", served_at: null },
+  { meal_type: "Post-Dinner", menu: "", price: 0, formatted_price: "", status: "Pending", served_at: null },
 ];
 
 // Fallback menu options by type in case menu API is loading or empty
 const FALLBACK_MENUS_BY_TYPE = {
   "Pre-Breakfast": [
-    { label: "Fruit Bowl (Papaya + Apple)", value: "Fruit Bowl (Papaya + Apple)" },
-    { label: "Herbal Kashayam", value: "Herbal Kashayam" },
-    { label: "Idli + Sambar", value: "Idli + Sambar" },
-    { label: "Ragi Malt", value: "Ragi Malt" },
-    { label: "Warm Cumin Water", value: "Warm Cumin Water" },
+    { id: "pb-1", label: "Herbal Kashayam", value: "Herbal Kashayam", name: "Herbal Kashayam", price: 80, formatted_price: "₹80.00" },
+    { id: "pb-2", label: "Warm Cumin Water", value: "Warm Cumin Water", name: "Warm Cumin Water", price: 50, formatted_price: "₹50.00" },
+    { id: "pb-3", label: "Ragi Malt", value: "Ragi Malt", name: "Ragi Malt", price: 70, formatted_price: "₹70.00" },
+    { id: "pb-4", label: "Fruit Bowl (Papaya + Apple)", value: "Fruit Bowl (Papaya + Apple)", name: "Fruit Bowl (Papaya + Apple)", price: 90, formatted_price: "₹90.00" },
+    { id: "pb-5", label: "Idli + Sambar", value: "Idli + Sambar", name: "Idli + Sambar", price: 120, formatted_price: "₹120.00" },
   ],
   Kashayam: [
-    { label: "Amrutharishtam", value: "Amrutharishtam" },
-    { label: "Dasamoola Kashayam", value: "Dasamoola Kashayam" },
-    { label: "Maharasnadi Kashayam", value: "Maharasnadi Kashayam" },
-    { label: "Punarnavadi Kashayam", value: "Punarnavadi Kashayam" },
-    { label: "Varanadi Kashayam", value: "Varanadi Kashayam" },
+    { id: "k-1", label: "Dasamoola Kashayam", value: "Dasamoola Kashayam", name: "Dasamoola Kashayam", price: 90, formatted_price: "₹90.00" },
+    { id: "k-2", label: "Amrutharishtam", value: "Amrutharishtam", name: "Amrutharishtam", price: 95, formatted_price: "₹95.00" },
+    { id: "k-3", label: "Punarnavadi Kashayam", value: "Punarnavadi Kashayam", name: "Punarnavadi Kashayam", price: 90, formatted_price: "₹90.00" },
+    { id: "k-4", label: "Varanadi Kashayam", value: "Varanadi Kashayam", name: "Varanadi Kashayam", price: 90, formatted_price: "₹90.00" },
+    { id: "k-5", label: "Maharasnadi Kashayam", value: "Maharasnadi Kashayam", name: "Maharasnadi Kashayam", price: 95, formatted_price: "₹95.00" },
   ],
   Breakfast: [
-    { label: "Idli + Sambar", value: "Idli + Sambar" },
-    { label: "Moong Dal Cheela", value: "Moong Dal Cheela" },
-    { label: "Oats Porridge", value: "Oats Porridge" },
-    { label: "Poha", value: "Poha" },
-    { label: "Upma", value: "Upma" },
+    { id: "b-1", label: "Idli + Sambar", value: "Idli + Sambar", name: "Idli + Sambar", price: 120, formatted_price: "₹120.00" },
+    { id: "b-2", label: "Poha", value: "Poha", name: "Poha", price: 90, formatted_price: "₹90.00" },
+    { id: "b-3", label: "Upma", value: "Upma", name: "Upma", price: 90, formatted_price: "₹90.00" },
+    { id: "b-4", label: "Moong Dal Cheela", value: "Moong Dal Cheela", name: "Moong Dal Cheela", price: 130, formatted_price: "₹130.00" },
+    { id: "b-5", label: "Oats Porridge", value: "Oats Porridge", name: "Oats Porridge", price: 100, formatted_price: "₹100.00" },
   ],
   Lunch: [
-    { label: "Curd Rice + Steamed Veggies", value: "Curd Rice + Steamed Veggies" },
-    { label: "Khichdi + Ghee", value: "Khichdi + Ghee" },
-    { label: "Rice + Dal", value: "Rice + Dal" },
-    { label: "Rice + Sambar + Poriyal", value: "Rice + Sambar + Poriyal" },
-    { label: "Roti + Subji", value: "Roti + Subji" },
+    { id: "l-1", label: "Rice + Sambar + Poriyal", value: "Rice + Sambar + Poriyal", name: "Rice + Sambar + Poriyal", price: 150, formatted_price: "₹150.00" },
+    { id: "l-2", label: "Khichdi + Ghee", value: "Khichdi + Ghee", name: "Khichdi + Ghee", price: 130, formatted_price: "₹130.00" },
+    { id: "l-3", label: "Rice + Dal", value: "Rice + Dal", name: "Rice + Dal", price: 120, formatted_price: "₹120.00" },
+    { id: "l-4", label: "Roti + Subji", value: "Roti + Subji", name: "Roti + Subji", price: 130, formatted_price: "₹130.00" },
+    { id: "l-5", label: "Curd Rice + Steamed Veggies", value: "Curd Rice + Steamed Veggies", name: "Curd Rice + Steamed Veggies", price: 140, formatted_price: "₹140.00" },
   ],
   Snacks: [
-    { label: "Boiled Green Gram", value: "Boiled Green Gram" },
-    { label: "Fruits + Herbal Tea", value: "Fruits + Herbal Tea" },
-    { label: "Herbal Chai + Ragi Biscuits", value: "Herbal Chai + Ragi Biscuits" },
-    { label: "Roasted Makhana", value: "Roasted Makhana" },
-    { label: "Sprouts Salad", value: "Sprouts Salad" },
+    { id: "s-1", label: "Fruits + Herbal Tea", value: "Fruits + Herbal Tea", name: "Fruits + Herbal Tea", price: 90, formatted_price: "₹90.00" },
+    { id: "s-2", label: "Roasted Makhana", value: "Roasted Makhana", name: "Roasted Makhana", price: 80, formatted_price: "₹80.00" },
+    { id: "s-3", label: "Sprouts Salad", value: "Sprouts Salad", name: "Sprouts Salad", price: 70, formatted_price: "₹70.00" },
+    { id: "s-4", label: "Boiled Green Gram", value: "Boiled Green Gram", name: "Boiled Green Gram", price: 60, formatted_price: "₹60.00" },
+    { id: "s-5", label: "Herbal Chai + Ragi Biscuits", value: "Herbal Chai + Ragi Biscuits", name: "Herbal Chai + Ragi Biscuits", price: 70, formatted_price: "₹70.00" },
   ],
   Dinner: [
-    { label: "Chapati + Dal + Sabzi", value: "Chapati + Dal + Sabzi" },
-    { label: "Dalia", value: "Dalia" },
-    { label: "Khichdi", value: "Khichdi" },
-    { label: "Moong Dal Soup", value: "Moong Dal Soup" },
-    { label: "Vegetable Soup + Roti", value: "Vegetable Soup + Roti" },
+    { id: "d-1", label: "Chapati + Dal + Sabzi", value: "Chapati + Dal + Sabzi", name: "Chapati + Dal + Sabzi", price: 140, formatted_price: "₹140.00" },
+    { id: "d-2", label: "Khichdi", value: "Khichdi", name: "Khichdi", price: 120, formatted_price: "₹120.00" },
+    { id: "d-3", label: "Vegetable Soup + Roti", value: "Vegetable Soup + Roti", name: "Vegetable Soup + Roti", price: 130, formatted_price: "₹130.00" },
+    { id: "d-4", label: "Dalia", value: "Dalia", name: "Dalia", price: 110, formatted_price: "₹110.00" },
+    { id: "d-5", label: "Moong Dal Soup", value: "Moong Dal Soup", name: "Moong Dal Soup", price: 100, formatted_price: "₹100.00" },
   ],
   "Post-Dinner": [
-    { label: "Golden Milk", value: "Golden Milk" },
-    { label: "Triphala Decoction", value: "Triphala Decoction" },
-    { label: "Warm Fennel Water", value: "Warm Fennel Water" },
-    { label: "Warm Milk + Turmeric", value: "Warm Milk + Turmeric" },
+    { id: "pd-1", label: "Warm Milk + Turmeric", value: "Warm Milk + Turmeric", name: "Warm Milk + Turmeric", price: 70, formatted_price: "₹70.00" },
+    { id: "pd-2", label: "Golden Milk", value: "Golden Milk", name: "Golden Milk", price: 80, formatted_price: "₹80.00" },
+    { id: "pd-3", label: "Triphala Decoction", value: "Triphala Decoction", name: "Triphala Decoction", price: 70, formatted_price: "₹70.00" },
+    { id: "pd-4", label: "Warm Fennel Water", value: "Warm Fennel Water", name: "Warm Fennel Water", price: 50, formatted_price: "₹50.00" },
   ],
 };
 
@@ -167,6 +167,49 @@ const NursePatientDailyLog = () => {
   // Hidden file inputs for photos
   const fileInputRefs = useRef({});
 
+  // Helper for menus by type
+  const getMenuOptionsForType = (mealType) => {
+    if (mealsMenu?.menus_by_type && Array.isArray(mealsMenu.menus_by_type[mealType])) {
+      return mealsMenu.menus_by_type[mealType];
+    }
+    if (mealsMenu?.menus_by_type) {
+      const matchKey = Object.keys(mealsMenu.menus_by_type).find(
+        (k) => k.toLowerCase() === (mealType || "").toLowerCase()
+      );
+      if (matchKey && Array.isArray(mealsMenu.menus_by_type[matchKey])) {
+        return mealsMenu.menus_by_type[matchKey];
+      }
+    }
+    if (Array.isArray(mealsMenu?.all_menus)) {
+      const filtered = mealsMenu.all_menus.filter(
+        (m) => (m.meal_type || "").toLowerCase() === (mealType || "").toLowerCase()
+      );
+      if (filtered.length > 0) return filtered;
+    }
+    return FALLBACK_MENUS_BY_TYPE[mealType] || [];
+  };
+
+  // Helper to extract or lookup formatted price for a meal
+  const getMealPriceDisplay = (meal) => {
+    if (meal?.formatted_price) return meal.formatted_price;
+    if (meal?.price !== undefined && meal?.price !== null && Number(meal.price) > 0) {
+      return `₹${meal.price}`;
+    }
+    if (meal?.menu) {
+      const options = getMenuOptionsForType(meal.meal_type);
+      const found = options.find(
+        (opt) =>
+          (opt.value || opt.name || opt.menu) === meal.menu ||
+          opt.name === meal.menu ||
+          opt.label === meal.menu
+      );
+      if (found) {
+        return found.formatted_price || (found.price ? `₹${found.price}` : "");
+      }
+    }
+    return "";
+  };
+
   // Fetch meals menu dropdown once
   useEffect(() => {
     dispatch(loadMealsMenu());
@@ -201,7 +244,28 @@ const NursePatientDailyLog = () => {
 
       // Handle meals
       if (Array.isArray(dailyLogData.meals) && dailyLogData.meals.length > 0) {
-        setMeals(dailyLogData.meals);
+        setMeals(
+          dailyLogData.meals.map((m) => {
+            const options = getMenuOptionsForType(m.meal_type);
+            const found = options.find(
+              (opt) =>
+                (opt.value || opt.name || opt.menu) === m.menu ||
+                opt.name === m.menu ||
+                opt.label === m.menu
+            );
+            const price = m.price !== undefined && m.price !== null ? m.price : (found?.price ?? 0);
+            const formattedPrice =
+              m.formatted_price ||
+              found?.formatted_price ||
+              (price ? `₹${price}.00` : "");
+            return {
+              ...m,
+              price,
+              formatted_price: formattedPrice,
+              meal_id: m.meal_id || found?.id,
+            };
+          })
+        );
       } else {
         setMeals(DEFAULT_MEALS);
       }
@@ -256,11 +320,27 @@ const NursePatientDailyLog = () => {
       const updated = [...prev];
       const target = { ...updated[index] };
       target.menu = value;
+      const options = getMenuOptionsForType(target.meal_type);
+      const selectedOpt = options.find(
+        (o) => (o.value || o.menu || o.name) === value || o.name === value
+      );
+      if (selectedOpt) {
+        target.price = selectedOpt.price ?? 0;
+        target.formatted_price =
+          selectedOpt.formatted_price ||
+          (selectedOpt.price !== undefined && selectedOpt.price !== null ? `₹${selectedOpt.price}` : "");
+        target.meal_id = selectedOpt.id || target.meal_id;
+      }
       if (value) {
         target.status = "Served";
         if (!target.served_at) {
           target.served_at = formatCurrentTime();
         }
+      } else {
+        target.status = "Pending";
+        target.served_at = null;
+        target.price = 0;
+        target.formatted_price = "";
       }
       updated[index] = target;
       return updated;
@@ -377,12 +457,18 @@ const NursePatientDailyLog = () => {
         spo2: vitals.spo2 ? (vitals.spo2.includes("%") ? vitals.spo2 : `${vitals.spo2}%`) : "98%",
         temperature: vitals.temperature ? (vitals.temperature.includes("°") ? vitals.temperature : `${vitals.temperature}°F`) : "98.4°F",
       },
-      meals: meals.map((m) => ({
-        meal_type: m.meal_type,
-        menu: m.menu || "",
-        status: m.status || (m.menu ? "Served" : "Pending"),
-        served_at: m.served_at || (m.status === "Served" ? "08:15 AM" : null),
-      })),
+      meals: meals.map((m) => {
+        const price = m.price !== undefined && m.price !== null ? Number(m.price) : 0;
+        return {
+          meal_type: m.meal_type,
+          menu: m.menu || "",
+          status: m.status || (m.menu ? "Served" : "Pending"),
+          served_at: m.served_at || (m.status === "Served" ? "08:15 AM" : null),
+          price: price,
+          formatted_price: m.formatted_price || (price ? `₹${price}.00` : ""),
+          meal_id: m.meal_id || undefined,
+        };
+      }),
       activities: activities.map((a, idx) => ({
         id: a.id || idx + 1,
         title: a.title || a.name || `Activity ${idx + 1}`,
@@ -420,14 +506,6 @@ const NursePatientDailyLog = () => {
     } catch {
       toast.error("An error occurred while saving.");
     }
-  };
-
-  // Helper for menus by type
-  const getMenuOptionsForType = (mealType) => {
-    if (mealsMenu?.menus_by_type && Array.isArray(mealsMenu.menus_by_type[mealType])) {
-      return mealsMenu.menus_by_type[mealType];
-    }
-    return FALLBACK_MENUS_BY_TYPE[mealType] || [];
   };
 
   // Dynamic summary counters
@@ -694,6 +772,7 @@ const NursePatientDailyLog = () => {
               {meals.map((meal, idx) => {
                 const options = getMenuOptionsForType(meal.meal_type);
                 const isServed = meal.status === "Served";
+                const priceText = getMealPriceDisplay(meal);
 
                 return (
                   <div
@@ -701,9 +780,16 @@ const NursePatientDailyLog = () => {
                     className="rounded-[18px] border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#201A17] p-6 shadow-xs"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#2C1810] dark:text-[#EDE3DA]">
-                        {meal.meal_type}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-[#2C1810] dark:text-[#EDE3DA]">
+                          {meal.meal_type}
+                        </span>
+                        {priceText && (
+                          <span className="text-[11px] font-semibold text-[#8A4F32] dark:text-[#D5A794] bg-[#FAF4EF] dark:bg-[#2C221C] px-2 py-0.5 rounded-md border border-[#E7DBD3]/60 dark:border-[#382D25]">
+                            {priceText}
+                          </span>
+                        )}
+                      </div>
                       {isReadOnly ? (
                         <span className="text-[11px] font-medium text-[#7D726B] dark:text-[#A8988D]">
                           {isServed
@@ -729,9 +815,14 @@ const NursePatientDailyLog = () => {
                     </div>
 
                     {isReadOnly ? (
-                      /* Read-Only Mode: Plain border container with served menu text */
-                      <div className="w-full rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-4 py-2.5 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] mt-2.5">
-                        {meal.menu || "Not served"}
+                      /* Read-Only Mode: Plain border container with served menu text and price */
+                      <div className="flex items-center justify-between w-full rounded-xl border border-[#E7DBD3] dark:border-[#382D25] bg-white dark:bg-[#241E1B] px-4 py-2.5 text-xs font-medium text-[#2C1810] dark:text-[#EDE3DA] mt-2.5">
+                        <span>{meal.menu || "Not served"}</span>
+                        {priceText && (
+                          <span className="font-semibold text-[#8A4F32] dark:text-[#D5A794]">
+                            {priceText}
+                          </span>
+                        )}
                       </div>
                     ) : (
                       /* Edit Mode: Interactive select dropdown with chevron */
@@ -746,9 +837,16 @@ const NursePatientDailyLog = () => {
                           </option>
                           {options.map((opt) => {
                             const val = opt.value || opt.menu || opt.name;
-                            const lbl = opt.label || opt.name || opt.menu;
+                            const name = opt.label || opt.name || opt.menu;
+                            const itemPrice =
+                              opt.formatted_price ||
+                              (opt.price !== undefined && opt.price !== null ? `₹${opt.price}` : "");
+                            const lbl =
+                              itemPrice && !name.includes("₹")
+                                ? `${name} — ${itemPrice}`
+                                : name;
                             return (
-                              <option key={val} value={val}>
+                              <option key={opt.id || val} value={val}>
                                 {lbl}
                               </option>
                             );

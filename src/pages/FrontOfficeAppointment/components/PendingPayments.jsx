@@ -436,6 +436,24 @@ const PendingPayments = () => {
                         text-[#4B2E2A]
                     "
                                 >
+                                    Meals
+                                    <br />
+                                    (₹)
+                                </th>
+
+
+                                <th
+                                    className="
+                        border-r
+                        border-[#EFE4DC]
+                        px-3
+                        py-2.5
+                        text-center
+                        text-[11px]
+                        font-medium
+                        text-[#4B2E2A]
+                    "
+                                >
                                     Total
                                     <br />
                                     Amount(₹)
@@ -668,6 +686,29 @@ const PendingPayments = () => {
                                             {
                                                 item?.formatted_medicines ||
                                                 "-"
+                                            }
+                                        </td>
+
+
+                                        {/* MEALS */}
+
+                                        <td
+                                            className="
+                                border-r
+                                border-[#EFE4DC]
+                                px-3
+                                py-3
+                                text-center
+                                text-[12px]
+                                font-medium
+                                text-[#4B2E2A]
+                            "
+                                        >
+                                            {
+                                                item?.formatted_meals ||
+                                                (item?.meals_amount !== undefined && item?.meals_amount !== null && Number(item.meals_amount) > 0
+                                                    ? String(item.meals_amount)
+                                                    : "-")
                                             }
                                         </td>
 
